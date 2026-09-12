@@ -1,4 +1,4 @@
-// Die Form dessen, was GET /webhook/akten liefert (docs/entwurf/04-uebersicht.md).
+// Die Form dessen, was GET /webhook/akten liefert (`docs/entwurf/04-uebersicht.md`).
 //
 // Eine Abschrift der Abfrage in workflows/zollpilot-lesen.json, keine
 // Quelle. Bewusst keine Fachlogik: `status` ist das Wort, das der
