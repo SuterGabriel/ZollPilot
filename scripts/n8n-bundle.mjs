@@ -50,6 +50,7 @@ const MODULE = [
   'src/regeln/REF-03.mjs',
   'src/regeln/index.mjs',
   'src/pflichtmatrix.mjs',
+  'src/override.mjs',
   'src/nachforderung.mjs',
   'src/regelwerk.mjs',
 ];

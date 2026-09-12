@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 # Rauchtest gegen das laufende System (docker compose up -d --wait).
 #
-# Zwei Runden, ein Beweis:
+# Vier Runden, ein Beweis:
 #   1. Die Testakten (fertige Assertions) an /webhook/akte — Compose, Import,
 #      gebündelter Code-Node und Schema arbeiten zusammen.
 #   2. Die Testbelege (PDF) an /webhook/belege — dazu der Extraktionsdienst
 #      (ADR-005): PDF rein, Entscheidung raus, über denselben Node.
 #   3. Dieselbe Akte über die Oberfläche und ihren Proxy (ADR-006): Damit ist
 #      geprüft, dass nginx die Anwendung ausliefert und /webhook/ durchreicht.
+#   4. Dieselbe Akte mit einer Übersteuerung (ADR-007): Der Befund bleibt
+#      verletzt, die Regelentscheidung bleibt blockiert, nur die Entscheidung
+#      unter menschlicher Verantwortung dreht — und mit ihr der Statuscode.
 # Jede Akte trägt ihre Erwartung selbst; das Skript vergleicht. Danach:
 # Liegen die Prüfungen in Postgres?
 #
@@ -100,6 +103,39 @@ if [[ "$tatsaechlich" == "$erwartet" ]]; then
 else
   printf '  ROT   %-32s erwartet %s, bekommen %s
 ' "happy-path über nginx" "$erwartet" "$tatsaechlich"
+  fehler=$((fehler + 1))
+fi
+
+echo
+echo "Runde 4: dieselbe Akte mit einer Übersteuerung (ADR-007)"
+# Der Beweis besteht aus drei Teilen: Der Befund bleibt verletzt, die
+# Regelentscheidung bleibt blockiert, und nur die Entscheidung unter
+# menschlicher Verantwortung dreht — samt Statuscode.
+# Die Fassung kommt aus einem Lauf ohne Übersteuerung, nicht aus dem Skript:
+# Ein Override haftet an der Regelversion, die tatsächlich gilt. Stünde sie
+# hier fest, wäre der Rauchtest bei jeder Katalogänderung rot — und zwar aus
+# einem Grund, der nichts mit dem System zu tun hat.
+vorlauf=$(curl -sS -X POST -H 'Content-Type: application/json' \
+  --data-binary @testdaten/akten/container-abweichung.json "$basis/webhook/akte")
+uebersteuert=$(VORLAUF="$vorlauf" node -e "
+const fs=require('fs');
+const a=JSON.parse(fs.readFileSync('testdaten/akten/container-abweichung.json','utf8'));
+const fassung=JSON.parse(process.env.VORLAUF).befunde.find(b=>b.regel==='TRN-01').regelversion;
+a.overrides=[{regel:'TRN-01',benutzer:'Rauchtest',begruendung:'Reederei hat den Umlad schriftlich bestaetigt',erzeugt_am:new Date().toISOString(),fassung}];
+process.stdout.write(JSON.stringify(a));
+")
+runden=$((runden + 1))
+antwort=$(curl -sS -w '\n%{http_code}' -X POST -H 'Content-Type: application/json' --data-binary "$uebersteuert" "$basis/webhook/akte")
+code=${antwort##*$'\n'}
+befund=$(ANTWORT="${antwort%$'\n'*}" node -e "
+const e=JSON.parse(process.env.ANTWORT);
+const t=e.befunde.find(b=>b.regel==='TRN-01') ?? {};
+console.log([t.status, t.uebersteuert_von, e.freigabe, e.freigabe_nach_override].join(' '));
+")
+if [[ "$befund" == "verletzt Rauchtest blockiert freigabereif" && "$code" == "200" ]]; then
+  printf '  ok    %-32s Befund bleibt verletzt, HTTP %s\n' "TRN-01 übersteuert" "$code"
+else
+  printf '  ROT   %-32s bekommen "%s", HTTP %s\n' "TRN-01 übersteuert" "$befund" "$code"
   fehler=$((fehler + 1))
 fi
 
