@@ -129,6 +129,14 @@ bis dahin ist der Katalog ehrlich markiert.
   es hilft nicht, wenn der Rumpf selbst falsch ist. Ein Lauf, der am
   Verpacken der Belege scheitert, ist `nicht_wiederholbar` und braucht eine
   neue Einreichung.
+- **Der eigene Node hängt an der Installationsart.** Aus dem
+  Erweiterungsverzeichnis geladen heißt sein Typ `CUSTOM.zollPilotExtraktion`,
+  als Community-Paket installiert `n8n-nodes-zollpilot.zollPilotExtraktion`.
+  Der Workflow-Export nennt den ersten Namen; wer das Paket per npm
+  installiert, muss den Typ im Export ändern. Ein Import-Skript, das das
+  umschreibt, ist nicht gebaut.
+- **Der eigene Node lädt Belege als Base64 in den Speicher.** Wie der
+  Code-Node vorher; ein Stream-Weg zum Dienst wäre der nächste Schritt.
 - **Der Bündler ist ein Regex-Parser.** Kennt genau die Import-/Exportformen
   aus `src/`. Ein `export default` bricht ihn sichtbar.
 - **`regel-check` erkennt Regex-Literale heuristisch.** Ein Regex direkt nach

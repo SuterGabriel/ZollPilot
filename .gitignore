@@ -3,6 +3,10 @@ build/
 target/
 out/
 dist/
+# Der eigene n8n-Node wird gebaut und committet, wie der Code-Node im
+# Workflow (ADR-004): compose.yml hängt dist/ direkt ein, die CI prüft,
+# dass es aus den Quellen stammt.
+!nodes/n8n-nodes-zollpilot/dist/
 *.class
 *.jar
 

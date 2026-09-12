@@ -64,9 +64,15 @@ services:
       N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
       GENERIC_TIMEZONE: Europe/Berlin
       TZ: Europe/Berlin
+      # Der eigene Node (nodes/n8n-nodes-zollpilot, gebaut nach dist/). n8n
+      # sucht hier rekursiv nach *.node.js und *.credentials.js; der Typ im
+      # Workflow heißt dann CUSTOM.zollPilotExtraktion. Auch der Import
+      # braucht den Pfad, weil er die Credential dieses Typs anlegt.
+      N8N_CUSTOM_EXTENSIONS: /custom
     volumes:
       - ./workflows:/workflows:ro
       - ./deploy/n8n:/deploy:ro
+      - ./nodes/n8n-nodes-zollpilot/dist:/custom/n8n-nodes-zollpilot:ro
     entrypoint: ["/bin/sh", "-c"]
     # Erst Credentials, dann Workflows. Der Import ersetzt Workflows mit
     # gleicher id; ein zweiter Start ist idempotent. Der Import deaktiviert
@@ -113,6 +119,7 @@ services:
       N8N_RUNNERS_ENABLED: "true"
     volumes:
       - n8n-daten:/home/node/.n8n
+      - ./nodes/n8n-nodes-zollpilot/dist:/custom/n8n-nodes-zollpilot:ro
     ports:
       - "127.0.0.1:${N8N_PORT:-5678}:5678"
     healthcheck:

@@ -442,3 +442,45 @@ davon ein Drittel im Stack (Bauen, Importieren, sieben Runden je Lauf).
 Von Hand geschätzt: zwei bis drei Tage, und die Nachforschung zu den drei
 n8n-Eigenheiten hätte davon den größten Teil gekostet. Schätzung, keine
 Messung.
+
+## 2026-09-12: ein eigener Node, der nichts entscheidet
+
+**Was delegiert wurde.** Der Aufgabenblock „Node-Entwicklung“ aus dem
+zweiten Profil: ein eigener n8n-Node als npm-Paket in TypeScript
+mit eigenem Credential-Typ, der im Prüf-Workflow den HTTP-Request-Node für
+die Extraktion ersetzt, mit Tests ohne n8n und einem CI-Schritt, der
+`dist/` aus den Quellen nachbaut.
+
+**Die Entscheidung, an der alles hängt.** Der Node bekommt keinen
+Fachparameter. Belegtyp oder Konfidenzschwelle als Node-Einstellung wären
+Fachlogik im Workflow, und die hätte keinen Test (ADR-004). Er kennt Quelle
+der Belege, Stammdatenfeld und Zeitlimit; Adresse und Token stehen in der
+Credential. Der Test lehnt jeden Parameter ab, dessen Name nach Fachlogik
+klingt. Das ist die Probe aus dem Skill, als Assertion.
+
+**Was gut lief.** Der Name des Nodes blieb „Belege extrahieren“, deshalb
+stimmte jeder Ausdruck im Workflow weiter, auch der Wiedervorlage-Node
+vom Vormittag. Und die Frage, wie n8n Nodes aus dem Erweiterungsverzeichnis
+lädt, ließ sich aus dem Quellcode der laufenden Version beantworten statt
+aus verschobenen Doku-Seiten: rekursiv nach `*.node.js`, Paketname
+`CUSTOM`, kein `package.json` nötig.
+
+**Was nicht funktionierte.** Die Modulauflösung. Im Container zeigt kein
+Suchpfad auf das `node_modules` von n8n; ein `require('n8n-workflow')` im
+Node hätte beim Laden gescheitert, still, mit einem fehlenden Node-Typ
+beim Import. Deshalb importiert der Node nur Typen, Fehler sind gewöhnliche
+Errors, und ein Test liest `dist/` und verbietet den Aufruf. Dazu eine
+falsche Testerwartung: `liesPfad` mit leerem Pfad liefert das Objekt
+selbst, nicht `undefined`; das ist das richtige Verhalten (leeres Feld
+heißt: das ganze JSON sind die Stammdaten), die Erwartung war falsch.
+
+**Was die Testsuite abgefangen hat.** Der Beleg-Check verlangte nach dem
+Umbau weiter `extraktion:8080` im Workflow; die Adresse war in die
+Credential gewandert. Das Gate war rot, bevor der Rauchtest lief, und die
+Prüfung sagt jetzt das Richtige: Adresse in der Credential, Typ im
+Workflow. Der Rauchtest hat den Node dann in Runde 2 und 6 bewiesen, ohne
+eine Zeile Änderung.
+
+**Zeitschätzung.** Delegiert: knapp eine Stunde Agentenzeit. Von Hand
+geschätzt: ein Tag, davon ein halber für die Frage, wie n8n das
+Verzeichnis lädt und was darin auflösbar ist. Schätzung, keine Messung.

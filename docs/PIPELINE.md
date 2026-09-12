@@ -86,6 +86,14 @@ ein Fehler, kein Erfolg.
 JSON, Pflichtfelder je Node, eindeutige Namen, Verbindungen auf existierende
 Nodes, keine Geheimnisse in Parametern, Code-Nodes parsen.
 
+**Der eigene Node** (`nodes/n8n-nodes-zollpilot/`) hat dasselbe Muster wie
+der Code-Node: `dist/` liegt im Repo, weil `compose.yml` es direkt einhängt,
+und der CI-Job `workflows` baut es aus den TypeScript-Quellen nach und
+vergleicht mit `git diff`. Dazu zwölf Tests, die den Node ohne n8n
+ausführen, mit einem Nachbau der Ausführungsfunktionen. Ob n8n den Typ
+`CUSTOM.zollPilotExtraktion` dann wirklich lädt, beweist nur der Import im
+Job `betrieb` und Runde 2 des Rauchtests.
+
 **`scripts/rauchtest.sh`** ist kein Gate im Hook, sondern der Beweis im
 Betrieb. Jede Testakte trägt ihre Erwartung; das Skript vergleicht die
 Antwort des Webhooks damit und zählt die Zeilen in `pruefung`. Runde 2

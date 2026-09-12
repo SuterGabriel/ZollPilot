@@ -285,26 +285,25 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "http://extraktion:8080/extraktion/akte",
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json) }}",
-        "options": {
-          "timeout": 120000
-        }
+        "quelle": "json",
+        "zeitlimit": 120000
       },
       "id": "a1b2c3d4-0012-4000-8000-000000000012",
       "name": "Belege extrahieren",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "CUSTOM.zollPilotExtraktion",
+      "typeVersion": 1,
       "position": [
         520,
         640
       ],
-      "notes": "Der Extraktionsdienst aus compose.yml (Python, Textlayer und Tesseract, ADR-005). Antwort ist die Akte mit dokumente[] und assertions[] — dieselbe Form wie am Eingang /webhook/akte. Die Adresse ist der Dienstname im Compose-Netz; außerhalb von Compose über EXTRAKTION_URL anpassen (docs/BETRIEB.md). Fällt der Dienst aus, scheitert der Lauf sichtbar und landet in workflow_fehler.",
-      "onError": "continueErrorOutput"
+      "notes": "Der eigene Node aus nodes/n8n-nodes-zollpilot (Transport, keine Entscheidung). Adresse und Token stehen in der Credential \"ZollPilot Extraktion\" (deploy/n8n/credentials.json), nicht im Workflow. Antwort ist die Akte mit dokumente[] und assertions[], dieselbe Form wie am Eingang /webhook/akte. Faellt der Dienst aus, scheitert der Lauf sichtbar: workflow_fehler und wiedervorlage. Im Erweiterungsverzeichnis heisst der Typ CUSTOM.zollPilotExtraktion; als Community-Paket installiert n8n-nodes-zollpilot.zollPilotExtraktion (docs/BETRIEB.md).",
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "zollPilotExtraktionApi": {
+          "id": "zollpilot-extraktion",
+          "name": "ZollPilot Extraktion"
+        }
+      }
     },
     {
       "parameters": {

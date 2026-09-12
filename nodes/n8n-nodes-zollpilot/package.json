@@ -1,0 +1,26 @@
+{
+  "name": "n8n-nodes-zollpilot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "n8n-Node für den ZollPilot-Extraktionsdienst: Belege rein, Akte mit Assertions raus. Transport, keine Entscheidung (ADR-004).",
+  "license": "MIT",
+  "keywords": ["n8n-community-node-package"],
+  "engines": {
+    "node": ">=22"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": ["dist/credentials/ZollPilotExtraktionApi.credentials.js"],
+    "nodes": ["dist/nodes/ZollPilotExtraktion/ZollPilotExtraktion.node.js"]
+  },
+  "scripts": {
+    "build": "tsc && node bau/icon-kopieren.mjs",
+    "check": "npm run build && git diff --exit-code -- dist",
+    "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.2",
+    "n8n-workflow": "1.111.0",
+    "typescript": "5.9.3"
+  }
+}
