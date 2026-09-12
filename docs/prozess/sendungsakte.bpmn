@@ -44,9 +44,9 @@
       <bpmn:outgoing>Flow_1</bpmn:outgoing>
       <bpmn:outgoing>Flow_2</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:task id="Mail" name="E-Mail mit Anhängen empfangen (vorgesehen)">
-      <bpmn:documentation>Vorgesehen, nicht gebaut. Stand und Beleg: docs/prozess/README.md, docs/OFFENE-PUNKTE.md.</bpmn:documentation>
+    <bpmn:task id="Mail" name="E-Mail mit Anhängen empfangen">
       <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:incoming>Flow_17</bpmn:incoming>
       <bpmn:outgoing>Flow_5</bpmn:outgoing>
     </bpmn:task>
     <bpmn:task id="Rechnung" name="Rechnung und Packliste ausstellen">
@@ -64,7 +64,6 @@
       <bpmn:outgoing>Flow_6</bpmn:outgoing>
     </bpmn:task>
     <bpmn:task id="Lesen" name="Lesen und klassifizieren (Textlayer oder OCR)">
-      <bpmn:incoming>Flow_5</bpmn:incoming>
       <bpmn:incoming>Flow_6</bpmn:incoming>
       <bpmn:incoming>Flow_18</bpmn:incoming>
       <bpmn:outgoing>Flow_7</bpmn:outgoing>
@@ -108,17 +107,16 @@
       <bpmn:outgoing>Flow_17</bpmn:outgoing>
       <bpmn:outgoing>Flow_19</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Zuordnen" name="Antwort der Akte zuordnen (vorgesehen)">
-      <bpmn:documentation>Vorgesehen, nicht gebaut. Stand und Beleg: docs/prozess/README.md, docs/OFFENE-PUNKTE.md.</bpmn:documentation>
-      <bpmn:incoming>Flow_17</bpmn:incoming>
+    <bpmn:task id="Zuordnen" name="Antwort der Akte zuordnen">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
       <bpmn:outgoing>Flow_18</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_0" sourceRef="Start" targetRef="Rechnung" />
     <bpmn:sequenceFlow id="Flow_1" sourceRef="Start" targetRef="BL" />
-    <bpmn:sequenceFlow id="Flow_2" sourceRef="Start" targetRef="Mail" name="(vorgesehen)" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Start" targetRef="Mail" />
     <bpmn:sequenceFlow id="Flow_3" sourceRef="Rechnung" targetRef="Einreichen" />
     <bpmn:sequenceFlow id="Flow_4" sourceRef="BL" targetRef="Einreichen" />
-    <bpmn:sequenceFlow id="Flow_5" sourceRef="Mail" targetRef="Lesen" name="(vorgesehen)" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Mail" targetRef="Zuordnen" />
     <bpmn:sequenceFlow id="Flow_6" sourceRef="Einreichen" targetRef="Lesen" />
     <bpmn:sequenceFlow id="Flow_7" sourceRef="Lesen" targetRef="Pruefen" />
     <bpmn:sequenceFlow id="Flow_8" sourceRef="Pruefen" targetRef="Freigabereif" />
@@ -130,8 +128,8 @@
     <bpmn:sequenceFlow id="Flow_14" sourceRef="Formulieren" targetRef="Eskalieren" />
     <bpmn:sequenceFlow id="Flow_15" sourceRef="Eskalieren" targetRef="Versenden" />
     <bpmn:sequenceFlow id="Flow_16" sourceRef="Versenden" targetRef="Nachliefern" />
-    <bpmn:sequenceFlow id="Flow_17" sourceRef="Nachliefern" targetRef="Zuordnen" name="(vorgesehen)" />
-    <bpmn:sequenceFlow id="Flow_18" sourceRef="Zuordnen" targetRef="Lesen" name="(vorgesehen)" />
+    <bpmn:sequenceFlow id="Flow_17" sourceRef="Nachliefern" targetRef="Mail" />
+    <bpmn:sequenceFlow id="Flow_18" sourceRef="Zuordnen" targetRef="Lesen" />
     <bpmn:sequenceFlow id="Flow_19" sourceRef="Nachliefern" targetRef="Einreichen" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -235,9 +233,9 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
         <di:waypoint x="590" y="515" />
-        <di:waypoint x="720" y="515" />
-        <di:waypoint x="720" y="665" />
-        <di:waypoint x="850" y="665" />
+        <di:waypoint x="1420" y="515" />
+        <di:waypoint x="1420" y="665" />
+        <di:waypoint x="2250" y="665" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
         <di:waypoint x="790" y="515" />
@@ -296,8 +294,10 @@
         <di:waypoint x="2250" y="215" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
-        <di:waypoint x="2320" y="255" />
-        <di:waypoint x="2320" y="625" />
+        <di:waypoint x="2320" y="175" />
+        <di:waypoint x="2320" y="60" />
+        <di:waypoint x="520" y="60" />
+        <di:waypoint x="520" y="475" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18">
         <di:waypoint x="2320" y="705" />

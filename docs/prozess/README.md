@@ -39,7 +39,7 @@ flowchart LR
   end
 
   subgraph Sach["Sachbearbeitung Export"]
-    M1[E-Mail mit Anhängen]:::ziel
+    M1[E-Mail mit Anhängen]
     A1[Stammdaten angeben, Belege einreichen]
     A2{Ergebnis lesen}
     A3[Übersteuern mit Name und Begründung]
@@ -52,7 +52,7 @@ flowchart LR
     Z3[Pflichtmatrix und Regeln, hart vor weich]:::entscheidung
     Z4[Nachforderung formulieren: Feld, Grund, Adressat]
     Z5[Erinnerung und Eskalation vor Cut-off]
-    Z6[Antwort der Akte zuordnen]:::ziel
+    Z6[Antwort der Akte zuordnen]
   end
 
   subgraph Zoll["Zollvertreter / Zollverwaltung"]
@@ -62,14 +62,15 @@ flowchart LR
   L1 --> A1
   L2 --> A1
   S1 --> A1
-  M1 -.-> Z1
+  M1 --> Z6
   A1 --> Z1 --> Z2 --> Z3 --> A2
   A2 -->|freigabereif| C1
   C1 -->|ABD zurück an die Akte| A1
   A2 -->|nicht freigabereif| Z4
   Z4 --> Z5 --> A4
   A4 --> L3
-  L3 -.-> Z6 -.-> Z1
+  L3 --> M1
+  Z6 --> Z1
   L3 --> A1
   A2 -->|Befund bleibt verletzt, Verantwortung daneben| A3 --> Z3
 ```
@@ -82,9 +83,8 @@ Was die Linien bedeuten:
 | Übersteuern | gebaut | Runde 4, ADR-007 |
 | Nachforderung formulieren | gebaut | `src/nachforderung.mjs`; der Text steht im Ergebnis und in der Oberfläche |
 | ABD zurück an die Akte | gebaut auf dem Branch `extraktion` | Belegtyp ABD, Regel CUS-05, Pflicht PFL-07 |
-| E-Mail als Eingang | vorgesehen | `docs/OFFENE-PUNKTE.md`, „Kein Mail-Intake“ |
+| E-Mail als Eingang, Antwort der Akte zuordnen | gebaut | Runde 9, ADR-010: Aktennummer aus Betreff oder Text, Anhänge extrahiert, an die abgelegte Akte gehängt, erneut geprüft; ohne Nummer steht die Mail in `mail_eingang` |
 | Nachforderung versenden, Erinnerung, Eskalation | gebaut | Runde 8, ADR-009: Fälle in `request_case`, Stufen relativ zu den Cut-offs der Akte, Versand an das Postfach, festgehalten in `request_versand` |
-| Antwort der Akte zuordnen | vorgesehen | der Rückweg aus `docs/OFFENE-PUNKTE.md` |
 
 ## Datenfluss
 

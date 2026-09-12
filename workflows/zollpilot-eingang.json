@@ -1,0 +1,426 @@
+{
+  "id": "zollpilot-eingang",
+  "name": "ZollPilot – Posteingang",
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "errorWorkflow": "zollpilot-fehler"
+  },
+  "meta": {
+    "beschreibung": "Der Rückweg (ADR-010): Eine Mail mit Anhang und Aktennummer im Betreff oder Text. Die Anhänge gehen an die Extraktion, die neuen Belege werden an die abgelegte Akte gehängt, und die ganze Akte läuft erneut über /webhook/akte. Eine Mail ohne erkennbare Akte verschwindet nicht: Sie steht in mail_eingang mit Grund. Entscheidet nichts; die Zuordnung ist ein Muster, die Prüfung liegt im Prüf-Workflow."
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "mailbox": "INBOX",
+        "postProcessAction": "read",
+        "format": "simple",
+        "downloadAttachments": true,
+        "options": {
+          "forceReconnect": 5
+        }
+      },
+      "id": "post-eingegangen",
+      "name": "Post eingegangen",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "credentials": {
+        "imap": {
+          "id": "zollpilot-greenmail-imap",
+          "name": "ZollPilot GreenMail IMAP"
+        }
+      },
+      "notes": "IMAP gegen GreenMail (compose.yml), Postfach eingang@zollpilot.test. Im Zielsystem: die IMAP-Credential des Kunden, sonst nichts. Gelesene Mails werden als gelesen markiert; der Rumpf bleibt im Postfach."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Transport: Aktennummer aus Betreff oder Text, Anhänge als Base64. Das\n// Muster ist die Form der Akten-Kennung (ZP-JJJJ-NNNN); mehr Zuordnung wäre\n// eine Regel und gehörte nach src/ (ADR-010, \"Wann wir anders entscheiden\").\nconst alle = $input.all();\nconst aus = [];\nfor (let i = 0; i < alle.length; i += 1) {\n  const j = alle[i].json;\n  const text = [j.subject, j.textPlain, j.text].filter(Boolean).join('\\n');\n  const treffer = text.match(/ZP-\\d{4}-\\d{4}/);\n  const dateien = [];\n  for (const [schluessel, binaer] of Object.entries(alle[i].binary ?? {})) {\n    if (!schluessel.startsWith('attachment_')) continue;\n    const puffer = await this.helpers.getBinaryDataBuffer(i, schluessel);\n    dateien.push({ name: binaer.fileName ?? `${schluessel}.pdf`, inhalt_base64: puffer.toString('base64') });\n  }\n  const grund = !treffer ? 'keine Aktennummer in Betreff oder Text' : dateien.length === 0 ? 'keine Anhänge' : null;\n  aus.push({ json: {\n    akte_id: treffer ? treffer[0] : null,\n    von: typeof j.from === 'string' ? j.from : (j.from?.text ?? null),\n    betreff: j.subject ?? null,\n    mail_id: j.messageId ?? j.metadata?.['message-id'] ?? null,\n    anhaenge: dateien.length,\n    zugeordnet: grund === null,\n    grund,\n    dateien,\n  } });\n}\nreturn aus;"
+      },
+      "id": "eingang-zuordnen",
+      "name": "Eingang zuordnen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "zugeordnet",
+              "leftValue": "={{ $json.zugeordnet }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "zugeordnet",
+      "name": "Zugeordnet?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO mail_eingang (akte_id, von, betreff, mail_id, anhaenge, zugeordnet, grund)\nVALUES ($1::text, $2::text, $3::text, $4::text, $5::int, false, $6::text) RETURNING id",
+        "options": {
+          "queryReplacement": "={{ [ $json.akte_id, $json.von, $json.betreff, $json.mail_id, $json.anhaenge, $json.grund ] }}"
+        }
+      },
+      "id": "unzugeordnet",
+      "name": "Unzugeordnet festhalten",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        780,
+        520
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "notes": "Nichts stillschweigend verwerfen: Die Mail steht mit Grund in mail_eingang, damit ein Mensch sie zuordnen kann. Die Anhaenge werden nicht abgelegt (docs/DATENSCHUTZ.md); sie liegen im Postfach."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT s.akte_id, s.stammdaten,\n  COALESCE((SELECT jsonb_agg(jsonb_build_object('id', d.dokument_id, 'typ', d.typ, 'status', d.status, 'version', d.version, 'aussteller', d.aussteller, 'hash', d.hash_sha256) ORDER BY d.id)\n            FROM document d WHERE d.akte_id = s.akte_id), '[]'::jsonb) AS dokumente,\n  COALESCE((SELECT jsonb_agg(jsonb_build_object('dokument', d.dokument_id, 'pfad', a.pfad, 'wert', a.wert, 'roh', a.rohwert, 'konfidenz', a.konfidenz, 'seite', a.seite, 'bbox', a.bbox, 'methode', a.methode, 'herleitung', a.herleitung) ORDER BY a.id)\n            FROM document_field_assertion a JOIN document d ON d.id = a.dokument WHERE d.akte_id = s.akte_id), '[]'::jsonb) AS assertions,\n  $2::jsonb AS eingang\nFROM shipment s WHERE s.akte_id = $1::text",
+        "options": {
+          "queryReplacement": "={{ [ $json.akte_id, JSON.stringify($json) ] }}"
+        }
+      },
+      "id": "akte-laden",
+      "name": "Akte laden",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        780,
+        200
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "notes": "Die abgelegte Akte (ADR-010): Stammdaten, Belege, Assertions. Leer, wenn die Akte nie geprueft wurde; dann ist die Mail unzugeordnet."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "bekannt",
+              "leftValue": "={{ $json.akte_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "akte-bekannt",
+      "name": "Akte bekannt?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO mail_eingang (akte_id, von, betreff, mail_id, anhaenge, zugeordnet, grund)\nVALUES ($1::text, $2::text, $3::text, $4::text, $5::int, false, $6::text) RETURNING id",
+        "options": {
+          "queryReplacement": "={{ [ $('Eingang zuordnen').item.json.akte_id, $('Eingang zuordnen').item.json.von, $('Eingang zuordnen').item.json.betreff, $('Eingang zuordnen').item.json.mail_id, $('Eingang zuordnen').item.json.anhaenge, 'Akte ' + $('Eingang zuordnen').item.json.akte_id + ' ist nicht abgelegt: nie geprueft' ] }}"
+        }
+      },
+      "id": "akte-unbekannt",
+      "name": "Unbekannte Akte festhalten",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1300,
+        420
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Transport: Was die Extraktion braucht (Stammdaten und die neuen Dateien),\n// und daneben, was die Zusammenführung danach braucht (die abgelegte Akte\n// und die Mail). Der Extraktions-Node behält nur seine eigene Ausgabe;\n// deshalb liest die Zusammenführung dieses Item über den Node-Namen.\nreturn $input.all().map((item) => {\n  const e = item.json;\n  return { json: {\n    akte: e.stammdaten ?? {},\n    dateien: e.eingang?.dateien ?? [],\n    abgelegt: { akte_id: e.akte_id, stammdaten: e.stammdaten ?? {}, dokumente: e.dokumente ?? [], assertions: e.assertions ?? [] },\n    mail: { von: e.eingang?.von ?? null, betreff: e.eingang?.betreff ?? null, mail_id: e.eingang?.mail_id ?? null, anhaenge: e.eingang?.anhaenge ?? 0 },\n  } };\n});"
+      },
+      "id": "extraktion-vorbereiten",
+      "name": "Extraktion vorbereiten",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "quelle": "json",
+        "zeitlimit": 120000
+      },
+      "id": "belege-extrahieren",
+      "name": "Belege extrahieren",
+      "type": "CUSTOM.zollPilotExtraktion",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        100
+      ],
+      "credentials": {
+        "zollPilotExtraktionApi": {
+          "id": "zollpilot-extraktion",
+          "name": "ZollPilot Extraktion"
+        }
+      },
+      "notes": "Derselbe eigene Node wie im Pruef-Workflow (nodes/n8n-nodes-zollpilot). Liest nur die neuen Anhaenge."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Transport (ADR-010): Die neuen Belege bekommen eine Kennung mit Suffix\n// -E<n>, damit sie neben den alten stehen; Assertions werden mit umbenannt.\n// Ein Anhang, dessen Hash die Akte schon kennt, wird nicht noch einmal\n// angehängt. Welche Aussage danach gilt, entscheidet das Regelwerk.\nconst neu = $input.first().json;\nconst vor = $('Extraktion vorbereiten').first().json;\nconst alt = vor.abgelegt;\nconst bekannteHashes = new Set((alt.dokumente ?? []).map((d) => d.hash).filter(Boolean));\nconst lauf = (alt.dokumente ?? []).filter((d) => /-E\\d+$/.test(d.id)).length + 1;\nconst umbenannt = new Map();\nconst neueDokumente = [];\nfor (const d of neu.dokumente ?? []) {\n  if (d.hash && bekannteHashes.has(d.hash)) continue;\n  const id = `${d.id}-E${lauf}`;\n  umbenannt.set(d.id, id);\n  neueDokumente.push({ ...d, id, quelle: 'mail' });\n}\nconst neueAssertions = (neu.assertions ?? []).filter((a) => umbenannt.has(a.dokument)).map((a) => ({ ...a, dokument: umbenannt.get(a.dokument) }));\nreturn [{ json: {\n  ...alt.stammdaten,\n  akte_id: alt.akte_id,\n  quelle: 'mail',\n  dokumente: [...(alt.dokumente ?? []), ...neueDokumente],\n  assertions: [...(alt.assertions ?? []), ...neueAssertions],\n  extraktion: neu.extraktion ?? null,\n  eingang: { ...vor.mail, neue_belege: neueDokumente.map((d) => d.id) },\n} }];"
+      },
+      "id": "zusammenfuehren",
+      "name": "Akte zusammenführen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1820,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:5678/webhook/akte",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 180000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "erneut-pruefen",
+      "name": "Akte erneut prüfen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2080,
+        100
+      ],
+      "notes": "Derselbe Eingang wie jede Einreichung. Der Pruef-Workflow legt die ergaenzte Akte ab; die Nachforderung schliesst beim naechsten Lauf des Nachforderungs-Workflows (ADR-009)."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO mail_eingang (akte_id, von, betreff, mail_id, anhaenge, zugeordnet, freigabe)\nVALUES ($1::text, $2::text, $3::text, $4::text, $5::int, true, $6::text) RETURNING id",
+        "options": {
+          "queryReplacement": "={{ [ $('Akte zusammenführen').item.json.akte_id, $('Akte zusammenführen').item.json.eingang.von, $('Akte zusammenführen').item.json.eingang.betreff, $('Akte zusammenführen').item.json.eingang.mail_id, $('Akte zusammenführen').item.json.eingang.anhaenge, $json.body?.freigabe_nach_override ?? $json.body?.freigabe ?? ('HTTP ' + $json.statusCode) ] }}"
+        }
+      },
+      "id": "eingang-festhalten",
+      "name": "Eingang festhalten",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2340,
+        100
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Posteingang\n\nEine Antwort mit Anhang findet ihre Akte über die Aktennummer im Betreff oder Text. Die neuen Belege werden extrahiert, an die abgelegte Akte gehängt und die ganze Akte erneut geprüft, über denselben Webhook wie jede Einreichung (ADR-010).\n\nEntscheidung: keine. Eine Mail ohne Akte steht in `mail_eingang` mit Grund.",
+        "height": 220,
+        "width": 420
+      },
+      "id": "notiz",
+      "name": "Notiz",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        40
+      ]
+    }
+  ],
+  "connections": {
+    "Post eingegangen": {
+      "main": [
+        [
+          {
+            "node": "Eingang zuordnen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eingang zuordnen": {
+      "main": [
+        [
+          {
+            "node": "Zugeordnet?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zugeordnet?": {
+      "main": [
+        [
+          {
+            "node": "Akte laden",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Unzugeordnet festhalten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Akte laden": {
+      "main": [
+        [
+          {
+            "node": "Akte bekannt?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Akte bekannt?": {
+      "main": [
+        [
+          {
+            "node": "Extraktion vorbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Unbekannte Akte festhalten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraktion vorbereiten": {
+      "main": [
+        [
+          {
+            "node": "Belege extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Belege extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Akte zusammenführen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Akte zusammenführen": {
+      "main": [
+        [
+          {
+            "node": "Akte erneut prüfen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Akte erneut prüfen": {
+      "main": [
+        [
+          {
+            "node": "Eingang festhalten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

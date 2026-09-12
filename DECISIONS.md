@@ -17,6 +17,7 @@ rekonstruiert Begründungen, die er nie hatte, und das merkt man ihnen an.
 | [ADR-007](docs/adr/ADR-007-uebersteuern-statt-umentscheiden.md) | Ein Mensch übersteuert einen Befund, ändert ihn aber nie: Das Regelergebnis bleibt stehen, die Verantwortung steht daneben. Akte und Belege liegen in Postgres | angenommen | 2026-09-12 |
 | [ADR-008](docs/adr/ADR-008-strukturierte-rechnung-ist-ein-beleg.md) | Eine strukturierte Rechnung (UN/CEFACT CII) ist ein Beleg wie jeder andere: dieselben Pfade, Methode `strukturiert`, Konfidenz 1, keine Fundstelle; gegen das Schema validiert, in beide Richtungen | angenommen | 2026-09-12 |
 | [ADR-009](docs/adr/ADR-009-die-akte-lebt.md) | Die Akte lebt: Nachforderungen als Vorgang mit Zustand in einem eigenen Workflow, Fristen als Cut-offs je Akte statt Kalendertage, GreenMail für Versand und Eingang, Identität beim Übersteuern über den Proxy | angenommen | 2026-09-12 |
+| [ADR-010](docs/adr/ADR-010-die-akte-wird-abgelegt.md) | Die Akte wird abgelegt: Stammdaten, Dokumente und Assertions je Prüfung in Postgres, nur anhängend; ein Mail-Eingang ergänzt die abgelegte Akte um den neuen Beleg und prüft erneut. Die Originale bleiben vorgesehen | angenommen | 2026-09-12 |
 
 Vorgesehen, noch nicht entschieden: Intake über Mail (Stufe 2), sekundäre
 Extraktion mit Vision-Modell samt Pseudonymisierung (Stufe 3b), echte

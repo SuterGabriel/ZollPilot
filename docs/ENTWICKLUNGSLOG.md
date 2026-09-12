@@ -701,3 +701,48 @@ jetzt ausdrücklich, dass ein Aufruf ohne Zugangsdaten 401 bekommt.
 **Zeitschätzung.** Delegiert: eine gute halbe Stunde. Von Hand: ein halber
 Tag, und die `return`-Falle hätte vermutlich länger überlebt. Schätzung,
 keine Messung.
+
+## 2026-09-12: Stufe 6, dritter Teil: eine Antwort findet ihre Akte
+
+**Was delegiert wurde.** Der Rückweg aus ADR-009: eine Mail mit Anhang
+wird der Akte zugeordnet und löst eine erneute Prüfung aus. Dafür musste
+die Akte erstmals abgelegt werden, das ist ADR-010: Stammdaten, Belege und
+Assertions je Prüfung in Postgres, nur anhängend. Dazu der
+Posteingang-Workflow mit IMAP-Trigger, die Zusammenführung, die Tabelle
+für jede Mail, zugeordnet oder nicht, und Runde 9 im Rauchtest.
+
+**Die Entscheidung, an der alles hängt.** Abgelegt werden Assertions,
+nicht Originale. Das reicht für den Rückweg und für einen späteren
+Review-Arbeitsplatz mit Fundstelle nach Seite und Box; es reicht nicht,
+um die Fundstelle im Bild zu zeigen oder einen anderen Leser über alte
+Akten laufen zu lassen. Das steht in der ADR als Grenze und als Bedingung,
+unter der Option C dazukommt.
+
+**Was gut lief.** Die Tabellen aus Stufe 1 haben mit zwei Änderungen
+getragen: Die Dokumentkennung ist je Akte eindeutig, nicht global, und
+Assertions hängen an der Zeile, nicht an der Kennung. Der Prüf-Workflow
+legt mit einer einzigen Anweisung ab, `ON CONFLICT DO NOTHING` macht den
+zweiten Eingang derselben Datei folgenlos. Der Posteingang hat beim ersten
+Lauf funktioniert: Rechnung mit Ursprungserklärung per SMTP an GreenMail,
+IMAP-Trigger, Zuordnung über die Aktennummer, Extraktion, Zusammenführung
+mit Suffix an den neuen Kennungen, erneute Prüfung, sieben Belege statt
+fünf, freigabereif statt blockiert.
+
+**Was nicht funktionierte.** Vor dem Lauf: Das Änderungsskript für die
+Workflows klonte den Mail-Node aus dem Prüf-Workflow für den
+Alarm-Workflow, und diesen Node hatte der Vormittag gerade entfernt.
+Aufgefallen beim Lesen des Skripts, nicht beim Lauf; die zwei bestehenden
+Workflows werden jetzt nur noch erzeugt, wenn sie fehlen. Und das
+Änderungsskript per Python zu flicken scheiterte an einem Backslash, der
+durch zwei Ebenen Zitierung lief; von Hand ging es beim ersten Mal.
+
+**Was die Testsuite abgefangen hat.** Nichts Neues an diesem Teil, und das
+ist auffällig: Der erste Lauf war grün. Was der Rauchtest jetzt hält: dass
+eine Mail ohne Aktennummer nicht verschwindet, sondern mit Grund in
+`mail_eingang` steht. Das ist die harte Grenze aus `CLAUDE.md`, nichts
+stillschweigend verwerfen, auf den Kommunikationskanal angewandt.
+
+**Zeitschätzung.** Delegiert: gut eine Stunde. Von Hand: zwei bis drei
+Tage, vor allem für das Ablegen der Akte und die Zusammenführung, die
+ohne den vorhandenen eigenen Node und den Wiedervorlage-Zugriff auf beide
+Ausgänge länger gedauert hätte. Schätzung, keine Messung.

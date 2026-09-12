@@ -44,6 +44,7 @@ prometheus="${4:-http://localhost:9090}"
 grafana="${5:-http://localhost:3000}"
 alertmanager="${6:-http://localhost:9093}"
 greenmail="${7:-http://localhost:8025}"
+smtp="${8:-smtp://localhost:3025}"
 fehler=0
 runden=0
 
@@ -371,6 +372,58 @@ if [[ "$erledigt" == "2" && "$offen" == "0" ]]; then
   printf '  ok    %-32s 2 Fälle erledigt, 0 offen, Versandhistorie bleibt\n' "Nachweis eingegangen"
 else
   printf '  ROT   %-32s erledigt=%s, offen=%s\n' "Nachweis eingegangen" "$erledigt" "$offen"
+  fehler=$((fehler + 1))
+fi
+
+echo
+echo "Runde 9: eine Antwort mit Anhang findet ihre Akte (ADR-010)"
+# Die Akte ohne Präferenznachweis wird zurückgesetzt (blockiert). Dann kommt
+# per Mail die Rechnung mit Ursprungserklärung ins Eingangspostfach, mit der
+# Aktennummer im Betreff. Der Posteingang hängt den Beleg an die abgelegte
+# Akte und prüft erneut: freigabereif. Eine Mail ohne Aktennummer bleibt
+# als unzugeordnet stehen.
+curl -sS -o /dev/null -X POST -H 'Content-Type: application/json' --data-binary @testdaten/akten/praeferenznachweis-fehlt.json "$basis/webhook/akte"
+runden=$((runden + 1))
+vorher=$(sql "select count(*) from pruefung where akte_id = '$akte'")
+eml=$(mktemp)
+node -e "
+const fs=require('fs');const pdf=fs.readFileSync('testdaten/belege/happy-path/handelsrechnung.pdf').toString('base64').match(/.{1,76}/g).join('\r\n');
+const g='zollpilot-'+Date.now();
+process.stdout.write(['From: Lieferant <lieferant@zollpilot.test>','To: eingang@zollpilot.test','Subject: Re: ACTION REQUIRED - Shipment $akte - Praeferenznachweis','MIME-Version: 1.0','Content-Type: multipart/mixed; boundary=\"'+g+'\"','','--'+g,'Content-Type: text/plain; charset=utf-8','','Anbei die Rechnung mit Ursprungserklaerung zu Shipment $akte.','','--'+g,'Content-Type: application/pdf; name=\"handelsrechnung.pdf\"','Content-Transfer-Encoding: base64','Content-Disposition: attachment; filename=\"handelsrechnung.pdf\"','',pdf,'--'+g+'--',''].join('\r\n'));
+" > "$eml"
+if curl -sS --url "$smtp" --mail-from lieferant@zollpilot.test --mail-rcpt eingang@zollpilot.test --upload-file "$eml" >/dev/null 2>&1; then
+  runden=$((runden + 1))
+  nachher=$vorher
+  for _ in $(seq 1 90); do
+    nachher=$(sql "select count(*) from pruefung where akte_id = '$akte'")
+    [[ "$nachher" -gt "$vorher" ]] && break
+    sleep 1
+  done
+  ergebnis=$(sql "select coalesce(freigabe_nach_override, freigabe) || ' ' || jsonb_array_length(ergebnis->'dokumente') from pruefung where akte_id = '$akte' order by geprueft_am desc limit 1")
+  zugeordnet=$(sql "select count(*) from mail_eingang where akte_id = '$akte' and zugeordnet")
+  if [[ "$nachher" -gt "$vorher" && "$ergebnis" == freigabereif* && "$zugeordnet" -ge 1 ]]; then
+    printf '  ok    %-32s Akte erneut geprüft: %s Belege, freigabereif, Eingang festgehalten\n' "Antwort per Mail" "${ergebnis#freigabereif }"
+  else
+    printf '  ROT   %-32s Prüfungen %s→%s, Ergebnis "%s", zugeordnet %s\n' "Antwort per Mail" "$vorher" "$nachher" "$ergebnis" "$zugeordnet"
+    fehler=$((fehler + 1))
+  fi
+else
+  printf '  ROT   %-32s SMTP-Versand an %s gescheitert\n' "Antwort per Mail" "$smtp"
+  fehler=$((fehler + 1))
+fi
+rm -f "$eml"
+printf 'From: Unbekannt <jemand@example.test>\r\nTo: eingang@zollpilot.test\r\nSubject: Frage ohne Aktennummer\r\n\r\nWo ist mein Container?\r\n' \
+  | curl -sS --url "$smtp" --mail-from jemand@example.test --mail-rcpt eingang@zollpilot.test --upload-file - >/dev/null 2>&1
+unzugeordnet=""
+for _ in $(seq 1 60); do
+  unzugeordnet=$(sql "select grund from mail_eingang where not zugeordnet and betreff = 'Frage ohne Aktennummer' order by id desc limit 1")
+  [[ -n "$unzugeordnet" ]] && break
+  sleep 1
+done
+if [[ "$unzugeordnet" == *Aktennummer* ]]; then
+  printf '  ok    %-32s steht in mail_eingang: %s\n' "Mail ohne Aktennummer" "$unzugeordnet"
+else
+  printf '  ROT   %-32s nicht festgehalten (Grund: "%s")\n' "Mail ohne Aktennummer" "$unzugeordnet"
   fehler=$((fehler + 1))
 fi
 
