@@ -1,4 +1,4 @@
-// Der zweite Bildschirm: was offen ist (docs/entwurf/04-uebersicht.md).
+// Der zweite Bildschirm: was offen ist (`docs/entwurf/04-uebersicht.md`).
 //
 // Diese Komponente bewertet nichts. Die Entscheidung je Akte ist das Wort,
 // das der Prüf-Workflow abgelegt hat; die Stufe ist die, die der
