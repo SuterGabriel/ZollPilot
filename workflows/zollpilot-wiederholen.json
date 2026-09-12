@@ -1,0 +1,259 @@
+{
+  "id": "zollpilot-wiederholen",
+  "name": "ZollPilot – Lauf wiederholen",
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "errorWorkflow": "zollpilot-fehler"
+  },
+  "meta": {
+    "beschreibung": "Wiedervorlage: POST /webhook/wiederholen mit {execution_id} schickt den Rumpf eines gescheiterten Laufs erneut an denselben Eingang (/webhook/akte oder /webhook/belege) und schließt die Zeile in wiedervorlage. Entscheidet nichts; die Entscheidung fällt im wiederholten Lauf."
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wiederholen",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wiederholung-angefordert",
+      "name": "Wiederholung angefordert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "zollpilot-wiederholen",
+      "notes": "Rumpf: {\"execution_id\": \"...\"}: die Ausfuehrungs-ID aus der 500-Antwort oder aus workflow_fehler. Antwort 200 mit dem Ergebnis des wiederholten Laufs, 404 wenn nichts offen ist."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, execution_id, eingang, akte_id, nutzlast FROM wiedervorlage WHERE execution_id = $1 AND status = 'offen' ORDER BY id DESC LIMIT 1",
+        "options": {
+          "queryReplacement": "={{ $json.body.execution_id }}"
+        }
+      },
+      "id": "wiedervorlage-lesen",
+      "name": "Wiedervorlage lesen",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        260,
+        300
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "notes": "alwaysOutputData, damit die Verzweigung auch bei leerem Ergebnis ein Item bekommt und 404 antworten kann."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "gefunden",
+              "leftValue": "={{ $json.execution_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gefunden",
+      "name": "Gefunden?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://127.0.0.1:5678/webhook/{{ $json.eingang }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ typeof $json.nutzlast === 'string' ? $json.nutzlast : JSON.stringify($json.nutzlast) }}",
+        "options": {
+          "timeout": 180000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "lauf-wiederholen",
+      "name": "Lauf wiederholen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        780,
+        200
+      ],
+      "notes": "n8n ruft seinen eigenen Webhook. neverError, weil 422 ein Ergebnis ist und 500 ein erneut gescheiterter Lauf, der seine eigene Wiedervorlage anlegt."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE wiedervorlage SET status = $1, wiederholt_am = now(), wiederholung_execution_id = $2, ergebnis_freigabe = $3 WHERE id = $4",
+        "options": {
+          "queryReplacement": "={{ $json.statusCode === 500 ? 'erneut_gescheitert' : 'erledigt' }},{{ $json.body.ausfuehrung ?? '' }},{{ $json.body.freigabe_nach_override ?? $json.body.freigabe ?? 'fehler' }},{{ $('Wiedervorlage lesen').first().json.id }}"
+        }
+      },
+      "id": "wiedervorlage-abschliessen",
+      "name": "Wiedervorlage abschliessen",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1040,
+        200
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "notes": "Schliesst die Zeile. Ist der wiederholte Lauf selbst gescheitert, bleibt das hier sichtbar (erneut_gescheitert), und der neue Lauf hat seine eigene Zeile."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ wiederholt: true, execution_id: $('Wiedervorlage lesen').first().json.execution_id, eingang: $('Wiedervorlage lesen').first().json.eingang, status_code: $('Lauf wiederholen').first().json.statusCode, ergebnis: $('Lauf wiederholen').first().json.body }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "antwort-wiederholt",
+      "name": "Antwort: wiederholt",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1300,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ wiederholt: false, meldung: \"Keine offene Wiedervorlage zu dieser Ausfuehrungs-ID.\" }) }}",
+        "options": {
+          "responseCode": 404
+        }
+      },
+      "id": "antwort-nichts",
+      "name": "Antwort: nichts zu wiederholen",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        780,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Lauf wiederholen\n\nDer Fehlerzweig des Prüf-Workflows legt für jeden gescheiterten Lauf ab, was erneut hinein müsste (`wiedervorlage`). Dieser Workflow schickt es noch einmal an denselben Eingang.\n\nEntscheidung: keine. Die fällt im wiederholten Lauf, im Code-Node „Akte prüfen“ aus `src/`.",
+        "height": 200,
+        "width": 380
+      },
+      "id": "notiz",
+      "name": "Notiz",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        40
+      ]
+    }
+  ],
+  "connections": {
+    "Wiederholung angefordert": {
+      "main": [
+        [
+          {
+            "node": "Wiedervorlage lesen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wiedervorlage lesen": {
+      "main": [
+        [
+          {
+            "node": "Gefunden?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gefunden?": {
+      "main": [
+        [
+          {
+            "node": "Lauf wiederholen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Antwort: nichts zu wiederholen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lauf wiederholen": {
+      "main": [
+        [
+          {
+            "node": "Wiedervorlage abschliessen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wiedervorlage abschliessen": {
+      "main": [
+        [
+          {
+            "node": "Antwort: wiederholt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

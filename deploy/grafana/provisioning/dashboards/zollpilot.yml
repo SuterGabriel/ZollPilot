@@ -1,0 +1,13 @@
+# Das Dashboard liegt als JSON im Repo (deploy/grafana/dashboards/) und wird
+# beim Start geladen. Änderungen in der Oberfläche werden beim nächsten Start
+# überschrieben; wer etwas ändern will, ändert die Datei.
+apiVersion: 1
+
+providers:
+  - name: zollpilot
+    folder: ""
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards

@@ -1,0 +1,26 @@
+# Die fachlichen Zähler kommen aus der Prüftabelle, nicht aus n8n.
+#
+# Der Code-Node kann nichts exportieren, und die Tabelle `pruefung` ist
+# ohnehin der Ort, an dem jede Entscheidung liegt. Der SQL-Exporter macht
+# daraus Prometheus-Metriken; die Abfragen stehen in zollpilot.collector.yml.
+# Die Verbindung kommt über das Flag -config.data-source-name aus compose.yml
+# und damit aus .env; hier steht deshalb kein Passwort.
+#
+# Zähler aus count(*) sind monoton, solange niemand Zeilen löscht. Das ist die
+# Zusage; `increase()` und `rate()` in Prometheus verlassen sich darauf.
+
+global:
+  scrape_timeout_offset: 500ms
+  min_interval: 10s
+  max_connections: 2
+  max_idle_connections: 2
+
+target:
+  name: zollpilot
+  # Platzhalter: Die Validierung verlangt einen Wert, das Flag in compose.yml
+  # ersetzt ihn beim Start durch die echte Verbindung aus .env.
+  data_source_name: "postgresql://wird-durch-das-flag-ersetzt@postgres:5432/zollpilot?sslmode=disable"
+  collectors: [zollpilot]
+
+collector_files:
+  - "*.collector.yml"

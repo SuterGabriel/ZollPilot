@@ -1,0 +1,12 @@
+# Grafana bekommt seine Datenquelle beim Start, nicht per Klick. Der Stand im
+# Repo ist der Stand im System, wie bei den Workflows.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false

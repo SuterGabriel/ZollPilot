@@ -1,0 +1,24 @@
+# Wohin ein Alarm geht: an n8n, als Webhook. Der Workflow
+# workflows/zollpilot-alarm.json schreibt ihn nach `alarm` in Postgres, mit
+# Beginn und Ende. Ein Alarm ist damit eine Zeile mit Zeitstempel, die auch
+# morgen noch da ist, und nicht eine Mail, die niemand liest.
+#
+# Ein Mensch wird dadurch nicht geweckt. Das ist ehrlich benannt in
+# docs/BETRIEB.md: Der Versand-Node im Alarm-Workflow ist vorbereitet und
+# deaktiviert, wie der für Nachforderungen, aus demselben Grund (kein SMTP).
+
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: n8n
+  group_by: ["alertname"]
+  group_wait: 10s
+  group_interval: 1m
+  repeat_interval: 4h
+
+receivers:
+  - name: n8n
+    webhook_configs:
+      - url: http://n8n:5678/webhook/alarm
+        send_resolved: true

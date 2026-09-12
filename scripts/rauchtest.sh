@@ -14,10 +14,19 @@
 #   5. Eine Akte, an der der Workflow scheitert: Der Aufrufer bekommt 500 mit
 #      der Ausführungs-ID, nicht 200 mit leerem Rumpf, und der Betrieb bekommt
 #      seine Zeile in `workflow_fehler`.
+#   6. Ein Lauf, der am Extraktionsdienst scheitert, lässt sich wiederholen:
+#      Der Dienst wird angehalten, der Aufrufer bekommt 500 mit `wiederholbar`,
+#      der Dienst kommt zurück, POST /webhook/wiederholen liefert die
+#      Entscheidung, die Zeile in `wiedervorlage` ist erledigt.
+#   7. Das Monitoring sieht, was gelaufen ist: Prometheus hat alle Ziele,
+#      die Alarmregeln sind geladen, die fachlichen Zähler zeigen die
+#      Prüfungen dieses Laufs, Grafana liefert das Dashboard, der
+#      Alertmanager ist bereit.
 # Jede Akte trägt ihre Erwartung selbst; das Skript vergleicht. Danach:
 # Liegen die Prüfungen in Postgres?
 #
-# Aufruf: bash scripts/rauchtest.sh [http://localhost:5678] [http://localhost:8765] [http://localhost:8088]
+# Aufruf: bash scripts/rauchtest.sh [n8n] [extraktion] [oberflaeche] [prometheus] [grafana] [alertmanager]
+#   Vorgaben: http://localhost:5678 8765 8088 9090 3000 9093
 
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -25,8 +34,19 @@ cd "$(dirname "$0")/.."
 basis="${1:-http://localhost:5678}"
 extraktion="${2:-http://localhost:8765}"
 oberflaeche="${3:-http://localhost:8088}"
+prometheus="${4:-http://localhost:9090}"
+grafana="${5:-http://localhost:3000}"
+alertmanager="${6:-http://localhost:9093}"
 fehler=0
 runden=0
+
+# Liest ein Feld aus JSON auf stdin; leer, wenn es fehlt oder kein JSON ist.
+json_feld() {
+  node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const v=JSON.parse(s)$1;console.log(v===undefined||v===null?'':String(v))}catch{console.log('')}})"
+}
+sql() {
+  docker compose exec -T postgres psql -U "${POSTGRES_USER:-zollpilot}" -d zollpilot -tAc "$1" 2>/dev/null
+}
 
 echo
 echo "Rauchtest gegen $basis"
@@ -161,7 +181,102 @@ else
 fi
 
 echo
-anzahl=$(docker compose exec -T postgres psql -U "${POSTGRES_USER:-zollpilot}" -d zollpilot -tAc "select count(*) from pruefung" 2>/dev/null || echo "?")
+echo "Runde 6: ein gescheiterter Lauf lässt sich wiederholen"
+# Der Extraktionsdienst wird angehalten und ein Belegsatz eingereicht. Erwartet:
+# 500, `wiederholbar: true`, eine offene Zeile in `wiedervorlage`. Dann kommt
+# der Dienst zurück, und POST /webhook/wiederholen liefert dieselbe
+# Entscheidung wie Runde 2, ohne dass jemand die Belege neu einreicht.
+docker compose stop extraktion >/dev/null 2>&1
+ordner=testdaten/belege/happy-path
+erwartet=$(erwartung_aus "$ordner/akte.json")
+args=(-F "akte=<$ordner/akte.json")
+for pdf in "$ordner"/*.pdf; do args+=(-F "dateien=@$pdf;type=application/pdf"); done
+antwort=$(curl -sS -w '\n%{http_code}' -X POST "${args[@]}" "$basis/webhook/belege")
+code=${antwort##*$'\n'}
+rumpf=${antwort%$'\n'*}
+ausfuehrung=$(printf '%s' "$rumpf" | json_feld ".ausfuehrung")
+wiederholbar=$(printf '%s' "$rumpf" | json_feld ".wiederholbar")
+docker compose start extraktion >/dev/null 2>&1
+for _ in $(seq 1 60); do
+  curl -fsS "$extraktion/healthz" >/dev/null 2>&1 && break
+  sleep 1
+done
+runden=$((runden + 1))
+if [[ "$code" != "500" || "$wiederholbar" != "true" || -z "$ausfuehrung" ]]; then
+  printf '  ROT   %-32s HTTP %s, wiederholbar "%s", Ausführung "%s"\n' "Extraktion angehalten" "$code" "$wiederholbar" "$ausfuehrung"
+  fehler=$((fehler + 1))
+else
+  printf '  ok    %-32s HTTP 500, wiederholbar, Ausführung %s\n' "Extraktion angehalten" "$ausfuehrung"
+  wiederholt=$(curl -sS -X POST -H 'Content-Type: application/json' \
+    -d "{\"execution_id\":\"$ausfuehrung\"}" "$basis/webhook/wiederholen")
+  tatsaechlich=$(printf '%s' "$wiederholt" | json_feld ".ergebnis.freigabe")
+  zustand=$(sql "select status from wiedervorlage where execution_id = '$ausfuehrung' order by id desc limit 1")
+  if [[ "$tatsaechlich" == "$erwartet" && "$zustand" == "erledigt" ]]; then
+    printf '  ok    %-32s %s, Wiedervorlage %s\n' "wiederholt über /webhook/wiederholen" "$tatsaechlich" "$zustand"
+  else
+    printf '  ROT   %-32s erwartet %s, bekommen "%s", Wiedervorlage "%s"\n' "wiederholt über /webhook/wiederholen" "$erwartet" "$tatsaechlich" "$zustand"
+    fehler=$((fehler + 1))
+  fi
+fi
+
+echo
+echo "Runde 7: das Monitoring sieht, was gelaufen ist"
+# Nicht „läuft Prometheus", sondern: Kommen die Zahlen dieses Laufs dort an?
+# Die Ziele brauchen nach dem Neustart der Extraktion einen Scrape-Takt, die
+# Zähler aus der Prüftabelle ebenso; deshalb wird gewartet, nicht geraten.
+ziele="?"
+for _ in $(seq 1 40); do
+  ziele=$(curl -fsS "$prometheus/api/v1/targets" 2>/dev/null | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const t=JSON.parse(s).data.activeTargets;const tot=t.filter(x=>x.health!=='up').map(x=>x.labels.job);console.log(tot.length?'DOWN '+tot.join(','):'ok '+t.length)}catch{console.log('KEINE ANTWORT')}})")
+  [[ "$ziele" == ok* ]] && break
+  sleep 1
+done
+if [[ "$ziele" == ok* ]]; then
+  printf '  ok    %-32s %s Ziele erreichbar\n' "Prometheus-Ziele" "${ziele#ok }"
+else
+  printf '  ROT   %-32s %s\n' "Prometheus-Ziele" "$ziele"
+  fehler=$((fehler + 1))
+fi
+regeln=$(curl -fsS "$prometheus/api/v1/rules" 2>/dev/null | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s).data.groups.flatMap(g=>g.rules).length)}catch{console.log(0)}})")
+if [[ "$regeln" -ge 10 ]]; then
+  printf '  ok    %-32s %s Regeln geladen\n' "Alarmregeln" "$regeln"
+else
+  printf '  ROT   %-32s %s Regeln geladen, mindestens 10 erwartet\n' "Alarmregeln" "$regeln"
+  fehler=$((fehler + 1))
+fi
+gezaehlt=""
+for _ in $(seq 1 45); do
+  gezaehlt=$(curl -fsS "$prometheus/api/v1/query" --data-urlencode 'query=sum(zollpilot_pruefungen_total)' 2>/dev/null | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const r=JSON.parse(s).data.result;console.log(r.length?r[0].value[1]:'')}catch{console.log('')}})")
+  [[ "$gezaehlt" =~ ^[0-9]+$ ]] && [[ "$gezaehlt" -ge "$runden" ]] && break
+  sleep 1
+done
+if [[ "$gezaehlt" =~ ^[0-9]+$ ]] && [[ "$gezaehlt" -ge "$runden" ]]; then
+  printf '  ok    %-32s zollpilot_pruefungen_total = %s\n' "fachliche Zähler" "$gezaehlt"
+else
+  printf '  ROT   %-32s zollpilot_pruefungen_total = "%s", mindestens %s erwartet\n' "fachliche Zähler" "$gezaehlt" "$runden"
+  fehler=$((fehler + 1))
+fi
+if curl -fsS "$extraktion/metrics" 2>/dev/null | grep -q '^zollpilot_extraktion_dokumente_total{'; then
+  printf '  ok    %-32s Belege je Typ und Lesemethode\n' "Extraktion /metrics"
+else
+  printf '  ROT   %-32s zollpilot_extraktion_dokumente_total fehlt\n' "Extraktion /metrics"
+  fehler=$((fehler + 1))
+fi
+titel=$(curl -fsS "$grafana/api/dashboards/uid/zollpilot" 2>/dev/null | json_feld ".dashboard.title")
+if [[ "$titel" == "ZollPilot" ]]; then
+  printf '  ok    %-32s Dashboard „%s" provisioniert\n' "Grafana" "$titel"
+else
+  printf '  ROT   %-32s Dashboard nicht gefunden (%s)\n' "Grafana" "$titel"
+  fehler=$((fehler + 1))
+fi
+if curl -fsS "$alertmanager/-/ready" >/dev/null 2>&1; then
+  printf '  ok    %-32s bereit, liefert an /webhook/alarm\n' "Alertmanager"
+else
+  printf '  ROT   %-32s antwortet nicht auf /-/ready\n' "Alertmanager"
+  fehler=$((fehler + 1))
+fi
+
+echo
+anzahl=$(sql "select count(*) from pruefung" || echo "?")
 if [[ "$anzahl" =~ ^[0-9]+$ ]] && [[ "$anzahl" -ge "$runden" ]]; then
   echo "  ok    $anzahl Prüfungen in Postgres (pruefung), mindestens $runden erwartet"
 else
@@ -174,4 +289,4 @@ if [[ "$fehler" -gt 0 ]]; then
   echo "$fehler Abweichungen."
   exit 1
 fi
-echo "Alle Akten und Belege liefern die erwartete Entscheidung — über den Webhook wie über die Oberfläche —, alle Prüfungen sind abgelegt."
+echo "Alle Akten und Belege liefern die erwartete Entscheidung, über den Webhook wie über die Oberfläche; ein gescheiterter Lauf ließ sich wiederholen; das Monitoring hat alles gesehen; alle Prüfungen sind abgelegt."

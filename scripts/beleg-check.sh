@@ -223,6 +223,29 @@ pruefe "Beispiel-Umgebung ohne echte Geheimnisse" datei .env.example
 pruefe ".env ist ignoriert" enthaelt .gitignore "^.env$"
 
 echo
+echo "Monitoring — abgeholt, nicht nur angeboten"
+pruefe "Prometheus-Konfiguration liegt im Repo" datei deploy/prometheus/prometheus.yml
+pruefe "Alarmregeln liegen im Repo" datei deploy/prometheus/alarme.yml
+pruefe "Alertmanager liefert an n8n" enthaelt deploy/alertmanager/alertmanager.yml "webhook/alarm"
+pruefe "Fachliche Zähler kommen aus der Prüftabelle" enthaelt deploy/sql-exporter/zollpilot.collector.yml "zollpilot_befunde_total"
+pruefe "Dashboard ist provisioniert, nicht geklickt" datei deploy/grafana/dashboards/zollpilot.json
+pruefe "Extraktion bietet /metrics an" enthaelt extraktion/zollpilot_extraktion/dienst.py "generate_latest"
+pruefe "Metriken der Extraktion sind getestet" enthaelt extraktion/tests/test_dienst.py "zollpilot_extraktion_dokumente_total"
+pruefe "Alle vier Dienste in Compose" enthaelt compose.yml "  grafana:"
+pruefe "Alarm-Workflow existiert" datei workflows/zollpilot-alarm.json
+pruefe "Wiederholungs-Workflow existiert" datei workflows/zollpilot-wiederholen.json
+pruefe "Fehlerzweig legt die Wiedervorlage ab" enthaelt workflows/zollpilot-akte-pruefen.json "Wiedervorlage ablegen"
+pruefe "Tabellen wiedervorlage und alarm im Schema" enthaelt deploy/postgres/init.sql "CREATE TABLE alarm"
+pruefe "Rauchtest wiederholt einen gescheiterten Lauf" enthaelt scripts/rauchtest.sh "Runde 6"
+pruefe "Rauchtest fragt das Monitoring" enthaelt scripts/rauchtest.sh "Runde 7"
+pruefe "Wiedervorlage ist im Datenschutz benannt" enthaelt docs/DATENSCHUTZ.md "wiedervorlage.nutzlast"
+# Jeder Alarm braucht einen Handgriff: Der Name aus alarme.yml muss in der
+# Betriebsdoku stehen. Ein Alarm ohne Runbook ist Lärm.
+for alarm in $(grep -oE '^\s*- alert: [A-Za-z0-9]+' deploy/prometheus/alarme.yml | awk '{print $3}'); do
+  pruefe "Runbook für $alarm in BETRIEB.md" enthaelt docs/BETRIEB.md "$alarm"
+done
+
+echo
 echo "Schritt 6 — der KI-Einsatz wird protokolliert"
 pruefe "docs/ENTWICKLUNGSLOG.md existiert" datei docs/ENTWICKLUNGSLOG.md
 pruefe "das Log hat das Pflichtfeld 'Was nicht funktionierte'" enthaelt docs/ENTWICKLUNGSLOG.md "Was nicht funktionierte"

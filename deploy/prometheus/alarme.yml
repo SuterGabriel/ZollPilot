@@ -1,0 +1,126 @@
+# Alarmregeln. Jede hat ein Runbook in docs/BETRIEB.md, Abschnitt „Alarme“,
+# unter demselben Namen. Ein Alarm ohne Handgriff ist Lärm.
+#
+# Die Schwellen hier sind Betriebswerte, keine Fachregeln: Sie sagen, wann
+# ein Mensch hinsehen soll, nie, ob eine Akte freigabereif ist. Deshalb
+# stehen sie hier und nicht in rules.yaml.
+#
+# Drei Schweregrade:
+#   kritisch   ein Dienst fehlt oder Prüfungen scheitern. Jetzt.
+#   warnung    etwas bleibt liegen oder wird langsam. Heute.
+#   hinweis    fachlich auffällig, kein Ausfall. Bei Gelegenheit, aber nicht nie.
+
+groups:
+  - name: zollpilot-verfuegbarkeit
+    rules:
+      - alert: ZollPilotN8nNichtErreichbar
+        expr: up{job="n8n"} == 0
+        for: 1m
+        labels:
+          schwere: kritisch
+        annotations:
+          zusammenfassung: "n8n antwortet nicht auf /metrics"
+          beschreibung: "Kein Webhook nimmt Akten an. Runbook: docs/BETRIEB.md, Alarme."
+
+      - alert: ZollPilotExtraktionNichtErreichbar
+        expr: up{job="extraktion"} == 0
+        for: 1m
+        labels:
+          schwere: kritisch
+        annotations:
+          zusammenfassung: "Extraktionsdienst antwortet nicht"
+          beschreibung: "/webhook/belege scheitert; /webhook/akte läuft weiter. Gescheiterte Läufe liegen in wiedervorlage."
+
+      - alert: ZollPilotSqlExporterNichtErreichbar
+        expr: up{job="sql-exporter"} == 0
+        for: 2m
+        labels:
+          schwere: warnung
+        annotations:
+          zusammenfassung: "Die fachlichen Zähler fehlen"
+          beschreibung: "Der SQL-Exporter erreicht Postgres nicht oder läuft nicht. Alle zollpilot_*-Metriken sind blind."
+
+      - alert: ZollPilotOhneOcr
+        expr: zollpilot_extraktion_ocr_verfuegbar == 0
+        for: 1m
+        labels:
+          schwere: warnung
+        annotations:
+          zusammenfassung: "Extraktion läuft ohne Tesseract"
+          beschreibung: "Gescannte Belege werden unclassified. Image neu bauen (docs/BETRIEB.md)."
+
+  - name: zollpilot-laeufe
+    rules:
+      - alert: ZollPilotLaufGescheitert
+        expr: sum(increase(zollpilot_workflow_fehler_total[15m])) > 0
+        labels:
+          schwere: kritisch
+        annotations:
+          zusammenfassung: "Mindestens ein Prüflauf ist in den letzten 15 Minuten gescheitert"
+          beschreibung: "Zeile in workflow_fehler lesen, Ausführung öffnen, dann POST /webhook/wiederholen."
+
+      - alert: ZollPilotWiedervorlageOffen
+        expr: sum(zollpilot_wiedervorlagen_offen) > 0
+        for: 30m
+        labels:
+          schwere: warnung
+        annotations:
+          zusammenfassung: "Gescheiterte Läufe warten seit 30 Minuten auf Wiederholung"
+          beschreibung: "Ursache beheben, dann je Zeile POST /webhook/wiederholen mit der execution_id."
+
+      - alert: ZollPilotKeinEingang
+        # Das Zeitfenster ist ein Betriebsparameter. 24 Stunden passen zu
+        # einem Team, das werktags einreicht; wer rund um die Uhr Eingang
+        # erwartet, setzt es enger.
+        expr: zollpilot_letzte_pruefung_alter_sekunden > 86400
+        for: 5m
+        labels:
+          schwere: warnung
+        annotations:
+          zusammenfassung: "Seit 24 Stunden keine Prüfung"
+          beschreibung: "Niemand reicht ein, oder der Weg dorthin ist tot. Kein Fehlerzähler merkt das."
+
+      - alert: ZollPilotExtraktionLangsam
+        expr: histogram_quantile(0.95, sum(rate(zollpilot_extraktion_dauer_sekunden_bucket[10m])) by (le)) > 60
+        for: 10m
+        labels:
+          schwere: warnung
+        annotations:
+          zusammenfassung: "95 % der Extraktionen dauern über eine Minute"
+          beschreibung: "Der nginx-Proxy bricht bei 180 s ab. Anteil OCR und Größe der Belege prüfen."
+
+  - name: zollpilot-fachlich
+    rules:
+      - alert: ZollPilotNachextraktionHaeufig
+        # Anteil der Befunde, die Nachextraktion verlangen, an allen Befunden
+        # der letzten Stunde. Viele davon heißt: schlechte Scans oder ein
+        # fremdes Layout, nicht ein kaputter Dienst.
+        expr: |
+          sum(increase(zollpilot_befunde_total{status="re_extraction_required"}[1h]))
+            / clamp_min(sum(increase(zollpilot_befunde_total[1h])), 1) > 0.2
+        for: 15m
+        labels:
+          schwere: hinweis
+        annotations:
+          zusammenfassung: "Über 20 % der Befunde verlangen Nachextraktion"
+          beschreibung: "Lesequalität, nicht Fachfehler. Belege der letzten Stunde ansehen; Konfidenzschwelle steht in rules.yaml."
+
+      - alert: ZollPilotOverrideVerbraucht
+        # Eine Katalogänderung entwertet Übersteuerungen (ADR-007). Bisher
+        # erfuhr das niemand; jetzt der Betrieb, sobald eine Akte erneut
+        # geprüft wird.
+        expr: sum(increase(zollpilot_overrides_total{gewirkt="false"}[1h])) > 0
+        labels:
+          schwere: hinweis
+        annotations:
+          zusammenfassung: "Eine Übersteuerung ist verbraucht"
+          beschreibung: "Der Katalog hat sich geändert; die Person hat eine andere Fassung verantwortet. Fachseite informieren, Sicht override_wirkung."
+
+      - alert: ZollPilotPostgresVerbindungenKnapp
+        expr: zollpilot_db_verbindungen / zollpilot_db_verbindungen_maximum > 0.8
+        for: 5m
+        labels:
+          schwere: warnung
+        annotations:
+          zusammenfassung: "Über 80 % der Postgres-Verbindungen belegt"
+          beschreibung: "n8n hält Verbindungen offen. pg_stat_activity ansehen, sonst max_connections erhöhen."

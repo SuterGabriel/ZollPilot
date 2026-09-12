@@ -116,6 +116,43 @@ CREATE TABLE workflow_fehler (
   ausfuehrung_url   text
 );
 
+-- Ein gescheiterter Lauf, der sich wiederholen lässt. Der Fehlerzweig des
+-- Prüf-Workflows legt hier ab, was erneut hinein müsste; der Workflow
+-- zollpilot-wiederholen liest es und schickt es noch einmal an denselben
+-- Eingang. Im Unterschied zu workflow_fehler trägt `nutzlast` Aktendaten:
+-- Das ist der Zweck der Tabelle, und deshalb gilt für sie dieselbe
+-- Aufbewahrung wie für Ausführungen (docs/DATENSCHUTZ.md).
+CREATE TABLE wiedervorlage (
+  id                        bigserial PRIMARY KEY,
+  execution_id              text NOT NULL,
+  eingang                   text NOT NULL,       -- akte | belege
+  akte_id                   text,
+  nutzlast                  jsonb,
+  status                    text NOT NULL DEFAULT 'offen',  -- offen | erledigt | erneut_gescheitert | nicht_wiederholbar
+  angelegt_am               timestamptz NOT NULL DEFAULT now(),
+  wiederholt_am             timestamptz,
+  wiederholung_execution_id text,
+  ergebnis_freigabe         text
+);
+CREATE INDEX wiedervorlage_offen_idx ON wiedervorlage (status, angelegt_am);
+
+-- Alarme aus Prometheus, über den Alertmanager an n8n geliefert
+-- (deploy/alertmanager/alertmanager.yml, workflows/zollpilot-alarm.json).
+-- Ein Alarm ist damit eine Zeile mit Beginn und Ende, nicht eine Mail.
+CREATE TABLE alarm (
+  id                bigserial PRIMARY KEY,
+  fingerprint       text,
+  name              text NOT NULL,
+  schwere           text,
+  zustand           text NOT NULL,             -- firing | resolved
+  zusammenfassung   text,
+  beschreibung      text,
+  begonnen_am       timestamptz,
+  beendet_am        timestamptz,
+  labels            jsonb,
+  empfangen_am      timestamptz NOT NULL DEFAULT now()
+);
+
 -- Overrides sind Entscheidungen mit Namen. Ohne Begründung kein Override
 -- (PROJECT.md, Abschnitt 6).
 --

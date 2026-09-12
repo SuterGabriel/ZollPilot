@@ -271,7 +271,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Transport, keine Entscheidung: Das Formularfeld `akte` (Stammdaten als JSON)\n// und die hochgeladenen Dateien werden in das JSON verpackt, das der\n// Extraktionsdienst erwartet. Welche Datei welcher Beleg ist, entscheidet der\n// Dienst (Klassifikation), nicht dieser Node.\nconst item = $input.first();\nconst roh = item.json.body?.akte;\nconst akte = typeof roh === 'string' ? JSON.parse(roh) : (roh ?? {});\nconst dateien = [];\nfor (const [schluessel, binaer] of Object.entries(item.binary ?? {})) {\n  const puffer = await this.helpers.getBinaryDataBuffer(0, schluessel);\n  dateien.push({ name: binaer.fileName ?? `${schluessel}.pdf`, inhalt_base64: puffer.toString('base64') });\n}\nreturn [{ json: { akte, dateien } }];"
+        "jsCode": "// Transport, keine Entscheidung: Das Formularfeld `akte` (Stammdaten als JSON)\n// und die hochgeladenen Dateien werden in das JSON verpackt, das der\n// Extraktionsdienst erwartet. Welche Datei welcher Beleg ist, entscheidet der\n// Dienst (Klassifikation), nicht dieser Node.\n//\n// Zweite Form: Kommt der Rumpf bereits als JSON mit `dateien[]` (Base64),\n// wird er unverändert durchgereicht. So wiederholt zollpilot-wiederholen\n// einen gescheiterten Lauf über denselben Eingang.\nconst item = $input.first();\nconst body = item.json.body ?? {};\nif (Array.isArray(body.dateien)) {\n  return [{ json: { akte: body.akte ?? {}, dateien: body.dateien } }];\n}\nconst roh = body.akte;\nconst akte = typeof roh === 'string' ? JSON.parse(roh) : (roh ?? {});\nconst dateien = [];\nfor (const [schluessel, binaer] of Object.entries(item.binary ?? {})) {\n  const puffer = await this.helpers.getBinaryDataBuffer(0, schluessel);\n  dateien.push({ name: binaer.fileName ?? `${schluessel}.pdf`, inhalt_base64: puffer.toString('base64') });\n}\nreturn [{ json: { akte, dateien } }];"
       },
       "id": "a1b2c3d4-0011-4000-8000-000000000011",
       "name": "Belege verpacken",
@@ -324,7 +324,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ fehler: true, meldung: \"Der Pruef-Workflow ist gescheitert. Die Akte wurde nicht geprueft.\", ausfuehrung: $execution.id }) }}",
+        "responseBody": "={{ JSON.stringify({ fehler: true, meldung: \"Der Pruef-Workflow ist gescheitert. Die Akte wurde nicht geprueft.\", ausfuehrung: $execution.id, wiederholbar: $('Wiedervorlage vorbereiten').first().json.status === 'offen' }) }}",
         "options": {
           "responseCode": 500
         }
@@ -332,12 +332,12 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1040,
+        1560,
         900
       ],
       "id": "a7f1c4e2-5b3d-4a6f-9c81-2e4d6b8a0f13",
       "name": "Antwort: Lauf gescheitert",
-      "notes": "Ohne diesen Zweig antwortet ein gescheiterter Lauf mit 200 und leerem Rumpf: Der Aufrufer koennte \"freigabereif\" nicht von \"abgestuerzt\" unterscheiden. Der Rumpf nennt bewusst nur die Ausfuehrungs-ID, keine Fehlermeldung und keine Akteninhalte - der Fehlertext kann Belegwerte enthalten (docs/DATENSCHUTZ.md). Das Ganze steht im Fehler-Workflow und in der Ausfuehrung in n8n.",
+      "notes": "Ohne diesen Zweig antwortet ein gescheiterter Lauf mit 200 und leerem Rumpf: Der Aufrufer koennte \"freigabereif\" nicht von \"abgestuerzt\" unterscheiden. Der Rumpf nennt bewusst nur die Ausfuehrungs-ID, keine Fehlermeldung und keine Akteninhalte - der Fehlertext kann Belegwerte enthalten (docs/DATENSCHUTZ.md). Das Ganze steht im Fehler-Workflow und in der Ausfuehrung in n8n. `wiederholbar` sagt, ob der Lauf ueber POST /webhook/wiederholen mit dieser Ausfuehrungs-ID erneut gestartet werden kann.",
       "notesInFlow": false
     },
     {
@@ -385,6 +385,101 @@
       "onError": "continueRegularOutput",
       "notes": "Der behandelte Fehler startet den Fehler-Workflow nicht: Ein Node mit continueErrorOutput gilt n8n als erledigt, der Lauf endet erfolgreich. Ohne diesen Node fiele die Zeile in workflow_fehler weg - der Aufrufer bekaeme 500, der Betrieb erfuehre nichts. Deshalb schreibt dieser Zweig selbst. Bei Datenbankfehler laeuft er weiter: Die Antwort an den Aufrufer ist wichtiger als die Ablage.",
       "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Transport, keine Entscheidung: Welcher Eingang lief, und was müsste erneut\n// hinein, damit der Lauf wiederholt werden kann. Das landet in `wiedervorlage`\n// (mit Nutzdaten, docs/DATENSCHUTZ.md), nicht in `workflow_fehler`.\n//\n// Drei Fälle:\n//   Akte-Eingang            der Rumpf des Webhooks, erneut an /webhook/akte\n//   Belege, Extraktion ok   die extrahierte Akte, erneut an /webhook/akte\n//                           (die PDFs müssen nicht noch einmal gelesen werden)\n//   Belege, Extraktion tot  das verpackte JSON, erneut an /webhook/belege\n// Scheitert schon das Verpacken, gibt es nichts zu wiederholen.\n//\n// Zwei Fallen beim Lesen der Vorgänger: `isExecuted` gibt es nur in\n// Ausdrücken, nicht im Code-Node; und ein Node, dessen Fehlerausgang genommen\n// wurde, hat seine Daten auf Ausgang 1, nicht auf Ausgang 0. Deshalb wird\n// jeder Zugriff abgefangen, und ein Node, der nicht lief, ist einfach null.\nconst ausgabe = (name) => {\n  for (const ausgang of [0, 1]) {\n    try {\n      const item = $(name).first(ausgang);\n      if (item && item.json) return item.json;\n    } catch (e) { /* nicht gelaufen oder kein Item auf diesem Ausgang */ }\n  }\n  return null;\n};\nlet eingang = 'akte';\nlet nutzlast = null;\nif (!ausgabe('Belege eingegangen')) {\n  nutzlast = ausgabe('Akte eingegangen')?.body ?? null;\n} else {\n  const extrahiert = ausgabe('Belege extrahieren');\n  const verpackt = ausgabe('Belege verpacken');\n  if (Array.isArray(extrahiert?.dokumente)) {\n    nutzlast = extrahiert;\n  } else if (Array.isArray(verpackt?.dateien)) {\n    eingang = 'belege';\n    nutzlast = verpackt;\n  }\n}\nconst akteId = nutzlast?.akte_id ?? nutzlast?.akte?.akte_id ?? null;\nreturn [{\n  json: {\n    execution_id: String($execution.id),\n    eingang,\n    akte_id: akteId,\n    nutzlast: nutzlast ? JSON.stringify(nutzlast) : null,\n    status: nutzlast ? 'offen' : 'nicht_wiederholbar',\n  },\n}];"
+      },
+      "id": "wiedervorlage-vorbereiten",
+      "name": "Wiedervorlage vorbereiten",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        900
+      ],
+      "notes": "Was erneut hinein muesste, damit der gescheiterte Lauf wiederholt werden kann. Nur Umformen: Der Node entscheidet nichts, er merkt sich den Eingang und den Rumpf."
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "wiedervorlage"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "execution_id": "={{ $json.execution_id }}",
+            "eingang": "={{ $json.eingang }}",
+            "akte_id": "={{ $json.akte_id }}",
+            "nutzlast": "={{ $json.nutzlast }}",
+            "status": "={{ $json.status }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "execution_id",
+              "displayName": "execution_id",
+              "type": "string",
+              "required": true,
+              "display": true
+            },
+            {
+              "id": "eingang",
+              "displayName": "eingang",
+              "type": "string",
+              "required": true,
+              "display": true
+            },
+            {
+              "id": "akte_id",
+              "displayName": "akte_id",
+              "type": "string",
+              "required": false,
+              "display": true
+            },
+            {
+              "id": "nutzlast",
+              "displayName": "nutzlast",
+              "type": "object",
+              "required": false,
+              "display": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "required": true,
+              "display": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wiedervorlage-ablegen",
+      "name": "Wiedervorlage ablegen",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1300,
+        900
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "notes": "Die Zeile, die POST /webhook/wiederholen spaeter liest. Bei Datenbankfehler laeuft der Zweig weiter: Die Antwort an den Aufrufer ist wichtiger als die Ablage."
     }
   ],
   "connections": {
@@ -516,6 +611,28 @@
       ]
     },
     "Fehler festhalten": {
+      "main": [
+        [
+          {
+            "node": "Wiedervorlage vorbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wiedervorlage vorbereiten": {
+      "main": [
+        [
+          {
+            "node": "Wiedervorlage ablegen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wiedervorlage ablegen": {
       "main": [
         [
           {

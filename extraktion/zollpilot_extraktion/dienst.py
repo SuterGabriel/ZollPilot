@@ -1,6 +1,7 @@
 """HTTP-Dienst für n8n: Belege rein, Akte raus.
 
     GET  /healthz                     ok, plus ob OCR verfügbar ist
+    GET  /metrics                     Prometheus-Format (metriken.py)
     POST /extraktion/akte             JSON: {akte: {...}, dateien: [{name, inhalt_base64}]}
     POST /extraktion/akte/multipart   Formular: akte (JSON-Text) + dateien (PDFs)
 
@@ -20,10 +21,11 @@ import logging
 import time
 from typing import Any
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Response, UploadFile
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, Field
 
-from . import VERSION
+from . import VERSION, metriken
 from .akte import extrahiere_akte
 from .lesen import ocr_version
 
@@ -31,8 +33,17 @@ log = logging.getLogger("zollpilot.extraktion")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 
 app = FastAPI(title="ZollPilot Extraktion", version=VERSION)
+metriken.setze_ocr(ocr_version() is not None)
 
 MAX_DATEIEN = 50
+
+
+@app.get("/metrics")
+def metrics() -> Response:
+    """Prometheus-Format. Eine feste Route statt einer eingehängten App, damit
+    /metrics ohne Umleitung auf /metrics/ antwortet; Prometheus folgt zwar
+    Umleitungen, ein curl im Rauchtest nicht."""
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 class Datei(BaseModel):
@@ -53,11 +64,18 @@ def healthz() -> dict[str, Any]:
 
 def _verarbeite(stammdaten: dict[str, Any], dateien: list[tuple[str, bytes]]) -> dict[str, Any]:
     if not dateien:
+        metriken.zaehle_abgelehnt()
         raise HTTPException(status_code=422, detail="keine Dateien")
     if len(dateien) > MAX_DATEIEN:
+        metriken.zaehle_abgelehnt()
         raise HTTPException(status_code=422, detail=f"mehr als {MAX_DATEIEN} Dateien")
     start = time.perf_counter()
-    akte = extrahiere_akte(stammdaten, dateien)
+    try:
+        akte = extrahiere_akte(stammdaten, dateien)
+    except Exception:
+        metriken.zaehle_fehler()
+        raise
+    metriken.zaehle_akte(akte, time.perf_counter() - start)
     log.info(
         "akte=%s dateien=%d bytes=%d dokumente=%d assertions=%d hinweise=%d dauer_ms=%d",
         akte.get("akte_id"),

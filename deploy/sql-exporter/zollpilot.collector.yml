@@ -1,0 +1,91 @@
+# Jede Metrik hier beantwortet eine Frage aus PROJECT.md, Abschnitt 7:
+# nicht „wie viele Zeichen stimmen“, sondern „wie oft war die Entscheidung
+# richtig, wie oft blockiert, wie oft konnte das System nicht lesen“.
+
+collector_name: zollpilot
+
+metrics:
+  - metric_name: zollpilot_pruefungen_total
+    type: counter
+    help: "Prüfungen nach Regelentscheidung und Entscheidung unter menschlicher Verantwortung (ADR-007)."
+    key_labels: [freigabe, freigabe_nach_override]
+    values: [anzahl]
+    query: |
+      SELECT freigabe,
+             COALESCE(freigabe_nach_override, freigabe) AS freigabe_nach_override,
+             COUNT(*) AS anzahl
+      FROM pruefung
+      GROUP BY 1, 2
+
+  - metric_name: zollpilot_befunde_total
+    type: counter
+    help: "Einzelbefunde je Regel und Status. re_extraction_required ist Lesequalität, verletzt ist Fachfehler (ADR-003)."
+    key_labels: [regel, status]
+    values: [anzahl]
+    query: |
+      SELECT regel, status, COUNT(*) AS anzahl
+      FROM rule_result
+      GROUP BY 1, 2
+
+  - metric_name: zollpilot_workflow_fehler_total
+    type: counter
+    help: "Gescheiterte Läufe, aus workflow_fehler. Zählt auch Fehler, die der Fehlerzweig behandelt hat und die n8n als Erfolg wertet."
+    key_labels: [workflow_name]
+    values: [anzahl]
+    query: |
+      SELECT COALESCE(workflow_name, 'unbekannt') AS workflow_name, COUNT(*) AS anzahl
+      FROM workflow_fehler
+      GROUP BY 1
+
+  - metric_name: zollpilot_wiedervorlagen_offen
+    type: gauge
+    help: "Gescheiterte Läufe, die auf Wiederholung warten (POST /webhook/wiederholen)."
+    key_labels: [eingang]
+    values: [anzahl]
+    query: |
+      SELECT eingang, COUNT(*) AS anzahl
+      FROM wiedervorlage
+      WHERE status = 'offen'
+      GROUP BY 1
+
+  - metric_name: zollpilot_letzte_pruefung_alter_sekunden
+    type: gauge
+    help: "Sekunden seit der letzten Prüfung. Sagt, ob überhaupt noch etwas ankommt."
+    values: [alter_sekunden]
+    query: |
+      SELECT COALESCE(EXTRACT(EPOCH FROM (now() - MAX(geprueft_am))), 0) AS alter_sekunden
+      FROM pruefung
+
+  - metric_name: zollpilot_overrides_total
+    type: counter
+    help: "Übersteuerungen in Prüfungen: gewirkt (Fassung galt) oder verbraucht (Katalog hat sich geändert, ADR-007)."
+    key_labels: [gewirkt]
+    values: [anzahl]
+    query: |
+      SELECT CASE WHEN gewirkt THEN 'true' ELSE 'false' END AS gewirkt, COUNT(*) AS anzahl
+      FROM override_wirkung
+      GROUP BY 1
+
+  - metric_name: zollpilot_alarme_total
+    type: counter
+    help: "Alarme, die der Alertmanager an n8n geliefert hat, nach Name und Zustand."
+    key_labels: [name, zustand]
+    values: [anzahl]
+    query: |
+      SELECT name, zustand, COUNT(*) AS anzahl
+      FROM alarm
+      GROUP BY 1, 2
+
+  - metric_name: zollpilot_db_verbindungen
+    type: gauge
+    help: "Offene Verbindungen zu Postgres, alle Datenbanken."
+    values: [anzahl]
+    query: |
+      SELECT COUNT(*) AS anzahl FROM pg_stat_activity
+
+  - metric_name: zollpilot_db_verbindungen_maximum
+    type: gauge
+    help: "max_connections von Postgres."
+    values: [maximum]
+    query: |
+      SELECT current_setting('max_connections')::int AS maximum
