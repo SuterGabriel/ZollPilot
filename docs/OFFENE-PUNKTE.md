@@ -116,8 +116,14 @@ bis dahin ist der Katalog ehrlich markiert.
 
 ## Braucht Zugänge
 
-- **GitHub-Remote.** Das Repo ist lokal; das private Remote legt der Autor
-  an (`gh repo create`).
+- **Fünf Commits sind nicht gepusht.** Das Remote existiert
+  (`github.com/SuterGabriel/ZollPilot`), aber `origin/main` steht auf
+  `1938b3b` — dem Stand vor der Extraktion. Stufe 3 und Stufe 4 liegen nur
+  auf der Maschine des Autors, und damit ist die **CI für sie nie
+  gelaufen**: Die Jobs `extraktion`, `oberflaeche` und der erweiterte
+  `betrieb` sind lokal nachgestellt, aber auf keinem Runner belegt. Kein
+  Gate kann das finden — der Beleg-Check liest das Dateisystem, nicht den
+  Git-Zustand. Bis zum Push ist „acht CI-Jobs" eine Zusage, kein Nachweis.
 - **Docker in der CI.** Der Job `betrieb` baut Extraktion und Oberfläche und
   zieht das n8n-Image; auf GitHub-Runnern ist Docker vorhanden, die Laufzeit
   liegt bei fünf bis acht Minuten.
