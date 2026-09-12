@@ -160,6 +160,10 @@ pruefe "Fehler-Workflow existiert" datei workflows/zollpilot-fehler.json
 pruefe "Code-Node ist generiert, nicht von Hand" enthaelt workflows/zollpilot-akte-pruefen.json "GENERIERT von scripts/n8n-bundle.mjs"
 pruefe "Prüf-Workflow nennt den Fehler-Workflow" enthaelt workflows/zollpilot-akte-pruefen.json '"errorWorkflow": "zollpilot-fehler"'
 pruefe "E-Mail-Node ist bewusst deaktiviert, nicht vergessen" enthaelt workflows/zollpilot-akte-pruefen.json "Absichtlich deaktiviert"
+pruefe "Ein gescheiterter Lauf antwortet, statt 200 mit leerem Rumpf zu liefern" enthaelt workflows/zollpilot-akte-pruefen.json "Antwort: Lauf gescheitert"
+pruefe "Der Fehlerzweig haelt den Fehler selbst fest" enthaelt workflows/zollpilot-akte-pruefen.json "Fehler festhalten"
+pruefe "Der Rauchtest prueft den gescheiterten Lauf mit" enthaelt scripts/rauchtest.sh "Runde 5"
+pruefe "Metriken zaehlen Ausfuehrungen, nicht nur Prozessdaten" enthaelt compose.yml "N8N_METRICS_INCLUDE_MESSAGE_EVENT_BUS_METRICS"
 
 echo
 echo "Stufe 3 — Extraktion: OCR mit Koordinaten vor Vision-Modell (ADR-005)"

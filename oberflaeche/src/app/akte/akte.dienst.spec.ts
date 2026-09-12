@@ -90,4 +90,23 @@ describe('fehlermeldung', () => {
     expect(fehlermeldung(antwort(418))).toContain('418');
     expect(fehlermeldung(new Error('irgendwas'))).toContain('Unerwarteter Fehler');
   });
+
+  it('nennt bei 500 die Ausführung, damit der Betrieb den Lauf wiederfindet', () => {
+    // Genau der Rumpf, den der Fehlerzweig des Workflows liefert.
+    const gescheitert = new HttpErrorResponse({
+      status: 500,
+      statusText: 'Internal Server Error',
+      error: { fehler: true, meldung: 'Der Pruef-Workflow ist gescheitert.', ausfuehrung: '138' },
+    });
+    const meldung = fehlermeldung(gescheitert);
+    expect(meldung).toContain('Ausführung 138');
+    expect(meldung).toContain('nicht geprüft');
+  });
+
+  it('kommt ohne Ausführungs-ID aus, statt "undefined" zu zeigen', () => {
+    // Der Satz nennt weiterhin die Ausführung in n8n als Fundstelle — aber
+    // keine Nummer, die es nicht gibt.
+    expect(fehlermeldung(antwort(502))).not.toMatch(/Ausführung \S+\./);
+    expect(fehlermeldung(antwort(502))).toContain('workflow_fehler');
+  });
 });
