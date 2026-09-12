@@ -1,3 +1,55 @@
+/* Der Bildschirm ist eine Werkbank, kein Dokument.
+ *
+ * Ab 1024 px füllt die Anwendung genau das Fenster: Kopf und Fuß stehen
+ * fest, und was länger wird, bewegt sich innerhalb seiner Spalte. Die Seite
+ * selbst scrollt nie. Der Grund ist fachlich, nicht ästhetisch: Wer einen
+ * Befund liest, braucht gleichzeitig die Akte daneben — ob ein Beleg fehlt
+ * oder nur schlecht gelesen wurde, steht links. Eine mitscrollende Seite
+ * nimmt einem genau diese zweite Hälfte weg.
+ *
+ * Darunter stapeln die Spalten, und die Seite scrollt wie eine Seite. Ein
+ * festgenageltes Fenster ohne Platz macht Inhalt unerreichbar; das wäre
+ * schlimmer als ein Rollbalken. */
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+main.flaeche {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+@media (min-width: 1024px) {
+  :host {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* `min-height: 0` ist die Bedingung dafür, dass ein Rasterkind überhaupt
+   * kleiner werden darf als sein Inhalt — ohne das wächst die Spalte und
+   * schiebt den Fuß aus dem Bild.
+   *
+   * Das Innenmaß fängt den Fokusring auf (2 px Strich, 2 px Abstand): Eine
+   * scrollende Spalte würde ihn sonst abschneiden. Der negative Außenabstand
+   * nimmt es optisch wieder zurück, damit die Spaltenbreite dieselbe bleibt. */
+  .akte,
+  .ergebnis-spalte {
+    overflow: auto;
+    min-height: 0;
+    /* `relative` ist hier keine Kosmetik, sondern die Bedingung dafür, dass
+     * der Zuschnitt überhaupt greift: Die `.nur-vorlesen`-Elemente sind
+     * absolut positioniert, und ohne positionierten Vorfahren ist ihr
+     * umschließender Block die Seite. Sie entkommen dann dem Überlauf der
+     * Spalte und ziehen die Seite auf — unsichtbar, aber mit Rollbalken. */
+    position: relative;
+    scrollbar-gutter: stable;
+    padding-inline: var(--mass-1);
+    margin-inline: calc(var(--mass-1) * -1);
+  }
+}
+
 /* Die Sprungmarke liegt außerhalb des Bildes, bis sie den Fokus bekommt —
  * der erste Tabulatorsprung führt an Kopfzeile und Formular vorbei dorthin,
  * wo nach dem Absenden das Ergebnis steht. */
@@ -16,10 +68,13 @@
   inset-block-start: var(--mass-4);
 }
 
+/* Kopf und Fuß sind Rahmen, nicht Inhalt. Sie stehen fest im Bild und
+ * nehmen deshalb nur so viel Höhe, wie sie zum Lesen brauchen — jede Zeile
+ * hier fehlt der Akte darunter. */
 header {
   background: var(--ton-grund);
   border-bottom: 1px solid var(--ton-haarlinie);
-  padding-block: var(--mass-6);
+  padding-block: var(--mass-4);
 }
 
 .kopf,
@@ -54,16 +109,10 @@ h1 {
   display: grid;
   grid-template-columns: var(--aktenspalte) minmax(0, 1fr);
   gap: var(--mass-8);
-  align-items: start;
-  padding-block: var(--mass-6) var(--mass-8);
-}
-
-/* Die Aktenspalte bleibt beim Lesen der Befunde stehen — beim blockierten
- * Fall braucht man beides gleichzeitig: den Befund und die Frage, ob ein
- * Beleg fehlt oder nur schlecht gelesen wurde. */
-.akte {
-  position: sticky;
-  top: var(--mass-4);
+  /* `stretch`, damit beide Spalten die Höhe der Fläche bekommen — erst das
+   * macht ihr eigenes Scrollen möglich. Gestapelt wäre es sinnlos. */
+  align-items: stretch;
+  padding-block: var(--mass-4) var(--mass-3);
 }
 
 /* Unter 1024 px stapeln die Spalten; die Akte steht dann oben und scrollt
@@ -72,10 +121,6 @@ h1 {
   .flaeche {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--mass-5);
-  }
-
-  .akte {
-    position: static;
   }
 
   .kopf,
@@ -92,7 +137,7 @@ footer {
 }
 
 .flaeche-schmal {
-  padding-block: var(--mass-6);
+  padding-block: var(--mass-3);
 }
 
 footer p {

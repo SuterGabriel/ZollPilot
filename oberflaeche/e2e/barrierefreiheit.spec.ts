@@ -213,3 +213,80 @@ test('ohne Namen oder Begründung ist das Übersteuern gesperrt und der Grund st
   await page.getByLabel(/Begründung/).fill('Reederei hat bestätigt');
   await expect(absenden).toBeEnabled();
 });
+
+/**
+ * Die Seite selbst scrollt nicht.
+ *
+ * Ab 1024 px füllt die Anwendung das Fenster; was länger wird, bewegt sich
+ * in seiner Spalte. Der Grund steht in `app.css`: Wer einen Befund liest,
+ * braucht die Akte daneben. Ohne diesen Test wäre das eine Absichtserklärung
+ * — ein zusätzlicher Absatz im Kopf genügt, um sie zu brechen.
+ */
+async function seitenscrollung(seite: Page) {
+  return seite.evaluate(() => {
+    const wurzel = document.scrollingElement ?? document.documentElement;
+    return { hoehe: wurzel.scrollHeight, sichtbar: wurzel.clientHeight };
+  });
+}
+
+for (const groesse of [
+  { width: 1280, height: 720 },
+  { width: 1440, height: 900 },
+  { width: 1920, height: 1080 },
+]) {
+  test(`die Seite scrollt nicht bei ${groesse.width}x${groesse.height}`, async ({ page }) => {
+    await page.setViewportSize(groesse);
+    const leer = await seitenscrollung(page);
+    expect(leer.hoehe, `leeres Formular bei ${groesse.width}x${groesse.height}`).toBeLessThanOrEqual(leer.sichtbar);
+
+    // Auch mit einem Ergebnis, das länger ist als das Fenster: Dann scrollt
+    // die Ergebnisspalte, nicht die Seite.
+    await antworteMit(page, ERGEBNIS_BLOCKIERT, 422);
+    await belegeAblegen(page);
+    await page.getByRole('button', { name: 'Akte einreichen' }).click();
+    await expect(page.locator('.band .wort')).toBeVisible();
+
+    const gefuellt = await seitenscrollung(page);
+    expect(gefuellt.hoehe, `mit Ergebnis bei ${groesse.width}x${groesse.height}`).toBeLessThanOrEqual(gefuellt.sichtbar);
+
+    // Und die Spalte bewegt sich wirklich — sonst wäre der Befund unerreichbar.
+    const spalte = page.locator('.ergebnis-spalte');
+    const beweglich = await spalte.evaluate((el) => el.scrollHeight > el.clientHeight);
+    expect(beweglich, 'die Ergebnisspalte muss scrollen können').toBe(true);
+
+    // Die Hauptaktion bleibt sichtbar, auch wenn die Karten darüber länger
+    // sind als das Fenster. Eine abgeschnittene Schaltfläche ist der Grund,
+    // aus dem dieser Test überhaupt existiert.
+    await expect(page.getByRole('button', { name: 'Akte einreichen', exact: true })).toBeInViewport();
+  });
+}
+
+test('bei 960 px Fensterhöhe braucht auch die Aktenspalte keinen Rollbalken', async ({ page }) => {
+  // Die Grenze ist gemessen, nicht gewünscht: Bei 960 px passt die leere
+  // Spalte genau — kein Spielraum. Wird der Kopf, eine Karte oder ein
+  // Abstand höher, fällt dieser Test, und zwar bevor es jemandem auf dem
+  // Bildschirm auffällt. Darunter scrollt die Spalte; die Schaltfläche
+  // bleibt trotzdem stehen, das prüfen die Tests darüber.
+  await page.setViewportSize({ width: 1440, height: 960 });
+  const spalte = await page
+    .locator('.akte')
+    .evaluate((el) => ({ inhalt: el.scrollHeight, sichtbar: el.clientHeight }));
+  expect(spalte.inhalt, `Aktenspalte: ${spalte.inhalt} in ${spalte.sichtbar}`).toBeLessThanOrEqual(spalte.sichtbar);
+});
+
+test('unter 1024 px scrollt die Seite wieder — sonst wäre Inhalt unerreichbar', async ({ page }) => {
+  await page.setViewportSize({ width: 400, height: 720 });
+  await antworteMit(page, ERGEBNIS_BLOCKIERT, 422);
+  await belegeAblegen(page);
+  await page.getByRole('button', { name: 'Akte einreichen' }).click();
+  await expect(page.locator('.band .wort')).toBeVisible();
+
+  const gestapelt = await seitenscrollung(page);
+  expect(gestapelt.hoehe).toBeGreaterThan(gestapelt.sichtbar);
+  // Kein waagerechter Rollbalken: Das bleibt auch schmal die Bedingung.
+  const quer = await page.evaluate(() => {
+    const w = document.scrollingElement ?? document.documentElement;
+    return w.scrollWidth <= w.clientWidth;
+  });
+  expect(quer, 'die Seite darf nie waagerecht scrollen').toBe(true);
+});

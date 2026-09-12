@@ -16,10 +16,10 @@ legend {
 
 .zone {
   border: 2px dashed var(--ton-rand);
-  padding: var(--mass-5) var(--mass-4);
+  padding: var(--mass-2) var(--mass-4);
   text-align: center;
   background: var(--ton-grund);
-  margin-top: var(--mass-3);
+  margin-top: var(--mass-1);
 }
 
 /* Das Hervorheben beim Darüberziehen ist eine Zugabe für das Zeigegerät.
@@ -30,7 +30,7 @@ legend {
 }
 
 .hinweis {
-  margin: 0 0 var(--mass-3);
+  margin: 0 0 var(--mass-2);
   font-size: var(--groesse-verweis);
   color: var(--ton-text-mittel);
 }
