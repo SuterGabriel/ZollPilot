@@ -143,6 +143,27 @@ docker run --rm -v "$PWD:/host" -e PYTHONPATH=/host/extraktion -w /host/extrakti
   kommt, ist nicht gebaut. Übersteuern geht (Stufe 5, ADR-007), aber ein
   übersteuerter Lesefehler ist verantwortet, nicht behoben.
 
+## Die Rechnung als Datensatz
+
+Eine Rechnung, die als UN/CEFACT Cross Industry Invoice (CII, D16B) kommt,
+nimmt denselben Eingang wie ein PDF und landet als derselbe Belegtyp in der
+Akte (ADR-008). `cii.py` erkennt sie am Inhalt, validiert sie gegen das
+Schema in `zollpilot_extraktion/schema/cii/` (Quelle und Hashes in
+`QUELLE.md`) und liest Kopf, Parteien mit Land und EORI, Positionen mit
+Warennummer, Ursprung, Menge, Preis und Betrag sowie Zuschläge, Rabatte und
+Endbetrag in dieselben Pfade wie der PDF-Extraktor. Die Assertionen tragen
+Methode `strukturiert`, Konfidenz 1 und keine Fundstelle: Es gibt keine
+Stelle im Bild, an der man nachlesen könnte. Was das Schema nicht besteht,
+hängt als `unclassified` mit Hinweis an der Akte.
+
+Die Gegenrichtung schreibt die Rechnungsfakten einer Akte als CII
+(`schreibe_cii`, Route `POST /extraktion/akte/cii`), ebenfalls gegen das
+Schema validiert. `tests/test_cii.py` fährt die Rundreise: Golden-Set-Akte
+als CII schreiben, über `extrahiere_akte` lesen, gegen `erwartet.json`
+derselben Akte vergleichen. Nicht abgebildet: Steuer, Zahlung, Lieferung,
+Referenzen, und die Ursprungserklärung, die in CII keinen Platz hat und
+beim PDF bleibt.
+
 ## Der Vergleichslauf
 
 Die Nahtstelle aus ADR-005 ist jetzt belegt, nicht nur beschrieben:
