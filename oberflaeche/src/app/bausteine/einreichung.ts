@@ -9,7 +9,7 @@
 // eine Vorführung ohne Abtippen möglich ist. Sie ist erfunden
 // (docs/DATENSCHUTZ.md).
 
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
@@ -36,7 +36,6 @@ const INCOTERM_EDITION = 2020;
 
 @Component({
   selector: 'app-einreichung',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ReactiveFormsModule, BelegAblage],
   templateUrl: './einreichung.html',
   styleUrl: './einreichung.css',

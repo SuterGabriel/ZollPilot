@@ -6,7 +6,6 @@
 // fehlt, fehlt im Regelwerk — nicht in der Darstellung (ADR-006).
 
 import {
-  ChangeDetectionStrategy,
   Component,
   type ElementRef,
   effect,
@@ -40,7 +39,6 @@ import {
 
 @Component({
   selector: 'app-ergebnis',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './ergebnis.html',
   styleUrl: './ergebnis.css',
 })

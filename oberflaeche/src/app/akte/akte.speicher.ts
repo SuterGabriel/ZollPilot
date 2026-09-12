@@ -5,14 +5,14 @@
 // bricht statt zu verblassen). Der Store hält die Angaben zum Beleg, dieser
 // Dienst die Datei dazu — verbunden über dieselbe Kennung.
 
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 
 import type { Beleg } from './akte.modell';
 
 export const ERLAUBTER_TYP = 'application/pdf';
 const ENDUNG = '.pdf';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class BelegSpeicher {
   readonly #dateien = new Map<string, File>();
 
