@@ -16,6 +16,7 @@ import { dirname, join } from 'node:path';
 const wurzel = join(dirname(fileURLToPath(import.meta.url)), '..');
 const ordner = join(wurzel, 'workflows');
 const VERDAECHTIG = /(password|passwort|secret|api[_-]?key|token)["']?\s*:\s*["'][^"']{4,}/i;
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 let fehler = 0;
 const melde = (datei, text) => { console.log(`  FEHLER ${datei}: ${text}`); fehler += 1; };
@@ -55,8 +56,10 @@ for (const datei of dateien) {
     if (VERDAECHTIG.test(text)) melde(datei, `Node ${node.name}: sieht nach einem Geheimnis in den Parametern aus`);
     if (node.type === 'n8n-nodes-base.code' && node.parameters?.jsCode) {
       try {
-        // Nur Syntax. $input und $json gibt es außerhalb von n8n nicht.
-        new Function('$input', '$json', '$', node.parameters.jsCode); // eslint-disable-line no-new-func
+        // Nur Syntax. $input und $json gibt es außerhalb von n8n nicht. Der
+        // Code-Node läuft in n8n als async-Funktion; ein `await` auf oberster
+        // Ebene ist dort erlaubt und muss hier parsen.
+        new AsyncFunction('$input', '$json', '$', node.parameters.jsCode); // eslint-disable-line no-new-func
       } catch (e) {
         melde(datei, `Node ${node.name}: Code-Node parst nicht (${e.message})`);
       }

@@ -1,0 +1,38 @@
+{
+  "akte_id": "ZP-2026-0002",
+  "beschreibung": "Präferenznachweis fehlt. Pflichtmatrix PFL-05 meldet den fehlenden Nachweis, ORG-02 ist nicht prüfbar.",
+  "stichtag": "2026-09-12",
+  "sachverhalt": {
+    "richtung": "export_third_country",
+    "verkehrstraeger": "sea",
+    "praeferenz_beansprucht": true,
+    "incoterm": {
+      "code": "FOB",
+      "named_place": "Hamburg",
+      "named_place_unlocode": "DEHAM",
+      "edition": 2020
+    },
+    "route": {
+      "pol": "DEHAM",
+      "pod": "SGSIN"
+    }
+  },
+  "anmeldung": {
+    "richtung": "export",
+    "warennummern": [
+      "84133080",
+      "84842000"
+    ]
+  },
+  "erwartung": {
+    "freigabe": "blockiert",
+    "regeln": [
+      "ORG-02"
+    ],
+    "pflicht": [
+      "PFL-05"
+    ]
+  },
+  "quelle": "testdaten/akten/praeferenznachweis-fehlt.json",
+  "synthetisch": true
+}

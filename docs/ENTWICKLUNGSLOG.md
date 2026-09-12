@@ -105,3 +105,80 @@ CLI nicht angemeldet ist; das Repo ist lokal mit allen Commits.
 inklusive Korrekturen. Von Hand geschätzt: drei bis vier Tage für denselben
 Stand — der Großteil davon Recherche-Konsolidierung, Testfälle und
 Dokumentation, nicht Code. Die Zahl ist eine Schätzung, keine Messung.
+
+---
+
+## 2026-09-12 — Stufe 3: die Extraktion
+
+**Was delegiert wurde.** Die Entscheidung, was zuerst kommt (Python-Extraktion
+vor Angular-Oberfläche, `DECISIONS.md`), dann Stufe 3 im Ganzen: ADR-005,
+das Paket `extraktion/` mit den Schichten Lesen, Klassifikation, Felder,
+Akte, der HTTP-Dienst, die Belegerzeugung aus dem Golden Set, 98 Tests, die
+Bewertung mit Basislinie, Dockerfile und Compose-Dienst, der zweite Eingang
+im Workflow, der Rauchtest mit PDFs, der CI-Job, Skill, und die Dokumente.
+
+**Was gut lief.** Die Schichten haben getragen: Alle Feldextraktoren arbeiten
+auf Wörtern mit Koordinaten, und derselbe Code lief ohne Änderung auf dem
+Textlayer und auf den OCR-Ergebnissen. Der erste Lauf der Bewertung auf den
+digitalen Belegen lag bei 92,9 Prozent mit genau einer Fehlerklasse — die
+Packlistenmengen fehlten alle —, und die Ursache war eine Zeile: Der
+Tabellenleser kannte die Spalten „Unit“ und „Packed in“ nicht, also schluckte
+die letzte bekannte Spalte alles rechts von ihr. Nach der Korrektur 420 von
+420. Die PDFs sind unter Windows und Linux byteidentisch, beim ersten
+Vergleich. Der Weg PDF → n8n → Dienst → „Akte prüfen“ lief über den echten
+Webhook beim ersten Versuch nach der Portkorrektur: 7 von 7.
+
+**Was nicht funktionierte.**
+
+- **Der erste schlechte Scan war unlesbar — auch für Tesseract.** 34 Prozent
+  Rauschen ergaben 2 719 „Wörter“ mit Konfidenz 0 und `unclassified`. Ein
+  Scan, den kein Mensch liest, prüft nichts. Bei 14 Prozent Körnung plus der
+  Vorverarbeitung aus `docs/07` (Kontrast, Medianfilter) — die im Dokument
+  stand, aber nicht im Code, bis der Test sie verlangte — liest Tesseract 13
+  von 13 Zeilen mit Konfidenzen zwischen 0,64 und 0,96.
+
+- **Und dann liest er richtig.** Der Konfidenzpfad wird auf dem PDF-Scan
+  nicht ausgelöst, weil die Containernummer stimmt (0,92). Die Erwartung der
+  PDF-Akte ist deshalb `freigabereif`, nicht `nachextraktion_erforderlich`
+  wie in der JSON-Akte. Die JSON-Akte bleibt die deterministische Vorführung
+  des Pfads; die PDF-Akte zeigt, dass die Konfidenzen echt sind. Beides steht
+  in `docs/EXTRAKTION.md`, statt dass der Scan so lange verschlechtert wird,
+  bis die Vorführung klappt.
+
+- **Dabei fiel eine Lücke im Regelwerk auf, nicht in der Extraktion:** Nur
+  TRN-01, TRN-02 und VAL-01 kennen den Konfidenzpfad. Eine falsch gelesene
+  Menge blockiert über QTY-01 fachlich. Steht in `docs/OFFENE-PUNKTE.md`,
+  oben.
+
+- **`als_betrag` war zweimal zu großzügig.** „12 PCE PAL-1“ wurde 121, dann
+  nach der ersten Korrektur „PAL-1“ zu −1. Jetzt: genau eine Zahl, drumherum
+  nur Währung oder Einheit, sonst None — und die Regel sagt `nicht_pruefbar`.
+
+- **Drei Shell-Fehler, einer davon stumm.** Zwei Heredocs mit Sonderzeichen
+  scheiterten sichtbar am Parser. Der dritte Fall war schlimmer: Eine
+  Textersetzung im Dockerfile fand ihre Stelle nicht, meldete nichts, und der
+  nächste Build lief mit der alten Stufe. Dazu ein `| tail`, das den
+  Exit-Code des Builds verdeckte — „exit 0“ über einem roten Build. Lehre:
+  Änderungen über das Werkzeug, das die Stelle kennt, und Exit-Codes vor
+  dem Filter lesen.
+
+- **Kleinigkeiten, jede vom nächsten Schritt gefangen:** Editable-Install,
+  bevor das Paket existierte (`ModuleNotFoundError`); Port 8080 auf dem Host
+  belegt (jetzt 8765); der Workflow-Check hätte ein `await` im Code-Node als
+  Syntaxfehler gemeldet, das n8n erlaubt — er parst jetzt als
+  async-Funktion.
+
+**Was die Testsuite abgefangen hat.** 15 von 95 Python-Tests beim ersten
+Lauf rot: alle Ende-zu-Ende-Fälle wegen der Packlistenmengen, dazu zwei
+Erwartungen an `als_land`, die falsch aufgeschrieben waren („Singapore
+018960“ ist Singapur). Der OCR-Test im Docker-Build war rot, bevor jemand
+den Scan angesehen hatte — der wertvollste Befund des Tages. Die Bewertung
+sagte beim ersten Lauf `KEINE BASISLINIE` und war rot, wie sie soll. Der
+Beleg-Check meldete `docs/EXTRAKTION.md` und `basislinie.json` als fehlend,
+bevor sie existierten; die Gates standen vor den Belegen.
+
+**Zeitschätzung.** Delegiert: eine Sitzung, etwa drei Stunden Agentenzeit,
+davon ein Drittel Docker-Läufe. Von Hand geschätzt: zwei bis drei Tage —
+der Tabellenleser, die Belegerzeugung und die Reproduzierbarkeit über zwei
+Betriebssysteme sind die Zeitfresser, nicht der Dienst. Schätzung, keine
+Messung.

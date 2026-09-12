@@ -97,14 +97,49 @@ jobs:
       - name: Workflow-Struktur
         run: node scripts/workflow-check.mjs
 
+  extraktion:
+    name: Extraktion (Python, OCR)
+    runs-on: ubuntu-latest
+    # Stufe 3: PDF → Assertions (ADR-005). Erst die Tests, dann die Belege neu
+    # erzeugen — sie müssen byteidentisch mit dem Repo sein —, dann die
+    # Bewertung gegen die Basislinie im Repo: Field Exact Match je Belegtyp
+    # und die Entscheidung je Akte über src/cli.mjs. Ohne Basislinie ist der
+    # Lauf rot, nie stumm grün.
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Tesseract
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-deu
+      # uv über das Installationsskript mit fester Version statt über eine
+      # Action: gleiche Version wie im Dockerfile, kein weiterer Pin zu pflegen.
+      - name: uv
+        run: curl -LsSf https://astral.sh/uv/0.12.12/install.sh | sh
+      - name: Abhängigkeiten
+        working-directory: extraktion
+        run: uv sync --frozen
+      - name: Tests
+        working-directory: extraktion
+        run: uv run pytest
+      - name: Belege sind reproduzierbar
+        working-directory: extraktion
+        run: uv run python ../testdaten/erzeuge-belege.py && git diff --exit-code -- ../testdaten/belege
+      - name: Bewertung gegen Basislinie
+        working-directory: extraktion
+        run: uv run python -m zollpilot_extraktion.bewertung
+
   betrieb:
     name: Stack läuft und entscheidet
     runs-on: ubuntu-latest
-    needs: [tests, workflows]
+    needs: [tests, workflows, extraktion]
     # Der teuerste Job und der einzige, der beweist, dass Compose, Import,
-    # gebündelter Code-Node, Schema und Webhook zusammen funktionieren:
-    # Stack hochfahren, sieben Akten über den echten Webhook, Entscheidungen
-    # gegen die Erwartung, Prüfungen in Postgres.
+    # gebündelter Code-Node, Extraktionsdienst, Schema und Webhook zusammen
+    # funktionieren: Stack hochfahren (baut das Extraktions-Image), sieben
+    # Akten über /webhook/akte und sieben Belegsätze (PDF) über /webhook/belege,
+    # Entscheidungen gegen die Erwartung, Prüfungen in Postgres.
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5

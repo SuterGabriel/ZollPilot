@@ -29,6 +29,7 @@ datei() { [[ -f "$1" ]]; }
 ordner_nicht_leer() { [[ -d "$1" ]] && [[ -n "$(ls -A "$1" 2>/dev/null)" ]]; }
 enthaelt() { grep -q "$2" "$1" 2>/dev/null; }
 enthaelt_nicht() { ! grep -q "$2" "$1" 2>/dev/null; }
+enthaelt_nicht_rekursiv() { ! grep -rq "$2" "$1" 2>/dev/null; }
 hoechstens_zeilen() { [[ "$(wc -l < "$1")" -le "$2" ]]; }
 existiert() { [[ -e "$1" ]]; }
 mindestens_dateien() { [[ "$(ls -1 "$1"/$2 2>/dev/null | wc -l)" -ge "$3" ]]; }
@@ -59,7 +60,7 @@ pruefe "docs/ANFORDERUNGEN.md existiert" datei docs/ANFORDERUNGEN.md
 pruefe "das Anforderungsprofil ist erfasst, sinngemäß statt wörtlich" enthaelt docs/ANFORDERUNGEN.md "nicht wörtlich zitiert"
 pruefe "Must-haves sind erfasst (M1 bis M4)" enthaelt docs/ANFORDERUNGEN.md "| M4 |"
 pruefe "die nicht belegbaren Punkte sind benannt" enthaelt docs/ANFORDERUNGEN.md "nicht belegbar"
-pruefe "die Extraktion wird nicht als gebaut behauptet" enthaelt docs/ANFORDERUNGEN.md "noch nicht gebaut"
+pruefe "die Grenzen der Extraktion sind benannt (eine Layoutfamilie, synthetisch)" enthaelt docs/ANFORDERUNGEN.md "Layoutfamilie"
 pruefe "docs/PRODUKT.md existiert" datei docs/PRODUKT.md
 
 # Die Belegspalte ist der Ort, an dem sich das Mapping selbst überholen kann:
@@ -85,7 +86,7 @@ echo
 echo "Schritt 3 — Regeln und Skills liegen im Repo, nicht global"
 pruefe "CLAUDE.md existiert" datei CLAUDE.md
 pruefe "CLAUDE.md bleibt auf einer Bildschirmseite (max. 60 Zeilen)" hoechstens_zeilen CLAUDE.md 60
-for skill in zoll-domain n8n-code-nodes adr; do
+for skill in zoll-domain n8n-code-nodes adr extraktion; do
   pruefe "Skill $skill hat eine SKILL.md" datei ".claude/skills/$skill/SKILL.md"
   pruefe "Skill $skill steht in CLAUDE.md" enthaelt CLAUDE.md "\`$skill\`"
 done
@@ -111,7 +112,7 @@ pruefe "Workflow-Check liegt im Repo" datei scripts/workflow-check.mjs
 pruefe "docs/PIPELINE.md existiert" datei docs/PIPELINE.md
 pruefe "PIPELINE.md sagt, was nicht geprüft wird" enthaelt docs/PIPELINE.md "## Was die Pipeline nicht prüft"
 pruefe "CI existiert" datei .github/workflows/ci.yml
-for job in belege dokumente regeln tests workflows betrieb; do
+for job in belege dokumente regeln tests workflows extraktion betrieb; do
   pruefe "CI hat den Job $job" enthaelt .github/workflows/ci.yml "  $job:"
 done
 
@@ -157,6 +158,29 @@ pruefe "Fehler-Workflow existiert" datei workflows/zollpilot-fehler.json
 pruefe "Code-Node ist generiert, nicht von Hand" enthaelt workflows/zollpilot-akte-pruefen.json "GENERIERT von scripts/n8n-bundle.mjs"
 pruefe "Prüf-Workflow nennt den Fehler-Workflow" enthaelt workflows/zollpilot-akte-pruefen.json '"errorWorkflow": "zollpilot-fehler"'
 pruefe "E-Mail-Node ist bewusst deaktiviert, nicht vergessen" enthaelt workflows/zollpilot-akte-pruefen.json "Absichtlich deaktiviert"
+
+echo
+echo "Stufe 3 — Extraktion: OCR mit Koordinaten vor Vision-Modell (ADR-005)"
+pruefe "ADR-005 existiert" datei docs/adr/ADR-005-extraktion-ocr-vor-modell.md
+pruefe "Python-Projekt mit festgeschriebenen Abhängigkeiten" datei extraktion/uv.lock
+pruefe "Schicht Lesen liefert Konfidenz je Wort" enthaelt extraktion/zollpilot_extraktion/lesen.py "konfidenz=konf"
+pruefe "Schicht Klassifikation verwirft nichts" enthaelt extraktion/zollpilot_extraktion/klassifikation.py "TYP_UNCLASSIFIED"
+pruefe "Jede Assertion trägt Fundstelle und Methode" enthaelt extraktion/zollpilot_extraktion/assertion.py "bbox"
+pruefe "Die Extraktion entscheidet nichts: kein Katalog, keine Regel" enthaelt_nicht extraktion/zollpilot_extraktion/akte.py "rules.yaml\|freigabe"
+pruefe "Kein Modellaufruf in der Extraktion" enthaelt_nicht_rekursiv extraktion/zollpilot_extraktion "openai\|anthropic\|gemini\|vision_llm("
+pruefe "Extraktion hat eine Testsuite" ordner_nicht_leer extraktion/tests
+pruefe "Belege werden erzeugt, nicht gesammelt" datei testdaten/erzeuge-belege.py
+pruefe "mindestens sechs Belegordner" mindestens_dateien testdaten/belege "*/akte.json" 6
+pruefe "Belegordner tragen die erwarteten Assertions" datei testdaten/belege/happy-path/erwartet.json
+pruefe "Basislinie der Bewertung liegt im Repo" datei extraktion/basislinie.json
+pruefe "Bewertung meldet eine fehlende Basislinie" enthaelt extraktion/zollpilot_extraktion/bewertung.py "KEINE BASISLINIE"
+pruefe "Dockerfile existiert" datei extraktion/Dockerfile
+pruefe "Dienst in Compose" enthaelt compose.yml "  extraktion:"
+pruefe "Workflow hat den Belege-Eingang" enthaelt workflows/zollpilot-akte-pruefen.json '"path": "belege"'
+pruefe "Workflow ruft den Dienst, entscheidet nicht selbst" enthaelt workflows/zollpilot-akte-pruefen.json "extraktion:8080"
+pruefe "Rauchtest schickt PDFs" enthaelt scripts/rauchtest.sh "webhook/belege"
+pruefe "docs/EXTRAKTION.md existiert" datei docs/EXTRAKTION.md
+pruefe "EXTRAKTION.md sagt, was die Messung nicht misst" enthaelt docs/EXTRAKTION.md "## Was die Messung nicht misst"
 
 echo
 echo "Betrieb — angewendet, nicht als Beispiel abgelegt"

@@ -1,0 +1,356 @@
+[
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.nummer",
+    "wert": "INV-2026-0417"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.datum",
+    "wert": "2026-09-08"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.waehrung",
+    "wert": "EUR"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.verkaeufer.name",
+    "wert": "Nordlicht Maschinenbau GmbH"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.verkaeufer.land",
+    "wert": "DE"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.verkaeufer.eori",
+    "wert": "DE123456789012345"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.kaeufer.name",
+    "wert": "Aurora Trading Pte. Ltd."
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.kaeufer.land",
+    "wert": "SG"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.0.nr",
+    "wert": 1
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.0.beschreibung",
+    "wert": "Hydraulikpumpe Typ HP-40"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.0.menge",
+    "wert": 12
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.0.einheit",
+    "wert": "PCE"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.0.einzelpreis",
+    "wert": 1450
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.0.netto",
+    "wert": 17400
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.0.hs6",
+    "wert": "841330"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.0.ursprung",
+    "wert": "DE"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.1.nr",
+    "wert": 2
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.1.beschreibung",
+    "wert": "Dichtungssatz HP-40"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.1.menge",
+    "wert": 12
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.1.einheit",
+    "wert": "PCE"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.1.einzelpreis",
+    "wert": 85
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.1.netto",
+    "wert": 1020
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.1.hs6",
+    "wert": "848420"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.positionen.1.ursprung",
+    "wert": "DE"
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.zuschlaege",
+    "wert": 0
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.rabatte",
+    "wert": 0
+  },
+  {
+    "dokument": "INV-1",
+    "typ": "handelsrechnung",
+    "pfad": "rechnung.gesamt",
+    "wert": 18420
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.nummer",
+    "wert": "PL-2026-0417"
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.container_id",
+    "wert": "MSKU1234565"
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.positionen.0.nr",
+    "wert": 1
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.positionen.0.menge",
+    "wert": 12
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.positionen.0.hs6",
+    "wert": "841330"
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.positionen.1.nr",
+    "wert": 2
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.positionen.1.menge",
+    "wert": 12
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.positionen.1.hs6",
+    "wert": "848420"
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.packstuecke.0.id",
+    "wert": "PAL-1"
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.packstuecke.0.art",
+    "wert": "Palette"
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.packstuecke.0.brutto_kg",
+    "wert": 980
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.packstuecke.0.netto_kg",
+    "wert": 900
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.packstuecke.1.id",
+    "wert": "KAR-1"
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.packstuecke.1.art",
+    "wert": "Karton"
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.packstuecke.1.brutto_kg",
+    "wert": 60
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.packstuecke.1.netto_kg",
+    "wert": 48
+  },
+  {
+    "dokument": "PL-1",
+    "typ": "packliste",
+    "pfad": "packliste.brutto_gesamt_kg",
+    "wert": 1040
+  },
+  {
+    "dokument": "BL-1",
+    "typ": "bill_of_lading",
+    "pfad": "bill_of_lading.nummer",
+    "wert": "MAEU-HH-778812"
+  },
+  {
+    "dokument": "BL-1",
+    "typ": "bill_of_lading",
+    "pfad": "bill_of_lading.container_id",
+    "wert": "HLXU8765430"
+  },
+  {
+    "dokument": "BL-1",
+    "typ": "bill_of_lading",
+    "pfad": "bill_of_lading.seal",
+    "wert": "ML-SG-44821"
+  },
+  {
+    "dokument": "BL-1",
+    "typ": "bill_of_lading",
+    "pfad": "bill_of_lading.pol",
+    "wert": "DEHAM"
+  },
+  {
+    "dokument": "BL-1",
+    "typ": "bill_of_lading",
+    "pfad": "bill_of_lading.pod",
+    "wert": "SGSIN"
+  },
+  {
+    "dokument": "BL-1",
+    "typ": "bill_of_lading",
+    "pfad": "bill_of_lading.brutto_kg",
+    "wert": 1046
+  },
+  {
+    "dokument": "BL-1",
+    "typ": "bill_of_lading",
+    "pfad": "bill_of_lading.on_board",
+    "wert": "2026-09-11"
+  },
+  {
+    "dokument": "UE-1",
+    "typ": "origin_declaration",
+    "pfad": "praeferenznachweis.typ",
+    "wert": "origin_declaration"
+  },
+  {
+    "dokument": "UE-1",
+    "typ": "origin_declaration",
+    "pfad": "praeferenznachweis.ursprung",
+    "wert": "DE"
+  },
+  {
+    "dokument": "UE-1",
+    "typ": "origin_declaration",
+    "pfad": "praeferenznachweis.rex_nummer",
+    "wert": "DEREX12345678"
+  },
+  {
+    "dokument": "UE-1",
+    "typ": "origin_declaration",
+    "pfad": "praeferenznachweis.ursprungswert",
+    "wert": 18420
+  },
+  {
+    "dokument": "UE-1",
+    "typ": "origin_declaration",
+    "pfad": "praeferenznachweis.warenkreis.0.pos",
+    "wert": 1
+  },
+  {
+    "dokument": "UE-1",
+    "typ": "origin_declaration",
+    "pfad": "praeferenznachweis.warenkreis.0.hs6",
+    "wert": "841330"
+  },
+  {
+    "dokument": "UE-1",
+    "typ": "origin_declaration",
+    "pfad": "praeferenznachweis.warenkreis.1.pos",
+    "wert": 2
+  },
+  {
+    "dokument": "UE-1",
+    "typ": "origin_declaration",
+    "pfad": "praeferenznachweis.warenkreis.1.hs6",
+    "wert": "848420"
+  }
+]

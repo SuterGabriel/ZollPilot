@@ -1,0 +1,35 @@
+{
+  "akte_id": "ZP-2026-0007",
+  "beschreibung": "Kostenlose Position ohne Zollwert: Position 3 \"no charge\" ohne Zollwert und ohne Bewertungsmethode.",
+  "stichtag": "2026-09-12",
+  "sachverhalt": {
+    "richtung": "export_third_country",
+    "verkehrstraeger": "sea",
+    "praeferenz_beansprucht": true,
+    "incoterm": {
+      "code": "FOB",
+      "named_place": "Hamburg",
+      "named_place_unlocode": "DEHAM",
+      "edition": 2020
+    },
+    "route": {
+      "pol": "DEHAM",
+      "pod": "SGSIN"
+    }
+  },
+  "anmeldung": {
+    "richtung": "export",
+    "warennummern": [
+      "84133080",
+      "84842000"
+    ]
+  },
+  "erwartung": {
+    "freigabe": "blockiert",
+    "regeln": [
+      "VAL-03"
+    ]
+  },
+  "quelle": "testdaten/akten/kostenlose-position.json",
+  "synthetisch": true
+}

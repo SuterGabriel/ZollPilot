@@ -3,8 +3,8 @@
 Automatisierte Vollständigkeits- und Konsistenzprüfung von Zoll- und
 Versanddokumenten. Das System verarbeitet keine Dokumente, sondern führt pro
 Sendung eine **Akte**: Belege sind Behauptungen, die Akte hält den geprüften
-Zustand. n8n orchestriert; ein deterministisches Regelwerk in JavaScript
-entscheidet.
+Zustand. Eine Extraktion in Python liest die Belege und behauptet; n8n
+orchestriert; ein deterministisches Regelwerk in JavaScript entscheidet.
 
 Portfolio-Projekt zu einem Anforderungsprofil (n8n-Workflows für Dokumentenprozesse
 in Logistik und Zoll). Das Anforderungsprofil steht in
@@ -13,7 +13,7 @@ Punkten, die ein Repo nicht belegen kann.
 
 ## Stand
 
-Stand 12. September 2026, Stufen 0 und 1 des Plans in
+Stand 12. September 2026, Stufen 0 bis 3 des Plans in
 [docs/ARBEITSWEISE.md](docs/ARBEITSWEISE.md).
 
 | Was | Stand |
@@ -21,11 +21,12 @@ Stand 12. September 2026, Stufen 0 und 1 des Plans in
 | Sachverhalt | Ausfuhr Drittland, Seefracht FCL, Präferenz beansprucht |
 | Regeln | 13 ausführbar in [rules.yaml](rules.yaml), über 40 im Katalog [docs/03](docs/03-regelwerk-vollstaendig.md) |
 | Pflichtmatrix | 6 Einträge in [pflichtmatrix.yaml](pflichtmatrix.yaml): Nachweis statt Dokument |
-| Tests | 89, darunter Prüfziffern gegen Referenzwerte und Grenzfälle je Regel |
-| Testakten | 7 synthetische, jede mit erwarteter Entscheidung, Fehlerpfad im Vordergrund |
-| n8n | 2 Workflows als Export; der Code-Node ist aus `src/` gebündelt (ADR-004) |
-| Betrieb | `compose.yml` mit Postgres, Import und n8n; Rauchtest gegen den laufenden Stack |
-| Extraktion (IDP/OCR) | **nicht gebaut** — Architektur und Datenmodell stehen, Engine fehlt ([docs/OFFENE-PUNKTE.md](docs/OFFENE-PUNKTE.md)) |
+| Extraktion (IDP/OCR) | Python-Dienst in [extraktion/](extraktion/): Textlayer mit Koordinaten oder Tesseract mit Wortkonfidenzen, Klassifikation, Felder je Belegtyp, jede Assertion mit Fundstelle (ADR-005). **Eine Layoutfamilie, synthetische Belege** — was das heißt: [docs/EXTRAKTION.md](docs/EXTRAKTION.md) |
+| Tests | 89 in JavaScript (Prüfziffern gegen Referenzwerte, Grenzfälle je Regel), 98 in Python (Normalisierung, Klassifikation, Tabellen, Ende zu Ende auf den PDFs) |
+| Testdaten | 7 synthetische Akten als JSON, dieselben 7 als Belegsätze (PDF) in [testdaten/belege/](testdaten/belege/), erzeugt und byteidentisch reproduzierbar; der schlechte Scan ist ein echtes Bild für Tesseract |
+| Messung | Field Exact Match je Belegtyp und Entscheidung je Akte gegen das Golden Set, Basislinie in [extraktion/basislinie.json](extraktion/basislinie.json), als CI-Job |
+| n8n | 2 Workflows als Export; ein Prüf-Workflow mit zwei Eingängen (Akte, Belege); der Code-Node ist aus `src/` gebündelt (ADR-004) |
+| Betrieb | `compose.yml` mit Postgres, Import, n8n und Extraktionsdienst; Rauchtest gegen den laufenden Stack mit Akten und PDFs |
 | Rechtsverweise | Sekundärrecherche, keine Regel trägt `verified` ([docs/08](docs/08-known-unknowns.md)) |
 
 ## Schnellstart
@@ -37,12 +38,21 @@ node src/cli.mjs testdaten/akten/*.json       # sieben Akten, sieben Entscheidun
 npm run check                                 # Belege, Prosa, Verweise, Regeln
 ```
 
-Mit Docker:
+Extraktion (Python 3.12+, [uv](https://docs.astral.sh/uv/)):
+
+```bash
+cd extraktion && uv sync
+uv run pytest                                            # 98 Tests; OCR-Tests ohne Tesseract übersprungen
+uv run python -m zollpilot_extraktion --ordner ../testdaten/belege/happy-path   # PDF → Akte
+uv run python -m zollpilot_extraktion.bewertung          # gegen die Basislinie
+```
+
+Mit Docker (baut den Extraktionsdienst mit Tesseract):
 
 ```bash
 cp .env.example .env
 docker compose up -d --wait
-bash scripts/rauchtest.sh                     # Akten über den echten Webhook
+bash scripts/rauchtest.sh                     # Runde 1: Akten, Runde 2: PDFs über den echten Webhook
 ```
 
 Dann `http://localhost:5678` für n8n; Prüfungen liegen in Postgres, Tabelle
@@ -51,20 +61,24 @@ Dann `http://localhost:5678` für n8n; Prüfungen liegen in Postgres, Tabelle
 ## Wie es funktioniert
 
 ```
-Akte (Dokumente + Assertions)
-   │  src/akte/aufbau.mjs        nur finale Belege werden Fakten (ADR-001)
-   ▼
-Pflichtmatrix                     welche Daten müssen nachgewiesen sein
-   │  pflichtmatrix.yaml
-   ▼
-Regeln, hart vor weich            jede Zahl aus rules.yaml (ADR-002)
-   │  src/regeln/*.mjs             Lesefehler vor Fachfehler (ADR-003)
-   ▼
-Entscheidung + Nachforderungen    an den Dateninhaber, je Feld
-   │  src/regelwerk.mjs, src/nachforderung.mjs
-   ▼
-n8n: Webhook → Code-Node → Postgres → Antwort
-      workflows/zollpilot-akte-pruefen.json    Build-Artefakt aus src/ (ADR-004)
+Belege (PDF)                                  Akte (Dokumente + Assertions)
+   │  extraktion/  Textlayer oder OCR,           │  von einem anderen System
+   │               Klassifikation, Felder        │
+   │               → Assertions mit Konfidenz    │
+   │               und Fundstelle (ADR-005)      │
+   └──────────────────────┬───────────────────────┘
+                          ▼
+   src/akte/aufbau.mjs        nur finale Belege werden Fakten (ADR-001)
+                          ▼
+   Pflichtmatrix              welche Daten müssen nachgewiesen sein
+                          ▼
+   Regeln, hart vor weich     jede Zahl aus rules.yaml (ADR-002),
+   src/regeln/*.mjs           Lesefehler vor Fachfehler (ADR-003)
+                          ▼
+   Entscheidung + Nachforderungen    an den Dateninhaber, je Feld
+                          ▼
+   n8n: Webhook → [Extraktion per HTTP] → Code-Node → Postgres → Antwort
+        workflows/zollpilot-akte-pruefen.json    Build-Artefakt aus src/ (ADR-004)
 ```
 
 ## Wegweiser
@@ -73,8 +87,9 @@ n8n: Webhook → Code-Node → Postgres → Antwort
 |---|---|
 | [CLAUDE.md](CLAUDE.md) | die vier Regeln, harte Grenzen, Skills |
 | [PROJECT.md](PROJECT.md) | Scope, Architektur, Datenmodell, Metriken, offene Fragen an den Auftraggeber |
-| [DECISIONS.md](DECISIONS.md) | Übersicht der ADRs |
+| [DECISIONS.md](DECISIONS.md) | Übersicht der ADRs, Reihenfolge der nächsten Stufen |
 | [docs/PRODUKT.md](docs/PRODUKT.md) | Nutzersicht und Ablauf, was bewusst nicht gebaut wird |
+| [docs/EXTRAKTION.md](docs/EXTRAKTION.md) | die Extraktion: Schichten, Konfidenz, Messung, Grenzen |
 | [docs/PIPELINE.md](docs/PIPELINE.md) | Hook, Agenten-Hook, CI, und was nicht geprüft wird |
 | [docs/BETRIEB.md](docs/BETRIEB.md) | Start, Stopp, Logs, Fehler, was vor echtem Betrieb fehlt |
 | [docs/ENTWICKLUNGSLOG.md](docs/ENTWICKLUNGSLOG.md) | KI-Einsatz, ehrlich, inklusive der Fehler |
@@ -83,6 +98,7 @@ n8n: Webhook → Code-Node → Postgres → Antwort
 ## Was dieses Repo nicht belegen kann
 
 Jahre im n8n-Betrieb, Erfahrung mit ABBYY oder Document AI ohne Lizenz,
-Extraktionsgenauigkeit auf echten Scans, verifizierte Rechtsverweise. Steht
-ausführlich in [docs/ANFORDERUNGEN.md](docs/ANFORDERUNGEN.md), Abschnitt
+Extraktionsgenauigkeit auf echten Scans und fremden Layouts, verifizierte
+Rechtsverweise. Steht ausführlich in
+[docs/ANFORDERUNGEN.md](docs/ANFORDERUNGEN.md), Abschnitt
 „Was dieses Repo grundsätzlich nicht belegen kann“.

@@ -1,0 +1,34 @@
+{
+  "akte_id": "ZP-2026-0006",
+  "beschreibung": "Schlechter Scan: Containernummer der Packliste per OCR mit Konfidenz 0,55 gelesen, Prüfziffer falsch. Zuerst Lesefehler, nicht Fachfehler.",
+  "stichtag": "2026-09-12",
+  "sachverhalt": {
+    "richtung": "export_third_country",
+    "verkehrstraeger": "sea",
+    "praeferenz_beansprucht": true,
+    "incoterm": {
+      "code": "FOB",
+      "named_place": "Hamburg",
+      "named_place_unlocode": "DEHAM",
+      "edition": 2020
+    },
+    "route": {
+      "pol": "DEHAM",
+      "pod": "SGSIN"
+    }
+  },
+  "anmeldung": {
+    "richtung": "export",
+    "warennummern": [
+      "84133080",
+      "84842000"
+    ]
+  },
+  "erwartung": {
+    "freigabe": "freigabereif",
+    "regeln": [],
+    "hinweis": "Tesseract liest den verschlechterten Scan; Konfidenzen stehen in den Assertions. Ob eine Regel den Konfidenzpfad nimmt, hängt davon ab, was falsch gelesen wird — der Lauf der Bewertung sagt es (docs/EXTRAKTION.md)."
+  },
+  "quelle": "testdaten/akten/schlechter-scan.json",
+  "synthetisch": true
+}

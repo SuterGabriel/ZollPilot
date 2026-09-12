@@ -11,6 +11,10 @@ Die Containernummern sind nach ISO 6346 gültig, weil die Prüfziffernregel
 sonst überall anschlägt. Gültig heißt nicht existent: Ob `MSKU1234565` je
 gefahren ist, weiß dieses Repo nicht und will es nicht wissen.
 
+Die Belege in `testdaten/belege/` (PDF) erzeugt `testdaten/erzeuge-belege.py`
+aus denselben Akten; Adressen, Schiffsname und Unterschriftszeile sind
+erfunden, und jede Rechnung sagt das in der Fußzeile.
+
 Der Ausstellername „Maersk Line (synthetisch)“ ist eine Rolle, kein Bezug auf
 eine reale Buchung. Die Testfirmen „Nordlicht Maschinenbau GmbH“ und „Aurora
 Trading Pte. Ltd.“ sind erfunden; sollte eine gleichnamige Firma existieren,
@@ -29,8 +33,16 @@ Fälle On-Premise-Verarbeitung als sicherere Wahl nennt.
 **Pseudonymisierung vor jedem Modellaufruf.** Bevor ein Beleg oder ein
 Ausschnitt an einen externen Extraktions- oder Sprachdienst geht, werden
 Parteien (Name, Adresse, Ansprechpartner, EORI, USt-IdNr., REX) durch
-Platzhalter ersetzt, die Zuordnung bleibt lokal. Das ist Stufe 3 und noch
-nicht gebaut; `docs/OFFENE-PUNKTE.md` führt es.
+Platzhalter ersetzt, die Zuordnung bleibt lokal. Stufe 3 braucht das noch
+nicht: Die Extraktion (ADR-005) liest Textlayer und Tesseract im eigenen
+Container, kein Beleg verlässt den Stack. Die Pseudonymisierung ist deshalb
+nicht gebaut — und sie entsteht mit dem ersten Modellaufruf, in derselben
+ADR, nicht danach (`docs/ARBEITSWEISE.md`, Stufe 3).
+
+**Der Extraktionsdienst protokolliert keinen Belegtext.** Je Anfrage stehen
+im Log Akten-ID, Anzahl und Größe der Dateien, Anzahl der Dokumente und
+Assertions, Dauer. Rohwerte und Fundstellen liegen nur in der Antwort an
+n8n und damit in der Ausführung, die nach 14 Tagen gelöscht wird.
 
 **Fehlerprotokoll ohne Nutzdaten.** Der Fehler-Workflow
 (`workflows/zollpilot-fehler.json`) schreibt Workflow, Ausführung, Node und
