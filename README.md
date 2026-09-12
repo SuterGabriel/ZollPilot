@@ -106,6 +106,7 @@ Belege (PDF)                                  Akte (Dokumente + Assertions)
 | [docs/PRODUKT.md](docs/PRODUKT.md) | Nutzersicht und Ablauf, was bewusst nicht gebaut wird |
 | [docs/EXTRAKTION.md](docs/EXTRAKTION.md) | die Extraktion: Schichten, Konfidenz, Messung, Grenzen |
 | [docs/OBERFLAECHE.md](docs/OBERFLAECHE.md) | die Oberfläche: Zustand, die 422-Falle, Barrierefreiheit, was sie nicht kann |
+| [docs/entwurf/](docs/entwurf/) | Prompts für Wireframe und Mockup — der Entwurf, an dem die Oberfläche ausgerichtet wird |
 | [docs/PIPELINE.md](docs/PIPELINE.md) | Hook, Agenten-Hook, CI, und was nicht geprüft wird |
 | [docs/BETRIEB.md](docs/BETRIEB.md) | Start, Stopp, Logs, Fehler, was vor echtem Betrieb fehlt |
 | [docs/ENTWICKLUNGSLOG.md](docs/ENTWICKLUNGSLOG.md) | KI-Einsatz, ehrlich, inklusive der Fehler |
