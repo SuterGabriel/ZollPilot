@@ -316,6 +316,17 @@ td .hinweis-zelle {
   border-bottom: 1px solid var(--ton-zeilentrennung);
 }
 
+/* Der Betreff steht nicht mehr im Text, sondern hier: eine Angabe, ein Ort. */
+.betreffzeile {
+  margin: var(--mass-2) 0 0;
+  max-width: var(--zeilenmass);
+  font-size: var(--groesse-verweis);
+}
+
+.betreffzeile .leise {
+  margin-right: var(--mass-1);
+}
+
 details pre {
   background: var(--ton-arbeitsflaeche);
   padding: var(--mass-3);

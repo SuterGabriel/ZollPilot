@@ -77,6 +77,8 @@ describe('Ergebnis', () => {
     expect(inhalt).toContain('Seefrachtspediteur/Carrier');
     expect(inhalt).toContain('bill_of_lading.container_id');
     expect(inhalt).toContain('Keine Freigabe');
+    // Der Betreff steht sichtbar da, seit er nicht mehr im Text wiederholt wird.
+    expect(inhalt).toContain('ACTION REQUIRED – Containernummer konsistent');
 
     const mail = (fixture.nativeElement as HTMLElement).querySelector<HTMLAnchorElement>('a[href^="mailto:"]');
     expect(mail).toBeTruthy();

@@ -152,6 +152,7 @@
                 <p class="leise">{{ fall.folge }}</p>
                 <details>
                   <summary>Anschreiben</summary>
+                  <p class="betreffzeile"><span class="leise">Betreff</span> {{ fall.betreff }}</p>
                   <pre>{{ fall.text }}</pre>
                   <p class="werkzeuge">
                     <button type="button" class="zweitrangig" (click)="kopieren(fall)">

@@ -60,9 +60,10 @@ export function nachforderungstext(fall, ergebnis) {
     ['Container', liesPfad(ergebnis.referenzen, 'container')],
   ].filter(([, wert]) => wert).map(([name, wert]) => `${name} ${wert}`).join(' / ');
 
+  // Ohne Betreffzeile: Der Betreff steht in `fall.betreff` und geht als
+  // Kopfzeile der Mail mit (Nachforderungs-Workflow, `mailto` in der
+  // Oberfläche). Im Text wäre er eine zweite Fassung derselben Angabe.
   return [
-    `Betreff: ${fall.betreff}`,
-    '',
     `An: ${fall.adressat.primaer}${fall.adressat.sekundaer ? ` (Kopie: ${fall.adressat.sekundaer})` : ''}`,
     '',
     'Benötigt:',
