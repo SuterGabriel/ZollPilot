@@ -20,6 +20,7 @@ from .felder import EXTRAKTOREN, extrahiere_ursprungserklaerung
 from .felder.bill_of_lading import aussteller_bill_of_lading
 from .felder.handelsrechnung import extrahiere_handelsrechnung  # noqa: F401 - Register vollständig halten
 from .felder.packliste import aussteller_packliste
+from .cii import KONFIDENZ_STRUKTURIERT, METHODE_STRUKTURIERT, CiiUngueltig, assertions_aus, ist_cii, lies_cii
 from .klassifikation import STATUS_FINAL, TYP_UNCLASSIFIED, klassifiziere
 from .lesen import Beleg, KeinLesbaresPdf, LesungNichtMoeglich, lies_pdf, ocr_version
 
@@ -87,6 +88,38 @@ def extrahiere_akte(
     lies = leser or (lambda daten, name: lies_pdf(daten, name, ocr=ocr))
 
     for name, daten in dateien:
+        # Eine Rechnung als Datensatz (CII, ADR-008) nimmt denselben Eingang
+        # wie ein PDF und landet als derselbe Belegtyp in der Akte, nur ohne
+        # Leseunsicherheit. Was das Schema nicht besteht, wird nicht gelesen,
+        # sondern gemeldet.
+        if ist_cii(daten):
+            try:
+                strukturiert = lies_cii(daten, name)
+            except CiiUngueltig as e:
+                dokument_id = zaehler.naechste(TYP_UNCLASSIFIED)
+                dokumente.append(_unclassified(dokument_id, name, daten, f"CII besteht das Schema nicht: {e}"))
+                hinweise.append(f"{name}: CII besteht das Schema nicht")
+                continue
+            dokument_id = zaehler.naechste(strukturiert.typ)
+            eigene = assertions_aus(strukturiert, dokument_id)
+            dokument = {
+                "id": dokument_id,
+                "typ": strukturiert.typ,
+                "status": STATUS_FINAL,
+                "version": 1,
+                "aussteller": _aussteller(strukturiert.typ, None, eigene),
+                "hash": f"sha256:{strukturiert.hash_sha256}",
+                "datei": name,
+                "seiten": None,
+                "methoden": [METHODE_STRUKTURIERT],
+                "klassifikation": {"konfidenz": KONFIDENZ_STRUKTURIERT, "merkmale": ["CrossIndustryInvoice"]},
+            }
+            if strukturiert.hinweis:
+                dokument["hinweis"] = strukturiert.hinweis
+            dokumente.append(dokument)
+            assertions.extend(a.als_dict() for a in eigene)
+            continue
+
         try:
             beleg = lies(daten, name)
         except LesungNichtMoeglich as e:
