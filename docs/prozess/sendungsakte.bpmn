@@ -142,185 +142,185 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_Sendungsakte">
       <bpmndi:BPMNShape id="Participant_Sendungsakte_di" bpmnElement="Participant_Sendungsakte" isHorizontal="true">
-        <dc:Bounds x="160" y="80" width="2090" height="750" />
+        <dc:Bounds x="160" y="140" width="2290" height="750" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Lieferant_di" bpmnElement="Lane_Lieferant" isHorizontal="true">
-        <dc:Bounds x="190" y="80" width="2060" height="150" />
+        <dc:Bounds x="190" y="140" width="2260" height="150" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Spediteur_di" bpmnElement="Lane_Spediteur" isHorizontal="true">
-        <dc:Bounds x="190" y="230" width="2060" height="150" />
+        <dc:Bounds x="190" y="290" width="2260" height="150" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Sach_di" bpmnElement="Lane_Sach" isHorizontal="true">
-        <dc:Bounds x="190" y="380" width="2060" height="150" />
+        <dc:Bounds x="190" y="440" width="2260" height="150" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_ZollPilot_di" bpmnElement="Lane_ZollPilot" isHorizontal="true">
-        <dc:Bounds x="190" y="530" width="2060" height="150" />
+        <dc:Bounds x="190" y="590" width="2260" height="150" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Zoll_di" bpmnElement="Lane_Zoll" isHorizontal="true">
-        <dc:Bounds x="190" y="680" width="2060" height="150" />
+        <dc:Bounds x="190" y="740" width="2260" height="150" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Start_di" bpmnElement="Start">
-        <dc:Bounds x="302" y="437" width="36" height="36" />
-        <bpmndi:BPMNLabel><dc:Bounds x="272" y="477" width="96" height="28" /></bpmndi:BPMNLabel>
+        <dc:Bounds x="302" y="497" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="272" y="537" width="96" height="28" /></bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Mail_di" bpmnElement="Mail">
-        <dc:Bounds x="450" y="415" width="140" height="80" />
+        <dc:Bounds x="450" y="475" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Rechnung_di" bpmnElement="Rechnung">
-        <dc:Bounds x="450" y="115" width="140" height="80" />
+        <dc:Bounds x="450" y="175" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BL_di" bpmnElement="BL">
-        <dc:Bounds x="450" y="265" width="140" height="80" />
+        <dc:Bounds x="450" y="325" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Einreichen_di" bpmnElement="Einreichen">
-        <dc:Bounds x="650" y="415" width="140" height="80" />
+        <dc:Bounds x="650" y="475" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lesen_di" bpmnElement="Lesen">
-        <dc:Bounds x="850" y="565" width="140" height="80" />
+        <dc:Bounds x="850" y="625" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Pruefen_di" bpmnElement="Pruefen">
-        <dc:Bounds x="1050" y="565" width="140" height="80" />
+        <dc:Bounds x="1050" y="625" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Freigabereif_di" bpmnElement="Freigabereif">
-        <dc:Bounds x="1295" y="580" width="50" height="50" />
-        <bpmndi:BPMNLabel><dc:Bounds x="1265" y="634" width="110" height="28" /></bpmndi:BPMNLabel>
+        <dc:Bounds x="1295" y="640" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1265" y="694" width="110" height="28" /></bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Anmelden_di" bpmnElement="Anmelden">
-        <dc:Bounds x="1450" y="715" width="140" height="80" />
+        <dc:Bounds x="1450" y="775" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Ende_di" bpmnElement="Ende">
-        <dc:Bounds x="1702" y="437" width="36" height="36" />
-        <bpmndi:BPMNLabel><dc:Bounds x="1672" y="477" width="96" height="28" /></bpmndi:BPMNLabel>
+        <dc:Bounds x="1702" y="497" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1672" y="537" width="96" height="28" /></bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Formulieren_di" bpmnElement="Formulieren">
-        <dc:Bounds x="1450" y="565" width="140" height="80" />
+        <dc:Bounds x="1450" y="625" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Uebersteuern_di" bpmnElement="Uebersteuern">
-        <dc:Bounds x="1250" y="415" width="140" height="80" />
+        <dc:Bounds x="1250" y="475" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Eskalieren_di" bpmnElement="Eskalieren">
-        <dc:Bounds x="1650" y="565" width="140" height="80" />
+        <dc:Bounds x="1850" y="625" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Versenden_di" bpmnElement="Versenden">
-        <dc:Bounds x="1850" y="415" width="140" height="80" />
+        <dc:Bounds x="2050" y="475" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Nachliefern_di" bpmnElement="Nachliefern">
-        <dc:Bounds x="2050" y="115" width="140" height="80" />
+        <dc:Bounds x="2250" y="175" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Zuordnen_di" bpmnElement="Zuordnen">
-        <dc:Bounds x="2050" y="565" width="140" height="80" />
+        <dc:Bounds x="2250" y="625" width="140" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0_di" bpmnElement="Flow_0">
-        <di:waypoint x="338" y="455" />
-        <di:waypoint x="394" y="455" />
-        <di:waypoint x="394" y="155" />
-        <di:waypoint x="450" y="155" />
+        <di:waypoint x="338" y="515" />
+        <di:waypoint x="394" y="515" />
+        <di:waypoint x="394" y="215" />
+        <di:waypoint x="450" y="215" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
-        <di:waypoint x="338" y="455" />
-        <di:waypoint x="394" y="455" />
-        <di:waypoint x="394" y="305" />
-        <di:waypoint x="450" y="305" />
+        <di:waypoint x="338" y="515" />
+        <di:waypoint x="394" y="515" />
+        <di:waypoint x="394" y="365" />
+        <di:waypoint x="450" y="365" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
-        <di:waypoint x="338" y="455" />
-        <di:waypoint x="450" y="455" />
+        <di:waypoint x="338" y="515" />
+        <di:waypoint x="450" y="515" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
-        <di:waypoint x="590" y="155" />
-        <di:waypoint x="620" y="155" />
-        <di:waypoint x="620" y="455" />
-        <di:waypoint x="650" y="455" />
+        <di:waypoint x="590" y="215" />
+        <di:waypoint x="620" y="215" />
+        <di:waypoint x="620" y="515" />
+        <di:waypoint x="650" y="515" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
-        <di:waypoint x="590" y="305" />
-        <di:waypoint x="620" y="305" />
-        <di:waypoint x="620" y="455" />
-        <di:waypoint x="650" y="455" />
+        <di:waypoint x="590" y="365" />
+        <di:waypoint x="620" y="365" />
+        <di:waypoint x="620" y="515" />
+        <di:waypoint x="650" y="515" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
-        <di:waypoint x="590" y="455" />
-        <di:waypoint x="720" y="455" />
-        <di:waypoint x="720" y="605" />
-        <di:waypoint x="850" y="605" />
+        <di:waypoint x="590" y="515" />
+        <di:waypoint x="720" y="515" />
+        <di:waypoint x="720" y="665" />
+        <di:waypoint x="850" y="665" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
-        <di:waypoint x="790" y="455" />
-        <di:waypoint x="820" y="455" />
-        <di:waypoint x="820" y="605" />
-        <di:waypoint x="850" y="605" />
+        <di:waypoint x="790" y="515" />
+        <di:waypoint x="820" y="515" />
+        <di:waypoint x="820" y="665" />
+        <di:waypoint x="850" y="665" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
-        <di:waypoint x="990" y="605" />
-        <di:waypoint x="1050" y="605" />
+        <di:waypoint x="990" y="665" />
+        <di:waypoint x="1050" y="665" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
-        <di:waypoint x="1190" y="605" />
-        <di:waypoint x="1295" y="605" />
+        <di:waypoint x="1190" y="665" />
+        <di:waypoint x="1295" y="665" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
-        <di:waypoint x="1345" y="605" />
-        <di:waypoint x="1398" y="605" />
-        <di:waypoint x="1398" y="755" />
-        <di:waypoint x="1450" y="755" />
+        <di:waypoint x="1345" y="665" />
+        <di:waypoint x="1398" y="665" />
+        <di:waypoint x="1398" y="815" />
+        <di:waypoint x="1450" y="815" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
-        <di:waypoint x="1590" y="755" />
-        <di:waypoint x="1646" y="755" />
-        <di:waypoint x="1646" y="455" />
-        <di:waypoint x="1702" y="455" />
+        <di:waypoint x="1590" y="815" />
+        <di:waypoint x="1646" y="815" />
+        <di:waypoint x="1646" y="515" />
+        <di:waypoint x="1702" y="515" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
-        <di:waypoint x="1345" y="605" />
-        <di:waypoint x="1450" y="605" />
+        <di:waypoint x="1345" y="665" />
+        <di:waypoint x="1450" y="665" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
-        <di:waypoint x="1320" y="580" />
-        <di:waypoint x="1320" y="495" />
+        <di:waypoint x="1320" y="640" />
+        <di:waypoint x="1320" y="555" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
-        <di:waypoint x="1320" y="495" />
-        <di:waypoint x="1320" y="890" />
-        <di:waypoint x="1120" y="890" />
-        <di:waypoint x="1120" y="645" />
+        <di:waypoint x="1320" y="475" />
+        <di:waypoint x="1320" y="80" />
+        <di:waypoint x="1120" y="80" />
+        <di:waypoint x="1120" y="625" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
-        <di:waypoint x="1590" y="605" />
-        <di:waypoint x="1720" y="605" />
-        <di:waypoint x="1720" y="455" />
-        <di:waypoint x="1850" y="455" />
+        <di:waypoint x="1590" y="665" />
+        <di:waypoint x="1820" y="665" />
+        <di:waypoint x="1820" y="515" />
+        <di:waypoint x="2050" y="515" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
-        <di:waypoint x="1590" y="605" />
-        <di:waypoint x="1650" y="605" />
+        <di:waypoint x="1590" y="665" />
+        <di:waypoint x="1850" y="665" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16">
-        <di:waypoint x="1790" y="605" />
-        <di:waypoint x="1820" y="605" />
-        <di:waypoint x="1820" y="455" />
-        <di:waypoint x="1850" y="455" />
+        <di:waypoint x="1990" y="665" />
+        <di:waypoint x="2020" y="665" />
+        <di:waypoint x="2020" y="515" />
+        <di:waypoint x="2050" y="515" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
-        <di:waypoint x="1990" y="455" />
-        <di:waypoint x="2020" y="455" />
-        <di:waypoint x="2020" y="155" />
-        <di:waypoint x="2050" y="155" />
+        <di:waypoint x="2190" y="515" />
+        <di:waypoint x="2220" y="515" />
+        <di:waypoint x="2220" y="215" />
+        <di:waypoint x="2250" y="215" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18">
-        <di:waypoint x="2120" y="195" />
-        <di:waypoint x="2120" y="565" />
+        <di:waypoint x="2320" y="255" />
+        <di:waypoint x="2320" y="625" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19">
-        <di:waypoint x="2120" y="645" />
-        <di:waypoint x="2120" y="890" />
-        <di:waypoint x="920" y="890" />
-        <di:waypoint x="920" y="645" />
+        <di:waypoint x="2320" y="705" />
+        <di:waypoint x="2320" y="950" />
+        <di:waypoint x="920" y="950" />
+        <di:waypoint x="920" y="705" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_20_di" bpmnElement="Flow_20">
-        <di:waypoint x="2120" y="195" />
-        <di:waypoint x="2120" y="910" />
-        <di:waypoint x="720" y="910" />
-        <di:waypoint x="720" y="495" />
+        <di:waypoint x="2320" y="175" />
+        <di:waypoint x="2320" y="60" />
+        <di:waypoint x="720" y="60" />
+        <di:waypoint x="720" y="475" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

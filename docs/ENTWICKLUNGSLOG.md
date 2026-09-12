@@ -511,11 +511,14 @@ Satz wurde gestrichen; er steht hier, weil er genau der Fehler ist, vor dem
 `docs/ARBEITSWEISE.md` warnt: eine Beobachtung, die vor der Beobachtung
 geschrieben wurde.
 
-**Was nicht geprüft ist.** Wie die BPMN-Datei in einem Modeler aussieht.
-Die Koordinaten sind gerechnet, das XML ist wohlgeformt, jeder Verweis löst
-auf, aber in dieser Sitzung hat niemand die Datei geöffnet. Rückwege laufen
-unter dem Pool hindurch; ob das lesbar ist, entscheidet der erste Blick in
-Camunda Modeler.
+**Was die Sichtprüfung fand.** Später am selben Tag wurde die Datei mit
+bpmn-js im Chromium der Playwright-Tests gerendert und als Bild angesehen.
+Der Import lief ohne Warnung, aber zwei Linien liefen durch Kästen: der
+Weg von der Ausfuhranmeldung zum Endereignis durch „Erinnerung und
+Eskalation“, und der Rückweg vom Übersteuern zur Prüfung durch die Raute.
+Beides hätte kein Parser gefunden. Die rechten Spalten sind um eins
+gerückt, und Rückwege aus einer oberen Lane laufen jetzt über den Pool
+statt unten herum. Der zweite Blick war sauber.
 
 **Was die Testsuite abgefangen hat.** Der Beleg-Check verlangt jetzt, dass
 die Landschaft gerendert ist, dass sie „vorgesehen“ sagt und dass die
