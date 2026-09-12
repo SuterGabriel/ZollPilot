@@ -391,7 +391,7 @@ jedem Betrieb außerhalb der eigenen Maschine ist das ein Blocker. Und wer
 erfährt, dass eine Katalogänderung Overrides verbraucht hat, ist niemand:
 Es fällt erst bei der nächsten Prüfung derselben Akte auf.
 
-## 2026-09-12 — Extraktion, zweiter Chat: Vergleichslauf, ABD, CII
+## 2026-09-12, Extraktion im zweiten Chat: Vergleichslauf, ABD, CII
 
 **Was delegiert wurde.** Drei Aufgaben im Worktree `extraktion`, parallel
 zum Chat `betrieb`: ein zweites Lesemodul für einen IDP-Anbieter mit
