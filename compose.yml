@@ -89,7 +89,8 @@ services:
         n8n update:workflow --id=zollpilot-akte-pruefen --active=true
         n8n update:workflow --id=zollpilot-wiederholen --active=true
         n8n update:workflow --id=zollpilot-alarm --active=true
-        echo "Import abgeschlossen: Prüf-, Wiederholungs- und Alarm-Workflow aktiv."
+        n8n update:workflow --id=zollpilot-nachforderung --active=true
+        echo "Import abgeschlossen: Prüf-, Wiederholungs-, Alarm- und Nachforderungs-Workflow aktiv."
     depends_on:
       postgres:
         condition: service_healthy
@@ -163,6 +164,36 @@ services:
     depends_on:
       n8n:
         condition: service_healthy
+
+  # --- Post: Versand der Nachforderungen und Eingang der Antworten ----------
+
+  greenmail:
+    # Ein Postfach für die Demo, in beide Richtungen (ADR-009): n8n versendet
+    # Nachforderungen per SMTP hierher, und der IMAP-Trigger holt hier ab,
+    # was als Antwort kommt. Die Schnittstelle unter 8025 zeigt, was im
+    # Postfach liegt; der Rauchtest liest dort nach. Bewahrt nichts über
+    # einen Neustart hinaus, und das ist für ein Testpostfach richtig.
+    image: greenmail/standalone:${GREENMAIL_VERSION:-2.1.8}
+    environment:
+      GREENMAIL_OPTS: >-
+        -Dgreenmail.setup.test.smtp
+        -Dgreenmail.setup.test.imap
+        -Dgreenmail.hostname=0.0.0.0
+        -Dgreenmail.auth.disabled
+        -Dgreenmail.users=zollpilot:zollpilot-dev@zollpilot.test,eingang:zollpilot-dev@zollpilot.test,lieferant:zollpilot-dev@zollpilot.test,spediteur:zollpilot-dev@zollpilot.test,sachbearbeitung:zollpilot-dev@zollpilot.test,teamleitung:zollpilot-dev@zollpilot.test
+      JAVA_OPTS: -Djava.net.preferIPv4Stack=true -Xmx256m
+    ports:
+      - "127.0.0.1:${GREENMAIL_API_PORT:-8025}:8080"
+      - "127.0.0.1:${GREENMAIL_SMTP_PORT:-3025}:3025"
+      - "127.0.0.1:${GREENMAIL_IMAP_PORT:-3143}:3143"
+    # Das Image hat weder wget noch curl, aber bash: Ein Verbindungstest über
+    # /dev/tcp auf SMTP und die Schnittstelle sagt, ob beides lauscht.
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/3025 && exec 4<>/dev/tcp/127.0.0.1/8080"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
 
   # --- Monitoring: Zuschauer, keine Abhängigkeit der Akte -------------------
 

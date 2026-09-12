@@ -89,12 +89,21 @@ bis dahin ist der Katalog ehrlich markiert.
   oder Objektspeicher wäre der nächste Schritt.
 - **Extraktionsdienst ohne Auth und Limits.** Antwortet jedem im
   Compose-Netz, bis 50 Dateien je Anfrage, kein Größenlimit.
-- **E-Mail-Node deaktiviert.** Kein SMTP im Demo-Betrieb; die Adressaten
-  sind Rollen. Rolle zu Verteiler ist Stammdatenpflege, die es nicht gibt.
+- **Der Verteiler ist eine Demo-Tabelle.** Rolle zu Postfach steht in
+  `zustaendigkeiten.yaml` und zeigt auf GreenMail. Wer beim Kunden hinter
+  „Lieferant/Verkäufer“ steht, ist Stammdatenpflege je Sendung, die es
+  nicht gibt; bis dahin bekommt jede Rolle ein festes Postfach.
 - **Kein Mail-Intake.** Der Zielprozess beginnt mit E-Mail und Anhängen
-  (`05-prozess-nachforderung.md`). Der Prototyp beginnt am Webhook.
-- **Eskalation ist Daten, nicht Prozess.** `zustaendigkeiten.yaml` kennt die
-  Stufen; niemand löst sie zeitgesteuert aus.
+  (`05-prozess-nachforderung.md`). Der Prototyp beginnt am Webhook; der
+  Versand geht seit ADR-009 hinaus, der Rückweg ist noch nicht gebaut.
+- **Eine Stufe je Lauf, ein Lauf je Tag.** Der Nachforderungs-Workflow
+  klettert höchstens eine Eskalationsstufe pro Tag. Wer nach einem
+  Wochenende zwei Stufen versäumt hat, holt sie an zwei Tagen nach, nicht
+  an einem. Das ist Absicht (Mindestabstand), aber nicht jedermanns.
+- **Erledigt erst beim nächsten Lauf.** Ein Eingang schließt seine
+  Nachforderung nicht im selben Augenblick, sondern wenn der
+  Nachforderungs-Workflow das nächste Mal läuft (ADR-009, Option A wäre
+  die andere Wahl).
 - **Der Override kennt keinen Menschen, nur ein Namensfeld.** Der Pfad ist
   gebaut (Stufe 5, ADR-007): übersteuern, erneut prüfen, beides ablegen. Wer
   aber den Namen tippt, prüft niemand. Ohne Anmeldung ist jeder Override im

@@ -43,7 +43,7 @@ flowchart LR
     A1[Stammdaten angeben, Belege einreichen]
     A2{Ergebnis lesen}
     A3[Übersteuern mit Name und Begründung]
-    A4[Nachforderung versenden]:::ziel
+    A4[Nachforderung versenden]
   end
 
   subgraph ZP["ZollPilot"]
@@ -51,7 +51,7 @@ flowchart LR
     Z2[Akte bauen: nur finale Belege werden Fakten]
     Z3[Pflichtmatrix und Regeln, hart vor weich]:::entscheidung
     Z4[Nachforderung formulieren: Feld, Grund, Adressat]
-    Z5[Erinnerung und Eskalation vor Cut-off]:::ziel
+    Z5[Erinnerung und Eskalation vor Cut-off]
     Z6[Antwort der Akte zuordnen]:::ziel
   end
 
@@ -67,9 +67,8 @@ flowchart LR
   A2 -->|freigabereif| C1
   C1 -->|ABD zurück an die Akte| A1
   A2 -->|nicht freigabereif| Z4
-  Z4 --> A4
-  Z4 -.-> Z5 -.-> A4
-  A4 -.-> L3
+  Z4 --> Z5 --> A4
+  A4 --> L3
   L3 -.-> Z6 -.-> Z1
   L3 --> A1
   A2 -->|Befund bleibt verletzt, Verantwortung daneben| A3 --> Z3
@@ -84,7 +83,7 @@ Was die Linien bedeuten:
 | Nachforderung formulieren | gebaut | `src/nachforderung.mjs`; der Text steht im Ergebnis und in der Oberfläche |
 | ABD zurück an die Akte | gebaut auf dem Branch `extraktion` | Belegtyp ABD, Regel CUS-05, Pflicht PFL-07 |
 | E-Mail als Eingang | vorgesehen | `docs/OFFENE-PUNKTE.md`, „Kein Mail-Intake“ |
-| Nachforderung versenden, Erinnerung, Eskalation | vorgesehen | Versand-Node deaktiviert; Stufen als Daten in `zustaendigkeiten.yaml`, ohne Zeitplan |
+| Nachforderung versenden, Erinnerung, Eskalation | gebaut | Runde 8, ADR-009: Fälle in `request_case`, Stufen relativ zu den Cut-offs der Akte, Versand an das Postfach, festgehalten in `request_versand` |
 | Antwort der Akte zuordnen | vorgesehen | der Rückweg aus `docs/OFFENE-PUNKTE.md` |
 
 ## Datenfluss

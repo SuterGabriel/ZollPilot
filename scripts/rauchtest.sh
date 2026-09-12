@@ -22,6 +22,12 @@
 #      die Alarmregeln sind geladen, die fachlichen Zähler zeigen die
 #      Prüfungen dieses Laufs, Grafana liefert das Dashboard, der
 #      Alertmanager ist bereit.
+#   8. Die Nachforderung ist ein Vorgang (ADR-009): Der Nachforderungs-
+#      Workflow eröffnet je fehlendem Wert einen Fall, versendet die erste
+#      Erinnerung an das Postfach des Adressaten, stellt die zweite Stufe
+#      48 Stunden vor dem Zoll-Cut-off fällig und erledigt den Fall, sobald
+#      eine Prüfung den Wert nicht mehr vermisst. Drei gedachte Tage, weil
+#      der Zeitpunkt mitgegeben wird; entschieden wird in src/.
 # Jede Akte trägt ihre Erwartung selbst; das Skript vergleicht. Danach:
 # Liegen die Prüfungen in Postgres?
 #
@@ -37,6 +43,7 @@ oberflaeche="${3:-http://localhost:8088}"
 prometheus="${4:-http://localhost:9090}"
 grafana="${5:-http://localhost:3000}"
 alertmanager="${6:-http://localhost:9093}"
+greenmail="${7:-http://localhost:8025}"
 fehler=0
 runden=0
 
@@ -277,6 +284,75 @@ if curl -fsS "$alertmanager/-/ready" >/dev/null 2>&1; then
   printf '  ok    %-32s bereit, liefert an /webhook/alarm\n' "Alertmanager"
 else
   printf '  ROT   %-32s antwortet nicht auf /-/ready\n' "Alertmanager"
+  fehler=$((fehler + 1))
+fi
+
+echo
+echo "Runde 8: die Nachforderung ist ein Vorgang (ADR-009)"
+# Die Akte ohne Präferenznachweis (ZP-2026-0002) hat aus Runde 1 zwei
+# Nachforderungen. Der Zeitpunkt kommt mit, weil der Rauchtest keinen Tag
+# warten kann; welche Stufe daraus fällig wird, entscheidet src/.
+akte=ZP-2026-0002
+sql "delete from request_versand where request_case_id in (select id from request_case where akte_id = '$akte'); delete from request_case where akte_id = '$akte'" >/dev/null
+postfach_zaehlt() {
+  curl -fsS "$greenmail/api/user/$1/messages" 2>/dev/null | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s).length)}catch{console.log(0)}})"
+}
+nachforderungslauf() {
+  curl -sS -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' \
+    -d "{\"akte_id\":\"$akte\",\"jetzt\":\"$1\"}" "$basis/webhook/nachforderungen"
+}
+warte_auf_versand() {
+  for _ in $(seq 1 40); do
+    n=$(sql "select count(*) from request_versand v join request_case r on r.id = v.request_case_id where r.akte_id = '$akte' and v.stufe = '$1'")
+    [[ "$n" -ge "$2" ]] && return 0
+    sleep 1
+  done
+  return 1
+}
+vorher=$(postfach_zaehlt lieferant@zollpilot.test)
+code=$(nachforderungslauf "2026-09-12T10:00:00+02:00")
+if [[ "$code" == "200" ]] && warte_auf_versand erinnerung_0 2; then
+  offen=$(sql "select count(*) from request_case where akte_id = '$akte' and status = 'offen' and stufe = 'erinnerung_0'")
+  nachher=$(postfach_zaehlt lieferant@zollpilot.test)
+  if [[ "$offen" == "2" && "$nachher" -ge $((vorher + 2)) ]]; then
+    printf '  ok    %-32s 2 Fälle eröffnet, 2 Mails im Postfach des Lieferanten\n' "erste Erinnerung sofort"
+  else
+    printf '  ROT   %-32s offen=%s, Mails vorher %s, nachher %s\n' "erste Erinnerung sofort" "$offen" "$vorher" "$nachher"
+    fehler=$((fehler + 1))
+  fi
+else
+  printf '  ROT   %-32s HTTP %s, kein Versand der Stufe erinnerung_0\n' "erste Erinnerung sofort" "$code"
+  fehler=$((fehler + 1))
+fi
+# Zweite Stufe: 48 h vor dem Zoll-Cut-off (2026-09-15T16:00+02:00) und mehr
+# als 24 h nach dem ersten Versand. Vorher darf nichts passieren.
+nachforderungslauf "2026-09-12T18:00:00+02:00" >/dev/null
+sleep 3
+zufrueh=$(sql "select count(*) from request_versand v join request_case r on r.id = v.request_case_id where r.akte_id = '$akte' and v.stufe = 'erinnerung_1'")
+code=$(nachforderungslauf "2026-09-13T16:30:00+02:00")
+if [[ "$zufrueh" == "0" ]] && warte_auf_versand erinnerung_1 2; then
+  printf '  ok    %-32s nichts am selben Tag, erinnerung_1 48 h vor dem Cut-off\n' "zweite Stufe am Cut-off"
+else
+  printf '  ROT   %-32s zu früh versandt: %s, erinnerung_1 nach Cut-off: nicht angekommen\n' "zweite Stufe am Cut-off" "$zufrueh"
+  fehler=$((fehler + 1))
+fi
+# Erledigt: dieselbe Akte, jetzt vollständig (die Happy-Path-Akte unter ihrer
+# Kennung), danach vermisst die Prüfung nichts mehr.
+vollstaendig=$(node -e "const a=require('./testdaten/akten/happy-path.json');a.akte_id='$akte';process.stdout.write(JSON.stringify(a))")
+curl -sS -o /dev/null -X POST -H 'Content-Type: application/json' --data-binary "$vollstaendig" "$basis/webhook/akte"
+runden=$((runden + 1))
+nachforderungslauf "2026-09-14T10:00:00+02:00" >/dev/null
+erledigt=0
+for _ in $(seq 1 40); do
+  erledigt=$(sql "select count(*) from request_case where akte_id = '$akte' and status = 'erledigt'")
+  [[ "$erledigt" == "2" ]] && break
+  sleep 1
+done
+offen=$(sql "select count(*) from request_case where akte_id = '$akte' and status = 'offen'")
+if [[ "$erledigt" == "2" && "$offen" == "0" ]]; then
+  printf '  ok    %-32s 2 Fälle erledigt, 0 offen, Versandhistorie bleibt\n' "Nachweis eingegangen"
+else
+  printf '  ROT   %-32s erledigt=%s, offen=%s\n' "Nachweis eingegangen" "$erledigt" "$offen"
   fehler=$((fehler + 1))
 fi
 

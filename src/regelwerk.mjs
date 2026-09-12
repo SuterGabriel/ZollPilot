@@ -108,6 +108,10 @@ export function pruefeAkte(eingang, katalog, register) {
     extraktion: eingang.extraktion ?? null,
     unbekannte_dokumente: akte.unbekannte_dokumente,
     nicht_klassifiziert: (akte.dokumente ?? []).filter((d) => d.typ === 'unclassified').map((d) => d.id),
+    // Die Cut-offs der Akte, unverändert durchgereicht: Der Nachforderungs-
+    // Workflow liest sie aus der letzten Prüfung, um Stufen fällig zu stellen
+    // (ADR-009). Keine Entscheidung, nur Stammdaten neben dem Ergebnis.
+    fristen: eingang.fristen ?? null,
     referenzen: {
       rechnung: fakt(akte, 'rechnung.nummer') ?? null,
       bill_of_lading: fakt(akte, 'bill_of_lading.nummer') ?? null,

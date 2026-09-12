@@ -130,6 +130,14 @@ function grundfall({ id, beschreibung, aenderung = {} }) {
     beschreibung,
     erwartung: aenderung.erwartung,
     stichtag: '2026-09-12',
+    // Cut-offs der Sendung (ADR-009): daran hängen die Eskalationsstufen der
+    // Nachforderung. Erfunden wie alles hier, aber plausibel zueinander:
+    // Zoll-Cut-off vor Carrier-Cut-off vor Ankunft.
+    fristen: {
+      customs_cutoff: '2026-09-15T16:00:00+02:00',
+      carrier_cutoff: '2026-09-17T12:00:00+02:00',
+      eta: '2026-10-20T08:00:00+08:00',
+    },
     sachverhalt: {
       richtung: 'export_third_country',
       verkehrstraeger: 'sea',

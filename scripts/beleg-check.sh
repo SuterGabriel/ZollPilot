@@ -159,7 +159,7 @@ pruefe "Prüf-Workflow existiert" datei workflows/zollpilot-akte-pruefen.json
 pruefe "Fehler-Workflow existiert" datei workflows/zollpilot-fehler.json
 pruefe "Code-Node ist generiert, nicht von Hand" enthaelt workflows/zollpilot-akte-pruefen.json "GENERIERT von scripts/n8n-bundle.mjs"
 pruefe "Prüf-Workflow nennt den Fehler-Workflow" enthaelt workflows/zollpilot-akte-pruefen.json '"errorWorkflow": "zollpilot-fehler"'
-pruefe "E-Mail-Node ist bewusst deaktiviert, nicht vergessen" enthaelt workflows/zollpilot-akte-pruefen.json "Absichtlich deaktiviert"
+pruefe "Alarm-Mail ist bewusst deaktiviert, nicht vergessen" enthaelt workflows/zollpilot-alarm.json "Absichtlich deaktiviert"
 pruefe "Ein gescheiterter Lauf antwortet, statt 200 mit leerem Rumpf zu liefern" enthaelt workflows/zollpilot-akte-pruefen.json "Antwort: Lauf gescheitert"
 pruefe "Der Fehlerzweig haelt den Fehler selbst fest" enthaelt workflows/zollpilot-akte-pruefen.json "Fehler festhalten"
 pruefe "Der Rauchtest prueft den gescheiterten Lauf mit" enthaelt scripts/rauchtest.sh "Runde 5"
@@ -256,6 +256,21 @@ pruefe "Wiedervorlage ist im Datenschutz benannt" enthaelt docs/DATENSCHUTZ.md "
 for alarm in $(grep -oE '^\s*- alert: [A-Za-z0-9]+' deploy/prometheus/alarme.yml | awk '{print $3}'); do
   pruefe "Runbook für $alarm in BETRIEB.md" enthaelt docs/BETRIEB.md "$alarm"
 done
+
+echo
+echo "Stufe 6 — die Akte lebt: Nachforderung als Vorgang (ADR-009)"
+pruefe "ADR-009 existiert" datei docs/adr/ADR-009-die-akte-lebt.md
+pruefe "Stufen tragen bezug und vorlauf, keine Kalendertage" enthaelt zustaendigkeiten.yaml "vorlauf_stunden:"
+pruefe "Verteiler ist Daten, als Demo markiert" enthaelt zustaendigkeiten.yaml "verteiler:"
+pruefe "Abgleich ist eine reine Funktion" datei src/nachforderung/abgleich.mjs
+pruefe "Stufe ist eine reine Funktion ohne Uhr" enthaelt_nicht src/nachforderung/stufe.mjs "new Date()"
+pruefe "Abgleich und Stufe sind getestet" datei tests/nachforderung/stufe.test.mjs
+pruefe "Nachforderungs-Workflow existiert" datei workflows/zollpilot-nachforderung.json
+pruefe "Workflow entscheidet im Bundle aus src/" enthaelt workflows/zollpilot-nachforderung.json "GENERIERT von scripts/n8n-bundle.mjs"
+pruefe "Workflow versendet wirklich (SMTP an GreenMail)" enthaelt workflows/zollpilot-nachforderung.json '"type": "n8n-nodes-base.emailSend"'
+pruefe "Versand wird festgehalten" enthaelt deploy/postgres/init.sql "CREATE TABLE request_versand"
+pruefe "Postfach im Stack" enthaelt compose.yml "  greenmail:"
+pruefe "Rauchtest spielt den Vorgang durch" enthaelt scripts/rauchtest.sh "Runde 8"
 
 echo
 echo "Prozessdokumentation — Landschaft, Datenfluss, Handbuch"

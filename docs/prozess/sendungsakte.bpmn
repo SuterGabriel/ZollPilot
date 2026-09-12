@@ -60,13 +60,13 @@
     <bpmn:task id="Einreichen" name="Stammdaten angeben, Belege einreichen">
       <bpmn:incoming>Flow_3</bpmn:incoming>
       <bpmn:incoming>Flow_4</bpmn:incoming>
-      <bpmn:incoming>Flow_20</bpmn:incoming>
+      <bpmn:incoming>Flow_19</bpmn:incoming>
       <bpmn:outgoing>Flow_6</bpmn:outgoing>
     </bpmn:task>
     <bpmn:task id="Lesen" name="Lesen und klassifizieren (Textlayer oder OCR)">
       <bpmn:incoming>Flow_5</bpmn:incoming>
       <bpmn:incoming>Flow_6</bpmn:incoming>
-      <bpmn:incoming>Flow_19</bpmn:incoming>
+      <bpmn:incoming>Flow_18</bpmn:incoming>
       <bpmn:outgoing>Flow_7</bpmn:outgoing>
     </bpmn:task>
     <bpmn:task id="Pruefen" name="Akte bauen, Pflichtmatrix und Regeln prüfen">
@@ -90,32 +90,28 @@
     <bpmn:task id="Formulieren" name="Nachforderung formulieren (Feld, Grund, Adressat)">
       <bpmn:incoming>Flow_11</bpmn:incoming>
       <bpmn:outgoing>Flow_14</bpmn:outgoing>
-      <bpmn:outgoing>Flow_15</bpmn:outgoing>
     </bpmn:task>
     <bpmn:task id="Uebersteuern" name="Übersteuern mit Name und Begründung">
       <bpmn:incoming>Flow_12</bpmn:incoming>
       <bpmn:outgoing>Flow_13</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Eskalieren" name="Erinnerung und Eskalation vor Cut-off (vorgesehen)">
-      <bpmn:documentation>Vorgesehen, nicht gebaut. Stand und Beleg: docs/prozess/README.md, docs/OFFENE-PUNKTE.md.</bpmn:documentation>
+    <bpmn:task id="Eskalieren" name="Erinnerung und Eskalation vor Cut-off">
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Versenden" name="Nachforderung versenden">
       <bpmn:incoming>Flow_15</bpmn:incoming>
       <bpmn:outgoing>Flow_16</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="Versenden" name="Nachforderung versenden (vorgesehen)">
-      <bpmn:documentation>Vorgesehen, nicht gebaut. Stand und Beleg: docs/prozess/README.md, docs/OFFENE-PUNKTE.md.</bpmn:documentation>
-      <bpmn:incoming>Flow_14</bpmn:incoming>
+    <bpmn:task id="Nachliefern" name="Fehlenden Wert nachliefern">
       <bpmn:incoming>Flow_16</bpmn:incoming>
       <bpmn:outgoing>Flow_17</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Nachliefern" name="Fehlenden Wert nachliefern">
-      <bpmn:incoming>Flow_17</bpmn:incoming>
-      <bpmn:outgoing>Flow_18</bpmn:outgoing>
-      <bpmn:outgoing>Flow_20</bpmn:outgoing>
+      <bpmn:outgoing>Flow_19</bpmn:outgoing>
     </bpmn:task>
     <bpmn:task id="Zuordnen" name="Antwort der Akte zuordnen (vorgesehen)">
       <bpmn:documentation>Vorgesehen, nicht gebaut. Stand und Beleg: docs/prozess/README.md, docs/OFFENE-PUNKTE.md.</bpmn:documentation>
-      <bpmn:incoming>Flow_18</bpmn:incoming>
-      <bpmn:outgoing>Flow_19</bpmn:outgoing>
+      <bpmn:incoming>Flow_17</bpmn:incoming>
+      <bpmn:outgoing>Flow_18</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="Flow_0" sourceRef="Start" targetRef="Rechnung" />
     <bpmn:sequenceFlow id="Flow_1" sourceRef="Start" targetRef="BL" />
@@ -131,13 +127,12 @@
     <bpmn:sequenceFlow id="Flow_11" sourceRef="Freigabereif" targetRef="Formulieren" name="nein" />
     <bpmn:sequenceFlow id="Flow_12" sourceRef="Freigabereif" targetRef="Uebersteuern" name="verantworten" />
     <bpmn:sequenceFlow id="Flow_13" sourceRef="Uebersteuern" targetRef="Pruefen" />
-    <bpmn:sequenceFlow id="Flow_14" sourceRef="Formulieren" targetRef="Versenden" />
-    <bpmn:sequenceFlow id="Flow_15" sourceRef="Formulieren" targetRef="Eskalieren" name="(vorgesehen)" />
-    <bpmn:sequenceFlow id="Flow_16" sourceRef="Eskalieren" targetRef="Versenden" name="(vorgesehen)" />
-    <bpmn:sequenceFlow id="Flow_17" sourceRef="Versenden" targetRef="Nachliefern" name="(vorgesehen)" />
-    <bpmn:sequenceFlow id="Flow_18" sourceRef="Nachliefern" targetRef="Zuordnen" name="(vorgesehen)" />
-    <bpmn:sequenceFlow id="Flow_19" sourceRef="Zuordnen" targetRef="Lesen" name="(vorgesehen)" />
-    <bpmn:sequenceFlow id="Flow_20" sourceRef="Nachliefern" targetRef="Einreichen" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Formulieren" targetRef="Eskalieren" />
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="Eskalieren" targetRef="Versenden" />
+    <bpmn:sequenceFlow id="Flow_16" sourceRef="Versenden" targetRef="Nachliefern" />
+    <bpmn:sequenceFlow id="Flow_17" sourceRef="Nachliefern" targetRef="Zuordnen" name="(vorgesehen)" />
+    <bpmn:sequenceFlow id="Flow_18" sourceRef="Zuordnen" targetRef="Lesen" name="(vorgesehen)" />
+    <bpmn:sequenceFlow id="Flow_19" sourceRef="Nachliefern" targetRef="Einreichen" />
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_Sendungsakte">
@@ -286,40 +281,34 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
         <di:waypoint x="1590" y="665" />
-        <di:waypoint x="1820" y="665" />
-        <di:waypoint x="1820" y="515" />
-        <di:waypoint x="2050" y="515" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
-        <di:waypoint x="1590" y="665" />
         <di:waypoint x="1850" y="665" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16">
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
         <di:waypoint x="1990" y="665" />
         <di:waypoint x="2020" y="665" />
         <di:waypoint x="2020" y="515" />
         <di:waypoint x="2050" y="515" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
+      <bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16">
         <di:waypoint x="2190" y="515" />
         <di:waypoint x="2220" y="515" />
         <di:waypoint x="2220" y="215" />
         <di:waypoint x="2250" y="215" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18">
+      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
         <di:waypoint x="2320" y="255" />
         <di:waypoint x="2320" y="625" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19">
+      <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18">
         <di:waypoint x="2320" y="705" />
-        <di:waypoint x="2320" y="950" />
-        <di:waypoint x="920" y="950" />
+        <di:waypoint x="2320" y="930" />
+        <di:waypoint x="920" y="930" />
         <di:waypoint x="920" y="705" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_20_di" bpmnElement="Flow_20">
+      <bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19">
         <di:waypoint x="2320" y="175" />
-        <di:waypoint x="2320" y="60" />
-        <di:waypoint x="720" y="60" />
+        <di:waypoint x="2320" y="80" />
+        <di:waypoint x="720" y="80" />
         <di:waypoint x="720" y="475" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
