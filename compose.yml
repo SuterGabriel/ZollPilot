@@ -120,6 +120,14 @@ services:
       EXECUTIONS_DATA_PRUNE: "true"
       EXECUTIONS_DATA_MAX_AGE: 336
       N8N_RUNNERS_ENABLED: "true"
+      # Post an ein echtes Postfach (docs/BETRIEB.md). Die Zugangsdaten hier
+      # überschreiben die SMTP-Credential aus credentials.json, ohne dass ein
+      # Passwort in eine versionierte Datei muss; die Umleitung schickt jede
+      # Nachforderung an eine einzige Adresse. Ohne `.env` bleibt alles bei
+      # GreenMail.
+      CREDENTIALS_OVERWRITE_DATA: '{"smtp":{"host":"${ZOLLPILOT_SMTP_HOST:-greenmail}","port":${ZOLLPILOT_SMTP_PORT:-3025},"user":"${ZOLLPILOT_SMTP_USER:-zollpilot}","password":"${ZOLLPILOT_SMTP_PASSWORT:-zollpilot-dev}","secure":${ZOLLPILOT_SMTP_SICHER:-false},"disableStartTls":${ZOLLPILOT_SMTP_OHNE_STARTTLS:-true}}}'
+      ZOLLPILOT_ABSENDER: ${ZOLLPILOT_ABSENDER:-zollpilot@zollpilot.test}
+      ZOLLPILOT_POST_UMLEITEN_AN: ${ZOLLPILOT_POST_UMLEITEN_AN:-}
     volumes:
       - n8n-daten:/home/node/.n8n
       - ./nodes/n8n-nodes-zollpilot/dist:/custom/n8n-nodes-zollpilot:ro

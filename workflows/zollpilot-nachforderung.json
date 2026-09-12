@@ -185,8 +185,8 @@
     },
     {
       "parameters": {
-        "fromEmail": "zollpilot@zollpilot.test",
-        "toEmail": "={{ $json.an }}",
+        "fromEmail": "={{ $env.ZOLLPILOT_ABSENDER || 'zollpilot@zollpilot.test' }}",
+        "toEmail": "={{ $env.ZOLLPILOT_POST_UMLEITEN_AN || $json.an }}",
         "subject": "={{ $json.betreff }}",
         "emailFormat": "text",
         "text": "={{ $json.text }}",
