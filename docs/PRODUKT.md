@@ -28,7 +28,7 @@ verstehen. `docs/BETRIEB.md`.
 
 Der Prototyp deckt einen Sachverhalt: **Ausfuhr in ein Drittland, Seefracht
 FCL, Präferenz beansprucht.** Vier Belegtypen: Handelsrechnung, Packliste,
-B/L, Präferenznachweis. Dreizehn Regeln, sechs Pflichteinträge, eine
+B/L, Präferenznachweis. Vierzehn Regeln, sieben Pflichteinträge, eine
 Eskalationskette. Warum so eng: Ein Flow, der einen Sachverhalt vollständig
 kann, inklusive Fehlerpfad, Konfidenzpfad und Nachforderung, ist
 überzeugender als vierzig halbfertige Checks. Der Katalog ist ohne Deployment
@@ -81,7 +81,7 @@ erweiterbar; der Sachverhalt wird nicht heimlich breiter.
 
 ## Was die Testakten zeigen
 
-Sieben synthetische Akten in `testdaten/akten/`, jede eine Variante desselben
+Acht synthetische Akten in `testdaten/akten/`, jede eine Variante desselben
 Grundfalls. Der Fehlerpfad ist der Demo-Inhalt:
 
 | Akte | Was passiert | Entscheidung |
@@ -96,7 +96,7 @@ Grundfalls. Der Fehlerpfad ist der Demo-Inhalt:
 
 Aufruf: `node src/cli.mjs testdaten/akten/*.json`.
 
-Dieselben sieben Akten liegen als Belege in `testdaten/belege/`, je
+Dieselben acht Akten liegen als Belege in `testdaten/belege/`, je
 Handelsrechnung, Packliste und B/L als PDF, erzeugt aus den JSON-Akten. Dort
 ist der schlechte Scan ein echtes Bild, das Tesseract liest; was dabei
 herauskommt, misst die Bewertung (`docs/EXTRAKTION.md`), statt dass es in

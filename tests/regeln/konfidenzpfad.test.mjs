@@ -16,6 +16,7 @@ import assert from 'node:assert/strict';
 
 import { pruefeCLS01 } from '../../src/regeln/CLS-01.mjs';
 import { pruefeCLS02 } from '../../src/regeln/CLS-02.mjs';
+import { pruefeCUS05 } from '../../src/regeln/CUS-05.mjs';
 import { pruefeORG02 } from '../../src/regeln/ORG-02.mjs';
 import { pruefeORG06 } from '../../src/regeln/ORG-06.mjs';
 import { pruefeQTY01 } from '../../src/regeln/QTY-01.mjs';
@@ -101,6 +102,18 @@ beideRichtungen(
   },
   'praeferenznachweis.ursprungswert',
   [regel('ORG-06'), DEFAULTS],
+);
+
+beideRichtungen(
+  'CUS-05 Warennummer auf dem ABD',
+  pruefeCUS05,
+  {
+    rechnung: { positionen: [{ nr: 1, hs6: '841330' }] },
+    packliste: { container_id: 'MSKU1234565' },
+    abd: { mrn: '26DE5100001234567A', container_id: 'MSKU1234565', positionen: [{ nr: 1, warennummer: '84135000' }] },
+  },
+  'abd.positionen.0.warennummer',
+  [regel('CUS-05'), DEFAULTS],
 );
 
 beideRichtungen(

@@ -15,6 +15,7 @@ import { pruefeQTY03 } from './QTY-03.mjs';
 import { pruefeTRN01 } from './TRN-01.mjs';
 import { pruefeTRN02 } from './TRN-02.mjs';
 import { pruefeREF03 } from './REF-03.mjs';
+import { pruefeCUS05 } from './CUS-05.mjs';
 
 export const REGELN = Object.freeze({
   'VAL-01': pruefeVAL01,
@@ -30,4 +31,5 @@ export const REGELN = Object.freeze({
   'TRN-01': pruefeTRN01,
   'TRN-02': pruefeTRN02,
   'REF-03': pruefeREF03,
+  'CUS-05': pruefeCUS05,
 });

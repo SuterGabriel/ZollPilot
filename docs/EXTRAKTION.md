@@ -69,9 +69,9 @@ uv run python -m zollpilot_extraktion --ordner ../testdaten/belege/happy-path
 
 ## Das Golden Set und die Messung
 
-Die sieben Akten in `testdaten/akten/` sind die Referenz. Aus ihnen erzeugt
-`testdaten/erzeuge-belege.py` je Akte drei PDFs (Handelsrechnung mit
-Ursprungserklärung, Packliste, B/L) sowie `akte.json` (Stammdaten und
+Die acht Akten in `testdaten/akten/` sind die Referenz. Aus ihnen erzeugt
+`testdaten/erzeuge-belege.py` je Akte vier PDFs (Handelsrechnung mit
+Ursprungserklärung, Packliste, B/L, Ausfuhrbegleitdokument) sowie `akte.json` (Stammdaten und
 erwartete Entscheidung) und `erwartet.json` (welche Assertions die PDFs
 tragen). Der Lauf ist byteidentisch reproduzierbar, auf Windows wie auf
 Linux: reportlab mit `invariant`, Rauschen mit festem Startwert, Schrift
@@ -83,8 +83,8 @@ misst zwei Dinge (`docs/07-idp-ocr.md`, Kennzahlen):
 
 | Kennzahl | Definition | Stand 2026-09-12 |
 |---|---|---|
-| Field Exact Match je Belegtyp | erwartete Assertions mit gleichem Dokument, Pfad und normalisiertem Wert / alle erwarteten | Handelsrechnung 199/199, Packliste 122/122, B/L 49/49, Ursprungserklärung 50/50, zusammen **420/420** |
-| Entscheidung je Akte | `src/cli.mjs` auf der extrahierten Akte liefert die erwartete Freigabe, dieselben Regeln, dieselben Pflichtbefunde | **7/7** |
+| Field Exact Match je Belegtyp | erwartete Assertions mit gleichem Dokument, Pfad und normalisiertem Wert / alle erwarteten | Handelsrechnung 226/226, Packliste 139/139, B/L 56/56, Ursprungserklärung 58/58, ABD 91/91, zusammen **570/570** |
+| Entscheidung je Akte | `src/cli.mjs` auf der extrahierten Akte liefert die erwartete Freigabe, dieselben Regeln, dieselben Pflichtbefunde | **8/8** |
 
 Die Basislinie liegt in `extraktion/basislinie.json` und wird bewusst
 geschrieben (`--basislinie-schreiben`), nie nebenbei. Ein Lauf ohne
@@ -106,7 +106,7 @@ weil nichts falsch gelesen wird. Das ist das Ergebnis, nicht die Erwartung:
 
 ```bash
 cd extraktion && uv sync
-uv run pytest                                      # 98 Tests; ohne Tesseract wird der OCR-Test übersprungen, nicht grün
+uv run pytest                                      # 123 Tests; ohne Tesseract wird der OCR-Test übersprungen, nicht grün
 uv run python ../testdaten/erzeuge-belege.py       # PDFs neu erzeugen
 uv run python -m zollpilot_extraktion.bewertung --ohne-ocr   # digitale Belege; der Scan fällt sichtbar durch
 ```
@@ -142,6 +142,81 @@ docker run --rm -v "$PWD:/host" -e PYTHONPATH=/host/extraktion -w /host/extrakti
   Status. Wer nachliest, womit, und wie das Ergebnis zurück in die Prüfung
   kommt, ist nicht gebaut. Übersteuern geht (Stufe 5, ADR-007), aber ein
   übersteuerter Lesefehler ist verantwortet, nicht behoben.
+
+## Die Rechnung als Datensatz
+
+Eine Rechnung, die als UN/CEFACT Cross Industry Invoice (CII, D16B) kommt,
+nimmt denselben Eingang wie ein PDF und landet als derselbe Belegtyp in der
+Akte (ADR-008). `cii.py` erkennt sie am Inhalt, validiert sie gegen das
+Schema in `zollpilot_extraktion/schema/cii/` (Quelle und Hashes in
+`QUELLE.md`) und liest Kopf, Parteien mit Land und EORI, Positionen mit
+Warennummer, Ursprung, Menge, Preis und Betrag sowie Zuschläge, Rabatte und
+Endbetrag in dieselben Pfade wie der PDF-Extraktor. Die Assertionen tragen
+Methode `strukturiert`, Konfidenz 1 und keine Fundstelle: Es gibt keine
+Stelle im Bild, an der man nachlesen könnte. Was das Schema nicht besteht,
+hängt als `unclassified` mit Hinweis an der Akte.
+
+Die Gegenrichtung schreibt die Rechnungsfakten einer Akte als CII
+(`schreibe_cii`, Route `POST /extraktion/akte/cii`), ebenfalls gegen das
+Schema validiert. `tests/test_cii.py` fährt die Rundreise: Golden-Set-Akte
+als CII schreiben, über `extrahiere_akte` lesen, gegen `erwartet.json`
+derselben Akte vergleichen. Nicht abgebildet: Steuer, Zahlung, Lieferung,
+Referenzen, und die Ursprungserklärung, die in CII keinen Platz hat und
+beim PDF bleibt.
+
+## Der Vergleichslauf
+
+Die Nahtstelle aus ADR-005 ist jetzt belegt, nicht nur beschrieben:
+`anbieter.py` ist ein zweites Lesemodul neben `lesen.py`. Es übersetzt die
+Antwort von Azure Document Intelligence (`prebuilt-read`) in dieselbe Form
+aus Seiten, Wörtern und Zeilen, mit Koordinaten in PDF-Punkten und der
+Konfidenz je Wort, die der Anbieter meldet. Alles hinter der Schicht Lesen
+bleibt gleich: Klassifikation, Felder, Normalisierung, Akte. Gewählt wurde
+Azure, weil ein Schlüssel im Kopfzeilenfeld genügt und das Kontingent F0
+kostenlos ist; ein zweiter Anbieter bekäme eine zweite Übersetzungsfunktion.
+
+Drei Regeln halten den Lauf ehrlich:
+
+- **Der Schlüssel kommt nur aus der Umgebung** (`ZOLLPILOT_AZURE_DI_ENDPOINT`,
+  `ZOLLPILOT_AZURE_DI_KEY`). Im Repo steht keiner.
+- **Antworten werden einmal aufgezeichnet** und liegen unter
+  `extraktion/tests/fixtures/anbieter/azure/<sha256>.json`, benannt nach dem
+  Hash des PDFs. Tests und Bewertung lesen nur die Aufzeichnung; sie brauchen
+  keinen Zugang und lösen keine Kosten aus.
+- **Es wird nichts erfunden.** Fehlt eine Aufzeichnung, nennt die Bewertung
+  die Belege beim Namen und läuft nicht. Fehlt der Schlüssel, sagt das
+  Aufzeichnen `KEIN ZUGANG` und endet.
+
+```bash
+cd extraktion
+uv run python -m zollpilot_extraktion.anbieter stand            # was aufgezeichnet ist
+uv run python -m zollpilot_extraktion.anbieter aufzeichnen      # einmalig, mit Schlüssel
+uv run python -m zollpilot_extraktion.bewertung --leser azure   # dieselbe Tabelle, anderer Leser
+```
+
+| Leser | Field Exact Match gesamt | Entscheidungen | Stand |
+|---|---|---|---|
+| `tesseract` (Textlayer, sonst Tesseract) | 100,0 % (570/570) | 8/8 | Basislinie, `extraktion/basislinie.json` |
+| `azure` (`prebuilt-read`) | noch nicht gemessen | noch nicht gemessen | 0 von 32 Testbelegen aufgezeichnet |
+
+Die zweite Zeile ist leer, weil am 2026-09-12 kein Azure-Zugang vorlag. Das
+steht hier als Ziel mit Stand, nicht als Behauptung (`docs/ARBEITSWEISE.md`).
+Wer den Lauf zieht, trägt die Zahlen ein und nennt die Modellversion aus der
+Aufzeichnung (`analyzeResult.modelId`, `apiVersion`).
+
+Was der Lauf zeigen wird und was nicht: Auf den digitalen Belegen liest der
+Textlayer bereits alles; dort kann ein Anbieter höchstens gleichziehen. Der
+Unterschied entsteht auf dem schlechten Scan, und zwar an zwei Stellen: an
+den Wortkonfidenzen (Azure kalibriert anders als Tesseract, deshalb kann die
+Schwelle 0,80 dort eine andere Wirkung haben) und an Zeichen wie 0/O und
+1/l in der Containernummer. Gemessen wird dasselbe wie immer, Field Exact
+Match je Belegtyp und die Entscheidung je Akte; die Basislinie gehört dem
+Leser aus `lesen.py` und wird von einem Anbieter nie überschrieben.
+
+Nur synthetische Belege gehen an den Anbieter (`docs/DATENSCHUTZ.md`). Für
+echte Belege wäre der Aufruf ein Modellaufruf im Sinne der Datenschutzregel
+und bräuchte die Pseudonymisierung, die es nicht gibt. Der Vergleichslauf
+ist ein Messwerkzeug, kein Betriebsweg.
 
 ## Was ein Anbieter ersetzen würde
 

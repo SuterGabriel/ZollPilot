@@ -20,12 +20,12 @@ Stand 12. September 2026, Stufen 0 bis 4 des Plans in
 | Was | Stand |
 |---|---|
 | Sachverhalt | Ausfuhr Drittland, Seefracht FCL, Präferenz beansprucht |
-| Regeln | 13 ausführbar in [rules.yaml](rules.yaml), über 40 im Katalog [docs/03](docs/03-regelwerk-vollstaendig.md) |
-| Pflichtmatrix | 6 Einträge in [pflichtmatrix.yaml](pflichtmatrix.yaml): Nachweis statt Dokument |
-| Extraktion (IDP/OCR) | Python-Dienst in [extraktion/](extraktion/): Textlayer mit Koordinaten oder Tesseract mit Wortkonfidenzen, Klassifikation, Felder je Belegtyp, jede Assertion mit Fundstelle (ADR-005). **Eine Layoutfamilie, synthetische Belege.** Was das heißt: [docs/EXTRAKTION.md](docs/EXTRAKTION.md) |
+| Regeln | 14 ausführbar in [rules.yaml](rules.yaml), über 40 im Katalog [docs/03](docs/03-regelwerk-vollstaendig.md) |
+| Pflichtmatrix | 7 Einträge in [pflichtmatrix.yaml](pflichtmatrix.yaml): Nachweis statt Dokument, darunter die MRN aus dem Ausfuhrbegleitdokument |
+| Extraktion (IDP/OCR) | Python-Dienst in [extraktion/](extraktion/): Textlayer mit Koordinaten oder Tesseract mit Wortkonfidenzen, Klassifikation, Felder je Belegtyp (Handelsrechnung, Packliste, B/L, Ursprungserklärung, Ausfuhrbegleitdokument), jede Assertion mit Fundstelle (ADR-005). Eine Rechnung als UN/CEFACT-CII-XML läuft als Beleg ohne Leseunsicherheit durch dieselbe Kette, in beide Richtungen gegen das Schema validiert (ADR-008). Ein zweites Lesemodul für Azure Document Intelligence steht als Vergleichslauf bereit, **ohne Zugang bisher ohne Zahl**. **Eine Layoutfamilie, synthetische Belege.** Was das heißt: [docs/EXTRAKTION.md](docs/EXTRAKTION.md) |
 | Oberfläche | Angular 22 mit ngrx in [oberflaeche/](oberflaeche/): Belege einreichen, Entscheidung mit Begründung je Regel lesen (ADR-006). Kontrast nachgerechnet, axe über jede Ansicht: [docs/OBERFLAECHE.md](docs/OBERFLAECHE.md) |
-| Tests | 91 in JavaScript (Prüfziffern gegen Referenzwerte, Grenzfälle je Regel), 98 in Python (Normalisierung, Klassifikation, Tabellen, Ende zu Ende auf den PDFs), 43 + 10 in TypeScript (Zustand, Dienst, Darstellung; axe und Tastatur) |
-| Testdaten | 7 synthetische Akten als JSON, dieselben 7 als Belegsätze (PDF) in [testdaten/belege/](testdaten/belege/), erzeugt und byteidentisch reproduzierbar; der schlechte Scan ist ein echtes Bild für Tesseract |
+| Tests | 125 in JavaScript (Prüfziffern gegen Referenzwerte, Grenzfälle je Regel, Konfidenzpfad), 134 in Python (Normalisierung, Klassifikation, Tabellen, CII gegen Schema, Anbieterleser, Ende zu Ende auf den PDFs), 43 + 10 in TypeScript (Zustand, Dienst, Darstellung; axe und Tastatur), 12 für den eigenen n8n-Node |
+| Testdaten | 8 synthetische Akten als JSON, dieselben 8 als Belegsätze (PDF, je mit Ausfuhrbegleitdokument) in [testdaten/belege/](testdaten/belege/), erzeugt und byteidentisch reproduzierbar; der schlechte Scan ist ein echtes Bild für Tesseract |
 | Messung | Field Exact Match je Belegtyp und Entscheidung je Akte gegen das Golden Set, Basislinie in [extraktion/basislinie.json](extraktion/basislinie.json), als CI-Job |
 | n8n | 4 Workflows als Export (Prüfung mit zwei Eingängen, Fehler, Wiederholung, Alarm); der Code-Node ist aus `src/` gebündelt (ADR-004); ein eigener Node in TypeScript mit Credential-Typ in [nodes/](nodes/n8n-nodes-zollpilot/) ruft die Extraktion, 12 Tests ohne n8n |
 | Betrieb | `compose.yml` mit Postgres, Import, n8n, Extraktionsdienst und nginx; Rauchtest in sieben Runden gegen den laufenden Stack: Akten, PDFs, Oberfläche, Übersteuerung, gescheiterter Lauf, Wiederholung, Monitoring |
@@ -36,8 +36,8 @@ Stand 12. September 2026, Stufen 0 bis 4 des Plans in
 
 ```bash
 npm ci
-npm test                                      # 91 Tests
-node src/cli.mjs testdaten/akten/*.json       # sieben Akten, sieben Entscheidungen
+npm test                                      # 125 Tests
+node src/cli.mjs testdaten/akten/*.json       # acht Akten, acht Entscheidungen
 npm run check                                 # Belege, Prosa, Verweise, Regeln
 ```
 
@@ -45,9 +45,17 @@ Extraktion (Python 3.12+, [uv](https://docs.astral.sh/uv/)):
 
 ```bash
 cd extraktion && uv sync
-uv run pytest                                            # 98 Tests; OCR-Tests ohne Tesseract übersprungen
+uv run pytest                                            # 134 Tests; OCR-Tests ohne Tesseract übersprungen
 uv run python -m zollpilot_extraktion --ordner ../testdaten/belege/happy-path   # PDF → Akte
 uv run python -m zollpilot_extraktion.bewertung          # gegen die Basislinie
+uv run python -m zollpilot_extraktion.anbieter stand     # Vergleichslauf: was aufgezeichnet ist
+```
+
+Eigener n8n-Node (TypeScript):
+
+```bash
+cd nodes/n8n-nodes-zollpilot && npm ci
+npm run build && npm test                     # 12 Tests, ohne n8n
 ```
 
 Oberfläche (Angular 22, ngrx):

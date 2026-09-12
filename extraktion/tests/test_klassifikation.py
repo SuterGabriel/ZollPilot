@@ -33,6 +33,17 @@ def test_non_negotiable_allein_ist_kein_draft():
     assert k.status == STATUS_FINAL
 
 
+def test_abd_deutsch_und_englisch():
+    assert klassifiziere("AUSFUHRBEGLEITDOKUMENT\nMRN: 26DE5100001234567A\nAusfuhrzollstelle: DE002210").typ == "abd"
+    assert klassifiziere("EXPORT ACCOMPANYING DOCUMENT\nMRN 26DE5100001234567A").typ == "abd"
+
+
+def test_mrn_allein_macht_kein_abd():
+    # Eine Statusnachricht oder ein Anschreiben nennt die MRN auch.
+    k = klassifiziere("Sehr geehrte Damen und Herren, die Sendung mit MRN 26DE5100001234567A ist ausgegangen.")
+    assert k.typ == TYP_UNCLASSIFIED
+
+
 def test_unbekannt_bleibt_unbekannt():
     k = klassifiziere("Lieferschein\nWir bestätigen den Eingang Ihrer Bestellung.")
     assert k.typ == TYP_UNCLASSIFIED
