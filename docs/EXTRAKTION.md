@@ -197,21 +197,35 @@ uv run python -m zollpilot_extraktion.bewertung --leser azure   # dieselbe Tabel
 | Leser | Field Exact Match gesamt | Entscheidungen | Stand |
 |---|---|---|---|
 | `tesseract` (Textlayer, sonst Tesseract) | 100,0 % (570/570) | 8/8 | Basislinie, `extraktion/basislinie.json` |
-| `azure` (`prebuilt-read`) | noch nicht gemessen | noch nicht gemessen | 0 von 32 Testbelegen aufgezeichnet |
+| `azure` (`prebuilt-read`, API 2024-11-30) | 100,0 % (570/570) | 8/8 | 32 von 32 Testbelegen aufgezeichnet am 2026-09-12, Region Switzerland North, Stufe F0 |
 
-Die zweite Zeile ist leer, weil am 2026-09-12 kein Azure-Zugang vorlag. Das
-steht hier als Ziel mit Stand, nicht als Behauptung (`docs/ARBEITSWEISE.md`).
-Wer den Lauf zieht, trägt die Zahlen ein und nennt die Modellversion aus der
-Aufzeichnung (`analyzeResult.modelId`, `apiVersion`).
+Beide Leser lesen das Golden Set vollständig. Das war nicht der erste Stand:
+Der erste Vergleichslauf ergab 26,8 % und 0 von 8 Entscheidungen, und zwar
+nicht, weil Azure schlecht liest, sondern weil die Übersetzung zwei
+Eigenheiten der Antwort nicht kannte. Azures `lines` sind Zellen, nicht
+Zeilen (eine Tabellenzeile kam als sieben Zeilen an, und die Tabellen-
+extraktion über Spaltenpositionen fand keine Zeile mit allen Spalten). Und
+Azure trennt Satzzeichen ab, `Invoice No .:` statt `Invoice No.:`, womit das
+Label nicht mehr passte. Beides ist in `anbieter.py` ausgeglichen; die
+Feldextraktoren blieben unverändert, was die Nahtstelle aus ADR-005 ein
+zweites Mal bestätigt. Die Zeilenbildung schließt Wort an Nachbarwort an
+statt an die Oberkante der ganzen Zeile, weil auf dem schiefen Scan die
+Oberkante über eine Tabellenzeile um elf Punkte wandert, zwischen Nachbarn
+aber um höchstens vier.
 
-Was der Lauf zeigen wird und was nicht: Auf den digitalen Belegen liest der
-Textlayer bereits alles; dort kann ein Anbieter höchstens gleichziehen. Der
-Unterschied entsteht auf dem schlechten Scan, und zwar an zwei Stellen: an
-den Wortkonfidenzen (Azure kalibriert anders als Tesseract, deshalb kann die
-Schwelle 0,80 dort eine andere Wirkung haben) und an Zeichen wie 0/O und
-1/l in der Containernummer. Gemessen wird dasselbe wie immer, Field Exact
-Match je Belegtyp und die Entscheidung je Akte; die Basislinie gehört dem
-Leser aus `lesen.py` und wird von einem Anbieter nie überschrieben.
+Was der Lauf gezeigt hat: Auf den digitalen Belegen liest der Textlayer
+alles, und Azure zieht gleich. Auf dem schlechten Scan liest Azure alle
+60 Wörter der Packliste mit Konfidenz von mindestens 0,906, keines unter der
+Schwelle 0,80; der Containernummer-Fall 0/O und 1/l trat nicht auf. Ob
+Azure damit besser kalibriert ist als Tesseract oder nur auf diesem einen
+Scan gnädiger, sagt ein Beleg nicht. Gemessen wird dasselbe wie immer, Field
+Exact Match je Belegtyp und die Entscheidung je Akte; die Basislinie gehört
+dem Leser aus `lesen.py` und wird von einem Anbieter nie überschrieben.
+
+Aufgezeichnet wurden 32 Belege in 14 Dateien, weil die PDFs über die Akten
+hinweg oft byteidentisch sind und der Hash den Namen gibt. Die Stufe F0
+erlaubt 20 Aufrufe pro Minute; wer schneller ist, bekommt HTTP 429, und
+das Aufzeichnen wartet dann und sendet erneut, statt den Beleg zu verlieren.
 
 Nur synthetische Belege gehen an den Anbieter (`docs/DATENSCHUTZ.md`). Für
 echte Belege wäre der Aufruf ein Modellaufruf im Sinne der Datenschutzregel

@@ -1,0 +1,2820 @@
+{
+  "status": "succeeded",
+  "createdDateTime": "2026-09-12T20:12:42Z",
+  "lastUpdatedDateTime": "2026-09-12T20:12:43Z",
+  "analyzeResult": {
+    "apiVersion": "2024-11-30",
+    "modelId": "prebuilt-read",
+    "stringIndexType": "textElements",
+    "content": "BILL OF LADING - DRAFT\nStatus: DRAFT - for verification only, not negotiable, not an original.\nB/L No .: MAEU-HH-778812\nCarrier: Maersk Line (synthetisch)\nShipper: Nordlicht Maschinenbau GmbH, Hamburg, Germany\nConsignee: Aurora Trading Pte. Ltd., Singapore\nNotify party: same as consignee\nVessel / Voyage: NORDLICHT EXPRESS (fictitious) / 2637W Port of loading: Hamburg (DEHAM)\nContainer No .: MSKU1234565\nPort of discharge: Singapore (SGSIN) Seal No .: ML-SG-44821\nPackages: 2 (1 pallet, 1 carton), said to contain\nDescription of goods: Hydraulic pumps and seal kits\nGross weight: 1.046,00 kg\nShipped on board: 2026-09-11\nFreight: prepaid Number of originals: 3\nReceived in apparent good order and condition. Shipper's load, stow and count.\nDRAFT",
+    "pages": [
+      {
+        "pageNumber": 1,
+        "angle": 0,
+        "width": 8.2639,
+        "height": 11.6806,
+        "unit": "inch",
+        "words": [
+          {
+            "content": "BILL",
+            "polygon": [
+              0.5471,
+              0.514,
+              1.0454,
+              0.5105,
+              1.0442,
+              0.7107,
+              0.5471,
+              0.71
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 0,
+              "length": 4
+            }
+          },
+          {
+            "content": "OF",
+            "polygon": [
+              1.1185,
+              0.5101,
+              1.4108,
+              0.5087,
+              1.4088,
+              0.7113,
+              1.1171,
+              0.7108
+            ],
+            "confidence": 0.999,
+            "span": {
+              "offset": 5,
+              "length": 2
+            }
+          },
+          {
+            "content": "LADING",
+            "polygon": [
+              1.4938,
+              0.5084,
+              2.321,
+              0.5075,
+              2.3168,
+              0.7129,
+              1.4916,
+              0.7115
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 8,
+              "length": 6
+            }
+          },
+          {
+            "content": "-",
+            "polygon": [
+              2.3907,
+              0.5076,
+              2.5203,
+              0.5078,
+              2.5157,
+              0.7132,
+              2.3864,
+              0.713
+            ],
+            "confidence": 0.977,
+            "span": {
+              "offset": 15,
+              "length": 1
+            }
+          },
+          {
+            "content": "DRAFT",
+            "polygon": [
+              2.5933,
+              0.5079,
+              3.3563,
+              0.5115,
+              3.3563,
+              0.7148,
+              2.5886,
+              0.7134
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 17,
+              "length": 5
+            }
+          },
+          {
+            "content": "Status:",
+            "polygon": [
+              0.5535,
+              0.9605,
+              1.0159,
+              0.9604,
+              1.0126,
+              1.0962,
+              0.5503,
+              1.09
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 23,
+              "length": 7
+            }
+          },
+          {
+            "content": "DRAFT",
+            "polygon": [
+              1.0684,
+              0.9604,
+              1.5307,
+              0.9602,
+              1.5275,
+              1.1025,
+              1.0651,
+              1.0969
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 31,
+              "length": 5
+            }
+          },
+          {
+            "content": "-",
+            "polygon": [
+              1.5682,
+              0.9602,
+              1.6532,
+              0.9601,
+              1.65,
+              1.1039,
+              1.565,
+              1.1029
+            ],
+            "confidence": 0.979,
+            "span": {
+              "offset": 37,
+              "length": 1
+            }
+          },
+          {
+            "content": "for",
+            "polygon": [
+              1.6882,
+              0.9601,
+              1.8782,
+              0.96,
+              1.8749,
+              1.1064,
+              1.685,
+              1.1043
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 39,
+              "length": 3
+            }
+          },
+          {
+            "content": "verification",
+            "polygon": [
+              1.9106,
+              0.9599,
+              2.6454,
+              0.9591,
+              2.6422,
+              1.1131,
+              1.9074,
+              1.1067
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 43,
+              "length": 12
+            }
+          },
+          {
+            "content": "only,",
+            "polygon": [
+              2.6929,
+              0.959,
+              3.0078,
+              0.9586,
+              3.0046,
+              1.1156,
+              2.6897,
+              1.1134
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 56,
+              "length": 5
+            }
+          },
+          {
+            "content": "not",
+            "polygon": [
+              3.0603,
+              0.9585,
+              3.2703,
+              0.9581,
+              3.267,
+              1.1171,
+              3.0571,
+              1.1159
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 62,
+              "length": 3
+            }
+          },
+          {
+            "content": "negotiable,",
+            "polygon": [
+              3.3153,
+              0.958,
+              4.0325,
+              0.9566,
+              4.0293,
+              1.1202,
+              3.312,
+              1.1173
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 66,
+              "length": 11
+            }
+          },
+          {
+            "content": "not",
+            "polygon": [
+              4.085,
+              0.9564,
+              4.2975,
+              0.9559,
+              4.2942,
+              1.1204,
+              4.0818,
+              1.1203
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 78,
+              "length": 3
+            }
+          },
+          {
+            "content": "an",
+            "polygon": [
+              4.3375,
+              0.9559,
+              4.4899,
+              0.9555,
+              4.4867,
+              1.1204,
+              4.3342,
+              1.1204
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 82,
+              "length": 2
+            }
+          },
+          {
+            "content": "original.",
+            "polygon": [
+              4.5374,
+              0.9553,
+              5.08,
+              0.9538,
+              5.079,
+              1.1204,
+              4.5342,
+              1.1204
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 85,
+              "length": 9
+            }
+          },
+          {
+            "content": "B/L",
+            "polygon": [
+              0.5316,
+              1.1938,
+              0.7418,
+              1.1944,
+              0.7372,
+              1.3637,
+              0.5271,
+              1.3637
+            ],
+            "confidence": 0.98,
+            "span": {
+              "offset": 95,
+              "length": 3
+            }
+          },
+          {
+            "content": "No",
+            "polygon": [
+              0.775,
+              1.1945,
+              0.9298,
+              1.1948,
+              0.9253,
+              1.3637,
+              0.7704,
+              1.3637
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 99,
+              "length": 2
+            }
+          },
+          {
+            "content": ".:",
+            "polygon": [
+              0.963,
+              1.1948,
+              1.0404,
+              1.195,
+              1.0359,
+              1.3637,
+              0.9585,
+              1.3637
+            ],
+            "confidence": 0.975,
+            "span": {
+              "offset": 102,
+              "length": 2
+            }
+          },
+          {
+            "content": "MAEU-HH-778812",
+            "polygon": [
+              1.0736,
+              1.195,
+              2.2713,
+              1.195,
+              2.2713,
+              1.3629,
+              1.0691,
+              1.3637
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 105,
+              "length": 14
+            }
+          },
+          {
+            "content": "Carrier:",
+            "polygon": [
+              4.4392,
+              1.2081,
+              4.8941,
+              1.2077,
+              4.8909,
+              1.3685,
+              4.436,
+              1.3606
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 120,
+              "length": 8
+            }
+          },
+          {
+            "content": "Maersk",
+            "polygon": [
+              4.9493,
+              1.2076,
+              5.3987,
+              1.2068,
+              5.3954,
+              1.3755,
+              4.946,
+              1.3694
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 129,
+              "length": 6
+            }
+          },
+          {
+            "content": "Line",
+            "polygon": [
+              5.4428,
+              1.2067,
+              5.6964,
+              1.2061,
+              5.6932,
+              1.3785,
+              5.4395,
+              1.3759
+            ],
+            "confidence": 0.987,
+            "span": {
+              "offset": 136,
+              "length": 4
+            }
+          },
+          {
+            "content": "(synthetisch)",
+            "polygon": [
+              5.7433,
+              1.206,
+              6.5345,
+              1.2034,
+              6.5313,
+              1.383,
+              5.74,
+              1.3789
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 141,
+              "length": 13
+            }
+          },
+          {
+            "content": "Shipper:",
+            "polygon": [
+              0.5492,
+              1.4397,
+              1.0558,
+              1.4364,
+              1.053,
+              1.5866,
+              0.546,
+              1.5868
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 155,
+              "length": 8
+            }
+          },
+          {
+            "content": "Nordlicht",
+            "polygon": [
+              1.0868,
+              1.4362,
+              1.6452,
+              1.4335,
+              1.6429,
+              1.5873,
+              1.0841,
+              1.5866
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 164,
+              "length": 9
+            }
+          },
+          {
+            "content": "Maschinenbau",
+            "polygon": [
+              1.6762,
+              1.4334,
+              2.5912,
+              1.4315,
+              2.5897,
+              1.5904,
+              1.6739,
+              1.5874
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 174,
+              "length": 12
+            }
+          },
+          {
+            "content": "GmbH,",
+            "polygon": [
+              2.6403,
+              1.4314,
+              3.0616,
+              1.4315,
+              3.0605,
+              1.5929,
+              2.6389,
+              1.5906
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 187,
+              "length": 5
+            }
+          },
+          {
+            "content": "Hamburg,",
+            "polygon": [
+              3.0927,
+              1.4316,
+              3.7156,
+              1.4328,
+              3.7151,
+              1.5972,
+              3.0916,
+              1.593
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 193,
+              "length": 8
+            }
+          },
+          {
+            "content": "Germany",
+            "polygon": [
+              3.7673,
+              1.4329,
+              4.3499,
+              1.4354,
+              4.3499,
+              1.602,
+              3.7668,
+              1.5975
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 202,
+              "length": 7
+            }
+          },
+          {
+            "content": "Consignee:",
+            "polygon": [
+              0.5535,
+              1.6541,
+              1.2512,
+              1.6533,
+              1.2463,
+              1.8105,
+              0.5471,
+              1.8095
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 210,
+              "length": 10
+            }
+          },
+          {
+            "content": "Aurora",
+            "polygon": [
+              1.2935,
+              1.6532,
+              1.7111,
+              1.6525,
+              1.7072,
+              1.8115,
+              1.2887,
+              1.8106
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 221,
+              "length": 6
+            }
+          },
+          {
+            "content": "Trading",
+            "polygon": [
+              1.7507,
+              1.6525,
+              2.2159,
+              1.6516,
+              2.2131,
+              1.8128,
+              1.7469,
+              1.8116
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 228,
+              "length": 7
+            }
+          },
+          {
+            "content": "Pte.",
+            "polygon": [
+              2.2661,
+              1.6514,
+              2.496,
+              1.6509,
+              2.4938,
+              1.8137,
+              2.2634,
+              1.813
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 236,
+              "length": 4
+            }
+          },
+          {
+            "content": "Ltd.,",
+            "polygon": [
+              2.5489,
+              1.6508,
+              2.8053,
+              1.6501,
+              2.8037,
+              1.8148,
+              2.5468,
+              1.8139
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 241,
+              "length": 5
+            }
+          },
+          {
+            "content": "Singapore",
+            "polygon": [
+              2.8581,
+              1.65,
+              3.4982,
+              1.6482,
+              3.4982,
+              1.8149,
+              2.8567,
+              1.8149
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 247,
+              "length": 9
+            }
+          },
+          {
+            "content": "Notify",
+            "polygon": [
+              0.5471,
+              1.8792,
+              0.9089,
+              1.8799,
+              0.9089,
+              2.0357,
+              0.5471,
+              2.035
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 257,
+              "length": 6
+            }
+          },
+          {
+            "content": "party:",
+            "polygon": [
+              0.9517,
+              1.88,
+              1.2858,
+              1.8806,
+              1.2858,
+              2.0358,
+              0.9517,
+              2.0357
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 264,
+              "length": 6
+            }
+          },
+          {
+            "content": "same",
+            "polygon": [
+              1.3361,
+              1.8807,
+              1.6677,
+              1.8815,
+              1.6677,
+              2.0353,
+              1.3361,
+              2.0358
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 271,
+              "length": 4
+            }
+          },
+          {
+            "content": "as",
+            "polygon": [
+              1.7129,
+              1.8816,
+              1.8562,
+              1.8819,
+              1.8562,
+              2.0347,
+              1.7129,
+              2.0351
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 276,
+              "length": 2
+            }
+          },
+          {
+            "content": "consignee",
+            "polygon": [
+              1.8989,
+              1.882,
+              2.5501,
+              1.8834,
+              2.5501,
+              2.0315,
+              1.8989,
+              2.0346
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 279,
+              "length": 9
+            }
+          },
+          {
+            "content": "Vessel",
+            "polygon": [
+              0.544,
+              2.102,
+              0.9652,
+              2.1004,
+              0.9619,
+              2.256,
+              0.5407,
+              2.2556
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 289,
+              "length": 6
+            }
+          },
+          {
+            "content": "/",
+            "polygon": [
+              1.0073,
+              2.1002,
+              1.0494,
+              2.1,
+              1.0461,
+              2.256,
+              1.004,
+              2.256
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 296,
+              "length": 1
+            }
+          },
+          {
+            "content": "Voyage:",
+            "polygon": [
+              1.0836,
+              2.0999,
+              1.589,
+              2.0982,
+              1.5858,
+              2.256,
+              1.0804,
+              2.256
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 298,
+              "length": 7
+            }
+          },
+          {
+            "content": "NORDLICHT",
+            "polygon": [
+              1.6417,
+              2.098,
+              2.4446,
+              2.0958,
+              2.4414,
+              2.256,
+              1.6385,
+              2.256
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 306,
+              "length": 9
+            }
+          },
+          {
+            "content": "EXPRESS",
+            "polygon": [
+              2.4894,
+              2.0957,
+              3.1343,
+              2.0945,
+              3.1311,
+              2.256,
+              2.4861,
+              2.256
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 316,
+              "length": 7
+            }
+          },
+          {
+            "content": "(fictitious)",
+            "polygon": [
+              3.1843,
+              2.0944,
+              3.7687,
+              2.0936,
+              3.7655,
+              2.256,
+              3.1811,
+              2.256
+            ],
+            "confidence": 0.953,
+            "span": {
+              "offset": 324,
+              "length": 12
+            }
+          },
+          {
+            "content": "/",
+            "polygon": [
+              3.8082,
+              2.0936,
+              3.8504,
+              2.0936,
+              3.8471,
+              2.256,
+              3.805,
+              2.256
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 337,
+              "length": 1
+            }
+          },
+          {
+            "content": "2637W",
+            "polygon": [
+              3.8898,
+              2.0936,
+              4.3449,
+              2.0933,
+              4.342,
+              2.2556,
+              3.8866,
+              2.256
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 339,
+              "length": 5
+            }
+          },
+          {
+            "content": "Port",
+            "polygon": [
+              0.5428,
+              2.3214,
+              0.8107,
+              2.3208,
+              0.8103,
+              2.4778,
+              0.5428,
+              2.4761
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 345,
+              "length": 4
+            }
+          },
+          {
+            "content": "of",
+            "polygon": [
+              0.85,
+              2.3207,
+              0.9419,
+              2.3206,
+              0.9414,
+              2.4786,
+              0.8496,
+              2.4781
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 350,
+              "length": 2
+            }
+          },
+          {
+            "content": "loading:",
+            "polygon": [
+              0.9735,
+              2.3205,
+              1.4802,
+              2.3203,
+              1.4788,
+              2.4814,
+              0.9728,
+              2.4788
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 353,
+              "length": 8
+            }
+          },
+          {
+            "content": "Hamburg",
+            "polygon": [
+              1.5327,
+              2.3203,
+              2.092,
+              2.3211,
+              2.0897,
+              2.4836,
+              1.5313,
+              2.4816
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 362,
+              "length": 7
+            }
+          },
+          {
+            "content": "(DEHAM)",
+            "polygon": [
+              2.1419,
+              2.3212,
+              2.7428,
+              2.3232,
+              2.7428,
+              2.4841,
+              2.1395,
+              2.4837
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 370,
+              "length": 7
+            }
+          },
+          {
+            "content": "Container",
+            "polygon": [
+              0.5483,
+              2.5392,
+              1.1447,
+              2.5372,
+              1.1436,
+              2.6869,
+              0.5483,
+              2.6869
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 378,
+              "length": 9
+            }
+          },
+          {
+            "content": "No",
+            "polygon": [
+              1.1735,
+              2.5372,
+              1.3274,
+              2.5371,
+              1.3261,
+              2.6869,
+              1.1724,
+              2.6869
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 388,
+              "length": 2
+            }
+          },
+          {
+            "content": ".:",
+            "polygon": [
+              1.3563,
+              2.5371,
+              1.4404,
+              2.5371,
+              1.4389,
+              2.6866,
+              1.3549,
+              2.6869
+            ],
+            "confidence": 0.98,
+            "span": {
+              "offset": 391,
+              "length": 2
+            }
+          },
+          {
+            "content": "MSKU1234565",
+            "polygon": [
+              1.4934,
+              2.5372,
+              2.4386,
+              2.541,
+              2.4386,
+              2.6794,
+              1.4917,
+              2.6864
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 394,
+              "length": 11
+            }
+          },
+          {
+            "content": "Port",
+            "polygon": [
+              4.4253,
+              2.3135,
+              4.6976,
+              2.3137,
+              4.6936,
+              2.4868,
+              4.4208,
+              2.4871
+            ],
+            "confidence": 0.987,
+            "span": {
+              "offset": 406,
+              "length": 4
+            }
+          },
+          {
+            "content": "of",
+            "polygon": [
+              4.7373,
+              2.3137,
+              4.8564,
+              2.3138,
+              4.8527,
+              2.4867,
+              4.7333,
+              2.4868
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 411,
+              "length": 2
+            }
+          },
+          {
+            "content": "discharge:",
+            "polygon": [
+              4.8933,
+              2.3138,
+              5.5229,
+              2.3142,
+              5.5205,
+              2.4866,
+              4.8896,
+              2.4867
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 414,
+              "length": 10
+            }
+          },
+          {
+            "content": "Singapore",
+            "polygon": [
+              5.5711,
+              2.3142,
+              6.198,
+              2.3143,
+              6.1969,
+              2.4872,
+              5.5688,
+              2.4866
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 425,
+              "length": 9
+            }
+          },
+          {
+            "content": "(SGSIN)",
+            "polygon": [
+              6.2434,
+              2.3143,
+              6.7784,
+              2.3143,
+              6.7784,
+              2.4884,
+              6.2423,
+              2.4873
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 435,
+              "length": 7
+            }
+          },
+          {
+            "content": "Seal",
+            "polygon": [
+              4.4349,
+              2.5352,
+              4.7126,
+              2.5364,
+              4.7093,
+              2.6848,
+              4.4317,
+              2.6844
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 443,
+              "length": 4
+            }
+          },
+          {
+            "content": "No",
+            "polygon": [
+              4.7633,
+              2.5366,
+              4.8888,
+              2.537,
+              4.8855,
+              2.6849,
+              4.76,
+              2.6848
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 448,
+              "length": 2
+            }
+          },
+          {
+            "content": ".:",
+            "polygon": [
+              4.9178,
+              2.5371,
+              5.0071,
+              2.5373,
+              5.0038,
+              2.6848,
+              4.9145,
+              2.6849
+            ],
+            "confidence": 0.987,
+            "span": {
+              "offset": 451,
+              "length": 2
+            }
+          },
+          {
+            "content": "ML-SG-44821",
+            "polygon": [
+              5.0578,
+              2.5374,
+              5.9216,
+              2.5367,
+              5.9216,
+              2.6825,
+              5.0545,
+              2.6848
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 454,
+              "length": 11
+            }
+          },
+          {
+            "content": "Packages:",
+            "polygon": [
+              0.5471,
+              2.7647,
+              1.1948,
+              2.7641,
+              1.1916,
+              2.9197,
+              0.5439,
+              2.9169
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 466,
+              "length": 9
+            }
+          },
+          {
+            "content": "2",
+            "polygon": [
+              1.2429,
+              2.7641,
+              1.3138,
+              2.764,
+              1.3105,
+              2.92,
+              1.2397,
+              2.9198
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 476,
+              "length": 1
+            }
+          },
+          {
+            "content": "(1",
+            "polygon": [
+              1.3618,
+              2.764,
+              1.458,
+              2.7639,
+              1.4547,
+              2.9201,
+              1.3586,
+              2.9201
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 478,
+              "length": 2
+            }
+          },
+          {
+            "content": "pallet,",
+            "polygon": [
+              1.5237,
+              2.7639,
+              1.883,
+              2.7636,
+              1.8798,
+              2.9201,
+              1.5205,
+              2.9201
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 481,
+              "length": 7
+            }
+          },
+          {
+            "content": "1",
+            "polygon": [
+              1.9387,
+              2.7636,
+              1.9842,
+              2.7636,
+              1.981,
+              2.9201,
+              1.9354,
+              2.9201
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 489,
+              "length": 1
+            }
+          },
+          {
+            "content": "carton),",
+            "polygon": [
+              2.0475,
+              2.7635,
+              2.5079,
+              2.7632,
+              2.5047,
+              2.9189,
+              2.0442,
+              2.9201
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 491,
+              "length": 8
+            }
+          },
+          {
+            "content": "said",
+            "polygon": [
+              2.556,
+              2.7632,
+              2.8014,
+              2.7631,
+              2.7982,
+              2.9174,
+              2.5528,
+              2.9187
+            ],
+            "confidence": 0.99,
+            "span": {
+              "offset": 500,
+              "length": 4
+            }
+          },
+          {
+            "content": "to",
+            "polygon": [
+              2.847,
+              2.7631,
+              2.9608,
+              2.763,
+              2.9576,
+              2.9165,
+              2.8437,
+              2.9172
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 505,
+              "length": 2
+            }
+          },
+          {
+            "content": "contain",
+            "polygon": [
+              3.0038,
+              2.763,
+              3.4627,
+              2.7627,
+              3.4627,
+              2.9126,
+              3.0006,
+              2.9163
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 508,
+              "length": 7
+            }
+          },
+          {
+            "content": "Description",
+            "polygon": [
+              0.5471,
+              2.9895,
+              1.2432,
+              2.9868,
+              1.2418,
+              3.1432,
+              0.5471,
+              3.1426
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 516,
+              "length": 11
+            }
+          },
+          {
+            "content": "of",
+            "polygon": [
+              1.29,
+              2.9866,
+              1.4094,
+              2.9862,
+              1.4077,
+              3.1432,
+              1.2885,
+              3.1432
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 528,
+              "length": 2
+            }
+          },
+          {
+            "content": "goods:",
+            "polygon": [
+              1.4432,
+              2.9861,
+              1.851,
+              2.985,
+              1.8483,
+              3.1432,
+              1.4414,
+              3.1432
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 531,
+              "length": 6
+            }
+          },
+          {
+            "content": "Hydraulic",
+            "polygon": [
+              1.9055,
+              2.9849,
+              2.4769,
+              2.984,
+              2.473,
+              3.1432,
+              1.9028,
+              3.1432
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 538,
+              "length": 9
+            }
+          },
+          {
+            "content": "pumps",
+            "polygon": [
+              2.5211,
+              2.9839,
+              2.9289,
+              2.9836,
+              2.924,
+              3.1432,
+              2.5171,
+              3.1432
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 548,
+              "length": 5
+            }
+          },
+          {
+            "content": "and",
+            "polygon": [
+              2.973,
+              2.9836,
+              3.1964,
+              2.9836,
+              3.191,
+              3.1431,
+              2.9681,
+              3.1432
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 554,
+              "length": 3
+            }
+          },
+          {
+            "content": "seal",
+            "polygon": [
+              3.2431,
+              2.9836,
+              3.4899,
+              2.9838,
+              3.4839,
+              3.1418,
+              3.2377,
+              3.143
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 558,
+              "length": 4
+            }
+          },
+          {
+            "content": "kits",
+            "polygon": [
+              3.5366,
+              2.9838,
+              3.7568,
+              2.984,
+              3.7568,
+              3.1404,
+              3.5306,
+              3.1416
+            ],
+            "confidence": 0.987,
+            "span": {
+              "offset": 563,
+              "length": 4
+            }
+          },
+          {
+            "content": "Gross",
+            "polygon": [
+              0.5498,
+              3.2045,
+              0.9237,
+              3.2024,
+              0.9191,
+              3.3747,
+              0.5453,
+              3.3764
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 568,
+              "length": 5
+            }
+          },
+          {
+            "content": "weight:",
+            "polygon": [
+              0.963,
+              3.2023,
+              1.3959,
+              3.2021,
+              1.3914,
+              3.3733,
+              0.9585,
+              3.3745
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 574,
+              "length": 7
+            }
+          },
+          {
+            "content": "1.046,00",
+            "polygon": [
+              1.4522,
+              3.2022,
+              1.9778,
+              3.2054,
+              1.9733,
+              3.3756,
+              1.4476,
+              3.3732
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 582,
+              "length": 8
+            }
+          },
+          {
+            "content": "kg",
+            "polygon": [
+              2.0256,
+              3.2059,
+              2.18,
+              3.2075,
+              2.18,
+              3.3764,
+              2.0211,
+              3.3761
+            ],
+            "confidence": 0.999,
+            "span": {
+              "offset": 591,
+              "length": 2
+            }
+          },
+          {
+            "content": "Shipped",
+            "polygon": [
+              0.5471,
+              3.4336,
+              1.0552,
+              3.4319,
+              1.0552,
+              3.589,
+              0.5471,
+              3.5893
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 594,
+              "length": 7
+            }
+          },
+          {
+            "content": "on",
+            "polygon": [
+              1.1034,
+              3.4317,
+              1.2482,
+              3.4312,
+              1.2482,
+              3.5877,
+              1.1034,
+              3.5887
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 602,
+              "length": 2
+            }
+          },
+          {
+            "content": "board:",
+            "polygon": [
+              1.3016,
+              3.431,
+              1.6775,
+              3.4294,
+              1.6775,
+              3.5842,
+              1.3016,
+              3.5873
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 605,
+              "length": 6
+            }
+          },
+          {
+            "content": "2026-09-11",
+            "polygon": [
+              1.7258,
+              3.4292,
+              2.4437,
+              3.4257,
+              2.4437,
+              3.576,
+              1.7258,
+              3.5837
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 612,
+              "length": 10
+            }
+          },
+          {
+            "content": "Freight:",
+            "polygon": [
+              4.4317,
+              3.2084,
+              4.9014,
+              3.2117,
+              4.9014,
+              3.3658,
+              4.4317,
+              3.3663
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 623,
+              "length": 8
+            }
+          },
+          {
+            "content": "prepaid",
+            "polygon": [
+              4.9545,
+              3.2119,
+              5.4197,
+              3.2117,
+              5.4197,
+              3.3615,
+              4.9545,
+              3.3655
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 632,
+              "length": 7
+            }
+          },
+          {
+            "content": "Number",
+            "polygon": [
+              4.4297,
+              3.4285,
+              4.9376,
+              3.43,
+              4.9364,
+              3.587,
+              4.4296,
+              3.5878
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 640,
+              "length": 6
+            }
+          },
+          {
+            "content": "of",
+            "polygon": [
+              4.9743,
+              3.43,
+              5.0947,
+              3.4296,
+              5.0932,
+              3.587,
+              4.973,
+              3.587
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 647,
+              "length": 2
+            }
+          },
+          {
+            "content": "originals:",
+            "polygon": [
+              5.1288,
+              3.4294,
+              5.676,
+              3.424,
+              5.6731,
+              3.5877,
+              5.1271,
+              3.587
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 650,
+              "length": 10
+            }
+          },
+          {
+            "content": "3",
+            "polygon": [
+              5.7257,
+              3.4232,
+              5.8202,
+              3.4218,
+              5.8193,
+              3.5881,
+              5.7227,
+              3.5879
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 661,
+              "length": 1
+            }
+          },
+          {
+            "content": "Received",
+            "polygon": [
+              0.5471,
+              3.8107,
+              0.9947,
+              3.8095,
+              0.9944,
+              3.947,
+              0.5471,
+              3.9451
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 663,
+              "length": 8
+            }
+          },
+          {
+            "content": "in",
+            "polygon": [
+              1.0216,
+              3.8094,
+              1.129,
+              3.8091,
+              1.1285,
+              3.9476,
+              1.0212,
+              3.9471
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 672,
+              "length": 2
+            }
+          },
+          {
+            "content": "apparent",
+            "polygon": [
+              1.1648,
+              3.809,
+              1.6057,
+              3.8082,
+              1.6049,
+              3.9487,
+              1.1643,
+              3.9477
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 675,
+              "length": 8
+            }
+          },
+          {
+            "content": "good",
+            "polygon": [
+              1.6348,
+              3.8081,
+              1.8765,
+              3.8079,
+              1.8754,
+              3.9489,
+              1.6339,
+              3.9488
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 684,
+              "length": 4
+            }
+          },
+          {
+            "content": "order",
+            "polygon": [
+              1.9123,
+              3.8079,
+              2.1742,
+              3.8076,
+              2.1728,
+              3.949,
+              1.9112,
+              3.9489
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 689,
+              "length": 5
+            }
+          },
+          {
+            "content": "and",
+            "polygon": [
+              2.2033,
+              3.8076,
+              2.3823,
+              3.8076,
+              2.3808,
+              3.9487,
+              2.2019,
+              3.949
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 695,
+              "length": 3
+            }
+          },
+          {
+            "content": "condition.",
+            "polygon": [
+              2.4181,
+              3.8076,
+              2.8859,
+              3.8078,
+              2.8839,
+              3.9476,
+              2.4166,
+              3.9486
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 699,
+              "length": 10
+            }
+          },
+          {
+            "content": "Shipper's",
+            "polygon": [
+              2.9284,
+              3.8078,
+              3.3671,
+              3.8083,
+              3.3647,
+              3.9457,
+              2.9264,
+              3.9474
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 710,
+              "length": 9
+            }
+          },
+          {
+            "content": "load,",
+            "polygon": [
+              3.3939,
+              3.8084,
+              3.6491,
+              3.8089,
+              3.6465,
+              3.944,
+              3.3916,
+              3.9455
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 720,
+              "length": 5
+            }
+          },
+          {
+            "content": "stow",
+            "polygon": [
+              3.6893,
+              3.809,
+              3.9154,
+              3.8095,
+              3.9126,
+              3.9423,
+              3.6867,
+              3.9438
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 726,
+              "length": 4
+            }
+          },
+          {
+            "content": "and",
+            "polygon": [
+              3.949,
+              3.8096,
+              4.128,
+              3.8102,
+              4.125,
+              3.9407,
+              3.9461,
+              3.9421
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 731,
+              "length": 3
+            }
+          },
+          {
+            "content": "count.",
+            "polygon": [
+              4.1638,
+              3.8103,
+              4.4767,
+              3.8112,
+              4.4739,
+              3.9379,
+              4.1608,
+              3.9404
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 735,
+              "length": 6
+            }
+          },
+          {
+            "content": "DRAFT",
+            "polygon": [
+              2.4528,
+              5.076,
+              5.8783,
+              5.0941,
+              5.8861,
+              5.8559,
+              2.4531,
+              5.8808
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 742,
+              "length": 5
+            }
+          }
+        ],
+        "lines": [
+          {
+            "content": "BILL OF LADING - DRAFT",
+            "polygon": [
+              0.5425,
+              0.507,
+              3.3512,
+              0.507,
+              3.3512,
+              0.7098,
+              0.5425,
+              0.7098
+            ],
+            "spans": [
+              {
+                "offset": 0,
+                "length": 22
+              }
+            ]
+          },
+          {
+            "content": "Status: DRAFT - for verification only, not negotiable, not an original.",
+            "polygon": [
+              0.5475,
+              0.9531,
+              5.0749,
+              0.9531,
+              5.0749,
+              1.1153,
+              0.5475,
+              1.1052
+            ],
+            "spans": [
+              {
+                "offset": 23,
+                "length": 71
+              }
+            ]
+          },
+          {
+            "content": "B/L No .: MAEU-HH-778812",
+            "polygon": [
+              0.5222,
+              1.1914,
+              2.2662,
+              1.1914,
+              2.2662,
+              1.3587,
+              0.5222,
+              1.3587
+            ],
+            "spans": [
+              {
+                "offset": 95,
+                "length": 24
+              }
+            ]
+          },
+          {
+            "content": "Carrier: Maersk Line (synthetisch)",
+            "polygon": [
+              4.4361,
+              1.2015,
+              6.53,
+              1.2015,
+              6.53,
+              1.379,
+              4.4311,
+              1.3688
+            ],
+            "spans": [
+              {
+                "offset": 120,
+                "length": 34
+              }
+            ]
+          },
+          {
+            "content": "Shipper: Nordlicht Maschinenbau GmbH, Hamburg, Germany",
+            "polygon": [
+              0.5425,
+              1.4297,
+              4.3449,
+              1.4297,
+              4.3449,
+              1.597,
+              0.5425,
+              1.5919
+            ],
+            "spans": [
+              {
+                "offset": 155,
+                "length": 54
+              }
+            ]
+          },
+          {
+            "content": "Consignee: Aurora Trading Pte. Ltd., Singapore",
+            "polygon": [
+              0.5425,
+              1.6476,
+              3.4931,
+              1.6476,
+              3.4931,
+              1.8099,
+              0.5425,
+              1.8099
+            ],
+            "spans": [
+              {
+                "offset": 210,
+                "length": 46
+              }
+            ]
+          },
+          {
+            "content": "Notify party: same as consignee",
+            "polygon": [
+              0.5425,
+              1.8758,
+              2.5451,
+              1.8758,
+              2.5451,
+              2.0329,
+              0.5425,
+              2.0329
+            ],
+            "spans": [
+              {
+                "offset": 257,
+                "length": 31
+              }
+            ]
+          },
+          {
+            "content": "Vessel / Voyage: NORDLICHT EXPRESS (fictitious) / 2637W",
+            "polygon": [
+              0.5374,
+              2.0938,
+              4.3398,
+              2.0887,
+              4.3398,
+              2.2509,
+              0.5374,
+              2.256
+            ],
+            "spans": [
+              {
+                "offset": 289,
+                "length": 55
+              }
+            ]
+          },
+          {
+            "content": "Port of loading: Hamburg (DEHAM)",
+            "polygon": [
+              0.5425,
+              2.3168,
+              2.7377,
+              2.3219,
+              2.7377,
+              2.4791,
+              0.5425,
+              2.474
+            ],
+            "spans": [
+              {
+                "offset": 345,
+                "length": 32
+              }
+            ]
+          },
+          {
+            "content": "Container No .: MSKU1234565",
+            "polygon": [
+              0.5475,
+              2.5348,
+              2.4335,
+              2.5348,
+              2.4335,
+              2.6819,
+              0.5475,
+              2.6819
+            ],
+            "spans": [
+              {
+                "offset": 378,
+                "length": 27
+              }
+            ]
+          },
+          {
+            "content": "Port of discharge: Singapore (SGSIN)",
+            "polygon": [
+              4.4159,
+              2.3118,
+              6.7733,
+              2.3118,
+              6.7733,
+              2.4841,
+              4.4159,
+              2.4841
+            ],
+            "spans": [
+              {
+                "offset": 406,
+                "length": 36
+              }
+            ]
+          },
+          {
+            "content": "Seal No .: ML-SG-44821",
+            "polygon": [
+              4.4311,
+              2.5348,
+              5.9165,
+              2.5348,
+              5.9165,
+              2.6819,
+              4.4311,
+              2.6819
+            ],
+            "spans": [
+              {
+                "offset": 443,
+                "length": 22
+              }
+            ]
+          },
+          {
+            "content": "Packages: 2 (1 pallet, 1 carton), said to contain",
+            "polygon": [
+              0.5425,
+              2.763,
+              3.4577,
+              2.7579,
+              3.4577,
+              2.9151,
+              0.5425,
+              2.9151
+            ],
+            "spans": [
+              {
+                "offset": 466,
+                "length": 49
+              }
+            ]
+          },
+          {
+            "content": "Description of goods: Hydraulic pumps and seal kits",
+            "polygon": [
+              0.5425,
+              2.986,
+              3.7517,
+              2.981,
+              3.7568,
+              3.1381,
+              0.5425,
+              3.1432
+            ],
+            "spans": [
+              {
+                "offset": 516,
+                "length": 51
+              }
+            ]
+          },
+          {
+            "content": "Gross weight: 1.046,00 kg",
+            "polygon": [
+              0.5425,
+              3.199,
+              2.175,
+              3.199,
+              2.175,
+              3.3713,
+              0.5425,
+              3.3713
+            ],
+            "spans": [
+              {
+                "offset": 568,
+                "length": 25
+              }
+            ]
+          },
+          {
+            "content": "Shipped on board: 2026-09-11",
+            "polygon": [
+              0.5425,
+              3.4322,
+              2.4386,
+              3.422,
+              2.4386,
+              3.5741,
+              0.5425,
+              3.5893
+            ],
+            "spans": [
+              {
+                "offset": 594,
+                "length": 28
+              }
+            ]
+          },
+          {
+            "content": "Freight: prepaid",
+            "polygon": [
+              4.4311,
+              3.204,
+              5.4146,
+              3.204,
+              5.4146,
+              3.3612,
+              4.4311,
+              3.3612
+            ],
+            "spans": [
+              {
+                "offset": 623,
+                "length": 16
+              }
+            ]
+          },
+          {
+            "content": "Number of originals: 3",
+            "polygon": [
+              4.426,
+              3.422,
+              5.8151,
+              3.417,
+              5.8151,
+              3.5843,
+              4.426,
+              3.5843
+            ],
+            "spans": [
+              {
+                "offset": 640,
+                "length": 22
+              }
+            ]
+          },
+          {
+            "content": "Received in apparent good order and condition. Shipper's load, stow and count.",
+            "polygon": [
+              0.5425,
+              3.8073,
+              4.4716,
+              3.8073,
+              4.4716,
+              3.9442,
+              0.5425,
+              3.9442
+            ],
+            "spans": [
+              {
+                "offset": 663,
+                "length": 78
+              }
+            ]
+          },
+          {
+            "content": "DRAFT",
+            "polygon": [
+              2.4487,
+              5.0748,
+              5.8811,
+              5.0748,
+              5.8811,
+              5.8758,
+              2.4487,
+              5.8758
+            ],
+            "spans": [
+              {
+                "offset": 742,
+                "length": 5
+              }
+            ]
+          }
+        ],
+        "spans": [
+          {
+            "offset": 0,
+            "length": 747
+          }
+        ]
+      }
+    ],
+    "paragraphs": [
+      {
+        "spans": [
+          {
+            "offset": 0,
+            "length": 22
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              0.507,
+              3.3512,
+              0.507,
+              3.3512,
+              0.7098,
+              0.5425,
+              0.7098
+            ]
+          }
+        ],
+        "content": "BILL OF LADING - DRAFT"
+      },
+      {
+        "spans": [
+          {
+            "offset": 23,
+            "length": 71
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5475,
+              0.9531,
+              5.0749,
+              0.9531,
+              5.0749,
+              1.1153,
+              0.5475,
+              1.1153
+            ]
+          }
+        ],
+        "content": "Status: DRAFT - for verification only, not negotiable, not an original."
+      },
+      {
+        "spans": [
+          {
+            "offset": 95,
+            "length": 24
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5222,
+              1.1914,
+              2.2662,
+              1.1914,
+              2.2662,
+              1.3587,
+              0.5222,
+              1.3587
+            ]
+          }
+        ],
+        "content": "B/L No .: MAEU-HH-778812"
+      },
+      {
+        "spans": [
+          {
+            "offset": 120,
+            "length": 34
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.4319,
+              1.1914,
+              6.5309,
+              1.2015,
+              6.53,
+              1.379,
+              4.4311,
+              1.3688
+            ]
+          }
+        ],
+        "content": "Carrier: Maersk Line (synthetisch)"
+      },
+      {
+        "spans": [
+          {
+            "offset": 155,
+            "length": 54
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              1.4297,
+              4.3449,
+              1.4297,
+              4.3449,
+              1.597,
+              0.5425,
+              1.597
+            ]
+          }
+        ],
+        "content": "Shipper: Nordlicht Maschinenbau GmbH, Hamburg, Germany"
+      },
+      {
+        "spans": [
+          {
+            "offset": 210,
+            "length": 46
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              1.6476,
+              3.4931,
+              1.6476,
+              3.4931,
+              1.8099,
+              0.5425,
+              1.8099
+            ]
+          }
+        ],
+        "content": "Consignee: Aurora Trading Pte. Ltd., Singapore"
+      },
+      {
+        "spans": [
+          {
+            "offset": 257,
+            "length": 31
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              1.8758,
+              2.5451,
+              1.8758,
+              2.5451,
+              2.0329,
+              0.5425,
+              2.0329
+            ]
+          }
+        ],
+        "content": "Notify party: same as consignee"
+      },
+      {
+        "spans": [
+          {
+            "offset": 289,
+            "length": 88
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5372,
+              2.0938,
+              4.3398,
+              2.0887,
+              4.3403,
+              2.4769,
+              0.5377,
+              2.482
+            ]
+          }
+        ],
+        "content": "Vessel / Voyage: NORDLICHT EXPRESS (fictitious) / 2637W Port of loading: Hamburg (DEHAM)"
+      },
+      {
+        "spans": [
+          {
+            "offset": 378,
+            "length": 27
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5475,
+              2.5348,
+              2.4335,
+              2.5348,
+              2.4335,
+              2.6819,
+              0.5475,
+              2.6819
+            ]
+          }
+        ],
+        "content": "Container No .: MSKU1234565"
+      },
+      {
+        "spans": [
+          {
+            "offset": 406,
+            "length": 59
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.4159,
+              2.3118,
+              6.7733,
+              2.3118,
+              6.7733,
+              2.6819,
+              4.4159,
+              2.6819
+            ]
+          }
+        ],
+        "content": "Port of discharge: Singapore (SGSIN) Seal No .: ML-SG-44821"
+      },
+      {
+        "spans": [
+          {
+            "offset": 466,
+            "length": 49
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              2.7579,
+              3.4577,
+              2.7579,
+              3.4577,
+              2.9151,
+              0.5425,
+              2.9151
+            ]
+          }
+        ],
+        "content": "Packages: 2 (1 pallet, 1 carton), said to contain"
+      },
+      {
+        "spans": [
+          {
+            "offset": 516,
+            "length": 51
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5422,
+              2.986,
+              3.7565,
+              2.981,
+              3.7568,
+              3.1381,
+              0.5425,
+              3.1432
+            ]
+          }
+        ],
+        "content": "Description of goods: Hydraulic pumps and seal kits"
+      },
+      {
+        "spans": [
+          {
+            "offset": 568,
+            "length": 25
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              3.199,
+              2.175,
+              3.199,
+              2.175,
+              3.3713,
+              0.5425,
+              3.3713
+            ]
+          }
+        ],
+        "content": "Gross weight: 1.046,00 kg"
+      },
+      {
+        "spans": [
+          {
+            "offset": 594,
+            "length": 28
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5416,
+              3.4322,
+              2.4386,
+              3.422,
+              2.4394,
+              3.5792,
+              0.5425,
+              3.5893
+            ]
+          }
+        ],
+        "content": "Shipped on board: 2026-09-11"
+      },
+      {
+        "spans": [
+          {
+            "offset": 623,
+            "length": 39
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.426,
+              3.204,
+              5.8151,
+              3.204,
+              5.8151,
+              3.5843,
+              4.426,
+              3.5843
+            ]
+          }
+        ],
+        "content": "Freight: prepaid Number of originals: 3"
+      },
+      {
+        "spans": [
+          {
+            "offset": 663,
+            "length": 78
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              3.8073,
+              4.4716,
+              3.8073,
+              4.4716,
+              3.9442,
+              0.5425,
+              3.9442
+            ]
+          }
+        ],
+        "content": "Received in apparent good order and condition. Shipper's load, stow and count."
+      },
+      {
+        "spans": [
+          {
+            "offset": 742,
+            "length": 5
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              2.4487,
+              5.0748,
+              5.8811,
+              5.0748,
+              5.8811,
+              5.8758,
+              2.4487,
+              5.8758
+            ]
+          }
+        ],
+        "content": "DRAFT"
+      }
+    ],
+    "styles": [],
+    "contentFormat": "text"
+  }
+}

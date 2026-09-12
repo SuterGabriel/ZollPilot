@@ -1,0 +1,2818 @@
+{
+  "status": "succeeded",
+  "createdDateTime": "2026-09-12T20:11:53Z",
+  "lastUpdatedDateTime": "2026-09-12T20:11:54Z",
+  "analyzeResult": {
+    "apiVersion": "2024-11-30",
+    "modelId": "prebuilt-read",
+    "stringIndexType": "textElements",
+    "content": "AUSFUHRBEGLEITDOKUMENT\nExport Accompanying Document (EAD), Ausdruck aus ATLAS-AES, synthetisch\nMRN: 26DE5100001234567A\nAusfuhrzollstelle: DE002210 Hamburg (synthetisch) Bestimmungsland: SG\nAusgangszollstelle: DE002210 Bezugsnummer: INV-2026-0417\nAusführer/Versender\nNordlicht Maschinenbau GmbH Hafenstraße 12 20457 Hamburg Germany EORI: DE123456789012345\nContainer: HLXU8765430\nEmpfänger Aurora Trading Pte. Ltd. 8 Marina View Singapore 018960 Singapore\nVerkehrszweig an der Grenze: 1 (Seeverkehr)\nPos\nWarennummer\nWarenbezeichnung\nMenge\nEinheit\n1\n84133080\nHydraulikpumpe Typ HP-40\n12\nPCE\n2\n84842000\nDichtungssatz HP-40\n12\nPCE\nDieses Dokument ist nicht der Ausgangsvermerk. Der Ausgang wird durch die Statusnachricht bestätigt.",
+    "pages": [
+      {
+        "pageNumber": 1,
+        "angle": 0,
+        "width": 8.2639,
+        "height": 11.6806,
+        "unit": "inch",
+        "words": [
+          {
+            "content": "AUSFUHRBEGLEITDOKUMENT",
+            "polygon": [
+              0.5419,
+              0.5171,
+              3.8982,
+              0.513,
+              3.8917,
+              0.7117,
+              0.5419,
+              0.71
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 0,
+              "length": 22
+            }
+          },
+          {
+            "content": "Export",
+            "polygon": [
+              0.5503,
+              0.9721,
+              0.9177,
+              0.9693,
+              0.9145,
+              1.1142,
+              0.5471,
+              1.1152
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 23,
+              "length": 6
+            }
+          },
+          {
+            "content": "Accompanying",
+            "polygon": [
+              0.9492,
+              0.9691,
+              1.7661,
+              0.9642,
+              1.7629,
+              1.1125,
+              0.9459,
+              1.1142
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 30,
+              "length": 12
+            }
+          },
+          {
+            "content": "Document",
+            "polygon": [
+              1.8121,
+              0.964,
+              2.3753,
+              0.9623,
+              2.372,
+              1.1118,
+              1.8088,
+              1.1124
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 43,
+              "length": 8
+            }
+          },
+          {
+            "content": "(EAD),",
+            "polygon": [
+              2.4139,
+              0.9621,
+              2.7765,
+              0.9618,
+              2.7733,
+              1.1116,
+              2.4107,
+              1.1118
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 52,
+              "length": 6
+            }
+          },
+          {
+            "content": "Ausdruck",
+            "polygon": [
+              2.8176,
+              0.9617,
+              3.3421,
+              0.9619,
+              3.3389,
+              1.1116,
+              2.8144,
+              1.1116
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 59,
+              "length": 8
+            }
+          },
+          {
+            "content": "aus",
+            "polygon": [
+              3.376,
+              0.962,
+              3.5718,
+              0.9622,
+              3.5685,
+              1.1117,
+              3.3727,
+              1.1117
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 68,
+              "length": 3
+            }
+          },
+          {
+            "content": "ATLAS-AES,",
+            "polygon": [
+              3.608,
+              0.9623,
+              4.3259,
+              0.9647,
+              4.3227,
+              1.1125,
+              3.6048,
+              1.1118
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 72,
+              "length": 10
+            }
+          },
+          {
+            "content": "synthetisch",
+            "polygon": [
+              4.3694,
+              0.9649,
+              5.004,
+              0.9688,
+              5.004,
+              1.1139,
+              4.3662,
+              1.1126
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 83,
+              "length": 11
+            }
+          },
+          {
+            "content": "MRN:",
+            "polygon": [
+              0.5471,
+              1.2192,
+              1.0115,
+              1.2163,
+              1.0082,
+              1.3805,
+              0.5439,
+              1.3758
+            ],
+            "confidence": 0.985,
+            "span": {
+              "offset": 95,
+              "length": 4
+            }
+          },
+          {
+            "content": "26DE5100001234567A",
+            "polygon": [
+              1.0468,
+              1.2161,
+              2.7884,
+              1.2147,
+              2.7884,
+              1.3783,
+              1.0435,
+              1.3808
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 100,
+              "length": 18
+            }
+          },
+          {
+            "content": "Ausfuhrzollstelle:",
+            "polygon": [
+              0.5471,
+              1.4829,
+              1.5951,
+              1.4848,
+              1.5919,
+              1.6357,
+              0.5439,
+              1.6285
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 119,
+              "length": 18
+            }
+          },
+          {
+            "content": "DE002210",
+            "polygon": [
+              1.6489,
+              1.4848,
+              2.2946,
+              1.4844,
+              2.2914,
+              1.6405,
+              1.6457,
+              1.6361
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 138,
+              "length": 8
+            }
+          },
+          {
+            "content": "Hamburg",
+            "polygon": [
+              2.3459,
+              1.4844,
+              2.9019,
+              1.483,
+              2.8987,
+              1.6447,
+              2.3426,
+              1.6408
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 147,
+              "length": 7
+            }
+          },
+          {
+            "content": "(synthetisch)",
+            "polygon": [
+              2.9506,
+              1.4828,
+              3.7517,
+              1.4793,
+              3.7517,
+              1.6476,
+              2.9473,
+              1.645
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 155,
+              "length": 13
+            }
+          },
+          {
+            "content": "Bestimmungsland:",
+            "polygon": [
+              0.5535,
+              1.6856,
+              1.6906,
+              1.6848,
+              1.6853,
+              1.8352,
+              0.5535,
+              1.8335
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 169,
+              "length": 16
+            }
+          },
+          {
+            "content": "SG",
+            "polygon": [
+              1.74,
+              1.6846,
+              1.9468,
+              1.6836,
+              1.9412,
+              1.8346,
+              1.7345,
+              1.8352
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 186,
+              "length": 2
+            }
+          },
+          {
+            "content": "Ausgangszollstelle:",
+            "polygon": [
+              4.4265,
+              1.486,
+              5.6181,
+              1.4861,
+              5.616,
+              1.6406,
+              4.4265,
+              1.6468
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 189,
+              "length": 19
+            }
+          },
+          {
+            "content": "DE002210",
+            "polygon": [
+              5.6741,
+              1.486,
+              6.3373,
+              1.4829,
+              6.3373,
+              1.6296,
+              5.672,
+              1.64
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 209,
+              "length": 8
+            }
+          },
+          {
+            "content": "Bezugsnummer:",
+            "polygon": [
+              4.4424,
+              1.6905,
+              5.4427,
+              1.6821,
+              5.4395,
+              1.836,
+              4.4424,
+              1.8403
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 218,
+              "length": 13
+            }
+          },
+          {
+            "content": "INV-2026-0417",
+            "polygon": [
+              5.4992,
+              1.6818,
+              6.4489,
+              1.6793,
+              6.4489,
+              1.8176,
+              5.4958,
+              1.8353
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 232,
+              "length": 13
+            }
+          },
+          {
+            "content": "Ausführer/Versender",
+            "polygon": [
+              0.544,
+              2.0403,
+              1.9468,
+              2.0487,
+              1.9468,
+              2.1852,
+              0.5375,
+              2.1928
+            ],
+            "confidence": 0.95,
+            "span": {
+              "offset": 246,
+              "length": 19
+            }
+          },
+          {
+            "content": "Nordlicht",
+            "polygon": [
+              0.544,
+              2.2364,
+              1.1005,
+              2.2381,
+              1.0996,
+              2.3808,
+              0.5439,
+              2.3809
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 266,
+              "length": 9
+            }
+          },
+          {
+            "content": "Maschinenbau",
+            "polygon": [
+              1.1475,
+              2.2381,
+              2.0375,
+              2.2386,
+              2.035,
+              2.3816,
+              1.1465,
+              2.3808
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 276,
+              "length": 12
+            }
+          },
+          {
+            "content": "GmbH",
+            "polygon": [
+              2.0868,
+              2.2385,
+              2.4994,
+              2.2379,
+              2.4994,
+              2.3825,
+              2.0842,
+              2.3817
+            ],
+            "confidence": 0.991,
+            "span": {
+              "offset": 289,
+              "length": 4
+            }
+          },
+          {
+            "content": "Hafenstraße",
+            "polygon": [
+              0.5503,
+              2.4165,
+              1.3173,
+              2.4241,
+              1.3115,
+              2.5571,
+              0.5471,
+              2.5646
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 294,
+              "length": 11
+            }
+          },
+          {
+            "content": "12",
+            "polygon": [
+              1.3694,
+              2.4237,
+              1.526,
+              2.4223,
+              1.5213,
+              2.5558,
+              1.3634,
+              2.5568
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 306,
+              "length": 2
+            }
+          },
+          {
+            "content": "20457",
+            "polygon": [
+              0.5471,
+              2.5943,
+              0.9278,
+              2.5995,
+              0.9245,
+              2.751,
+              0.5439,
+              2.7419
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 309,
+              "length": 5
+            }
+          },
+          {
+            "content": "Hamburg",
+            "polygon": [
+              0.957,
+              2.5999,
+              1.5565,
+              2.6081,
+              1.5565,
+              2.752,
+              0.9538,
+              2.7515
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 315,
+              "length": 7
+            }
+          },
+          {
+            "content": "Germany",
+            "polygon": [
+              0.5535,
+              2.7847,
+              1.1407,
+              2.7893,
+              1.1394,
+              2.9339,
+              0.5503,
+              2.9269
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 323,
+              "length": 7
+            }
+          },
+          {
+            "content": "EORI:",
+            "polygon": [
+              0.5503,
+              2.9578,
+              0.9248,
+              2.96,
+              0.9209,
+              3.1013,
+              0.5471,
+              3.1026
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 331,
+              "length": 5
+            }
+          },
+          {
+            "content": "DE123456789012345",
+            "polygon": [
+              0.9763,
+              2.9602,
+              2.3372,
+              2.9545,
+              2.3318,
+              3.1026,
+              0.9723,
+              3.1011
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 337,
+              "length": 17
+            }
+          },
+          {
+            "content": "Container:",
+            "polygon": [
+              0.5503,
+              3.2754,
+              1.1885,
+              3.2736,
+              1.184,
+              3.4217,
+              0.5471,
+              3.4183
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 355,
+              "length": 10
+            }
+          },
+          {
+            "content": "HLXU8765430",
+            "polygon": [
+              1.2409,
+              3.2736,
+              2.1547,
+              3.2742,
+              2.1536,
+              3.4141,
+              1.2363,
+              3.4217
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 366,
+              "length": 11
+            }
+          },
+          {
+            "content": "Empfänger",
+            "polygon": [
+              4.4392,
+              2.0455,
+              5.1814,
+              2.053,
+              5.181,
+              2.199,
+              4.4392,
+              2.1966
+            ],
+            "confidence": 0.983,
+            "span": {
+              "offset": 378,
+              "length": 9
+            }
+          },
+          {
+            "content": "Aurora",
+            "polygon": [
+              4.4328,
+              2.236,
+              4.8535,
+              2.2379,
+              4.8526,
+              2.3878,
+              4.4328,
+              2.3852
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 388,
+              "length": 6
+            }
+          },
+          {
+            "content": "Trading",
+            "polygon": [
+              4.8955,
+              2.238,
+              5.3607,
+              2.2378,
+              5.3587,
+              2.3878,
+              4.8945,
+              2.3878
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 395,
+              "length": 7
+            }
+          },
+          {
+            "content": "Pte.",
+            "polygon": [
+              5.4127,
+              2.2377,
+              5.6452,
+              2.2367,
+              5.6426,
+              2.3878,
+              5.4105,
+              2.3878
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 403,
+              "length": 4
+            }
+          },
+          {
+            "content": "Ltd.",
+            "polygon": [
+              5.6972,
+              2.2365,
+              5.9317,
+              2.2349,
+              5.9317,
+              2.3878,
+              5.6945,
+              2.3878
+            ],
+            "confidence": 0.991,
+            "span": {
+              "offset": 408,
+              "length": 4
+            }
+          },
+          {
+            "content": "8",
+            "polygon": [
+              4.436,
+              2.419,
+              4.5068,
+              2.4197,
+              4.5063,
+              2.5602,
+              4.436,
+              2.5602
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 413,
+              "length": 1
+            }
+          },
+          {
+            "content": "Marina",
+            "polygon": [
+              4.5365,
+              2.4199,
+              4.9794,
+              2.4233,
+              4.9754,
+              2.5602,
+              4.5357,
+              2.5602
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 415,
+              "length": 6
+            }
+          },
+          {
+            "content": "View",
+            "polygon": [
+              5.0182,
+              2.4235,
+              5.3335,
+              2.4252,
+              5.3335,
+              2.5602,
+              5.0139,
+              2.5602
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 422,
+              "length": 4
+            }
+          },
+          {
+            "content": "Singapore",
+            "polygon": [
+              4.4424,
+              2.5992,
+              5.0696,
+              2.6001,
+              5.0681,
+              2.7518,
+              4.4392,
+              2.7512
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 427,
+              "length": 9
+            }
+          },
+          {
+            "content": "018960",
+            "polygon": [
+              5.1142,
+              2.6001,
+              5.5819,
+              2.5995,
+              5.5819,
+              2.7482,
+              5.1129,
+              2.7516
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 437,
+              "length": 6
+            }
+          },
+          {
+            "content": "Singapore",
+            "polygon": [
+              4.4392,
+              2.7837,
+              5.0851,
+              2.7883,
+              5.0851,
+              2.9385,
+              4.436,
+              2.9301
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 444,
+              "length": 9
+            }
+          },
+          {
+            "content": "Verkehrszweig",
+            "polygon": [
+              4.4276,
+              3.2804,
+              5.3441,
+              3.2731,
+              5.343,
+              3.4343,
+              4.4276,
+              3.4294
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 454,
+              "length": 13
+            }
+          },
+          {
+            "content": "an",
+            "polygon": [
+              5.3919,
+              3.2729,
+              5.538,
+              3.2721,
+              5.5368,
+              3.4351,
+              5.3908,
+              3.4345
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 468,
+              "length": 2
+            }
+          },
+          {
+            "content": "der",
+            "polygon": [
+              5.5858,
+              3.2719,
+              5.7851,
+              3.2711,
+              5.7835,
+              3.4359,
+              5.5845,
+              3.4353
+            ],
+            "confidence": 0.999,
+            "span": {
+              "offset": 471,
+              "length": 3
+            }
+          },
+          {
+            "content": "Grenze:",
+            "polygon": [
+              5.8249,
+              3.271,
+              6.3084,
+              3.2699,
+              6.3063,
+              3.4371,
+              5.8233,
+              3.436
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 475,
+              "length": 7
+            }
+          },
+          {
+            "content": "1",
+            "polygon": [
+              6.3642,
+              3.2698,
+              6.4094,
+              3.2698,
+              6.4071,
+              3.4372,
+              6.362,
+              3.4372
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 483,
+              "length": 1
+            }
+          },
+          {
+            "content": "(Seeverkehr)",
+            "polygon": [
+              6.4758,
+              3.2697,
+              7.2854,
+              3.2712,
+              7.2828,
+              3.4372,
+              6.4735,
+              3.4372
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 485,
+              "length": 12
+            }
+          },
+          {
+            "content": "Pos",
+            "polygon": [
+              0.5475,
+              3.6552,
+              0.7959,
+              3.6603,
+              0.7936,
+              3.7667,
+              0.5475,
+              3.7615
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 498,
+              "length": 3
+            }
+          },
+          {
+            "content": "Warennummer",
+            "polygon": [
+              1.2369,
+              3.6499,
+              2.1344,
+              3.6585,
+              2.1344,
+              3.7769,
+              1.2337,
+              3.771
+            ],
+            "confidence": 0.99,
+            "span": {
+              "offset": 502,
+              "length": 11
+            }
+          },
+          {
+            "content": "Warenbezeichnung",
+            "polygon": [
+              2.6206,
+              3.6443,
+              3.7973,
+              3.6625,
+              3.7973,
+              3.7912,
+              2.6174,
+              3.7782
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 514,
+              "length": 16
+            }
+          },
+          {
+            "content": "Menge",
+            "polygon": [
+              5.7057,
+              3.655,
+              6.1241,
+              3.6537,
+              6.1176,
+              3.7871,
+              5.7024,
+              3.7856
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 531,
+              "length": 5
+            }
+          },
+          {
+            "content": "Einheit",
+            "polygon": [
+              6.2845,
+              3.6495,
+              6.7511,
+              3.6535,
+              6.7478,
+              3.7746,
+              6.2812,
+              3.7769
+            ],
+            "confidence": 0.99,
+            "span": {
+              "offset": 537,
+              "length": 7
+            }
+          },
+          {
+            "content": "1",
+            "polygon": [
+              0.5526,
+              3.8834,
+              0.6269,
+              3.8834,
+              0.6233,
+              3.9846,
+              0.5526,
+              3.9819
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 545,
+              "length": 1
+            }
+          },
+          {
+            "content": "84133080",
+            "polygon": [
+              1.2358,
+              3.8722,
+              1.815,
+              3.8718,
+              1.815,
+              3.9961,
+              1.239,
+              3.9981
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 547,
+              "length": 8
+            }
+          },
+          {
+            "content": "Hydraulikpumpe",
+            "polygon": [
+              2.6131,
+              3.8661,
+              3.536,
+              3.8668,
+              3.5309,
+              4.0188,
+              2.6099,
+              4.014
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 556,
+              "length": 14
+            }
+          },
+          {
+            "content": "Typ",
+            "polygon": [
+              3.5733,
+              3.8665,
+              3.7823,
+              3.865,
+              3.7766,
+              4.0187,
+              3.5681,
+              4.0188
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 571,
+              "length": 3
+            }
+          },
+          {
+            "content": "HP-40",
+            "polygon": [
+              3.8246,
+              3.8645,
+              4.1877,
+              3.8603,
+              4.1877,
+              4.0172,
+              3.8188,
+              4.0186
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 575,
+              "length": 5
+            }
+          },
+          {
+            "content": "12",
+            "polygon": [
+              5.9723,
+              3.8682,
+              6.1244,
+              3.8682,
+              6.1243,
+              3.9898,
+              5.9723,
+              3.9872
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 581,
+              "length": 2
+            }
+          },
+          {
+            "content": "PCE",
+            "polygon": [
+              6.3018,
+              3.8682,
+              6.5777,
+              3.8682,
+              6.5777,
+              3.9898,
+              6.3018,
+              3.9898
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 584,
+              "length": 3
+            }
+          },
+          {
+            "content": "2",
+            "polygon": [
+              0.5425,
+              4.0862,
+              0.6371,
+              4.0862,
+              0.6371,
+              4.1876,
+              0.5425,
+              4.1876
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 588,
+              "length": 1
+            }
+          },
+          {
+            "content": "84842000",
+            "polygon": [
+              1.2379,
+              4.0753,
+              1.8196,
+              4.0775,
+              1.8164,
+              4.2045,
+              1.2379,
+              4.2078
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 590,
+              "length": 8
+            }
+          },
+          {
+            "content": "Dichtungssatz",
+            "polygon": [
+              2.6227,
+              4.0741,
+              3.4219,
+              4.0758,
+              3.4219,
+              4.217,
+              2.6227,
+              4.223
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 599,
+              "length": 13
+            }
+          },
+          {
+            "content": "HP-40",
+            "polygon": [
+              3.462,
+              4.0755,
+              3.8227,
+              4.0698,
+              3.8227,
+              4.2078,
+              3.462,
+              4.2162
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 613,
+              "length": 5
+            }
+          },
+          {
+            "content": "12",
+            "polygon": [
+              5.9824,
+              4.076,
+              6.1203,
+              4.076,
+              6.1203,
+              4.1977,
+              5.9824,
+              4.1977
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 619,
+              "length": 2
+            }
+          },
+          {
+            "content": "PCE",
+            "polygon": [
+              6.2968,
+              4.071,
+              6.5767,
+              4.071,
+              6.5779,
+              4.2002,
+              6.2968,
+              4.2028
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 622,
+              "length": 3
+            }
+          },
+          {
+            "content": "Dieses",
+            "polygon": [
+              0.5503,
+              4.4393,
+              0.8913,
+              4.438,
+              0.8911,
+              4.5632,
+              0.5503,
+              4.5605
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 626,
+              "length": 6
+            }
+          },
+          {
+            "content": "Dokument",
+            "polygon": [
+              0.9287,
+              4.4378,
+              1.4127,
+              4.4361,
+              1.4121,
+              4.5673,
+              0.9285,
+              4.5636
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 633,
+              "length": 8
+            }
+          },
+          {
+            "content": "ist",
+            "polygon": [
+              1.4391,
+              4.436,
+              1.5711,
+              4.4357,
+              1.5704,
+              4.5682,
+              1.4385,
+              4.5674
+            ],
+            "confidence": 0.999,
+            "span": {
+              "offset": 642,
+              "length": 3
+            }
+          },
+          {
+            "content": "nicht",
+            "polygon": [
+              1.6063,
+              4.4356,
+              1.8372,
+              4.435,
+              1.8364,
+              4.5698,
+              1.6056,
+              4.5684
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 646,
+              "length": 5
+            }
+          },
+          {
+            "content": "der",
+            "polygon": [
+              1.868,
+              4.4349,
+              2.0308,
+              4.4345,
+              2.0299,
+              4.5709,
+              1.8672,
+              4.5699
+            ],
+            "confidence": 0.999,
+            "span": {
+              "offset": 652,
+              "length": 3
+            }
+          },
+          {
+            "content": "Ausgangsvermerk.",
+            "polygon": [
+              2.0572,
+              4.4344,
+              2.9812,
+              4.4333,
+              2.9796,
+              4.5729,
+              2.0563,
+              4.571
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 656,
+              "length": 16
+            }
+          },
+          {
+            "content": "Der",
+            "polygon": [
+              3.0208,
+              4.4333,
+              3.1902,
+              4.4332,
+              3.1885,
+              4.5729,
+              3.0192,
+              4.5729
+            ],
+            "confidence": 0.999,
+            "span": {
+              "offset": 673,
+              "length": 3
+            }
+          },
+          {
+            "content": "Ausgang",
+            "polygon": [
+              3.2165,
+              4.4332,
+              3.6609,
+              4.4332,
+              3.6589,
+              4.5729,
+              3.2149,
+              4.5729
+            ],
+            "confidence": 0.999,
+            "span": {
+              "offset": 677,
+              "length": 7
+            }
+          },
+          {
+            "content": "wird",
+            "polygon": [
+              3.6939,
+              4.4333,
+              3.8941,
+              4.4334,
+              3.892,
+              4.5729,
+              3.6919,
+              4.5729
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 685,
+              "length": 4
+            }
+          },
+          {
+            "content": "durch",
+            "polygon": [
+              3.9315,
+              4.4335,
+              4.2043,
+              4.4337,
+              4.202,
+              4.5729,
+              3.9294,
+              4.5729
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 690,
+              "length": 5
+            }
+          },
+          {
+            "content": "die",
+            "polygon": [
+              4.2395,
+              4.4337,
+              4.3869,
+              4.434,
+              4.3844,
+              4.5729,
+              4.2371,
+              4.5729
+            ],
+            "confidence": 0.999,
+            "span": {
+              "offset": 696,
+              "length": 3
+            }
+          },
+          {
+            "content": "Statusnachricht",
+            "polygon": [
+              4.4199,
+              4.4341,
+              5.1854,
+              4.4359,
+              5.1825,
+              4.5695,
+              4.4174,
+              4.5727
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 700,
+              "length": 15
+            }
+          },
+          {
+            "content": "bestätigt.",
+            "polygon": [
+              5.2184,
+              4.436,
+              5.6732,
+              4.4374,
+              5.6732,
+              4.5667,
+              5.2155,
+              4.5693
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 716,
+              "length": 10
+            }
+          }
+        ],
+        "lines": [
+          {
+            "content": "AUSFUHRBEGLEITDOKUMENT",
+            "polygon": [
+              0.5374,
+              0.507,
+              3.8937,
+              0.5019,
+              3.8937,
+              0.7098,
+              0.5374,
+              0.7098
+            ],
+            "spans": [
+              {
+                "offset": 0,
+                "length": 22
+              }
+            ]
+          },
+          {
+            "content": "Export Accompanying Document (EAD), Ausdruck aus ATLAS-AES, synthetisch",
+            "polygon": [
+              0.5425,
+              0.9582,
+              4.9989,
+              0.9582,
+              4.9989,
+              1.1103,
+              0.5425,
+              1.1103
+            ],
+            "spans": [
+              {
+                "offset": 23,
+                "length": 71
+              }
+            ]
+          },
+          {
+            "content": "MRN: 26DE5100001234567A",
+            "polygon": [
+              0.5425,
+              1.2117,
+              2.7834,
+              1.2117,
+              2.7834,
+              1.379,
+              0.5425,
+              1.379
+            ],
+            "spans": [
+              {
+                "offset": 95,
+                "length": 23
+              }
+            ]
+          },
+          {
+            "content": "Ausfuhrzollstelle: DE002210 Hamburg (synthetisch)",
+            "polygon": [
+              0.5425,
+              1.4753,
+              3.7466,
+              1.4753,
+              3.7466,
+              1.6426,
+              0.5425,
+              1.6375
+            ],
+            "spans": [
+              {
+                "offset": 119,
+                "length": 49
+              }
+            ]
+          },
+          {
+            "content": "Bestimmungsland: SG",
+            "polygon": [
+              0.5526,
+              1.6831,
+              1.9418,
+              1.6831,
+              1.9418,
+              1.8302,
+              0.5526,
+              1.8352
+            ],
+            "spans": [
+              {
+                "offset": 169,
+                "length": 19
+              }
+            ]
+          },
+          {
+            "content": "Ausgangszollstelle: DE002210",
+            "polygon": [
+              4.426,
+              1.4854,
+              6.3323,
+              1.4803,
+              6.3323,
+              1.6324,
+              4.426,
+              1.6426
+            ],
+            "spans": [
+              {
+                "offset": 189,
+                "length": 28
+              }
+            ]
+          },
+          {
+            "content": "Bezugsnummer: INV-2026-0417",
+            "polygon": [
+              4.4412,
+              1.6882,
+              6.4438,
+              1.6781,
+              6.4438,
+              1.82,
+              4.4412,
+              1.8403
+            ],
+            "spans": [
+              {
+                "offset": 218,
+                "length": 27
+              }
+            ]
+          },
+          {
+            "content": "Ausführer/Versender",
+            "polygon": [
+              0.5374,
+              2.038,
+              1.9418,
+              2.038,
+              1.9418,
+              2.185,
+              0.5374,
+              2.1901
+            ],
+            "spans": [
+              {
+                "offset": 246,
+                "length": 19
+              }
+            ]
+          },
+          {
+            "content": "Nordlicht Maschinenbau GmbH",
+            "polygon": [
+              0.5425,
+              2.2357,
+              2.4944,
+              2.2357,
+              2.4944,
+              2.3777,
+              0.5425,
+              2.3777
+            ],
+            "spans": [
+              {
+                "offset": 266,
+                "length": 27
+              }
+            ]
+          },
+          {
+            "content": "Hafenstraße 12",
+            "polygon": [
+              0.5425,
+              2.4132,
+              1.521,
+              2.4132,
+              1.521,
+              2.5551,
+              0.5425,
+              2.5602
+            ],
+            "spans": [
+              {
+                "offset": 294,
+                "length": 14
+              }
+            ]
+          },
+          {
+            "content": "20457 Hamburg",
+            "polygon": [
+              0.5425,
+              2.5906,
+              1.5514,
+              2.6058,
+              1.5514,
+              2.7528,
+              0.5425,
+              2.7427
+            ],
+            "spans": [
+              {
+                "offset": 309,
+                "length": 13
+              }
+            ]
+          },
+          {
+            "content": "Germany",
+            "polygon": [
+              0.5475,
+              2.7833,
+              1.1357,
+              2.7883,
+              1.1357,
+              2.9303,
+              0.5475,
+              2.9252
+            ],
+            "spans": [
+              {
+                "offset": 323,
+                "length": 7
+              }
+            ]
+          },
+          {
+            "content": "EORI: DE123456789012345",
+            "polygon": [
+              0.5425,
+              2.9556,
+              2.3321,
+              2.9506,
+              2.3321,
+              3.0976,
+              0.5425,
+              3.1026
+            ],
+            "spans": [
+              {
+                "offset": 331,
+                "length": 23
+              }
+            ]
+          },
+          {
+            "content": "Container: HLXU8765430",
+            "polygon": [
+              0.5425,
+              3.2699,
+              2.1496,
+              3.2699,
+              2.1547,
+              3.417,
+              0.5425,
+              3.417
+            ],
+            "spans": [
+              {
+                "offset": 355,
+                "length": 22
+              }
+            ]
+          },
+          {
+            "content": "Empfänger",
+            "polygon": [
+              4.4361,
+              2.0431,
+              5.1763,
+              2.0482,
+              5.1763,
+              2.2002,
+              4.4361,
+              2.1952
+            ],
+            "spans": [
+              {
+                "offset": 378,
+                "length": 9
+              }
+            ]
+          },
+          {
+            "content": "Aurora Trading Pte. Ltd.",
+            "polygon": [
+              4.4311,
+              2.2307,
+              5.9267,
+              2.2307,
+              5.9267,
+              2.3828,
+              4.4311,
+              2.3828
+            ],
+            "spans": [
+              {
+                "offset": 388,
+                "length": 24
+              }
+            ]
+          },
+          {
+            "content": "8 Marina View",
+            "polygon": [
+              4.4311,
+              2.4182,
+              5.3284,
+              2.4182,
+              5.3284,
+              2.5602,
+              4.4311,
+              2.5551
+            ],
+            "spans": [
+              {
+                "offset": 413,
+                "length": 13
+              }
+            ]
+          },
+          {
+            "content": "Singapore 018960",
+            "polygon": [
+              4.4361,
+              2.5957,
+              5.5769,
+              2.5957,
+              5.5769,
+              2.7478,
+              4.4361,
+              2.7478
+            ],
+            "spans": [
+              {
+                "offset": 427,
+                "length": 16
+              }
+            ]
+          },
+          {
+            "content": "Singapore",
+            "polygon": [
+              4.4361,
+              2.7833,
+              5.08,
+              2.7833,
+              5.08,
+              2.9353,
+              4.4311,
+              2.9303
+            ],
+            "spans": [
+              {
+                "offset": 444,
+                "length": 9
+              }
+            ]
+          },
+          {
+            "content": "Verkehrszweig an der Grenze: 1 (Seeverkehr)",
+            "polygon": [
+              4.426,
+              3.2699,
+              7.2803,
+              3.2649,
+              7.2803,
+              3.4322,
+              4.426,
+              3.4322
+            ],
+            "spans": [
+              {
+                "offset": 454,
+                "length": 43
+              }
+            ]
+          },
+          {
+            "content": "Pos",
+            "polygon": [
+              0.5475,
+              3.6552,
+              0.7909,
+              3.6603,
+              0.7909,
+              3.7668,
+              0.5475,
+              3.7617
+            ],
+            "spans": [
+              {
+                "offset": 498,
+                "length": 3
+              }
+            ]
+          },
+          {
+            "content": "Warennummer",
+            "polygon": [
+              1.232,
+              3.6451,
+              2.1293,
+              3.6552,
+              2.1293,
+              3.7769,
+              1.232,
+              3.7668
+            ],
+            "spans": [
+              {
+                "offset": 502,
+                "length": 11
+              }
+            ]
+          },
+          {
+            "content": "Warenbezeichnung",
+            "polygon": [
+              2.6161,
+              3.64,
+              3.7923,
+              3.6552,
+              3.7923,
+              3.7921,
+              2.6161,
+              3.7769
+            ],
+            "spans": [
+              {
+                "offset": 514,
+                "length": 16
+              }
+            ]
+          },
+          {
+            "content": "Menge",
+            "polygon": [
+              5.6985,
+              3.6502,
+              6.1193,
+              3.6502,
+              6.1193,
+              3.782,
+              5.6985,
+              3.7871
+            ],
+            "spans": [
+              {
+                "offset": 531,
+                "length": 5
+              }
+            ]
+          },
+          {
+            "content": "Einheit",
+            "polygon": [
+              6.2765,
+              3.6451,
+              6.748,
+              3.6451,
+              6.748,
+              3.7718,
+              6.2765,
+              3.7718
+            ],
+            "spans": [
+              {
+                "offset": 537,
+                "length": 7
+              }
+            ]
+          },
+          {
+            "content": "1",
+            "polygon": [
+              0.5628,
+              3.8834,
+              0.6236,
+              3.8834,
+              0.6236,
+              3.9848,
+              0.5526,
+              3.9797
+            ],
+            "spans": [
+              {
+                "offset": 545,
+                "length": 1
+              }
+            ]
+          },
+          {
+            "content": "84133080",
+            "polygon": [
+              1.232,
+              3.8682,
+              1.8099,
+              3.8682,
+              1.8099,
+              3.9949,
+              1.232,
+              3.9949
+            ],
+            "spans": [
+              {
+                "offset": 547,
+                "length": 8
+              }
+            ]
+          },
+          {
+            "content": "Hydraulikpumpe Typ HP-40",
+            "polygon": [
+              2.6059,
+              3.858,
+              4.1826,
+              3.858,
+              4.1826,
+              4.0152,
+              2.6059,
+              4.0152
+            ],
+            "spans": [
+              {
+                "offset": 556,
+                "length": 24
+              }
+            ]
+          },
+          {
+            "content": "12",
+            "polygon": [
+              5.9723,
+              3.8682,
+              6.1193,
+              3.8732,
+              6.1143,
+              3.9898,
+              5.9723,
+              3.9898
+            ],
+            "spans": [
+              {
+                "offset": 581,
+                "length": 2
+              }
+            ]
+          },
+          {
+            "content": "PCE",
+            "polygon": [
+              6.3018,
+              3.8682,
+              6.5756,
+              3.8682,
+              6.5756,
+              3.9898,
+              6.3018,
+              3.9898
+            ],
+            "spans": [
+              {
+                "offset": 584,
+                "length": 3
+              }
+            ]
+          },
+          {
+            "content": "2",
+            "polygon": [
+              0.5526,
+              4.0862,
+              0.6337,
+              4.0862,
+              0.6287,
+              4.1876,
+              0.5425,
+              4.1876
+            ],
+            "spans": [
+              {
+                "offset": 588,
+                "length": 1
+              }
+            ]
+          },
+          {
+            "content": "84842000",
+            "polygon": [
+              1.237,
+              4.071,
+              1.815,
+              4.071,
+              1.815,
+              4.2028,
+              1.237,
+              4.2028
+            ],
+            "spans": [
+              {
+                "offset": 590,
+                "length": 8
+              }
+            ]
+          },
+          {
+            "content": "Dichtungssatz HP-40",
+            "polygon": [
+              2.6211,
+              4.071,
+              3.8176,
+              4.0659,
+              3.8176,
+              4.2129,
+              2.6211,
+              4.223
+            ],
+            "spans": [
+              {
+                "offset": 599,
+                "length": 19
+              }
+            ]
+          },
+          {
+            "content": "12",
+            "polygon": [
+              5.9875,
+              4.076,
+              6.1193,
+              4.076,
+              6.1143,
+              4.1977,
+              5.9824,
+              4.1977
+            ],
+            "spans": [
+              {
+                "offset": 619,
+                "length": 2
+              }
+            ]
+          },
+          {
+            "content": "PCE",
+            "polygon": [
+              6.2968,
+              4.071,
+              6.5756,
+              4.071,
+              6.5756,
+              4.1977,
+              6.2968,
+              4.2028
+            ],
+            "spans": [
+              {
+                "offset": 622,
+                "length": 3
+              }
+            ]
+          },
+          {
+            "content": "Dieses Dokument ist nicht der Ausgangsvermerk. Der Ausgang wird durch die Statusnachricht bestätigt.",
+            "polygon": [
+              0.5475,
+              4.4309,
+              5.6681,
+              4.4309,
+              5.6681,
+              4.5729,
+              0.5475,
+              4.5678
+            ],
+            "spans": [
+              {
+                "offset": 626,
+                "length": 100
+              }
+            ]
+          }
+        ],
+        "spans": [
+          {
+            "offset": 0,
+            "length": 726
+          }
+        ]
+      }
+    ],
+    "paragraphs": [
+      {
+        "spans": [
+          {
+            "offset": 0,
+            "length": 22
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5374,
+              0.5019,
+              3.8937,
+              0.5019,
+              3.8937,
+              0.7098,
+              0.5374,
+              0.7098
+            ]
+          }
+        ],
+        "content": "AUSFUHRBEGLEITDOKUMENT"
+      },
+      {
+        "spans": [
+          {
+            "offset": 23,
+            "length": 71
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              0.9582,
+              4.9989,
+              0.9582,
+              4.9989,
+              1.1103,
+              0.5425,
+              1.1103
+            ]
+          }
+        ],
+        "content": "Export Accompanying Document (EAD), Ausdruck aus ATLAS-AES, synthetisch"
+      },
+      {
+        "spans": [
+          {
+            "offset": 95,
+            "length": 23
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              1.2117,
+              2.7834,
+              1.2117,
+              2.7834,
+              1.379,
+              0.5425,
+              1.379
+            ]
+          }
+        ],
+        "content": "MRN: 26DE5100001234567A"
+      },
+      {
+        "spans": [
+          {
+            "offset": 119,
+            "length": 69
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              1.4753,
+              3.7466,
+              1.4753,
+              3.7466,
+              1.8352,
+              0.5425,
+              1.8352
+            ]
+          }
+        ],
+        "content": "Ausfuhrzollstelle: DE002210 Hamburg (synthetisch) Bestimmungsland: SG"
+      },
+      {
+        "spans": [
+          {
+            "offset": 189,
+            "length": 56
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.4256,
+              1.4854,
+              6.4433,
+              1.4801,
+              6.4442,
+              1.835,
+              4.4265,
+              1.8403
+            ]
+          }
+        ],
+        "content": "Ausgangszollstelle: DE002210 Bezugsnummer: INV-2026-0417"
+      },
+      {
+        "spans": [
+          {
+            "offset": 246,
+            "length": 19
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5374,
+              2.038,
+              1.9418,
+              2.038,
+              1.9418,
+              2.1901,
+              0.5374,
+              2.1901
+            ]
+          }
+        ],
+        "content": "Ausführer/Versender"
+      },
+      {
+        "spans": [
+          {
+            "offset": 266,
+            "length": 88
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              2.2357,
+              2.4944,
+              2.2357,
+              2.4944,
+              3.1026,
+              0.5425,
+              3.1026
+            ]
+          }
+        ],
+        "content": "Nordlicht Maschinenbau GmbH Hafenstraße 12 20457 Hamburg Germany EORI: DE123456789012345"
+      },
+      {
+        "spans": [
+          {
+            "offset": 355,
+            "length": 22
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              3.2699,
+              2.1547,
+              3.2699,
+              2.1547,
+              3.417,
+              0.5425,
+              3.417
+            ]
+          }
+        ],
+        "content": "Container: HLXU8765430"
+      },
+      {
+        "spans": [
+          {
+            "offset": 378,
+            "length": 75
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.4324,
+              2.0431,
+              5.9289,
+              2.0533,
+              5.9229,
+              2.9411,
+              4.4263,
+              2.9309
+            ]
+          }
+        ],
+        "content": "Empfänger Aurora Trading Pte. Ltd. 8 Marina View Singapore 018960 Singapore"
+      },
+      {
+        "spans": [
+          {
+            "offset": 454,
+            "length": 43
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.426,
+              3.2649,
+              7.2803,
+              3.2649,
+              7.2803,
+              3.4322,
+              4.426,
+              3.4322
+            ]
+          }
+        ],
+        "content": "Verkehrszweig an der Grenze: 1 (Seeverkehr)"
+      },
+      {
+        "spans": [
+          {
+            "offset": 498,
+            "length": 3
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5475,
+              3.6552,
+              0.7931,
+              3.6604,
+              0.7909,
+              3.7668,
+              0.5453,
+              3.7617
+            ]
+          }
+        ],
+        "content": "Pos"
+      },
+      {
+        "spans": [
+          {
+            "offset": 502,
+            "length": 11
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              1.232,
+              3.6451,
+              2.1307,
+              3.6553,
+              2.1293,
+              3.7769,
+              1.2306,
+              3.7668
+            ]
+          }
+        ],
+        "content": "Warennummer"
+      },
+      {
+        "spans": [
+          {
+            "offset": 514,
+            "length": 16
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              2.6161,
+              3.64,
+              3.794,
+              3.6553,
+              3.7923,
+              3.7921,
+              2.6143,
+              3.7769
+            ]
+          }
+        ],
+        "content": "Warenbezeichnung"
+      },
+      {
+        "spans": [
+          {
+            "offset": 531,
+            "length": 5
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              5.6985,
+              3.6502,
+              6.1193,
+              3.6502,
+              6.1193,
+              3.7871,
+              5.6985,
+              3.7871
+            ]
+          }
+        ],
+        "content": "Menge"
+      },
+      {
+        "spans": [
+          {
+            "offset": 537,
+            "length": 7
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              6.2765,
+              3.6451,
+              6.748,
+              3.6451,
+              6.748,
+              3.7718,
+              6.2765,
+              3.7718
+            ]
+          }
+        ],
+        "content": "Einheit"
+      },
+      {
+        "spans": [
+          {
+            "offset": 545,
+            "length": 1
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5526,
+              3.8834,
+              0.6236,
+              3.8834,
+              0.6236,
+              3.9848,
+              0.5526,
+              3.9848
+            ]
+          }
+        ],
+        "content": "1"
+      },
+      {
+        "spans": [
+          {
+            "offset": 547,
+            "length": 8
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              1.232,
+              3.8682,
+              1.8099,
+              3.8682,
+              1.8099,
+              3.9949,
+              1.232,
+              3.9949
+            ]
+          }
+        ],
+        "content": "84133080"
+      },
+      {
+        "spans": [
+          {
+            "offset": 556,
+            "length": 24
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              2.6059,
+              3.858,
+              4.1826,
+              3.858,
+              4.1826,
+              4.0152,
+              2.6059,
+              4.0152
+            ]
+          }
+        ],
+        "content": "Hydraulikpumpe Typ HP-40"
+      },
+      {
+        "spans": [
+          {
+            "offset": 581,
+            "length": 2
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              5.9723,
+              3.8682,
+              6.1193,
+              3.8682,
+              6.1193,
+              3.9898,
+              5.9723,
+              3.9898
+            ]
+          }
+        ],
+        "content": "12"
+      },
+      {
+        "spans": [
+          {
+            "offset": 584,
+            "length": 3
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              6.3018,
+              3.8682,
+              6.5756,
+              3.8682,
+              6.5756,
+              3.9898,
+              6.3018,
+              3.9898
+            ]
+          }
+        ],
+        "content": "PCE"
+      },
+      {
+        "spans": [
+          {
+            "offset": 588,
+            "length": 1
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5478,
+              4.0819,
+              0.6337,
+              4.0862,
+              0.6284,
+              4.1919,
+              0.5425,
+              4.1876
+            ]
+          }
+        ],
+        "content": "2"
+      },
+      {
+        "spans": [
+          {
+            "offset": 590,
+            "length": 8
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              1.237,
+              4.071,
+              1.815,
+              4.071,
+              1.815,
+              4.2028,
+              1.237,
+              4.2028
+            ]
+          }
+        ],
+        "content": "84842000"
+      },
+      {
+        "spans": [
+          {
+            "offset": 599,
+            "length": 19
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              2.6205,
+              4.071,
+              3.8176,
+              4.0659,
+              3.8183,
+              4.218,
+              2.6211,
+              4.223
+            ]
+          }
+        ],
+        "content": "Dichtungssatz HP-40"
+      },
+      {
+        "spans": [
+          {
+            "offset": 619,
+            "length": 2
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              5.9824,
+              4.076,
+              6.1193,
+              4.076,
+              6.1193,
+              4.1977,
+              5.9824,
+              4.1977
+            ]
+          }
+        ],
+        "content": "12"
+      },
+      {
+        "spans": [
+          {
+            "offset": 622,
+            "length": 3
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              6.2968,
+              4.071,
+              6.5756,
+              4.071,
+              6.5756,
+              4.2028,
+              6.2968,
+              4.2028
+            ]
+          }
+        ],
+        "content": "PCE"
+      },
+      {
+        "spans": [
+          {
+            "offset": 626,
+            "length": 100
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5475,
+              4.4309,
+              5.6681,
+              4.4309,
+              5.6681,
+              4.5729,
+              0.5475,
+              4.5729
+            ]
+          }
+        ],
+        "content": "Dieses Dokument ist nicht der Ausgangsvermerk. Der Ausgang wird durch die Statusnachricht bestätigt."
+      }
+    ],
+    "styles": [],
+    "contentFormat": "text"
+  }
+}

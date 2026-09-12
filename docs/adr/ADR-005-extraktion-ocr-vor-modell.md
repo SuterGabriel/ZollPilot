@@ -136,11 +136,19 @@ kommt nur aus der Umgebung.
 
 Was sich damit ändert: Die Austauschbarkeit an einer Stelle ist gezeigt,
 nicht behauptet. Was sich nicht ändert: Ohne Aufzeichnung gibt es keine
-Zahl. Am Tag des Nachtrags lag kein Zugang vor, die Tabelle in
-`docs/EXTRAKTION.md` trägt den Stand. Und der Anbieteraufruf bleibt ein
-Messwerkzeug auf synthetischen Belegen; für echte Belege gilt weiter die
-Pseudonymisierungsregel aus `docs/DATENSCHUTZ.md`, die diese Entscheidung
-nicht aufhebt.
+Zahl. Der Anbieteraufruf bleibt ein Messwerkzeug auf synthetischen Belegen;
+für echte Belege gilt weiter die Pseudonymisierungsregel aus
+`docs/DATENSCHUTZ.md`, die diese Entscheidung nicht aufhebt.
+
+Am selben Tag, einige Stunden später, lag der Zugang vor (Stufe F0, Region
+Switzerland North), und der Lauf wurde gezogen: 32 von 32 Belegen
+aufgezeichnet, Field Exact Match 100 % und 8 von 8 Entscheidungen, dieselben
+Zahlen wie die Basislinie. Der erste Lauf ergab 26,8 %, weil die Übersetzung
+Azures Zellen für Zeilen hielt und abgetrennte Satzzeichen nicht wieder
+anfügte; beides wurde in `anbieter.py` korrigiert, ohne einen Feldextraktor
+anzufassen. Das ist die Probe, auf die die Nahtstelle gebaut war: Ein
+anderer Leser braucht eine andere Übersetzung, nicht eine andere Extraktion.
+Die Tabelle in `docs/EXTRAKTION.md` trägt die Zahlen und die Modellversion.
 
 ## Wann wir anders entscheiden würden
 

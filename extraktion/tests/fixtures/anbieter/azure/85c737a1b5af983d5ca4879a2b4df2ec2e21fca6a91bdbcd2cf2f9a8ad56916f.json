@@ -1,0 +1,4478 @@
+{
+  "status": "succeeded",
+  "createdDateTime": "2026-09-12T20:13:30Z",
+  "lastUpdatedDateTime": "2026-09-12T20:13:31Z",
+  "analyzeResult": {
+    "apiVersion": "2024-11-30",
+    "modelId": "prebuilt-read",
+    "stringIndexType": "textElements",
+    "content": "COMMERCIAL INVOICE\nSeller Nordlicht Maschinenbau GmbH Hafenstraße 12 20457 Hamburg Germany EORI: DE123456789012345\nInvoice No .: INV-2026-0417\nCurrency: EUR\nBuyer Aurora Trading Pte. Ltd. 8 Marina View Singapore 018960 Singapore\nInvoice date: 2026-09-08\nIncoterms: FOB Hamburg (Incoterms 2020)\nPos\nDescription\nHS code\nOrigin\nQty\nUnit\nUnit price\nAmount\n1\nHydraulikpumpe Typ HP-40\n8413.30\nDE\n12\nPCE\n1.450,00\n17.400,00\n2\nDichtungssatz HP-40\n8484.20\nCN\n12\nPCE\n85,00\n1.020,00\nSubtotal:\nEUR 18.420,00\nSurcharges:\nEUR 0,00\nDiscount:\nEUR 0,00\nTotal amount:\nEUR 18.420,00\nDeclaration of origin\nThe exporter of the products covered by this document (customs authorization No DEREX12345678) declares that, except where otherwise clearly indicated, these products are of German preferential origin.\nHamburg, 2026-09-08 Nordlicht Maschinenbau GmbH (signature)\nPayment terms: 30 days net. Bank details on request. All company names in this document are fictitious.",
+    "pages": [
+      {
+        "pageNumber": 1,
+        "angle": 0.03422684967517853,
+        "width": 8.2639,
+        "height": 11.6806,
+        "unit": "inch",
+        "words": [
+          {
+            "content": "COMMERCIAL",
+            "polygon": [
+              0.5483,
+              0.5193,
+              2.0802,
+              0.5112,
+              2.0782,
+              0.7098,
+              0.5483,
+              0.7081
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 0,
+              "length": 10
+            }
+          },
+          {
+            "content": "INVOICE",
+            "polygon": [
+              2.1579,
+              0.5108,
+              3.0825,
+              0.5079,
+              3.0825,
+              0.7098,
+              2.1558,
+              0.7098
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 11,
+              "length": 7
+            }
+          },
+          {
+            "content": "Seller",
+            "polygon": [
+              0.5475,
+              0.9582,
+              0.9429,
+              0.9631,
+              0.9412,
+              1.0949,
+              0.5475,
+              1.0898
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 19,
+              "length": 6
+            }
+          },
+          {
+            "content": "Nordlicht",
+            "polygon": [
+              0.5503,
+              1.1587,
+              1.1052,
+              1.1555,
+              1.101,
+              1.2978,
+              0.5471,
+              1.2977
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 26,
+              "length": 9
+            }
+          },
+          {
+            "content": "Maschinenbau",
+            "polygon": [
+              1.1471,
+              1.1554,
+              2.04,
+              1.156,
+              2.0342,
+              1.2978,
+              1.1429,
+              1.2978
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 36,
+              "length": 12
+            }
+          },
+          {
+            "content": "GmbH",
+            "polygon": [
+              2.0889,
+              1.1562,
+              2.4992,
+              1.1588,
+              2.4927,
+              1.2975,
+              2.0831,
+              1.2978
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 49,
+              "length": 4
+            }
+          },
+          {
+            "content": "Hafenstraße",
+            "polygon": [
+              0.546,
+              1.3334,
+              1.3142,
+              1.337,
+              1.3109,
+              1.4733,
+              0.5428,
+              1.4746
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 54,
+              "length": 11
+            }
+          },
+          {
+            "content": "12",
+            "polygon": [
+              1.3686,
+              1.3372,
+              1.5159,
+              1.3376,
+              1.5159,
+              1.4718,
+              1.3653,
+              1.4729
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 66,
+              "length": 2
+            }
+          },
+          {
+            "content": "20457",
+            "polygon": [
+              0.5396,
+              1.5152,
+              0.9365,
+              1.5192,
+              0.9352,
+              1.667,
+              0.5396,
+              1.6606
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 69,
+              "length": 5
+            }
+          },
+          {
+            "content": "Hamburg",
+            "polygon": [
+              0.9861,
+              1.52,
+              1.5565,
+              1.5341,
+              1.5565,
+              1.6679,
+              0.9846,
+              1.6675
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 75,
+              "length": 7
+            }
+          },
+          {
+            "content": "Germany",
+            "polygon": [
+              0.5503,
+              1.7023,
+              1.1357,
+              1.7062,
+              1.1357,
+              1.8546,
+              0.5471,
+              1.8493
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 83,
+              "length": 7
+            }
+          },
+          {
+            "content": "EORI:",
+            "polygon": [
+              0.5483,
+              1.8735,
+              0.9236,
+              1.8753,
+              0.9222,
+              2.018,
+              0.5482,
+              2.0194
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 91,
+              "length": 5
+            }
+          },
+          {
+            "content": "DE123456789012345",
+            "polygon": [
+              0.9776,
+              1.8755,
+              2.3372,
+              1.8749,
+              2.3341,
+              2.0208,
+              0.976,
+              2.0178
+            ],
+            "confidence": 0.99,
+            "span": {
+              "offset": 97,
+              "length": 17
+            }
+          },
+          {
+            "content": "Invoice",
+            "polygon": [
+              0.5451,
+              2.1931,
+              0.9817,
+              2.1932,
+              0.9801,
+              2.3407,
+              0.5451,
+              2.3418
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 115,
+              "length": 7
+            }
+          },
+          {
+            "content": "No",
+            "polygon": [
+              1.0127,
+              2.1933,
+              1.1654,
+              2.1935,
+              1.1631,
+              2.3403,
+              1.011,
+              2.3407
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 123,
+              "length": 2
+            }
+          },
+          {
+            "content": ".:",
+            "polygon": [
+              1.194,
+              2.1935,
+              1.2799,
+              2.1936,
+              1.2772,
+              2.34,
+              1.1916,
+              2.3402
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 126,
+              "length": 2
+            }
+          },
+          {
+            "content": "INV-2026-0417",
+            "polygon": [
+              1.3348,
+              2.1937,
+              2.2764,
+              2.1966,
+              2.2755,
+              2.3379,
+              1.3318,
+              2.3399
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 129,
+              "length": 13
+            }
+          },
+          {
+            "content": "Currency:",
+            "polygon": [
+              0.5535,
+              2.3906,
+              1.1472,
+              2.3879,
+              1.1439,
+              2.543,
+              0.5503,
+              2.5426
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 143,
+              "length": 9
+            }
+          },
+          {
+            "content": "EUR",
+            "polygon": [
+              1.2023,
+              2.3881,
+              1.5058,
+              2.3899,
+              1.5058,
+              2.5346,
+              1.1991,
+              2.542
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 153,
+              "length": 3
+            }
+          },
+          {
+            "content": "Buyer",
+            "polygon": [
+              4.4311,
+              0.9582,
+              4.8519,
+              0.9633,
+              4.8519,
+              1.1153,
+              4.4311,
+              1.1101
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 157,
+              "length": 5
+            }
+          },
+          {
+            "content": "Aurora",
+            "polygon": [
+              4.4222,
+              1.1569,
+              4.8565,
+              1.1594,
+              4.8524,
+              1.3102,
+              4.4189,
+              1.3059
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 163,
+              "length": 6
+            }
+          },
+          {
+            "content": "Trading",
+            "polygon": [
+              4.8972,
+              1.1594,
+              5.362,
+              1.1577,
+              5.3568,
+              1.313,
+              4.8929,
+              1.3105
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 170,
+              "length": 7
+            }
+          },
+          {
+            "content": "Pte.",
+            "polygon": [
+              5.4129,
+              1.1573,
+              5.6465,
+              1.1548,
+              5.6407,
+              1.313,
+              5.4075,
+              1.313
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 178,
+              "length": 4
+            }
+          },
+          {
+            "content": "Ltd.",
+            "polygon": [
+              5.6973,
+              1.1542,
+              5.9317,
+              1.1505,
+              5.9296,
+              1.313,
+              5.6914,
+              1.313
+            ],
+            "confidence": 0.99,
+            "span": {
+              "offset": 183,
+              "length": 4
+            }
+          },
+          {
+            "content": "8",
+            "polygon": [
+              4.4317,
+              1.334,
+              4.5148,
+              1.3343,
+              4.5113,
+              1.4757,
+              4.4285,
+              1.4736
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 188,
+              "length": 1
+            }
+          },
+          {
+            "content": "Marina",
+            "polygon": [
+              4.5656,
+              1.3345,
+              4.9811,
+              1.3374,
+              4.9758,
+              1.4803,
+              4.5619,
+              1.4769
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 190,
+              "length": 6
+            }
+          },
+          {
+            "content": "View",
+            "polygon": [
+              5.018,
+              1.3378,
+              5.3335,
+              1.3415,
+              5.33,
+              1.4751,
+              5.0126,
+              1.4802
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 197,
+              "length": 4
+            }
+          },
+          {
+            "content": "Singapore",
+            "polygon": [
+              4.4317,
+              1.5157,
+              5.0715,
+              1.5228,
+              5.0696,
+              1.6705,
+              4.4317,
+              1.6687
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 202,
+              "length": 9
+            }
+          },
+          {
+            "content": "018960",
+            "polygon": [
+              5.1131,
+              1.5226,
+              5.5819,
+              1.5158,
+              5.5819,
+              1.6665,
+              5.1112,
+              1.6703
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 212,
+              "length": 6
+            }
+          },
+          {
+            "content": "Singapore",
+            "polygon": [
+              4.4424,
+              1.7059,
+              5.0851,
+              1.7077,
+              5.0846,
+              1.8555,
+              4.4392,
+              1.8546
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 219,
+              "length": 9
+            }
+          },
+          {
+            "content": "Invoice",
+            "polygon": [
+              4.4308,
+              2.194,
+              4.8782,
+              2.1951,
+              4.8773,
+              2.3422,
+              4.4308,
+              2.3409
+            ],
+            "confidence": 0.988,
+            "span": {
+              "offset": 229,
+              "length": 7
+            }
+          },
+          {
+            "content": "date:",
+            "polygon": [
+              4.9218,
+              2.1951,
+              5.2193,
+              2.1951,
+              5.2176,
+              2.3422,
+              4.9207,
+              2.3422
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 237,
+              "length": 5
+            }
+          },
+          {
+            "content": "2026-09-08",
+            "polygon": [
+              5.2676,
+              2.1951,
+              5.9926,
+              2.1929,
+              5.9926,
+              2.3399,
+              5.2659,
+              2.3422
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 243,
+              "length": 10
+            }
+          },
+          {
+            "content": "Incoterms:",
+            "polygon": [
+              4.4176,
+              2.3858,
+              5.0806,
+              2.3858,
+              5.0798,
+              2.5435,
+              4.4176,
+              2.5335
+            ],
+            "confidence": 0.99,
+            "span": {
+              "offset": 254,
+              "length": 10
+            }
+          },
+          {
+            "content": "FOB",
+            "polygon": [
+              5.1328,
+              2.3858,
+              5.386,
+              2.386,
+              5.3849,
+              2.5468,
+              5.132,
+              2.5441
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 265,
+              "length": 3
+            }
+          },
+          {
+            "content": "Hamburg",
+            "polygon": [
+              5.4304,
+              2.3861,
+              6.0151,
+              2.387,
+              6.0132,
+              2.5501,
+              5.4292,
+              2.5472
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 269,
+              "length": 7
+            }
+          },
+          {
+            "content": "(Incoterms",
+            "polygon": [
+              6.0673,
+              2.3871,
+              6.7147,
+              2.3888,
+              6.712,
+              2.5501,
+              6.0654,
+              2.5501
+            ],
+            "confidence": 0.991,
+            "span": {
+              "offset": 277,
+              "length": 10
+            }
+          },
+          {
+            "content": "2020)",
+            "polygon": [
+              6.7591,
+              2.3889,
+              7.1232,
+              2.3901,
+              7.1232,
+              2.5501,
+              6.7563,
+              2.5501
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 288,
+              "length": 5
+            }
+          },
+          {
+            "content": "Pos",
+            "polygon": [
+              0.5425,
+              2.7579,
+              0.801,
+              2.7579,
+              0.8008,
+              2.8796,
+              0.5425,
+              2.8769
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 294,
+              "length": 3
+            }
+          },
+          {
+            "content": "Description",
+            "polygon": [
+              0.9586,
+              2.7636,
+              1.6629,
+              2.7579,
+              1.6625,
+              2.8872,
+              0.9554,
+              2.8895
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 298,
+              "length": 11
+            }
+          },
+          {
+            "content": "HS",
+            "polygon": [
+              3.4486,
+              2.7302,
+              3.6404,
+              2.7344,
+              3.6313,
+              2.9068,
+              3.4395,
+              2.9033
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 310,
+              "length": 2
+            }
+          },
+          {
+            "content": "code",
+            "polygon": [
+              3.6742,
+              2.7351,
+              4.0001,
+              2.737,
+              3.9924,
+              2.9073,
+              3.6651,
+              2.9074
+            ],
+            "confidence": 0.988,
+            "span": {
+              "offset": 313,
+              "length": 4
+            }
+          },
+          {
+            "content": "Origin",
+            "polygon": [
+              4.284,
+              2.7528,
+              4.6846,
+              2.7528,
+              4.6846,
+              2.8998,
+              4.284,
+              2.8972
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 318,
+              "length": 6
+            }
+          },
+          {
+            "content": "Qty",
+            "polygon": [
+              4.9735,
+              2.7326,
+              5.2575,
+              2.7327,
+              5.2575,
+              2.905,
+              4.9735,
+              2.9023
+            ],
+            "confidence": 0.976,
+            "span": {
+              "offset": 325,
+              "length": 3
+            }
+          },
+          {
+            "content": "Unit",
+            "polygon": [
+              5.298,
+              2.7224,
+              5.6073,
+              2.7225,
+              5.6073,
+              2.905,
+              5.298,
+              2.9023
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 329,
+              "length": 4
+            }
+          },
+          {
+            "content": "Unit",
+            "polygon": [
+              6.0817,
+              2.7378,
+              6.3073,
+              2.7406,
+              6.3045,
+              2.913,
+              6.0772,
+              2.9132
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 334,
+              "length": 4
+            }
+          },
+          {
+            "content": "price",
+            "polygon": [
+              6.3411,
+              2.741,
+              6.677,
+              2.7391,
+              6.677,
+              2.9081,
+              6.3385,
+              2.913
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 339,
+              "length": 5
+            }
+          },
+          {
+            "content": "Amount",
+            "polygon": [
+              7.2248,
+              2.7592,
+              7.7265,
+              2.7686,
+              7.7265,
+              2.8975,
+              7.2215,
+              2.8931
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 345,
+              "length": 6
+            }
+          },
+          {
+            "content": "1",
+            "polygon": [
+              0.5526,
+              2.9962,
+              0.6287,
+              2.9962,
+              0.6256,
+              3.0924,
+              0.5526,
+              3.0892
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 352,
+              "length": 1
+            }
+          },
+          {
+            "content": "Hydraulikpumpe",
+            "polygon": [
+              0.9586,
+              2.9816,
+              1.8721,
+              2.982,
+              1.8683,
+              3.1283,
+              0.9586,
+              3.1308
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 354,
+              "length": 14
+            }
+          },
+          {
+            "content": "Typ",
+            "polygon": [
+              1.9059,
+              2.9819,
+              2.1059,
+              2.9812,
+              2.1011,
+              3.1272,
+              1.9019,
+              3.1282
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 369,
+              "length": 3
+            }
+          },
+          {
+            "content": "HP-40",
+            "polygon": [
+              2.1349,
+              2.9811,
+              2.5197,
+              2.979,
+              2.514,
+              3.1247,
+              2.1299,
+              3.1271
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 373,
+              "length": 5
+            }
+          },
+          {
+            "content": "8413.30",
+            "polygon": [
+              3.464,
+              2.9814,
+              3.9342,
+              2.9798,
+              3.9342,
+              3.1128,
+              3.4638,
+              3.112
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 379,
+              "length": 7
+            }
+          },
+          {
+            "content": "DE",
+            "polygon": [
+              4.2891,
+              2.981,
+              4.482,
+              2.981,
+              4.4837,
+              3.1,
+              4.2891,
+              3.1026
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 387,
+              "length": 2
+            }
+          },
+          {
+            "content": "12",
+            "polygon": [
+              5.0618,
+              2.9607,
+              5.2575,
+              2.9607,
+              5.2575,
+              3.128,
+              5.0618,
+              3.128
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 390,
+              "length": 2
+            }
+          },
+          {
+            "content": "PCE",
+            "polygon": [
+              5.3254,
+              2.9558,
+              5.6041,
+              2.9606,
+              5.6013,
+              3.1279,
+              5.3225,
+              3.1231
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 393,
+              "length": 3
+            }
+          },
+          {
+            "content": "1.450,00",
+            "polygon": [
+              6.18,
+              2.9871,
+              6.6669,
+              2.9871,
+              6.6669,
+              3.1165,
+              6.1768,
+              3.116
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 397,
+              "length": 8
+            }
+          },
+          {
+            "content": "17.400,00",
+            "polygon": [
+              7.1554,
+              2.9808,
+              7.7214,
+              2.9872,
+              7.7192,
+              3.1168,
+              7.1554,
+              3.1151
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 406,
+              "length": 9
+            }
+          },
+          {
+            "content": "2",
+            "polygon": [
+              0.5425,
+              3.204,
+              0.6388,
+              3.204,
+              0.6359,
+              3.3003,
+              0.5425,
+              3.2974
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 416,
+              "length": 1
+            }
+          },
+          {
+            "content": "Dichtungssatz",
+            "polygon": [
+              0.9586,
+              3.1849,
+              1.7576,
+              3.1888,
+              1.7543,
+              3.3286,
+              0.9554,
+              3.3343
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 418,
+              "length": 13
+            }
+          },
+          {
+            "content": "HP-40",
+            "polygon": [
+              1.7973,
+              3.1888,
+              2.1547,
+              3.1878,
+              2.1547,
+              3.3276,
+              1.794,
+              3.3284
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 432,
+              "length": 5
+            }
+          },
+          {
+            "content": "8484.20",
+            "polygon": [
+              3.4531,
+              3.1877,
+              3.9342,
+              3.1922,
+              3.9342,
+              3.3156,
+              3.4531,
+              3.3136
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 438,
+              "length": 7
+            }
+          },
+          {
+            "content": "CN",
+            "polygon": [
+              4.2942,
+              3.1888,
+              4.4868,
+              3.1888,
+              4.4868,
+              3.3054,
+              4.2942,
+              3.3054
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 446,
+              "length": 2
+            }
+          },
+          {
+            "content": "12",
+            "polygon": [
+              5.0445,
+              3.1533,
+              5.2575,
+              3.1534,
+              5.2575,
+              3.3359,
+              5.0445,
+              3.3331
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 449,
+              "length": 2
+            }
+          },
+          {
+            "content": "PCE",
+            "polygon": [
+              5.3247,
+              3.1584,
+              5.6059,
+              3.1584,
+              5.6045,
+              3.3206,
+              5.3233,
+              3.3182
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 452,
+              "length": 3
+            }
+          },
+          {
+            "content": "85,00",
+            "polygon": [
+              6.3424,
+              3.1888,
+              6.6719,
+              3.1888,
+              6.671,
+              3.3156,
+              6.3424,
+              3.313
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 456,
+              "length": 5
+            }
+          },
+          {
+            "content": "1.020,00",
+            "polygon": [
+              7.2237,
+              3.192,
+              7.7214,
+              3.1945,
+              7.7158,
+              3.3233,
+              7.2236,
+              3.3213
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 462,
+              "length": 8
+            }
+          },
+          {
+            "content": "Subtotal:",
+            "polygon": [
+              5.2697,
+              3.4767,
+              5.8253,
+              3.4806,
+              5.8253,
+              3.6131,
+              5.2696,
+              3.6135
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 471,
+              "length": 9
+            }
+          },
+          {
+            "content": "EUR",
+            "polygon": [
+              6.7514,
+              3.4761,
+              7.0519,
+              3.4752,
+              7.0487,
+              3.6176,
+              6.7482,
+              3.6124
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 481,
+              "length": 3
+            }
+          },
+          {
+            "content": "18.420,00",
+            "polygon": [
+              7.1012,
+              3.4751,
+              7.7113,
+              3.4772,
+              7.7113,
+              3.6232,
+              7.098,
+              3.6184
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 485,
+              "length": 9
+            }
+          },
+          {
+            "content": "Surcharges:",
+            "polygon": [
+              5.2728,
+              3.6719,
+              6.0281,
+              3.6754,
+              6.0281,
+              3.821,
+              5.2696,
+              3.8165
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 495,
+              "length": 11
+            }
+          },
+          {
+            "content": "EUR",
+            "polygon": [
+              7.1001,
+              3.6706,
+              7.3996,
+              3.6682,
+              7.3966,
+              3.8097,
+              7.1,
+              3.8073
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 507,
+              "length": 3
+            }
+          },
+          {
+            "content": "0,00",
+            "polygon": [
+              7.4408,
+              3.6683,
+              7.7214,
+              3.6716,
+              7.7157,
+              3.8099,
+              7.4373,
+              3.8099
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 511,
+              "length": 4
+            }
+          },
+          {
+            "content": "Discount:",
+            "polygon": [
+              5.2697,
+              3.8608,
+              5.8658,
+              3.865,
+              5.8652,
+              3.9966,
+              5.2664,
+              3.996
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 516,
+              "length": 9
+            }
+          },
+          {
+            "content": "EUR",
+            "polygon": [
+              7.099,
+              3.8589,
+              7.4,
+              3.8606,
+              7.3951,
+              4.0013,
+              7.0957,
+              3.9994
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 526,
+              "length": 3
+            }
+          },
+          {
+            "content": "0,00",
+            "polygon": [
+              7.4416,
+              3.8609,
+              7.7113,
+              3.8634,
+              7.7113,
+              4.0051,
+              7.4366,
+              4.0017
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 530,
+              "length": 4
+            }
+          },
+          {
+            "content": "Total",
+            "polygon": [
+              5.2558,
+              4.0534,
+              5.5993,
+              4.0591,
+              5.5969,
+              4.2012,
+              5.2558,
+              4.2016
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 535,
+              "length": 5
+            }
+          },
+          {
+            "content": "amount:",
+            "polygon": [
+              5.648,
+              4.0598,
+              6.2055,
+              4.0639,
+              6.2055,
+              4.2016,
+              5.6453,
+              4.2011
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 541,
+              "length": 7
+            }
+          },
+          {
+            "content": "EUR",
+            "polygon": [
+              6.7483,
+              4.0531,
+              7.0529,
+              4.0574,
+              7.0497,
+              4.2065,
+              6.745,
+              4.2044
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 549,
+              "length": 3
+            }
+          },
+          {
+            "content": "18.420,00",
+            "polygon": [
+              7.1,
+              4.0578,
+              7.7163,
+              4.0566,
+              7.7161,
+              4.2121,
+              7.0968,
+              4.2068
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 553,
+              "length": 9
+            }
+          },
+          {
+            "content": "Declaration",
+            "polygon": [
+              0.5408,
+              4.4699,
+              1.3058,
+              4.4715,
+              1.3008,
+              4.6282,
+              0.5375,
+              4.6283
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 563,
+              "length": 11
+            }
+          },
+          {
+            "content": "of",
+            "polygon": [
+              1.3522,
+              4.4716,
+              1.4861,
+              4.472,
+              1.4807,
+              4.6286,
+              1.347,
+              4.6283
+            ],
+            "confidence": 0.999,
+            "span": {
+              "offset": 575,
+              "length": 2
+            }
+          },
+          {
+            "content": "origin",
+            "polygon": [
+              1.5248,
+              4.4721,
+              1.9164,
+              4.4734,
+              1.915,
+              4.6286,
+              1.5192,
+              4.6286
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 578,
+              "length": 6
+            }
+          },
+          {
+            "content": "The",
+            "polygon": [
+              0.544,
+              4.6772,
+              0.7663,
+              4.6768,
+              0.7631,
+              4.8181,
+              0.5407,
+              4.818
+            ],
+            "confidence": 0.999,
+            "span": {
+              "offset": 585,
+              "length": 3
+            }
+          },
+          {
+            "content": "exporter",
+            "polygon": [
+              0.8049,
+              4.6768,
+              1.2665,
+              4.676,
+              1.2636,
+              4.8184,
+              0.8018,
+              4.8182
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 589,
+              "length": 8
+            }
+          },
+          {
+            "content": "of",
+            "polygon": [
+              1.2979,
+              4.676,
+              1.3849,
+              4.6759,
+              1.3821,
+              4.8184,
+              1.295,
+              4.8184
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 598,
+              "length": 2
+            }
+          },
+          {
+            "content": "the",
+            "polygon": [
+              1.4139,
+              4.6758,
+              1.5976,
+              4.6755,
+              1.5948,
+              4.8186,
+              1.4111,
+              4.8184
+            ],
+            "confidence": 0.999,
+            "span": {
+              "offset": 601,
+              "length": 3
+            }
+          },
+          {
+            "content": "products",
+            "polygon": [
+              1.6266,
+              4.6755,
+              2.122,
+              4.6748,
+              2.1194,
+              4.8188,
+              1.6238,
+              4.8186
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 605,
+              "length": 8
+            }
+          },
+          {
+            "content": "covered",
+            "polygon": [
+              2.1606,
+              4.6747,
+              2.598,
+              4.6741,
+              2.5957,
+              4.8191,
+              2.1581,
+              4.8189
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 614,
+              "length": 7
+            }
+          },
+          {
+            "content": "by",
+            "polygon": [
+              2.6439,
+              4.6741,
+              2.7696,
+              4.6739,
+              2.7674,
+              4.8192,
+              2.6416,
+              4.8191
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 622,
+              "length": 2
+            }
+          },
+          {
+            "content": "this",
+            "polygon": [
+              2.8034,
+              4.6739,
+              2.9967,
+              4.6736,
+              2.9946,
+              4.8193,
+              2.8012,
+              4.8192
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 625,
+              "length": 4
+            }
+          },
+          {
+            "content": "document",
+            "polygon": [
+              3.0354,
+              4.6736,
+              3.584,
+              4.6729,
+              3.5821,
+              4.8197,
+              3.0333,
+              4.8194
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 630,
+              "length": 8
+            }
+          },
+          {
+            "content": "(customs",
+            "polygon": [
+              3.6202,
+              4.6728,
+              4.1229,
+              4.6723,
+              4.1212,
+              4.82,
+              3.6184,
+              4.8197
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 639,
+              "length": 8
+            }
+          },
+          {
+            "content": "authorization",
+            "polygon": [
+              4.1615,
+              4.6722,
+              4.8672,
+              4.6715,
+              4.8659,
+              4.8205,
+              4.1599,
+              4.82
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 648,
+              "length": 13
+            }
+          },
+          {
+            "content": "No",
+            "polygon": [
+              4.9155,
+              4.6714,
+              5.0653,
+              4.6713,
+              5.0641,
+              4.8206,
+              4.9142,
+              4.8205
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 662,
+              "length": 2
+            }
+          },
+          {
+            "content": "DEREX12345678)",
+            "polygon": [
+              5.1088,
+              4.6713,
+              6.1286,
+              4.6703,
+              6.1279,
+              4.8213,
+              5.1076,
+              4.8206
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 665,
+              "length": 14
+            }
+          },
+          {
+            "content": "declares",
+            "polygon": [
+              6.1648,
+              4.6703,
+              6.6361,
+              4.6699,
+              6.6356,
+              4.8213,
+              6.1642,
+              4.8213
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 680,
+              "length": 8
+            }
+          },
+          {
+            "content": "that,",
+            "polygon": [
+              6.6699,
+              4.6699,
+              6.9067,
+              4.6697,
+              6.9064,
+              4.8213,
+              6.6694,
+              4.8213
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 689,
+              "length": 5
+            }
+          },
+          {
+            "content": "except",
+            "polygon": [
+              6.9502,
+              4.6697,
+              7.32,
+              4.6695,
+              7.3198,
+              4.8213,
+              6.9499,
+              4.8213
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 695,
+              "length": 6
+            }
+          },
+          {
+            "content": "where",
+            "polygon": [
+              7.349,
+              4.6694,
+              7.7062,
+              4.6692,
+              7.7062,
+              4.8213,
+              7.3488,
+              4.8213
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 702,
+              "length": 5
+            }
+          },
+          {
+            "content": "otherwise",
+            "polygon": [
+              0.546,
+              4.8437,
+              1.084,
+              4.8408,
+              1.0836,
+              4.9876,
+              0.546,
+              4.9853
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 708,
+              "length": 9
+            }
+          },
+          {
+            "content": "clearly",
+            "polygon": [
+              1.1235,
+              4.8406,
+              1.4641,
+              4.8392,
+              1.4634,
+              4.9889,
+              1.1231,
+              4.9878
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 718,
+              "length": 7
+            }
+          },
+          {
+            "content": "indicated,",
+            "polygon": [
+              1.4937,
+              4.8391,
+              2.0441,
+              4.8375,
+              2.0429,
+              4.9905,
+              1.493,
+              4.989
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 726,
+              "length": 10
+            }
+          },
+          {
+            "content": "these",
+            "polygon": [
+              2.086,
+              4.8374,
+              2.3822,
+              4.8368,
+              2.3808,
+              4.9912,
+              2.0848,
+              4.9906
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 737,
+              "length": 5
+            }
+          },
+          {
+            "content": "products",
+            "polygon": [
+              2.4118,
+              4.8368,
+              2.9054,
+              4.8365,
+              2.9036,
+              4.9916,
+              2.4104,
+              4.9912
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 743,
+              "length": 8
+            }
+          },
+          {
+            "content": "are",
+            "polygon": [
+              2.9449,
+              4.8365,
+              3.1201,
+              4.8366,
+              3.1181,
+              4.9917,
+              2.943,
+              4.9917
+            ],
+            "confidence": 0.998,
+            "span": {
+              "offset": 752,
+              "length": 3
+            }
+          },
+          {
+            "content": "of",
+            "polygon": [
+              3.1596,
+              4.8367,
+              3.2682,
+              4.8368,
+              3.2661,
+              4.9916,
+              3.1576,
+              4.9917
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 756,
+              "length": 2
+            }
+          },
+          {
+            "content": "German",
+            "polygon": [
+              3.3003,
+              4.8368,
+              3.742,
+              4.8376,
+              3.7396,
+              4.9913,
+              3.2981,
+              4.9916
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 759,
+              "length": 6
+            }
+          },
+          {
+            "content": "preferential",
+            "polygon": [
+              3.7889,
+              4.8377,
+              4.4034,
+              4.8398,
+              4.4005,
+              4.9902,
+              3.7864,
+              4.9913
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 766,
+              "length": 12
+            }
+          },
+          {
+            "content": "origin.",
+            "polygon": [
+              4.4454,
+              4.84,
+              4.7909,
+              4.8414,
+              4.7877,
+              4.9893,
+              4.4424,
+              4.9901
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 779,
+              "length": 7
+            }
+          },
+          {
+            "content": "Hamburg,",
+            "polygon": [
+              0.5428,
+              5.0925,
+              1.0956,
+              5.0908,
+              1.0919,
+              5.2313,
+              0.5396,
+              5.2344
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 787,
+              "length": 8
+            }
+          },
+          {
+            "content": "2026-09-08",
+            "polygon": [
+              1.1405,
+              5.0906,
+              1.776,
+              5.0893,
+              1.7717,
+              5.2295,
+              1.1367,
+              5.2311
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 796,
+              "length": 10
+            }
+          },
+          {
+            "content": "Nordlicht",
+            "polygon": [
+              1.9224,
+              5.089,
+              2.4114,
+              5.0884,
+              2.4066,
+              5.2298,
+              1.918,
+              5.2295
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 807,
+              "length": 9
+            }
+          },
+          {
+            "content": "Maschinenbau",
+            "polygon": [
+              2.4492,
+              5.0884,
+              3.2524,
+              5.0881,
+              3.2469,
+              5.2329,
+              2.4444,
+              5.2299
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 817,
+              "length": 12
+            }
+          },
+          {
+            "content": "GmbH",
+            "polygon": [
+              3.2949,
+              5.0881,
+              3.6469,
+              5.0884,
+              3.6411,
+              5.2357,
+              3.2894,
+              5.2331
+            ],
+            "confidence": 0.989,
+            "span": {
+              "offset": 830,
+              "length": 4
+            }
+          },
+          {
+            "content": "(signature)",
+            "polygon": [
+              3.7957,
+              5.0885,
+              4.4006,
+              5.0895,
+              4.4006,
+              5.2421,
+              3.7898,
+              5.2367
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 835,
+              "length": 11
+            }
+          },
+          {
+            "content": "Payment",
+            "polygon": [
+              0.5428,
+              5.5727,
+              0.977,
+              5.5716,
+              0.974,
+              5.7066,
+              0.5396,
+              5.705
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 847,
+              "length": 7
+            }
+          },
+          {
+            "content": "terms:",
+            "polygon": [
+              1.0036,
+              5.5715,
+              1.3247,
+              5.5707,
+              1.322,
+              5.7078,
+              1.0006,
+              5.7067
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 855,
+              "length": 6
+            }
+          },
+          {
+            "content": "30",
+            "polygon": [
+              1.3668,
+              5.5706,
+              1.4842,
+              5.5704,
+              1.4816,
+              5.7082,
+              1.3641,
+              5.7079
+            ],
+            "confidence": 0.993,
+            "span": {
+              "offset": 862,
+              "length": 2
+            }
+          },
+          {
+            "content": "days",
+            "polygon": [
+              1.5196,
+              5.5703,
+              1.7389,
+              5.5699,
+              1.7364,
+              5.7085,
+              1.517,
+              5.7082
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 865,
+              "length": 4
+            }
+          },
+          {
+            "content": "net.",
+            "polygon": [
+              1.7655,
+              5.5699,
+              1.9626,
+              5.5695,
+              1.9603,
+              5.7085,
+              1.763,
+              5.7085
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 870,
+              "length": 4
+            }
+          },
+          {
+            "content": "Bank",
+            "polygon": [
+              2.0047,
+              5.5695,
+              2.2528,
+              5.5692,
+              2.2506,
+              5.7085,
+              2.0024,
+              5.7085
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 875,
+              "length": 4
+            }
+          },
+          {
+            "content": "details",
+            "polygon": [
+              2.2838,
+              5.5692,
+              2.6028,
+              5.5689,
+              2.6008,
+              5.7085,
+              2.2817,
+              5.7085
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 880,
+              "length": 7
+            }
+          },
+          {
+            "content": "on",
+            "polygon": [
+              2.6338,
+              5.5689,
+              2.7401,
+              5.5688,
+              2.7383,
+              5.7085,
+              2.6319,
+              5.7085
+            ],
+            "confidence": 0.997,
+            "span": {
+              "offset": 888,
+              "length": 2
+            }
+          },
+          {
+            "content": "request.",
+            "polygon": [
+              2.7667,
+              5.5688,
+              3.1853,
+              5.5688,
+              3.1837,
+              5.7085,
+              2.7649,
+              5.7085
+            ],
+            "confidence": 0.991,
+            "span": {
+              "offset": 891,
+              "length": 8
+            }
+          },
+          {
+            "content": "All",
+            "polygon": [
+              3.2185,
+              5.5688,
+              3.3404,
+              5.5688,
+              3.3389,
+              5.7085,
+              3.217,
+              5.7085
+            ],
+            "confidence": 0.987,
+            "span": {
+              "offset": 900,
+              "length": 3
+            }
+          },
+          {
+            "content": "company",
+            "polygon": [
+              3.3758,
+              5.5688,
+              3.8122,
+              5.5692,
+              3.811,
+              5.7072,
+              3.3744,
+              5.7085
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 904,
+              "length": 7
+            }
+          },
+          {
+            "content": "names",
+            "polygon": [
+              3.8387,
+              5.5692,
+              4.1754,
+              5.5695,
+              4.1745,
+              5.7061,
+              3.8376,
+              5.7071
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 912,
+              "length": 5
+            }
+          },
+          {
+            "content": "in",
+            "polygon": [
+              4.202,
+              5.5695,
+              4.2906,
+              5.5697,
+              4.2897,
+              5.7055,
+              4.2011,
+              5.706
+            ],
+            "confidence": 0.996,
+            "span": {
+              "offset": 918,
+              "length": 2
+            }
+          },
+          {
+            "content": "this",
+            "polygon": [
+              4.3172,
+              5.5697,
+              4.5099,
+              5.5701,
+              4.5092,
+              5.7044,
+              4.3163,
+              5.7054
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 921,
+              "length": 4
+            }
+          },
+          {
+            "content": "document",
+            "polygon": [
+              4.5431,
+              5.5702,
+              5.0304,
+              5.5711,
+              5.03,
+              5.7017,
+              4.5424,
+              5.7043
+            ],
+            "confidence": 0.994,
+            "span": {
+              "offset": 926,
+              "length": 8
+            }
+          },
+          {
+            "content": "are",
+            "polygon": [
+              5.0614,
+              5.5712,
+              5.2165,
+              5.5717,
+              5.2162,
+              5.7004,
+              5.061,
+              5.7015
+            ],
+            "confidence": 0.995,
+            "span": {
+              "offset": 935,
+              "length": 3
+            }
+          },
+          {
+            "content": "fictitious.",
+            "polygon": [
+              5.2497,
+              5.5717,
+              5.6884,
+              5.5729,
+              5.6884,
+              5.6973,
+              5.2494,
+              5.7002
+            ],
+            "confidence": 0.992,
+            "span": {
+              "offset": 939,
+              "length": 11
+            }
+          }
+        ],
+        "lines": [
+          {
+            "content": "COMMERCIAL INVOICE",
+            "polygon": [
+              0.5475,
+              0.507,
+              3.0774,
+              0.507,
+              3.0774,
+              0.7047,
+              0.5475,
+              0.7098
+            ],
+            "spans": [
+              {
+                "offset": 0,
+                "length": 18
+              }
+            ]
+          },
+          {
+            "content": "Seller",
+            "polygon": [
+              0.5526,
+              0.9582,
+              0.943,
+              0.9632,
+              0.9379,
+              1.0951,
+              0.5475,
+              1.09
+            ],
+            "spans": [
+              {
+                "offset": 19,
+                "length": 6
+              }
+            ]
+          },
+          {
+            "content": "Nordlicht Maschinenbau GmbH",
+            "polygon": [
+              0.5425,
+              1.1508,
+              2.4944,
+              1.1508,
+              2.4944,
+              1.2928,
+              0.5425,
+              1.2928
+            ],
+            "spans": [
+              {
+                "offset": 26,
+                "length": 27
+              }
+            ]
+          },
+          {
+            "content": "Hafenstraße 12",
+            "polygon": [
+              0.5425,
+              1.3333,
+              1.5108,
+              1.3333,
+              1.5108,
+              1.4702,
+              0.5425,
+              1.4702
+            ],
+            "spans": [
+              {
+                "offset": 54,
+                "length": 14
+              }
+            ]
+          },
+          {
+            "content": "20457 Hamburg",
+            "polygon": [
+              0.5374,
+              1.5108,
+              1.5514,
+              1.526,
+              1.5514,
+              1.6679,
+              0.5374,
+              1.6578
+            ],
+            "spans": [
+              {
+                "offset": 69,
+                "length": 13
+              }
+            ]
+          },
+          {
+            "content": "Germany",
+            "polygon": [
+              0.5475,
+              1.6983,
+              1.1306,
+              1.7034,
+              1.1306,
+              1.8504,
+              0.5425,
+              1.8504
+            ],
+            "spans": [
+              {
+                "offset": 83,
+                "length": 7
+              }
+            ]
+          },
+          {
+            "content": "EORI: DE123456789012345",
+            "polygon": [
+              0.5475,
+              1.8707,
+              2.3321,
+              1.8707,
+              2.3321,
+              2.0177,
+              0.5475,
+              2.0127
+            ],
+            "spans": [
+              {
+                "offset": 91,
+                "length": 23
+              }
+            ]
+          },
+          {
+            "content": "Invoice No .: INV-2026-0417",
+            "polygon": [
+              0.5425,
+              2.1901,
+              2.2713,
+              2.1901,
+              2.2713,
+              2.3371,
+              0.5425,
+              2.3371
+            ],
+            "spans": [
+              {
+                "offset": 115,
+                "length": 27
+              }
+            ]
+          },
+          {
+            "content": "Currency: EUR",
+            "polygon": [
+              0.5475,
+              2.3878,
+              1.5007,
+              2.3828,
+              1.5007,
+              2.5348,
+              0.5475,
+              2.5399
+            ],
+            "spans": [
+              {
+                "offset": 143,
+                "length": 13
+              }
+            ]
+          },
+          {
+            "content": "Buyer",
+            "polygon": [
+              4.4361,
+              0.9582,
+              4.8468,
+              0.9683,
+              4.8367,
+              1.1103,
+              4.4311,
+              1.1103
+            ],
+            "spans": [
+              {
+                "offset": 157,
+                "length": 5
+              }
+            ]
+          },
+          {
+            "content": "Aurora Trading Pte. Ltd.",
+            "polygon": [
+              4.4159,
+              1.1457,
+              5.9267,
+              1.1457,
+              5.9267,
+              1.308,
+              4.4159,
+              1.308
+            ],
+            "spans": [
+              {
+                "offset": 163,
+                "length": 24
+              }
+            ]
+          },
+          {
+            "content": "8 Marina View",
+            "polygon": [
+              4.426,
+              1.3333,
+              5.3284,
+              1.3333,
+              5.3284,
+              1.4753,
+              4.426,
+              1.4753
+            ],
+            "spans": [
+              {
+                "offset": 188,
+                "length": 13
+              }
+            ]
+          },
+          {
+            "content": "Singapore 018960",
+            "polygon": [
+              4.4311,
+              1.5108,
+              5.5769,
+              1.5108,
+              5.5769,
+              1.6629,
+              4.4311,
+              1.6679
+            ],
+            "spans": [
+              {
+                "offset": 202,
+                "length": 16
+              }
+            ]
+          },
+          {
+            "content": "Singapore",
+            "polygon": [
+              4.4361,
+              1.7034,
+              5.08,
+              1.7034,
+              5.08,
+              1.8504,
+              4.4361,
+              1.8504
+            ],
+            "spans": [
+              {
+                "offset": 219,
+                "length": 9
+              }
+            ]
+          },
+          {
+            "content": "Invoice date: 2026-09-08",
+            "polygon": [
+              4.426,
+              2.1901,
+              5.9875,
+              2.1901,
+              5.9875,
+              2.3371,
+              4.426,
+              2.3371
+            ],
+            "spans": [
+              {
+                "offset": 229,
+                "length": 24
+              }
+            ]
+          },
+          {
+            "content": "Incoterms: FOB Hamburg (Incoterms 2020)",
+            "polygon": [
+              4.4057,
+              2.3828,
+              7.1181,
+              2.3878,
+              7.1181,
+              2.5501,
+              4.4057,
+              2.5399
+            ],
+            "spans": [
+              {
+                "offset": 254,
+                "length": 39
+              }
+            ]
+          },
+          {
+            "content": "Pos",
+            "polygon": [
+              0.5475,
+              2.7579,
+              0.796,
+              2.763,
+              0.7909,
+              2.8796,
+              0.5425,
+              2.8796
+            ],
+            "spans": [
+              {
+                "offset": 294,
+                "length": 3
+              }
+            ]
+          },
+          {
+            "content": "Description",
+            "polygon": [
+              0.9531,
+              2.7579,
+              1.6578,
+              2.7579,
+              1.6629,
+              2.8897,
+              0.9531,
+              2.8948
+            ],
+            "spans": [
+              {
+                "offset": 298,
+                "length": 11
+              }
+            ]
+          },
+          {
+            "content": "HS code",
+            "polygon": [
+              3.4374,
+              2.7275,
+              3.9951,
+              2.7275,
+              3.9951,
+              2.9049,
+              3.4374,
+              2.8999
+            ],
+            "spans": [
+              {
+                "offset": 310,
+                "length": 7
+              }
+            ]
+          },
+          {
+            "content": "Origin",
+            "polygon": [
+              4.2891,
+              2.7579,
+              4.6795,
+              2.7528,
+              4.6744,
+              2.8999,
+              4.284,
+              2.8897
+            ],
+            "spans": [
+              {
+                "offset": 318,
+                "length": 6
+              }
+            ]
+          },
+          {
+            "content": "Qty",
+            "polygon": [
+              4.9786,
+              2.7326,
+              5.2524,
+              2.7376,
+              5.2473,
+              2.9049,
+              4.9735,
+              2.9049
+            ],
+            "spans": [
+              {
+                "offset": 325,
+                "length": 3
+              }
+            ]
+          },
+          {
+            "content": "Unit",
+            "polygon": [
+              5.3031,
+              2.7224,
+              5.6022,
+              2.7275,
+              5.6022,
+              2.9049,
+              5.298,
+              2.9049
+            ],
+            "spans": [
+              {
+                "offset": 329,
+                "length": 4
+              }
+            ]
+          },
+          {
+            "content": "Unit price",
+            "polygon": [
+              6.0737,
+              2.7376,
+              6.672,
+              2.7376,
+              6.672,
+              2.9049,
+              6.0737,
+              2.91
+            ],
+            "spans": [
+              {
+                "offset": 334,
+                "length": 10
+              }
+            ]
+          },
+          {
+            "content": "Amount",
+            "polygon": [
+              7.2195,
+              2.7579,
+              7.7214,
+              2.763,
+              7.7214,
+              2.8948,
+              7.2195,
+              2.8897
+            ],
+            "spans": [
+              {
+                "offset": 345,
+                "length": 6
+              }
+            ]
+          },
+          {
+            "content": "1",
+            "polygon": [
+              0.5628,
+              2.9962,
+              0.6236,
+              3.0013,
+              0.6236,
+              3.0925,
+              0.5526,
+              3.0925
+            ],
+            "spans": [
+              {
+                "offset": 352,
+                "length": 1
+              }
+            ]
+          },
+          {
+            "content": "Hydraulikpumpe Typ HP-40",
+            "polygon": [
+              0.9582,
+              2.981,
+              2.5147,
+              2.9759,
+              2.5147,
+              3.1229,
+              0.9582,
+              3.128
+            ],
+            "spans": [
+              {
+                "offset": 354,
+                "length": 24
+              }
+            ]
+          },
+          {
+            "content": "8413.30",
+            "polygon": [
+              3.4374,
+              2.9759,
+              3.9292,
+              2.9759,
+              3.9292,
+              3.1077,
+              3.4374,
+              3.1077
+            ],
+            "spans": [
+              {
+                "offset": 379,
+                "length": 7
+              }
+            ]
+          },
+          {
+            "content": "DE",
+            "polygon": [
+              4.2942,
+              2.981,
+              4.4818,
+              2.981,
+              4.4767,
+              3.0976,
+              4.2891,
+              3.1026
+            ],
+            "spans": [
+              {
+                "offset": 387,
+                "length": 2
+              }
+            ]
+          },
+          {
+            "content": "12",
+            "polygon": [
+              5.0496,
+              2.9607,
+              5.2524,
+              2.9607,
+              5.2473,
+              3.128,
+              5.0395,
+              3.128
+            ],
+            "spans": [
+              {
+                "offset": 390,
+                "length": 2
+              }
+            ]
+          },
+          {
+            "content": "PCE",
+            "polygon": [
+              5.3082,
+              2.9556,
+              5.6022,
+              2.9607,
+              5.5971,
+              3.128,
+              5.3031,
+              3.1229
+            ],
+            "spans": [
+              {
+                "offset": 393,
+                "length": 3
+              }
+            ]
+          },
+          {
+            "content": "1.450,00",
+            "polygon": [
+              6.1751,
+              2.981,
+              6.6618,
+              2.981,
+              6.6618,
+              3.1128,
+              6.1751,
+              3.1128
+            ],
+            "spans": [
+              {
+                "offset": 397,
+                "length": 8
+              }
+            ]
+          },
+          {
+            "content": "17.400,00",
+            "polygon": [
+              7.1536,
+              2.9759,
+              7.7163,
+              2.981,
+              7.7113,
+              3.1128,
+              7.1536,
+              3.1128
+            ],
+            "spans": [
+              {
+                "offset": 406,
+                "length": 9
+              }
+            ]
+          },
+          {
+            "content": "2",
+            "polygon": [
+              0.5526,
+              3.204,
+              0.6337,
+              3.204,
+              0.6287,
+              3.3004,
+              0.5425,
+              3.2953
+            ],
+            "spans": [
+              {
+                "offset": 416,
+                "length": 1
+              }
+            ]
+          },
+          {
+            "content": "Dichtungssatz HP-40",
+            "polygon": [
+              0.9531,
+              3.1838,
+              2.1496,
+              3.1838,
+              2.1496,
+              3.3257,
+              0.9531,
+              3.3308
+            ],
+            "spans": [
+              {
+                "offset": 418,
+                "length": 19
+              }
+            ]
+          },
+          {
+            "content": "8484.20",
+            "polygon": [
+              3.4526,
+              3.1838,
+              3.9292,
+              3.1888,
+              3.9292,
+              3.3156,
+              3.4526,
+              3.3105
+            ],
+            "spans": [
+              {
+                "offset": 438,
+                "length": 7
+              }
+            ]
+          },
+          {
+            "content": "CN",
+            "polygon": [
+              4.2942,
+              3.1888,
+              4.4818,
+              3.1888,
+              4.4818,
+              3.3054,
+              4.2942,
+              3.3054
+            ],
+            "spans": [
+              {
+                "offset": 446,
+                "length": 2
+              }
+            ]
+          },
+          {
+            "content": "12",
+            "polygon": [
+              5.0496,
+              3.1533,
+              5.2524,
+              3.1584,
+              5.2524,
+              3.3359,
+              5.0445,
+              3.3359
+            ],
+            "spans": [
+              {
+                "offset": 449,
+                "length": 2
+              }
+            ]
+          },
+          {
+            "content": "PCE",
+            "polygon": [
+              5.3082,
+              3.1584,
+              5.6022,
+              3.1635,
+              5.6022,
+              3.3206,
+              5.3031,
+              3.3206
+            ],
+            "spans": [
+              {
+                "offset": 452,
+                "length": 3
+              }
+            ]
+          },
+          {
+            "content": "85,00",
+            "polygon": [
+              6.3424,
+              3.1888,
+              6.6669,
+              3.1939,
+              6.6669,
+              3.3156,
+              6.3424,
+              3.3156
+            ],
+            "spans": [
+              {
+                "offset": 456,
+                "length": 5
+              }
+            ]
+          },
+          {
+            "content": "1.020,00",
+            "polygon": [
+              7.2195,
+              3.1888,
+              7.7163,
+              3.1888,
+              7.7163,
+              3.3206,
+              7.2195,
+              3.3156
+            ],
+            "spans": [
+              {
+                "offset": 462,
+                "length": 8
+              }
+            ]
+          },
+          {
+            "content": "Subtotal:",
+            "polygon": [
+              5.2676,
+              3.4727,
+              5.8202,
+              3.4778,
+              5.8202,
+              3.6096,
+              5.2676,
+              3.6096
+            ],
+            "spans": [
+              {
+                "offset": 471,
+                "length": 9
+              }
+            ]
+          },
+          {
+            "content": "EUR 18.420,00",
+            "polygon": [
+              6.748,
+              3.4727,
+              7.7062,
+              3.4727,
+              7.7062,
+              3.6198,
+              6.748,
+              3.6147
+            ],
+            "spans": [
+              {
+                "offset": 481,
+                "length": 13
+              }
+            ]
+          },
+          {
+            "content": "Surcharges:",
+            "polygon": [
+              5.2676,
+              3.6705,
+              6.023,
+              3.6705,
+              6.023,
+              3.8175,
+              5.2676,
+              3.8175
+            ],
+            "spans": [
+              {
+                "offset": 495,
+                "length": 11
+              }
+            ]
+          },
+          {
+            "content": "EUR 0,00",
+            "polygon": [
+              7.0978,
+              3.6654,
+              7.7163,
+              3.6654,
+              7.7163,
+              3.8073,
+              7.0978,
+              3.8073
+            ],
+            "spans": [
+              {
+                "offset": 507,
+                "length": 8
+              }
+            ]
+          },
+          {
+            "content": "Discount:",
+            "polygon": [
+              5.2625,
+              3.858,
+              5.8608,
+              3.858,
+              5.8608,
+              3.9949,
+              5.2625,
+              3.9949
+            ],
+            "spans": [
+              {
+                "offset": 516,
+                "length": 9
+              }
+            ]
+          },
+          {
+            "content": "EUR 0,00",
+            "polygon": [
+              7.0927,
+              3.858,
+              7.7062,
+              3.858,
+              7.7062,
+              4,
+              7.0927,
+              3.9949
+            ],
+            "spans": [
+              {
+                "offset": 526,
+                "length": 8
+              }
+            ]
+          },
+          {
+            "content": "Total amount:",
+            "polygon": [
+              5.2524,
+              4.0507,
+              6.2005,
+              4.0557,
+              6.2005,
+              4.2028,
+              5.2524,
+              4.1977
+            ],
+            "spans": [
+              {
+                "offset": 535,
+                "length": 13
+              }
+            ]
+          },
+          {
+            "content": "EUR 18.420,00",
+            "polygon": [
+              6.7429,
+              4.0507,
+              7.7113,
+              4.0557,
+              7.7113,
+              4.2078,
+              6.7429,
+              4.2028
+            ],
+            "spans": [
+              {
+                "offset": 549,
+                "length": 13
+              }
+            ]
+          },
+          {
+            "content": "Declaration of origin",
+            "polygon": [
+              0.5374,
+              4.4664,
+              1.9113,
+              4.4664,
+              1.9113,
+              4.6236,
+              0.5374,
+              4.6236
+            ],
+            "spans": [
+              {
+                "offset": 563,
+                "length": 21
+              }
+            ]
+          },
+          {
+            "content": "The exporter of the products covered by this document (customs authorization No DEREX12345678) declares that, except where",
+            "polygon": [
+              0.5374,
+              4.6692,
+              7.7011,
+              4.6692,
+              7.7011,
+              4.8162,
+              0.5374,
+              4.8213
+            ],
+            "spans": [
+              {
+                "offset": 585,
+                "length": 122
+              }
+            ]
+          },
+          {
+            "content": "otherwise clearly indicated, these products are of German preferential origin.",
+            "polygon": [
+              0.5425,
+              4.8314,
+              4.786,
+              4.8365,
+              4.786,
+              4.9886,
+              0.5425,
+              4.9886
+            ],
+            "spans": [
+              {
+                "offset": 708,
+                "length": 78
+              }
+            ]
+          },
+          {
+            "content": "Hamburg, 2026-09-08 Nordlicht Maschinenbau GmbH (signature)",
+            "polygon": [
+              0.5374,
+              5.0849,
+              4.3956,
+              5.0849,
+              4.3956,
+              5.237,
+              0.5374,
+              5.237
+            ],
+            "spans": [
+              {
+                "offset": 787,
+                "length": 59
+              }
+            ]
+          },
+          {
+            "content": "Payment terms: 30 days net. Bank details on request. All company names in this document are fictitious.",
+            "polygon": [
+              0.5374,
+              5.5665,
+              5.6833,
+              5.5665,
+              5.6833,
+              5.7034,
+              0.5374,
+              5.7085
+            ],
+            "spans": [
+              {
+                "offset": 847,
+                "length": 103
+              }
+            ]
+          }
+        ],
+        "spans": [
+          {
+            "offset": 0,
+            "length": 950
+          }
+        ]
+      }
+    ],
+    "paragraphs": [
+      {
+        "spans": [
+          {
+            "offset": 0,
+            "length": 18
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5475,
+              0.507,
+              3.0774,
+              0.507,
+              3.0774,
+              0.7098,
+              0.5475,
+              0.7098
+            ]
+          }
+        ],
+        "content": "COMMERCIAL INVOICE"
+      },
+      {
+        "spans": [
+          {
+            "offset": 19,
+            "length": 95
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5446,
+              0.9581,
+              2.4984,
+              0.9834,
+              2.4847,
+              2.0378,
+              0.5309,
+              2.0124
+            ]
+          }
+        ],
+        "content": "Seller Nordlicht Maschinenbau GmbH Hafenstraße 12 20457 Hamburg Germany EORI: DE123456789012345"
+      },
+      {
+        "spans": [
+          {
+            "offset": 115,
+            "length": 27
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5425,
+              2.1901,
+              2.2713,
+              2.1901,
+              2.2713,
+              2.3371,
+              0.5425,
+              2.3371
+            ]
+          }
+        ],
+        "content": "Invoice No .: INV-2026-0417"
+      },
+      {
+        "spans": [
+          {
+            "offset": 143,
+            "length": 13
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5467,
+              2.3878,
+              1.5007,
+              2.3828,
+              1.5015,
+              2.5348,
+              0.5475,
+              2.5399
+            ]
+          }
+        ],
+        "content": "Currency: EUR"
+      },
+      {
+        "spans": [
+          {
+            "offset": 157,
+            "length": 71
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.4159,
+              0.9582,
+              5.9267,
+              0.9582,
+              5.9267,
+              1.8504,
+              4.4159,
+              1.8504
+            ]
+          }
+        ],
+        "content": "Buyer Aurora Trading Pte. Ltd. 8 Marina View Singapore 018960 Singapore"
+      },
+      {
+        "spans": [
+          {
+            "offset": 229,
+            "length": 24
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.426,
+              2.1901,
+              5.9875,
+              2.1901,
+              5.9875,
+              2.3371,
+              4.426,
+              2.3371
+            ]
+          }
+        ],
+        "content": "Invoice date: 2026-09-08"
+      },
+      {
+        "spans": [
+          {
+            "offset": 254,
+            "length": 39
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.4057,
+              2.3828,
+              7.1184,
+              2.3878,
+              7.1181,
+              2.5501,
+              4.4054,
+              2.545
+            ]
+          }
+        ],
+        "content": "Incoterms: FOB Hamburg (Incoterms 2020)"
+      },
+      {
+        "spans": [
+          {
+            "offset": 294,
+            "length": 3
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.545,
+              2.7579,
+              0.796,
+              2.763,
+              0.7935,
+              2.8847,
+              0.5425,
+              2.8796
+            ]
+          }
+        ],
+        "content": "Pos"
+      },
+      {
+        "spans": [
+          {
+            "offset": 298,
+            "length": 11
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.9531,
+              2.7579,
+              1.6629,
+              2.7579,
+              1.6629,
+              2.8948,
+              0.9531,
+              2.8948
+            ]
+          }
+        ],
+        "content": "Description"
+      },
+      {
+        "spans": [
+          {
+            "offset": 310,
+            "length": 7
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              3.4374,
+              2.7275,
+              3.9951,
+              2.7275,
+              3.9951,
+              2.9049,
+              3.4374,
+              2.9049
+            ]
+          }
+        ],
+        "content": "HS code"
+      },
+      {
+        "spans": [
+          {
+            "offset": 318,
+            "length": 6
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.2879,
+              2.7427,
+              4.6795,
+              2.7528,
+              4.6757,
+              2.8999,
+              4.284,
+              2.8897
+            ]
+          }
+        ],
+        "content": "Origin"
+      },
+      {
+        "spans": [
+          {
+            "offset": 325,
+            "length": 3
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.9767,
+              2.7325,
+              5.2524,
+              2.7376,
+              5.2492,
+              2.91,
+              4.9735,
+              2.9049
+            ]
+          }
+        ],
+        "content": "Qty"
+      },
+      {
+        "spans": [
+          {
+            "offset": 329,
+            "length": 4
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              5.298,
+              2.7224,
+              5.6022,
+              2.7224,
+              5.6022,
+              2.9049,
+              5.298,
+              2.9049
+            ]
+          }
+        ],
+        "content": "Unit"
+      },
+      {
+        "spans": [
+          {
+            "offset": 334,
+            "length": 10
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              6.0737,
+              2.7376,
+              6.672,
+              2.7376,
+              6.672,
+              2.91,
+              6.0737,
+              2.91
+            ]
+          }
+        ],
+        "content": "Unit price"
+      },
+      {
+        "spans": [
+          {
+            "offset": 345,
+            "length": 6
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              7.2195,
+              2.7579,
+              7.7227,
+              2.763,
+              7.7214,
+              2.8948,
+              7.2182,
+              2.8897
+            ]
+          }
+        ],
+        "content": "Amount"
+      },
+      {
+        "spans": [
+          {
+            "offset": 352,
+            "length": 1
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5526,
+              2.9962,
+              0.6236,
+              2.9962,
+              0.6236,
+              3.0925,
+              0.5526,
+              3.0925
+            ]
+          }
+        ],
+        "content": "1"
+      },
+      {
+        "spans": [
+          {
+            "offset": 354,
+            "length": 24
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.9577,
+              2.981,
+              2.5147,
+              2.9759,
+              2.5151,
+              3.1229,
+              0.9582,
+              3.128
+            ]
+          }
+        ],
+        "content": "Hydraulikpumpe Typ HP-40"
+      },
+      {
+        "spans": [
+          {
+            "offset": 379,
+            "length": 7
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              3.4374,
+              2.9759,
+              3.9292,
+              2.9759,
+              3.9292,
+              3.1077,
+              3.4374,
+              3.1077
+            ]
+          }
+        ],
+        "content": "8413.30"
+      },
+      {
+        "spans": [
+          {
+            "offset": 387,
+            "length": 2
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.2891,
+              2.981,
+              4.4818,
+              2.981,
+              4.4818,
+              3.1026,
+              4.2891,
+              3.1026
+            ]
+          }
+        ],
+        "content": "DE"
+      },
+      {
+        "spans": [
+          {
+            "offset": 390,
+            "length": 2
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              5.0395,
+              2.9607,
+              5.2524,
+              2.9607,
+              5.2524,
+              3.128,
+              5.0395,
+              3.128
+            ]
+          }
+        ],
+        "content": "12"
+      },
+      {
+        "spans": [
+          {
+            "offset": 393,
+            "length": 3
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              5.306,
+              2.9556,
+              5.6022,
+              2.9607,
+              5.5993,
+              3.128,
+              5.3031,
+              3.1229
+            ]
+          }
+        ],
+        "content": "PCE"
+      },
+      {
+        "spans": [
+          {
+            "offset": 397,
+            "length": 8
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              6.1751,
+              2.981,
+              6.6618,
+              2.981,
+              6.6618,
+              3.1128,
+              6.1751,
+              3.1128
+            ]
+          }
+        ],
+        "content": "1.450,00"
+      },
+      {
+        "spans": [
+          {
+            "offset": 406,
+            "length": 9
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              7.1536,
+              2.9759,
+              7.7163,
+              2.9759,
+              7.7163,
+              3.1128,
+              7.1536,
+              3.1128
+            ]
+          }
+        ],
+        "content": "17.400,00"
+      },
+      {
+        "spans": [
+          {
+            "offset": 416,
+            "length": 1
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5481,
+              3.199,
+              0.6343,
+              3.2041,
+              0.6287,
+              3.3004,
+              0.5425,
+              3.2953
+            ]
+          }
+        ],
+        "content": "2"
+      },
+      {
+        "spans": [
+          {
+            "offset": 418,
+            "length": 19
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.9531,
+              3.1838,
+              2.1496,
+              3.1838,
+              2.1496,
+              3.3308,
+              0.9531,
+              3.3308
+            ]
+          }
+        ],
+        "content": "Dichtungssatz HP-40"
+      },
+      {
+        "spans": [
+          {
+            "offset": 438,
+            "length": 7
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              3.4526,
+              3.1838,
+              3.9305,
+              3.1888,
+              3.9292,
+              3.3156,
+              3.4512,
+              3.3105
+            ]
+          }
+        ],
+        "content": "8484.20"
+      },
+      {
+        "spans": [
+          {
+            "offset": 446,
+            "length": 2
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              4.2942,
+              3.1888,
+              4.4818,
+              3.1888,
+              4.4818,
+              3.3054,
+              4.2942,
+              3.3054
+            ]
+          }
+        ],
+        "content": "CN"
+      },
+      {
+        "spans": [
+          {
+            "offset": 449,
+            "length": 2
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              5.0445,
+              3.1533,
+              5.2524,
+              3.1533,
+              5.2524,
+              3.3359,
+              5.0445,
+              3.3359
+            ]
+          }
+        ],
+        "content": "12"
+      },
+      {
+        "spans": [
+          {
+            "offset": 452,
+            "length": 3
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              5.3031,
+              3.1584,
+              5.6022,
+              3.1584,
+              5.6022,
+              3.3206,
+              5.3031,
+              3.3206
+            ]
+          }
+        ],
+        "content": "PCE"
+      },
+      {
+        "spans": [
+          {
+            "offset": 456,
+            "length": 5
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              6.3424,
+              3.1888,
+              6.6669,
+              3.1888,
+              6.6669,
+              3.3156,
+              6.3424,
+              3.3156
+            ]
+          }
+        ],
+        "content": "85,00"
+      },
+      {
+        "spans": [
+          {
+            "offset": 462,
+            "length": 8
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              7.2195,
+              3.1888,
+              7.7163,
+              3.1888,
+              7.7163,
+              3.3206,
+              7.2195,
+              3.3206
+            ]
+          }
+        ],
+        "content": "1.020,00"
+      },
+      {
+        "spans": [
+          {
+            "offset": 471,
+            "length": 9
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              5.2676,
+              3.4727,
+              5.8202,
+              3.4727,
+              5.8202,
+              3.6096,
+              5.2676,
+              3.6096
+            ]
+          }
+        ],
+        "content": "Subtotal:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 481,
+            "length": 13
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              6.748,
+              3.4727,
+              7.7062,
+              3.4727,
+              7.7062,
+              3.6198,
+              6.748,
+              3.6198
+            ]
+          }
+        ],
+        "content": "EUR 18.420,00"
+      },
+      {
+        "spans": [
+          {
+            "offset": 495,
+            "length": 11
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              5.2676,
+              3.6705,
+              6.023,
+              3.6705,
+              6.023,
+              3.8175,
+              5.2676,
+              3.8175
+            ]
+          }
+        ],
+        "content": "Surcharges:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 507,
+            "length": 8
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              7.0978,
+              3.6654,
+              7.7163,
+              3.6654,
+              7.7163,
+              3.8073,
+              7.0978,
+              3.8073
+            ]
+          }
+        ],
+        "content": "EUR 0,00"
+      },
+      {
+        "spans": [
+          {
+            "offset": 516,
+            "length": 9
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              5.2625,
+              3.858,
+              5.8608,
+              3.858,
+              5.8608,
+              3.9949,
+              5.2625,
+              3.9949
+            ]
+          }
+        ],
+        "content": "Discount:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 526,
+            "length": 8
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              7.0927,
+              3.858,
+              7.7062,
+              3.858,
+              7.7062,
+              4,
+              7.0927,
+              4
+            ]
+          }
+        ],
+        "content": "EUR 0,00"
+      },
+      {
+        "spans": [
+          {
+            "offset": 535,
+            "length": 13
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              5.2524,
+              4.0507,
+              6.2012,
+              4.0558,
+              6.2005,
+              4.2028,
+              5.2516,
+              4.1977
+            ]
+          }
+        ],
+        "content": "Total amount:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 549,
+            "length": 13
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              6.7429,
+              4.0507,
+              7.7121,
+              4.0558,
+              7.7113,
+              4.2078,
+              6.7421,
+              4.2028
+            ]
+          }
+        ],
+        "content": "EUR 18.420,00"
+      },
+      {
+        "spans": [
+          {
+            "offset": 563,
+            "length": 21
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5374,
+              4.4664,
+              1.9113,
+              4.4664,
+              1.9113,
+              4.6236,
+              0.5374,
+              4.6236
+            ]
+          }
+        ],
+        "content": "Declaration of origin"
+      },
+      {
+        "spans": [
+          {
+            "offset": 585,
+            "length": 201
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5374,
+              4.6692,
+              7.7011,
+              4.6692,
+              7.7011,
+              4.9886,
+              0.5374,
+              4.9886
+            ]
+          }
+        ],
+        "content": "The exporter of the products covered by this document (customs authorization No DEREX12345678) declares that, except where otherwise clearly indicated, these products are of German preferential origin."
+      },
+      {
+        "spans": [
+          {
+            "offset": 787,
+            "length": 59
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5374,
+              5.0849,
+              4.3956,
+              5.0849,
+              4.3956,
+              5.237,
+              0.5374,
+              5.237
+            ]
+          }
+        ],
+        "content": "Hamburg, 2026-09-08 Nordlicht Maschinenbau GmbH (signature)"
+      },
+      {
+        "spans": [
+          {
+            "offset": 847,
+            "length": 103
+          }
+        ],
+        "boundingRegions": [
+          {
+            "pageNumber": 1,
+            "polygon": [
+              0.5374,
+              5.5665,
+              5.6833,
+              5.5665,
+              5.6833,
+              5.7085,
+              0.5374,
+              5.7085
+            ]
+          }
+        ],
+        "content": "Payment terms: 30 days net. Bank details on request. All company names in this document are fictitious."
+      }
+    ],
+    "styles": [
+      {
+        "confidence": 0.5,
+        "spans": [
+          {
+            "offset": 352,
+            "length": 1
+          }
+        ],
+        "isHandwritten": true
+      }
+    ],
+    "contentFormat": "text"
+  }
+}
