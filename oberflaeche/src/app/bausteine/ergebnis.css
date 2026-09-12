@@ -55,6 +55,17 @@ h3 .zahl {
   gap: var(--mass-3);
 }
 
+/* Gehen die beiden Entscheidungen auseinander, braucht das einen Satz — ein
+   grünes Band über einer Liste roter Befunde sieht sonst nach Fehler aus
+   (ADR-007, Konsequenz „zwei Ebenen sind schwerer zu lesen als eine"). Der
+   Text erbt die Farbe des Bandes und steht damit auf einer bereits
+   geprüften Fläche. */
+.unterschied {
+  margin: 0;
+  max-width: var(--zeilenmass);
+  font-size: var(--groesse-prosa);
+}
+
 .entscheidung .wort {
   font-size: var(--groesse-entscheidung);
   font-weight: 700;

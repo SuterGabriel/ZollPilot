@@ -40,7 +40,11 @@ import {
   waehleOffenePflicht,
   waehlePflichtBilanz,
   waehleRegelBilanz,
+  waehleFreigabeUnterschied,
+  waehleUebersteuerteBefunde,
+  waehleVerbrauchteUebersteuerungen,
 } from '../akte/akte.reducer';
+import { Uebersteuerung } from './uebersteuerung';
 
 const ZEITFORM: Intl.DateTimeFormatOptions = {
   day: '2-digit',
@@ -55,6 +59,7 @@ const KOPIERT_MS = 4000;
 
 @Component({
   selector: 'app-ergebnis',
+  imports: [Uebersteuerung],
   templateUrl: './ergebnis.html',
   styleUrl: './ergebnis.css',
 })
@@ -77,6 +82,9 @@ export class Ergebnis {
   readonly mehrereAdressaten = this.#store.selectSignal(waehleMehrereAdressaten);
   readonly dokumente = this.#store.selectSignal(waehleDokumente);
   readonly extraktionshinweise = this.#store.selectSignal(waehleExtraktionshinweise);
+  readonly freigabeUnterschied = this.#store.selectSignal(waehleFreigabeUnterschied);
+  readonly uebersteuerteBefunde = this.#store.selectSignal(waehleUebersteuerteBefunde);
+  readonly verbrauchteUebersteuerungen = this.#store.selectSignal(waehleVerbrauchteUebersteuerungen);
 
   /** Kennung der zuletzt kopierten Nachforderung, für die Rückmeldung. */
   readonly kopiert = signal<string | null>(null);

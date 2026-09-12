@@ -1,0 +1,117 @@
+/* Die Übersteuerung steht im Befund, nicht neben ihm: Sie gehört zu dieser
+   einen Regel und zu keiner anderen. Deshalb kein eigener Kasten, sondern
+   eine eingerückte Fortsetzung.
+
+   Alle Farben stammen aus den bereits geprüften Wertepaaren in styles.css.
+   Kein neues Paar heißt: keine neue Kontrastbehauptung, die jemand glauben
+   müsste. */
+
+:host {
+  display: block;
+  margin-top: var(--mass-3);
+}
+
+.verantwortet {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--mass-2);
+  margin: 0 0 var(--mass-1);
+  color: var(--ton-nachlese);
+}
+
+/* Die Marke ist Beiwerk: Die Aussage steht im Text daneben, nie nur hier. */
+.marke {
+  width: var(--mass-3);
+  height: var(--mass-3);
+  background: var(--ton-nachlese);
+}
+
+.wer {
+  font-weight: 700;
+}
+
+.grund {
+  margin: 0 0 var(--mass-2);
+  color: var(--ton-text);
+  max-width: var(--zeilenmass);
+}
+
+.leise {
+  color: var(--ton-text-leise);
+  font-size: var(--groesse-wert);
+  max-width: var(--zeilenmass);
+}
+
+.fest {
+  font-family: var(--schrift-fest);
+}
+
+.formular {
+  border-left: 3px solid var(--ton-nachlese-rand);
+  padding-left: var(--mass-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mass-2);
+}
+
+.warnung {
+  margin: 0;
+  padding: var(--mass-2) var(--mass-3);
+  background: var(--ton-warnung-flaeche);
+  border: 1px solid var(--ton-warnung-rand);
+  color: var(--ton-warnung);
+  max-width: var(--zeilenmass);
+}
+
+label {
+  font-size: var(--groesse-wert);
+  color: var(--ton-text-mittel);
+}
+
+input,
+textarea {
+  font: inherit;
+  padding: var(--mass-2);
+  border: 1px solid var(--ton-rand);
+  border-radius: var(--radius);
+  background: var(--ton-grund);
+  color: var(--ton-text);
+  max-width: var(--zeilenmass);
+  min-height: var(--hitflaeche-min);
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* Der Grund der Sperre ist leer, wenn nichts sperrt — der Platz bleibt
+   trotzdem stehen, sonst springt die Schaltfläche beim Tippen. */
+.sperre {
+  margin: 0;
+  min-height: 1.4em;
+  color: var(--ton-text-leise);
+  font-size: var(--groesse-wert);
+}
+
+.schaltflaechen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mass-2);
+  margin: 0;
+}
+
+.verbraucht {
+  margin: var(--mass-3) 0 0;
+  padding: var(--mass-2) var(--mass-3);
+  list-style: none;
+  background: var(--ton-warnung-flaeche);
+  border: 1px solid var(--ton-warnung-rand);
+  color: var(--ton-warnung);
+  font-size: var(--groesse-wert);
+  max-width: var(--zeilenmass);
+}
+
+.verbraucht li + li {
+  margin-top: var(--mass-2);
+}

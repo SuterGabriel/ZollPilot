@@ -9,11 +9,11 @@ import { inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { concatLatestFrom, mapResponse } from '@ngrx/operators';
 import { Store } from '@ngrx/store';
-import { switchMap } from 'rxjs';
+import { of, switchMap } from 'rxjs';
 
 import { AkteAktionen } from './akte.aktionen';
 import { AkteDienst, fehlermeldung } from './akte.dienst';
-import { waehleBelegIds } from './akte.reducer';
+import { selectStammdaten, selectUebersteuerungen, waehleBelegIds } from './akte.reducer';
 import { BelegSpeicher } from './akte.speicher';
 
 export const einreichen = createEffect(
@@ -25,11 +25,11 @@ export const einreichen = createEffect(
   ) =>
     aktionen$.pipe(
       ofType(AkteAktionen.eingereicht),
-      concatLatestFrom(() => store.select(waehleBelegIds)),
+      concatLatestFrom(() => [store.select(waehleBelegIds), store.select(selectUebersteuerungen)]),
       // `switchMap`, nicht `concatMap`: Wer zweimal absendet, will das
       // zweite Ergebnis. Die erste Anfrage wird abgebrochen.
-      switchMap(([{ stammdaten }, ids]) =>
-        dienst.einreichen(stammdaten, speicher.dateien(ids)).pipe(
+      switchMap(([{ stammdaten }, ids, uebersteuerungen]) =>
+        dienst.einreichen(stammdaten, speicher.dateien(ids), uebersteuerungen).pipe(
           mapResponse({
             next: (ergebnis) =>
               AkteAktionen.einreichungBeantwortet({ ergebnis, zeitpunkt: new Date().toISOString() }),
@@ -37,6 +37,47 @@ export const einreichen = createEffect(
           }),
         ),
       ),
+    ),
+  { functional: true },
+);
+
+/**
+ * Nach einer Übersteuerung wird erneut geprüft.
+ *
+ * Das ist der Kern von ADR-007: Die Oberfläche rechnet nicht selbst aus, was
+ * die Übersteuerung bedeutet — sie gibt sie dem Regelwerk und zeigt, was
+ * zurückkommt. Ohne diesen Weg wäre das Ergebnis auf dem Schirm eine
+ * Behauptung der Oberfläche statt einer Entscheidung des Regelwerks.
+ */
+export const nachUebersteuerungPruefen = createEffect(
+  (
+    aktionen$ = inject(Actions),
+    store = inject(Store),
+    dienst = inject(AkteDienst),
+    speicher = inject(BelegSpeicher),
+  ) =>
+    aktionen$.pipe(
+      ofType(AkteAktionen.befundUebersteuert, AkteAktionen.uebersteuerungZurueckgenommen),
+      concatLatestFrom(() => [
+        store.select(selectStammdaten),
+        store.select(waehleBelegIds),
+        store.select(selectUebersteuerungen),
+      ]),
+      switchMap(([, stammdaten, ids, uebersteuerungen]) => {
+        // Ohne Stammdaten hat nie eine Einreichung stattgefunden; dann gibt
+        // es auch keinen Befund, den jemand übersteuern könnte. Der Fall ist
+        // unerreichbar, wird aber benannt statt stillschweigend zu scheitern.
+        if (!stammdaten) {
+          return of(AkteAktionen.einreichungFehlgeschlagen({ meldung: 'Keine eingereichte Akte, die zu übersteuern wäre.' }));
+        }
+        return dienst.einreichen(stammdaten, speicher.dateien(ids), uebersteuerungen).pipe(
+          mapResponse({
+            next: (ergebnis) =>
+              AkteAktionen.einreichungBeantwortet({ ergebnis, zeitpunkt: new Date().toISOString() }),
+            error: (fehler: unknown) => AkteAktionen.einreichungFehlgeschlagen({ meldung: fehlermeldung(fehler) }),
+          }),
+        );
+      }),
     ),
   { functional: true },
 );
@@ -52,4 +93,4 @@ export const aufraeumen = createEffect(
   { functional: true, dispatch: false },
 );
 
-export const akteEffekte = { einreichen, aufraeumen };
+export const akteEffekte = { einreichen, nachUebersteuerungPruefen, aufraeumen };

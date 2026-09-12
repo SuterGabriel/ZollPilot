@@ -9,12 +9,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AkteAktionen } from './akte.aktionen';
 import { AkteDienst } from './akte.dienst';
-import { einreichen } from './akte.effekte';
-import { akteFeature } from './akte.reducer';
+import { einreichen, nachUebersteuerungPruefen } from './akte.effekte';
+import { akteFeature, anfangszustand, type AkteZustand } from './akte.reducer';
 import { BelegSpeicher } from './akte.speicher';
 import { ERGEBNIS_BLOCKIERT, STAMMDATEN, datei } from './testhilfen';
 
-function baueUmgebung(aktionen$: Observable<unknown>, dienstAntwort: Observable<unknown>) {
+function baueUmgebung(
+  aktionen$: Observable<unknown>,
+  dienstAntwort: Observable<unknown>,
+  zustand: Partial<AkteZustand> = {},
+) {
   const einreichenSpion = vi.fn().mockReturnValue(dienstAntwort);
   const speicher = new BelegSpeicher();
   const angenommen = speicher.annehmen([datei('rechnung.pdf'), datei('packliste.pdf')]);
@@ -23,7 +27,14 @@ function baueUmgebung(aktionen$: Observable<unknown>, dienstAntwort: Observable<
     providers: [
       provideMockActions(() => aktionen$ as Observable<never>),
       provideMockStore({
-        initialState: { [akteFeature.name]: { belege: angenommen.belege, abgelehnt: [], stand: 'laeuft', ergebnis: null, fehler: null } },
+        initialState: {
+          [akteFeature.name]: {
+            ...anfangszustand,
+            belege: angenommen.belege,
+            stand: 'laeuft',
+            ...zustand,
+          },
+        },
       }),
       { provide: AkteDienst, useValue: { einreichen: einreichenSpion } },
       { provide: BelegSpeicher, useValue: speicher },
@@ -102,5 +113,61 @@ describe('einreichen', () => {
       AkteAktionen.einreichungFehlgeschlagen.type,
       AkteAktionen.einreichungBeantwortet.type,
     ]);
+  });
+});
+
+const UEBERSTEUERUNG = {
+  regel: 'TRN-01',
+  fassung: '0.1.0@2026-09-12',
+  benutzer: 'G. Suter',
+  begruendung: 'Reederei hat den Umlad bestätigt',
+  erzeugt_am: '2026-09-12T10:00:00Z',
+};
+
+describe('nachUebersteuerungPruefen', () => {
+  beforeEach(() => TestBed.resetTestingModule());
+
+  it('prüft mit denselben Stammdaten und Belegen erneut, jetzt mit der Übersteuerung', async () => {
+    const aktionen$ = of(AkteAktionen.befundUebersteuert({ uebersteuerung: UEBERSTEUERUNG }));
+    const { einreichenSpion } = baueUmgebung(aktionen$, of(ERGEBNIS_BLOCKIERT), {
+      stammdaten: STAMMDATEN,
+      uebersteuerungen: [UEBERSTEUERUNG],
+    });
+
+    await new Promise<void>((fertig) =>
+      TestBed.runInInjectionContext(() => nachUebersteuerungPruefen()).subscribe(() => fertig()),
+    );
+
+    const [stammdaten, dateien, uebersteuerungen] = einreichenSpion.mock.calls[0];
+    expect(stammdaten).toBe(STAMMDATEN);
+    expect((dateien as File[]).map((d) => d.name)).toEqual(['rechnung.pdf', 'packliste.pdf']);
+    expect(uebersteuerungen).toEqual([UEBERSTEUERUNG]);
+  });
+
+  it('prüft auch nach dem Zurücknehmen erneut — dann ohne die Übersteuerung', async () => {
+    const aktionen$ = of(AkteAktionen.uebersteuerungZurueckgenommen({ regel: 'TRN-01' }));
+    const { einreichenSpion } = baueUmgebung(aktionen$, of(ERGEBNIS_BLOCKIERT), {
+      stammdaten: STAMMDATEN,
+      uebersteuerungen: [],
+    });
+
+    await new Promise<void>((fertig) =>
+      TestBed.runInInjectionContext(() => nachUebersteuerungPruefen()).subscribe(() => fertig()),
+    );
+
+    expect(einreichenSpion.mock.calls[0][2]).toEqual([]);
+  });
+
+  it('scheitert benannt, wenn es gar keine eingereichte Akte gibt', async () => {
+    const aktionen$ = of(AkteAktionen.befundUebersteuert({ uebersteuerung: UEBERSTEUERUNG }));
+    const { einreichenSpion } = baueUmgebung(aktionen$, of(ERGEBNIS_BLOCKIERT), { stammdaten: null });
+
+    const aktion = (await new Promise<unknown>((loesen) =>
+      TestBed.runInInjectionContext(() => nachUebersteuerungPruefen()).subscribe(loesen),
+    )) as ReturnType<typeof AkteAktionen.einreichungFehlgeschlagen>;
+
+    expect(einreichenSpion).not.toHaveBeenCalled();
+    expect(aktion.type).toBe(AkteAktionen.einreichungFehlgeschlagen.type);
+    expect(aktion.meldung).toContain('Keine eingereichte Akte');
   });
 });

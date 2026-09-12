@@ -1,0 +1,93 @@
+@if (verantwortet(); as wer) {
+  <p class="verantwortet">
+    <span class="marke" aria-hidden="true"></span>
+    <span class="wer">Verantwortet von {{ wer }}</span>
+    @if (befund().uebersteuert_am) {
+      <span class="leise">am {{ zeitText(befund().uebersteuert_am) }}</span>
+    }
+  </p>
+  <p class="grund">„{{ befund().uebersteuerungsgrund }}"</p>
+  <p class="leise">
+    Der Befund bleibt bestehen. Die Übersteuerung ändert nur, was unter menschlicher
+    Verantwortung freigegeben ist — nicht, was die Regel sagt.
+  </p>
+  <!-- Der Zusatz steht im `aria-label`, nicht in einem eigenen Element: Ein
+       Kindknoten trägt seinen Beitrag zum zugänglichen Namen immer mit einem
+       trennenden Leerzeichen bei („zurücknehmen : TRN-01"). Der sichtbare
+       Text bleibt im Namen enthalten (WCAG 2.5.3). -->
+  <button
+    type="button"
+    class="zweitrangig"
+    [disabled]="laeuft()"
+    [attr.aria-label]="'Übersteuerung zurücknehmen: ' + kennung()"
+    (click)="zuruecknehmen()"
+  >
+    Übersteuerung zurücknehmen
+  </button>
+} @else if (offen()) {
+  <div class="formular">
+    <p class="warnung">
+      Das Namensfeld ist keine Anmeldung. Es prüft nichts und beweist nichts — es hält
+      fest, wer die Freigabe verantwortet.
+    </p>
+
+    <label [for]="'benutzer-' + kennung()">Ihr Name</label>
+    <input
+      [id]="'benutzer-' + kennung()"
+      type="text"
+      autocomplete="name"
+      [ngModel]="benutzer()"
+      (ngModelChange)="benutzer.set($event)"
+    />
+
+    <label [for]="'begruendung-' + kennung()">
+      Begründung <span class="leise">(mindestens {{ mindestlaenge }} Zeichen)</span>
+    </label>
+    <textarea
+      [id]="'begruendung-' + kennung()"
+      rows="3"
+      [attr.aria-describedby]="'sperre-' + kennung()"
+      [ngModel]="begruendung()"
+      (ngModelChange)="begruendung.set($event)"
+    ></textarea>
+
+    <p class="leise">
+      Haftet an <span class="fest">{{ kennung() }}</span>, Fassung
+      <span class="fest">{{ fassung() }}</span>. Ändert sich der Katalog, ist die
+      Entscheidung verbraucht und muss neu getroffen werden.
+    </p>
+
+    <p [id]="'sperre-' + kennung()" class="sperre" aria-live="polite">
+      {{ grundDerSperre() }}
+    </p>
+
+    <p class="schaltflaechen">
+      <button type="button" [disabled]="grundDerSperre() !== null" (click)="uebersteuern()">
+        Übersteuern und erneut prüfen
+      </button>
+      <button type="button" class="zweitrangig" (click)="schliessen()">Abbrechen</button>
+    </p>
+  </div>
+} @else {
+  <button
+    type="button"
+    class="zweitrangig"
+    [disabled]="laeuft()"
+    [attr.aria-label]="'Übersteuern: ' + kennung()"
+    (click)="oeffnen()"
+  >
+    Übersteuern
+  </button>
+}
+
+@if (verbraucht().length > 0) {
+  <ul class="verbraucht">
+    @for (alt of verbraucht(); track alt.fassung + alt.benutzer) {
+      <li>
+        Verbraucht: {{ alt.benutzer }} hat am {{ zeitText(alt.erzeugt_am) }} gegen Fassung
+        <span class="fest">{{ alt.fassung }}</span> entschieden. Der Katalog hat sich
+        seitdem geändert — die Entscheidung galt einer anderen Regel.
+      </li>
+    }
+  </ul>
+}

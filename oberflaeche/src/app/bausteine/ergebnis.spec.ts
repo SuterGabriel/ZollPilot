@@ -7,7 +7,7 @@ import { provideMockStore } from '@ngrx/store/testing';
 import { describe, expect, it } from 'vitest';
 
 import { akteFeature, anfangszustand, type AkteZustand } from '../akte/akte.reducer';
-import { ERGEBNIS_BLOCKIERT, ERGEBNIS_FREI } from '../akte/testhilfen';
+import { ERGEBNIS_BLOCKIERT, ERGEBNIS_FREI, ERGEBNIS_UEBERSTEUERT } from '../akte/testhilfen';
 import { Ergebnis } from './ergebnis';
 
 const ZEIT = '2026-09-12T14:22:00.000Z';
@@ -108,6 +108,7 @@ describe('Ergebnis', () => {
             begruendung: 'nachgewiesen',
             akzeptierte_nachweise: ['origin_declaration'],
             rechtsgrundlage: 'Art. 64 UZK',
+            fassung: '0.1.0@2026-09-12',
             quelle: 'UE-1',
           },
         ],
@@ -158,5 +159,21 @@ describe('Rückverfolgbarkeit', () => {
   it('lässt sie weg, wenn die Akte nicht über den Workflow kam', () => {
     const ohne = { ...ERGEBNIS_BLOCKIERT, ausfuehrung: null };
     expect(text(fertig(ohne))).not.toContain('Ausführung');
+  });
+});
+
+describe('Ergebnis und Übersteuerung', () => {
+  it('bietet an jedem offenen Befund das Übersteuern an', () => {
+    expect(text(fertig())).toContain('Übersteuern');
+  });
+
+  it('zeigt bei abweichenden Entscheidungen beide — die Regel und die Verantwortung', () => {
+    const inhalt = text(fertig(ERGEBNIS_UEBERSTEUERT));
+    expect(inhalt).toContain('Das Regelwerk allein sagt');
+    expect(inhalt).toContain('Blockiert');
+    expect(inhalt).toContain('Freigabereif');
+    expect(inhalt).toContain('Verantwortet von G. Suter');
+    // Der Befund steht unverändert daneben.
+    expect(inhalt).toContain('verletzt');
   });
 });

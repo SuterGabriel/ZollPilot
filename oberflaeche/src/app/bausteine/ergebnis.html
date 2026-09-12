@@ -67,11 +67,25 @@
   <section class="ergebnis">
     <h2 #ueberschrift tabindex="-1" class="nur-vorlesen">Ergebnis der Prüfung</h2>
 
-    <div class="band" [class]="gepruefteAkte.freigabe">
+    <!-- Das Band zeigt die Entscheidung, die gilt: mit den Übersteuerungen,
+         wenn es welche gibt. Was das Regelwerk allein gesagt hat, steht
+         darunter — und verschwindet nie (ADR-007). -->
+    <div class="band" [class]="gepruefteAkte.freigabe_nach_override">
       <p class="entscheidung">
         <span class="marke" aria-hidden="true"></span>
-        <span class="wort">{{ freigabeText(gepruefteAkte.freigabe) }}</span>
+        <span class="wort">{{ freigabeText(gepruefteAkte.freigabe_nach_override) }}</span>
       </p>
+      @if (freigabeUnterschied(); as unterschied) {
+        <p class="unterschied">
+          Das Regelwerk allein sagt <strong>{{ freigabeText(unterschied.ohne) }}</strong>.
+          Die Freigabe gilt, weil
+          {{ uebersteuerteBefunde().length }}
+          {{ uebersteuerteBefunde().length === 1 ? 'Befund' : 'Befunde' }}
+          von einem Menschen verantwortet
+          {{ uebersteuerteBefunde().length === 1 ? 'wird' : 'werden' }}. Die Befunde
+          stehen unverändert weiter unten.
+        </p>
+      }
       <p class="leise">
         Akte {{ gepruefteAkte.akte_id }} · Katalog {{ gepruefteAkte.katalog_version }} ·
         Stichtag {{ gepruefteAkte.stichtag }}
@@ -188,6 +202,11 @@
                 <span class="quelle">({{ rechtsquelleText(befund.rechtsquelle_status) }})</span> ·
                 Regelversion <span class="fest">{{ befund.regelversion }}</span>
               </p>
+              <app-uebersteuerung
+                [kennung]="befund.regel"
+                [fassung]="befund.regelversion"
+                [befund]="befund"
+              />
             </li>
           }
         </ul>
@@ -220,6 +239,7 @@
               <p class="begruendung">{{ befund.begruendung }}</p>
               <p class="leise">Akzeptiert wird: {{ befund.akzeptierte_nachweise.join(' oder ') }}</p>
               <p class="verweis">{{ befund.rechtsgrundlage }}</p>
+              <app-uebersteuerung [kennung]="befund.id" [fassung]="befund.fassung" [befund]="befund" />
             </li>
           }
         </ul>
