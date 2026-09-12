@@ -1,0 +1,90 @@
+/* Die Ansicht füllt, was Kopf und Fuß übrig lassen (app.css), und gibt es
+ * an ihre zwei Spalten weiter. `min-height: 0` ist die Bedingung dafür,
+ * dass ein Flex- oder Rasterkind überhaupt kleiner werden darf als sein
+ * Inhalt. Ohne das wächst die Spalte und schiebt den Fuß aus dem Bild. */
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.seitenkopf,
+.flaeche {
+  max-width: 1400px;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--mass-8);
+}
+
+/* Oben nur vier Pixel: Die Kopfzeile trägt schon ihren Abstand. Der
+ * Untertitel ist ein Satz und darf breiter laufen als das Zeilenmaß für
+ * Prosa, damit er bei 1440 px eine Zeile bleibt; jede zweite Zeile hier
+ * fehlt der Aktenspalte darunter (siehe den Höhentest bei 900 px). */
+.seitenkopf {
+  padding-block: var(--mass-1) 0;
+}
+
+h1 {
+  margin: 0 0 var(--mass-2);
+  font-size: 28px;
+}
+
+.untertitel {
+  margin: 0;
+  max-width: none;
+  color: var(--ton-text-mittel);
+}
+
+main.ansicht {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.flaeche {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--aktenspalte) minmax(0, 1fr);
+  gap: var(--mass-8);
+  /* `stretch`, damit beide Spalten die Höhe der Fläche bekommen; erst das
+   * macht ihr eigenes Scrollen möglich. Gestapelt wäre es sinnlos. */
+  align-items: stretch;
+  padding-block: var(--mass-4) var(--mass-3);
+}
+
+@media (min-width: 1024px) {
+  /* Das Innenmaß fängt den Fokusring auf (2 px Strich, 2 px Abstand): Eine
+   * scrollende Spalte würde ihn sonst abschneiden. Der negative Außenabstand
+   * nimmt es optisch wieder zurück, damit die Spaltenbreite dieselbe bleibt. */
+  .akte,
+  .ergebnis-spalte {
+    overflow: auto;
+    min-height: 0;
+    /* `relative` ist hier keine Kosmetik, sondern die Bedingung dafür, dass
+     * der Zuschnitt überhaupt greift: Die `.nur-vorlesen`-Elemente sind
+     * absolut positioniert, und ohne positionierten Vorfahren ist ihr
+     * umschließender Block die Seite. Sie entkommen dann dem Überlauf der
+     * Spalte und ziehen die Seite auf, unsichtbar, aber mit Rollbalken. */
+    position: relative;
+    scrollbar-gutter: stable;
+    padding-inline: var(--mass-1);
+    margin-inline: calc(var(--mass-1) * -1);
+  }
+}
+
+/* Unter 1024 px stapeln die Spalten; die Akte steht dann oben und scrollt
+ * mit, weil zwei gleichzeitig sichtbare Spalten dort nicht passen. */
+@media (max-width: 1023px) {
+  .flaeche {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--mass-5);
+  }
+
+  .seitenkopf,
+  .flaeche {
+    padding-inline: var(--mass-4);
+  }
+}

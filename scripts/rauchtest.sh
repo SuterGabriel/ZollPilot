@@ -175,6 +175,15 @@ else
   printf '  ROT   %-32s bekommen "%s", HTTP %s\n' "TRN-01 übersteuert" "$befund" "$code"
   fehler=$((fehler + 1))
 fi
+# Die Übersicht (`docs/entwurf/04-uebersicht.md`): über den Proxy, hinter der
+# Anmeldung, liefert /webhook/akten die geprüften Akten mit Bilanz.
+uebersicht=$(curl -fsS -u "$zugang" "$oberflaeche/webhook/akten" 2>/dev/null | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const j=JSON.parse(s);console.log(j.akten.length+' '+j.zusammenfassung.akten+' '+(Array.isArray(j.unzugeordnet)?'ok':'x'))}catch{console.log('KEINE ANTWORT')}})")
+if [[ "$uebersicht" =~ ^([0-9]+)\ ([0-9]+)\ ok$ && "${BASH_REMATCH[1]}" -ge 8 ]]; then
+  printf '  ok    %-32s %s Akten mit Bilanz und Posteingang\n' "Übersicht über nginx" "${BASH_REMATCH[1]}"
+else
+  printf '  ROT   %-32s bekommen "%s"\n' "Übersicht über nginx" "$uebersicht"
+  fehler=$((fehler + 1))
+fi
 # Direkt am Webhook ist der Name eine Angabe. Hinter dem Proxy ersetzt der
 # geprüfte Benutzername den getippten, und der Befund sagt, woher er stammt
 # (ADR-009). Wer den Audit-Eintrag liest, sieht den Unterschied.

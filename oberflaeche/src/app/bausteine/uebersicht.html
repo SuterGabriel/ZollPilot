@@ -1,0 +1,103 @@
+<main class="uebersicht" aria-labelledby="uebersicht-titel">
+  <div class="seitenkopf">
+    <h1 id="uebersicht-titel" tabindex="-1">Übersicht</h1>
+    <p class="untertitel">
+      Alle geprüften Akten, ihre offenen Nachforderungen und die Post, die keiner Akte
+      zuzuordnen war. Die Zahlen kommen aus Postgres; entschieden wird hier nichts.
+    </p>
+    <p class="laden">
+      <button type="button" [disabled]="laeuft()" (click)="laden()">Neu laden</button>
+      <span class="leise" aria-live="polite">{{ standText() }}</span>
+    </p>
+  </div>
+
+  @if (fehler(); as meldung) {
+    <p role="alert" class="fehler">{{ meldung }}</p>
+  }
+
+  @if (zusammenfassung(); as z) {
+    <dl class="bilanz">
+      <div><dt>Akten</dt><dd>{{ z.akten }}</dd></div>
+      <div><dt>Blockiert</dt><dd class="stand-blockiert">{{ z.blockiert }}</dd></div>
+      <div><dt>Freigabereif</dt><dd class="stand-freigabereif">{{ z.freigabereif }}</dd></div>
+      <div><dt>Offene Nachforderungen</dt><dd>{{ z.nachforderungen_offen }}</dd></div>
+      <div><dt>Unzugeordnete Post</dt><dd>{{ z.unzugeordnet }}</dd></div>
+    </dl>
+  } @else if (laeuft()) {
+    <p class="platzhalter" aria-hidden="true">Bilanz</p>
+  }
+
+  <section class="block" aria-labelledby="akten-titel">
+    <h2 id="akten-titel">Akten <span class="zahl">{{ akten().length }}</span></h2>
+    @if (akten().length === 0) {
+      <p class="leise">{{ laeuft() ? 'Lädt …' : (fehler() ? 'Nicht bekannt, weil das Laden gescheitert ist.' : 'Noch keine Akte geprüft.') }}</p>
+    } @else {
+      <div class="tabelle">
+        <table>
+          <caption class="nur-vorlesen">Geprüfte Akten mit Entscheidung, Belegen und offenen Nachforderungen, jüngste zuerst</caption>
+          <thead>
+            <tr>
+              <th scope="col">Akte</th>
+              <th scope="col">Entscheidung</th>
+              <th scope="col">Zuletzt geprüft</th>
+              <th scope="col" class="zahl-spalte">Belege</th>
+              <th scope="col" class="zahl-spalte">Offene Nachforderungen</th>
+              <th scope="col">Letzte Stufe</th>
+              <th scope="col">Zoll-Cut-off</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of akten(); track a.akte_id) {
+              <tr>
+                <th scope="row" class="fest">{{ a.akte_id }}</th>
+                <td><span class="stand" [class]="'stand stand-' + a.status">{{ freigabeText(a.status) }}</span></td>
+                <td>{{ zeitText(a.zuletzt_geprueft_am) }}</td>
+                <td class="zahl-spalte">{{ a.belege }}</td>
+                <td class="zahl-spalte">{{ a.nachforderungen_offen }}</td>
+                <td>{{ a.nachforderungen_offen > 0 ? stufeText(a.letzte_stufe) : '' }}</td>
+                <td>{{ zeitText(a.customs_cutoff) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <section class="block" aria-labelledby="post-titel">
+    <h2 id="post-titel">Unzugeordnete Post <span class="zahl">{{ unzugeordnet().length }}</span></h2>
+    @if (unzugeordnet().length === 0) {
+      <p class="leise">{{ laeuft() ? 'Lädt …' : (fehler() ? 'Nicht bekannt, weil das Laden gescheitert ist.' : 'Keine Post ohne Akte.') }}</p>
+    } @else {
+      <div class="tabelle">
+        <table>
+          <caption class="nur-vorlesen">Mails am Eingang, die keiner Akte zugeordnet werden konnten, mit Grund</caption>
+          <thead>
+            <tr>
+              <th scope="col">Eingang</th>
+              <th scope="col">Von</th>
+              <th scope="col">Betreff</th>
+              <th scope="col">Grund</th>
+              <th scope="col" class="zahl-spalte">Anhänge</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of unzugeordnet(); track m.id) {
+              <tr>
+                <td>{{ zeitText(m.empfangen_am) }}</td>
+                <td>{{ m.von }}</td>
+                <td>{{ m.betreff }}</td>
+                <td>{{ m.grund }}</td>
+                <td class="zahl-spalte">{{ m.anhaenge }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="leise">
+        Zuordnen geht hier nicht: Das wäre eine Handlung mit Folgen für die Akte, und dafür
+        gibt es noch keinen Weg (docs/OFFENE-PUNKTE.md).
+      </p>
+    }
+  </section>
+</main>

@@ -2,6 +2,8 @@
 // nicht verändern (ADR-007). Die Tests prüfen beides: was auf dem Schirm
 // steht und welche Aktion den Store erreicht.
 
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { describe, expect, it, vi } from 'vitest';
@@ -15,7 +17,11 @@ function baue(befund: Uebersteuert, zustand: Partial<AkteZustand> = {}) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [Uebersteuerung],
-    providers: [provideMockStore({ initialState: { [akteFeature.name]: { ...anfangszustand, ...zustand } } })],
+    providers: [
+      provideMockStore({ initialState: { [akteFeature.name]: { ...anfangszustand, ...zustand } } }),
+      provideHttpClient(),
+      provideHttpClientTesting(),
+    ],
   });
   const fixture = TestBed.createComponent(Uebersteuerung);
   fixture.componentRef.setInput('kennung', 'TRN-01');

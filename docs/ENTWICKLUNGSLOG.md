@@ -746,3 +746,35 @@ stillschweigend verwerfen, auf den Kommunikationskanal angewandt.
 Tage, vor allem für das Ablegen der Akte und die Zusammenführung, die
 ohne den vorhandenen eigenen Node und den Wiedervorlage-Zugriff auf beide
 Ausgänge länger gedauert hätte. Schätzung, keine Messung.
+
+## 2026-09-13: Stufe 6, vierter Teil: der zweite Bildschirm
+
+**Was delegiert wurde.** Die Übersicht aus ADR-009: ein Entwurf als
+Dokument zuerst (`docs/entwurf/04-uebersicht.md`), dann ein Lese-Webhook
+in n8n, ein Router mit zwei Ansichten, die Anmeldung aus `/wer` in der
+Kopfzeile und als Vorgabe beim Übersteuern, der Übersichtsbaustein mit
+Zustand, Dienst und Effekt, Tests ohne Browser, axe und Tastatur im
+Browser, Runde 3 des Rauchtests über den Proxy.
+
+**Die Entscheidung, an der alles hängt.** Der Titel der Ansicht wandert
+aus der Kopfzeile in die Ansicht. Sonst hätte die Navigation die
+Kopfzeile höher gemacht, und jede Zeile dort fehlt der Aktenspalte. Der
+Höhentest bei 900 px war deshalb dreimal rot, um elf, dann drei Pixel;
+grün wurde er, als der Untertitel auf einer Zeile laufen durfte.
+
+**Was nicht funktionierte.** axe meldete auf jeder Ansicht der Prüfakte
+denselben Verstoß: Seitenkopf und Sprungmarke lagen außerhalb jeder
+Landmarke, weil der Umbau sie zwischen Kopfzeile und `main` gesetzt
+hatte. Der Kopf gehört ins `main`, die Sprungmarke an den Anfang der
+Seite, wo sie als erster Halt vor der Navigation steht und nur dort
+erscheint, wo es ein Ergebnis gibt. Zwei Testerwartungen waren falsch:
+Der Testclient wandelt einen leeren Text nicht in ein Blob, und das Wort
+des Regelwerks heißt „Blockiert“, nicht „blockiert“.
+
+**Was die Testsuite abgefangen hat.** Den Landmarken-Verstoß in fünf
+Ansichten auf einmal, bevor jemand ihn hätte sehen müssen; und den
+Höhenverlust, den ein Umbau der Kopfzeile still gekostet hätte.
+
+**Zeitschätzung.** Delegiert: gut eine Stunde. Von Hand: zwei Tage, mit
+dem Router, dem zweiten Store-Feature und den Tests. Schätzung, keine
+Messung.

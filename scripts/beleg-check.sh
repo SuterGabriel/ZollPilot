@@ -283,6 +283,10 @@ pruefe "Posteingang-Workflow existiert" datei workflows/zollpilot-eingang.json
 pruefe "Posteingang liest per IMAP" enthaelt workflows/zollpilot-eingang.json '"type": "n8n-nodes-base.emailReadImap"'
 pruefe "Eine Mail ohne Akte wird festgehalten, nicht verworfen" enthaelt deploy/postgres/init.sql "CREATE TABLE mail_eingang"
 pruefe "Rauchtest schickt eine Antwort per Mail" enthaelt scripts/rauchtest.sh "Runde 9"
+pruefe "Die Übersicht hat einen Entwurf, bevor sie gebaut wurde" datei docs/entwurf/04-uebersicht.md
+pruefe "Lese-Workflow für die Übersicht" datei workflows/zollpilot-lesen.json
+pruefe "Übersicht ist axe-geprüft" datei oberflaeche/e2e/uebersicht.spec.ts
+pruefe "Rauchtest ruft die Übersicht über den Proxy" enthaelt scripts/rauchtest.sh "Übersicht über nginx"
 
 echo
 echo "Prozessdokumentation — Landschaft, Datenfluss, Handbuch"

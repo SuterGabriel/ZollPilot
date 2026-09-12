@@ -16,6 +16,7 @@ import { Store } from '@ngrx/store';
 import { AkteAktionen } from '../akte/akte.aktionen';
 import { MINDESTLAENGE_BEGRUENDUNG, type Uebersteuert } from '../akte/akte.modell';
 import { waehleLaeuft, waehleLetzterBenutzer } from '../akte/akte.reducer';
+import { AnmeldungDienst } from '../anmeldung/anmeldung.dienst';
 
 const ZEITFORM: Intl.DateTimeFormatOptions = {
   day: '2-digit',
@@ -49,6 +50,10 @@ export class Uebersteuerung {
   readonly begruendung = signal('');
 
   readonly #letzterBenutzer = this.#store.selectSignal(waehleLetzterBenutzer);
+  readonly #anmeldung = inject(AnmeldungDienst);
+
+  /** Der geprüfte Name vom Proxy (ADR-009), wenn es einen gibt. */
+  readonly angemeldet = this.#anmeldung.benutzer;
 
   readonly verantwortet = computed(() => this.befund().uebersteuert_von ?? null);
   readonly verbraucht = computed(() => this.befund().uebersteuerung_verbraucht ?? []);
@@ -68,7 +73,9 @@ export class Uebersteuerung {
   });
 
   oeffnen(): void {
-    this.benutzer.set(this.#letzterBenutzer());
+    // Vorgabe ist der geprüfte Name, sonst der zuletzt getippte. Hinter dem
+    // Proxy ersetzt der geprüfte Name das Feld ohnehin; die Vorgabe zeigt es.
+    this.benutzer.set(this.#anmeldung.benutzer() ?? this.#letzterBenutzer());
     this.begruendung.set('');
     this.offen.set(true);
   }

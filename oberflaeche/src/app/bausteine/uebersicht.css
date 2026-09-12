@@ -1,0 +1,169 @@
+/* Eine Spalte, volle Breite. Ab 1024 px ist das Fenster festgenagelt
+ * (app.css); dann scrollt diese Ansicht in sich, nicht die Seite. */
+:host {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.uebersicht {
+  max-width: 1400px;
+  margin-inline: auto;
+  padding: var(--mass-3) var(--mass-8) var(--mass-4);
+}
+
+h1 {
+  margin: 0 0 var(--mass-2);
+  font-size: 28px;
+}
+
+.untertitel {
+  margin: 0 0 var(--mass-3);
+  max-width: var(--zeilenmass);
+  color: var(--ton-text-mittel);
+}
+
+.laden {
+  display: flex;
+  align-items: center;
+  gap: var(--mass-3);
+  margin: 0 0 var(--mass-4);
+}
+
+.fehler {
+  margin: 0 0 var(--mass-4);
+  padding: var(--mass-3) var(--mass-4);
+  border: 1px solid var(--ton-blockiert-rand);
+  background: var(--ton-blockiert-flaeche);
+  color: var(--ton-blockiert);
+}
+
+/* Die Bilanz: fünf Zahlen in einer Zeile, jede mit ihrem Wort darüber. */
+.bilanz {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mass-4);
+  margin: 0 0 var(--mass-5);
+  padding: 0;
+}
+
+.bilanz div {
+  min-width: 140px;
+  padding: var(--mass-3) var(--mass-4);
+  background: var(--ton-grund);
+  border: 1px solid var(--ton-haarlinie);
+}
+
+.bilanz dt {
+  font-family: var(--schrift-fest);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: var(--groesse-rubrik);
+  color: var(--ton-text-leise);
+}
+
+.bilanz dd {
+  margin: var(--mass-1) 0 0;
+  font-size: var(--groesse-entscheidung);
+  line-height: 1.1;
+}
+
+.platzhalter {
+  margin: 0 0 var(--mass-5);
+  min-height: 84px;
+  border: 1px dashed var(--ton-haarlinie);
+  color: transparent;
+}
+
+.block {
+  margin: 0 0 var(--mass-5);
+}
+
+.block h2 {
+  font-size: var(--groesse-titel);
+  margin: 0 0 var(--mass-2);
+}
+
+.zahl {
+  font-family: var(--schrift-fest);
+  font-weight: normal;
+  color: var(--ton-text-leise);
+  margin-inline-start: var(--mass-2);
+}
+
+/* Tabellen scrollen in ihrem Behälter; die Seite nie waagerecht. */
+.tabelle {
+  overflow-x: auto;
+  background: var(--ton-grund);
+  border: 1px solid var(--ton-haarlinie);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--groesse-wert);
+}
+
+th,
+td {
+  padding: var(--mass-2) var(--mass-3);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--ton-zeilentrennung);
+}
+
+thead th {
+  font-family: var(--schrift-fest);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: var(--groesse-rubrik);
+  color: var(--ton-text-leise);
+  font-weight: normal;
+}
+
+tbody th {
+  font-weight: normal;
+}
+
+.fest {
+  font-family: var(--schrift-fest);
+}
+
+.zahl-spalte {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.leise {
+  color: var(--ton-text-leise);
+}
+
+/* Die Entscheidung ist ein Wort; die Farbe ist die Zugabe, nie allein. Die
+ * Töne sind die der Prüfakte (styles.css), dort mit nachgerechnetem
+ * Kontrast auf dem Grund. */
+.stand {
+  font-weight: 600;
+}
+
+.stand-freigabereif {
+  color: var(--ton-frei);
+}
+
+.stand-freigabe_mit_warnungen {
+  color: var(--ton-warnung);
+}
+
+.stand-nachextraktion_erforderlich {
+  color: var(--ton-nachlese);
+}
+
+.stand-blockiert {
+  color: var(--ton-blockiert);
+}
+
+@media (max-width: 1023px) {
+  .uebersicht {
+    padding-inline: var(--mass-4);
+  }
+}

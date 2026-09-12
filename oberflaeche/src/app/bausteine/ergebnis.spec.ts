@@ -2,6 +2,8 @@
 // ankommen, die Reihenfolge muss der Handlungsnähe folgen, und der Fokus
 // muss nach dem Absenden dorthin wandern.
 
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideMockStore } from '@ngrx/store/testing';
 import { describe, expect, it } from 'vitest';
@@ -16,7 +18,11 @@ function baue(zustand: Partial<AkteZustand>) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [Ergebnis],
-    providers: [provideMockStore({ initialState: { [akteFeature.name]: { ...anfangszustand, ...zustand } } })],
+    providers: [
+      provideMockStore({ initialState: { [akteFeature.name]: { ...anfangszustand, ...zustand } } }),
+      provideHttpClient(),
+      provideHttpClientTesting(),
+    ],
   });
   const fixture = TestBed.createComponent(Ergebnis);
   fixture.detectChanges();
