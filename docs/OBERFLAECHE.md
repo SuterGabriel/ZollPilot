@@ -117,10 +117,12 @@ bash scripts/rauchtest.sh     # Runde 3 schickt eine Akte durch den Proxy
   das Ergebnis; ein zweiter Beleg zur selben Sendung beginnt einen neuen
   Vorgang. Es gibt keine Aktenidentität über die Zeit — das ist offene
   Frage 2 in `PROJECT.md`, umgangen und nicht gelöst.
-- **Kein Übersteuern, kein Korrigieren.** Man sieht einen Befund, aber man
-  kann ihn nicht mit Name und Begründung übersteuern und keinen falsch
-  gelesenen Wert richtigstellen. Die Tabelle `override` existiert, der Weg
-  dorthin nicht. Das ist der Review-Arbeitsplatz, Stufe 5.
+- **Kein Korrigieren.** Übersteuern geht seit Stufe 5: Jeder offene Befund
+  und jeder Pflichteintrag lässt sich mit Name und Begründung verantworten,
+  die Akte wird danach erneut geprüft, und beide Entscheidungen stehen
+  nebeneinander (ADR-007). Was fehlt, ist die andere Hälfte: Ein falsch
+  gelesener Wert lässt sich nicht richtigstellen. Wer einen Lesefehler sieht,
+  kann ihn nur verantworten, nicht beheben.
 - **Keine Fundstelle am Beleg.** Jede Assertion trägt Seite und Bounding
   Box, aber die Oberfläche zeigt das PDF nicht an und markiert nichts
   darin. Ohne das bleibt "nachlesen" eine Aufforderung ohne Werkzeug.

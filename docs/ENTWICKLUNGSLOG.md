@@ -338,3 +338,55 @@ Agentenzeit, davon ein gutes Stück Docker- und Browser-Installation. Von
 Hand geschätzt: zwei bis drei Tage — der Zustand und die Komponenten sind
 schnell, die Barrierefreiheitsprüfung mit echten Läufen, die nginx-Kette und
 die Nachführung der elf Dokumente sind es nicht. Schätzung, keine Messung.
+
+## 2026-09-12 — Stufe 5: übersteuern, ohne umzuentscheiden
+
+**Was delegiert wurde.** „Machen wir Stufe 5" — und daraus: ADR-007,
+`src/override.mjs`, die Verdrahtung im Regelwerk, das Schema, der Weg durch
+den Workflow und der Baustein in der Oberfläche, mit dem ein Mensch
+verantwortet.
+
+**Die Entscheidung, an der alles hängt.** Ein Override ändert den Befund
+nicht. Er bleibt `verletzt`, und daneben steht, wer die Freigabe
+verantwortet. Das Ergebnis trägt deshalb zwei Sätze: `freigabe` ist, was das
+Regelwerk sagt, `freigabe_nach_override` ist, was unter menschlicher
+Verantwortung gilt. Die Versuchung war, einen Befund auf `ok` zu setzen —
+das wäre eine Zeile weniger gewesen und hätte die Beweiskette zerschnitten.
+Nach drei Jahren fragt eine Zollprüfung nicht „war die Akte frei", sondern
+„welche Regel galt, was sagte sie, wer ist darüber hinweg". Nur die zweite
+Frage lässt sich beantworten, wenn der Befund stehen bleibt.
+
+**Der Satz, der dazugehört.** Ein Override haftet an einer Kennung *und*
+einer Fassung. Ändert sich der Katalog, ist er verbraucht — die Person hat
+eine andere Regel verantwortet als die, die jetzt gilt. Das ist unbequem und
+richtig. Verbrauchte Overrides verschwinden nicht, sie werden gemeldet.
+
+**Wo der Transport eine eigene Entscheidung brauchte.** Der Webhook
+antwortet 200 nur für freigabereif. Folgt der Statuscode `freigabe`, bekommt
+eine verantwortete Akte für immer 422. Er folgt jetzt
+`freigabe_nach_override`: Der Rumpf trägt beide Sätze unverändert, der
+Statuscode sagt dem Aufrufer nur, was er tun soll. Ohne Übersteuerung sind
+beide gleich, also ändert sich für jeden bestehenden Aufrufer nichts.
+
+**Was zuerst falsch war.** Der Knopf „Übersteuern" bekam seinen Zusatz über
+ein `nur-vorlesen`-Element — und hieß im Barrierefreiheitsbaum
+„Übersteuern : TRN-01", mit Leerzeichen vor dem Doppelpunkt. Die erste
+Vermutung war der Zeilenumbruch im Template; falsch. Chrome trennt die
+Beiträge von Kindknoten grundsätzlich mit einem Leerzeichen. Der Zusatz
+steht jetzt im `aria-label`. Gefunden hat es der Ende-zu-Ende-Test, nicht
+das Lesen.
+
+**Die alte Lehre, wieder nicht gelernt.** Zweimal in dieser Sitzung wurde
+eine Datei per Suchen-und-Ersetzen geändert, statt sie zu bearbeiten. Beim
+ersten Mal wurden aus Testnamen Umlaute — und gleich mit aus
+`zaehltTrotzUebersteuerung` ein `zähltTrotzÜbersteuerung`. Beim zweiten Mal
+blieb ein `baue({}))` mit einer Klammer zu viel stehen. Beides fiel sofort
+auf, weil Gates laufen. Der Eintrag steht hier trotzdem: Die Lehre ist seit
+drei Sitzungen aufgeschrieben und wird trotzdem nicht befolgt.
+
+**Was offen blieb.** Übersteuern ist gebaut, Korrigieren nicht: Ein falsch
+gelesener Wert lässt sich verantworten, aber nicht richtigstellen. Das
+Namensfeld ist keine Anmeldung und sagt das auch auf dem Bildschirm — vor
+jedem Betrieb außerhalb der eigenen Maschine ist das ein Blocker. Und wer
+erfährt, dass eine Katalogänderung Overrides verbraucht hat, ist niemand:
+Es fällt erst bei der nächsten Prüfung derselben Akte auf.

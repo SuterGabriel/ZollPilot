@@ -105,14 +105,14 @@ den laufenden Stack, Runde 2.
 
 ## Was bewusst nicht gebaut wird
 
-- **Kein Review-Arbeitsplatz.** Die Oberfläche kann einreichen und lesen
-  (`docs/OBERFLAECHE.md`), nicht eingreifen: Ein Befund lässt sich nicht mit
-  Name und Begründung übersteuern, ein falsch gelesener Wert nicht
-  richtigstellen, eine Nachextraktion nicht zurück in die Prüfung schicken.
-  Die Tabelle `override` existiert, der Weg dorthin nicht. Das ist Stufe 5 —
-  und sie setzt voraus, dass geklärt ist, wer die Akte führt (PO, Rechnung,
-  Container oder MRN — offene Frage 2 in `PROJECT.md`). Deshalb zeigt die
-  heutige Oberfläche einen Vorgang, keine Akte.
+- **Kein vollständiger Review-Arbeitsplatz.** Übersteuern ist gebaut
+  (Stufe 5, ADR-007): Ein Befund lässt sich mit Name und Begründung
+  verantworten, und die Prüfung läuft danach erneut. Nicht gebaut ist das
+  Korrigieren — ein falsch gelesener Wert lässt sich nicht richtigstellen,
+  eine Nachextraktion nicht zurück in die Prüfung schicken. Das setzt
+  voraus, dass geklärt ist, wer die Akte führt (PO, Rechnung, Container oder
+  MRN — offene Frage 2 in `PROJECT.md`). Deshalb zeigt die heutige
+  Oberfläche einen Vorgang, keine Akte.
 - **Kein Vision-Modell in der Extraktion.** Textlayer und Tesseract liefern
   Koordinaten und Konfidenzen; ein Modell liefert beides nicht und bekäme
   die Belege unpseudonymisiert. Es käme nur als zweite Stufe für unklare
