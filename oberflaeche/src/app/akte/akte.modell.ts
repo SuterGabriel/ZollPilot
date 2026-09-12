@@ -143,6 +143,12 @@ export interface Pruefergebnis {
   nicht_klassifiziert: string[];
   referenzen: { rechnung: string | null; bill_of_lading: string | null; container: string | null };
   nachforderungen: Nachforderung[];
+  /**
+   * Die Ausführungs-ID von n8n. Sie gehört nicht zur Entscheidung, sondern
+   * an sie: Damit findet der Betrieb die Ausführung mit Eingabe und Ausgabe
+   * je Node wieder. Fehlt bei einer Akte, die nicht über den Workflow kam.
+   */
+  ausfuehrung?: string | null;
 }
 
 /** Beschriftung und Farbe je Entscheidung. Farbe ist nie der alleinige Träger. */

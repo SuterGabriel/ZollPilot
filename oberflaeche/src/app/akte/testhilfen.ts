@@ -69,6 +69,7 @@ export const ERGEBNIS_BLOCKIERT: Pruefergebnis = {
   unbekannte_dokumente: [],
   nicht_klassifiziert: ['UNK-1'],
   referenzen: { rechnung: 'INV-2026-0417', bill_of_lading: 'MAEU-HH-778812', container: 'HLXU8765430' },
+  ausfuehrung: '65',
   nachforderungen: [
     {
       grund: 'TRN-01',

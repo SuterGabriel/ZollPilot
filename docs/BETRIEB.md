@@ -66,6 +66,19 @@ docker compose exec postgres psql -U zollpilot -d zollpilot \
   -c "select akte_id, freigabe, befunde_verletzt, geprueft_am from pruefung order by geprueft_am desc limit 20"
 ```
 
+**Eine Ausführung zu einer Prüfung finden.** Jedes Ergebnis trägt die
+Ausführungs-ID von n8n; sie steht auch in der Oberfläche im
+Entscheidungsband:
+
+```sql
+select akte_id, freigabe, ergebnis->>'ausfuehrung' as ausfuehrung, geprueft_am
+from pruefung order by geprueft_am desc limit 20;
+```
+
+Damit lässt sich die Ausführung in n8n unter *Executions* öffnen — mit
+Eingabe und Ausgabe je Node. Nach 14 Tagen ist sie gelöscht
+(`EXECUTIONS_DATA_MAX_AGE`); die Prüfung selbst bleibt.
+
 Die Sicht `rule_result` zerlegt das Ergebnis je Regel:
 
 ```sql
