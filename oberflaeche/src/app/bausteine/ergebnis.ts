@@ -4,14 +4,11 @@
 // Ergebnis: die Entscheidung, die Begründung je Regel, die Rechtsgrundlage
 // mit ihrem Verifikationsstand, der Adressat jeder Nachforderung. Was hier
 // fehlt, fehlt im Regelwerk — nicht in der Darstellung (ADR-006).
+//
+// Die Anordnung folgt dem Entwurf (docs/entwurf/, Struktur 1a): nach
+// Handlungsnähe, nicht nach Erzeugungsreihenfolge. Zuerst, was zu tun ist.
 
-import {
-  Component,
-  type ElementRef,
-  effect,
-  inject,
-  viewChild,
-} from '@angular/core';
+import { Component, type ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { Store } from '@ngrx/store';
 
 import { AkteAktionen } from '../akte/akte.aktionen';
@@ -23,19 +20,38 @@ import {
   type Befundstatus,
   type Dokument,
   type Freigabe,
+  type Nachforderung,
   type Pflichtbefund,
   type Rechtsquelle,
 } from '../akte/akte.modell';
 import {
-  selectErgebnis,
   selectFehler,
   selectStand,
   waehleDokumente,
+  waehleEntwertet,
+  waehleErfuelltePflicht,
   waehleExtraktionshinweise,
+  selectGepruefetAm,
+  waehleGueltigesErgebnis,
+  waehleMehrereAdressaten,
   waehleNachforderungen,
+  waehleNachforderungenNachAdressat,
   waehleOffeneBefunde,
   waehleOffenePflicht,
+  waehlePflichtBilanz,
+  waehleRegelBilanz,
 } from '../akte/akte.reducer';
+
+const ZEITFORM: Intl.DateTimeFormatOptions = {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+};
+
+/** Wie lange die Rückmeldung nach dem Kopieren stehen bleibt. */
+const KOPIERT_MS = 4000;
 
 @Component({
   selector: 'app-ergebnis',
@@ -46,13 +62,24 @@ export class Ergebnis {
   readonly #store = inject(Store);
 
   readonly stand = this.#store.selectSignal(selectStand);
-  readonly ergebnis = this.#store.selectSignal(selectErgebnis);
+  readonly ergebnis = this.#store.selectSignal(waehleGueltigesErgebnis);
+  readonly entwertet = this.#store.selectSignal(waehleEntwertet);
+  readonly gepruefetAm = this.#store.selectSignal(selectGepruefetAm);
   readonly fehler = this.#store.selectSignal(selectFehler);
+
   readonly offeneBefunde = this.#store.selectSignal(waehleOffeneBefunde);
   readonly offenePflicht = this.#store.selectSignal(waehleOffenePflicht);
+  readonly erfuelltePflicht = this.#store.selectSignal(waehleErfuelltePflicht);
+  readonly regelBilanz = this.#store.selectSignal(waehleRegelBilanz);
+  readonly pflichtBilanz = this.#store.selectSignal(waehlePflichtBilanz);
   readonly nachforderungen = this.#store.selectSignal(waehleNachforderungen);
+  readonly gruppen = this.#store.selectSignal(waehleNachforderungenNachAdressat);
+  readonly mehrereAdressaten = this.#store.selectSignal(waehleMehrereAdressaten);
   readonly dokumente = this.#store.selectSignal(waehleDokumente);
   readonly extraktionshinweise = this.#store.selectSignal(waehleExtraktionshinweise);
+
+  /** Kennung der zuletzt kopierten Nachforderung, für die Rückmeldung. */
+  readonly kopiert = signal<string | null>(null);
 
   readonly ueberschrift = viewChild<ElementRef<HTMLElement>>('ueberschrift');
 
@@ -87,6 +114,41 @@ export class Ergebnis {
   /** Wie der Beleg gelesen wurde. Ein Gedankenstrich, wenn gar nicht. */
   methodenText(dokument: Dokument): string {
     return dokument.methoden?.length ? dokument.methoden.join(', ') : '—';
+  }
+
+  zeitText(iso: string | null): string {
+    if (!iso) return '';
+    return new Date(iso).toLocaleString('de-DE', ZEITFORM);
+  }
+
+  /** Eine stabile Kennung je Nachforderung — Anlass und Feld zusammen. */
+  kennung(fall: Nachforderung): string {
+    return `${fall.grund}:${fall.feld}`;
+  }
+
+  async kopieren(fall: Nachforderung): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(fall.text);
+      this.kopiert.set(this.kennung(fall));
+      setTimeout(() => this.kopiert.set(null), KOPIERT_MS);
+    } catch {
+      // Kein Zugriff auf die Zwischenablage (kein sicherer Kontext, keine
+      // Erlaubnis). Der Text steht ohnehin sichtbar da und lässt sich von
+      // Hand markieren — deshalb kein Fehlerzustand, nur keine Rückmeldung.
+      this.kopiert.set(null);
+    }
+  }
+
+  /**
+   * Öffnet den Mailclient mit Betreff und Text.
+   *
+   * Ohne Empfänger: Der Adressat ist eine Rolle („Exporteur/Lieferant"),
+   * kein Postfach. Rolle zu Verteiler ist Stammdatenpflege, die es nicht
+   * gibt (docs/BETRIEB.md) — deshalb steht die Rolle im Text, und die
+   * Adresse setzt ein Mensch.
+   */
+  mailto(fall: Nachforderung): string {
+    return `mailto:?subject=${encodeURIComponent(fall.betreff)}&body=${encodeURIComponent(fall.text)}`;
   }
 
   neuBeginnen(): void {

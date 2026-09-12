@@ -1,24 +1,78 @@
 form {
   display: grid;
-  gap: var(--mass-6);
+  gap: var(--mass-5);
+}
+
+.karte {
+  background: var(--ton-grund);
+  border: 1px solid var(--ton-haarlinie);
+  padding: var(--mass-4);
+}
+
+h2 {
+  margin: 0 0 var(--mass-3);
+  font-size: var(--groesse-rubrik);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ton-text-mittel);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mass-2);
+  align-items: baseline;
+  padding-bottom: var(--mass-2);
+  border-bottom: 1px solid var(--ton-haarlinie);
+}
+
+/* Die eingeklappte Ansicht: Bezeichnung links, Wert rechts, damit der Blick
+ * eine feste Spur hat. */
+.zusammenfassung {
+  margin: 0;
+  display: grid;
+  gap: var(--mass-1);
+  font-size: var(--groesse-wert);
+}
+
+/* Die Bezeichnungsspalte richtet sich nach dem längsten Wort
+ * („Verkehrsträger", „Warennummern"), damit nichts umbricht oder überlappt.
+ * `max-content` statt einer geratenen Zeichenzahl. */
+.zeile {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--mass-3);
+  align-items: baseline;
+}
+
+dt {
+  color: var(--ton-text-leise);
+}
+
+dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.aendern {
+  margin-top: var(--mass-3);
+  border-top: 1px solid var(--ton-haarlinie);
+  padding-top: var(--mass-2);
+}
+
+.aendern > summary {
+  cursor: pointer;
+  min-height: var(--hitflaeche-min);
+  display: flex;
+  align-items: center;
+  color: var(--ton-aktion);
+  font-size: var(--groesse-wert);
 }
 
 fieldset {
-  border: 1px solid var(--ton-rand);
-  border-radius: var(--radius);
-  padding: var(--mass-4);
-  margin: 0;
-}
-
-legend {
-  font-weight: 600;
-  padding-inline: var(--mass-2);
-}
-
-.raster {
+  border: 0;
+  padding: 0;
+  margin: 0 0 var(--mass-4);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  gap: var(--mass-4);
+  gap: var(--mass-3);
 }
 
 .feld {
@@ -28,26 +82,16 @@ legend {
 }
 
 .feld label {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: var(--groesse-wert);
 }
 
-.hilfe {
-  color: var(--ton-text-leise);
-  font-size: 0.875rem;
-}
-
-.fehler {
-  color: var(--ton-blockiert);
-  font-size: 0.875rem;
-}
-
-/* Die Kontrollkästchen-Zeile: Kästchen und Beschriftung nebeneinander, der
- * Hilfetext darunter über beide Spalten. */
+/* Kontrollkästchen und Beschriftung nebeneinander, Hilfetext darunter über
+ * beide Spalten. */
 .kasten {
   grid-template-columns: auto 1fr;
   align-items: center;
   gap: var(--mass-2);
-  margin-top: var(--mass-4);
 }
 
 .kasten .hilfe {
@@ -55,8 +99,10 @@ legend {
 }
 
 .absenden {
-  display: flex;
-  align-items: center;
-  gap: var(--mass-4);
-  flex-wrap: wrap;
+  display: grid;
+  gap: var(--mass-2);
+}
+
+.absenden button {
+  width: 100%;
 }

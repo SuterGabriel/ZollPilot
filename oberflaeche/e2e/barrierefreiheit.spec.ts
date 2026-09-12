@@ -57,7 +57,7 @@ async function belegeAblegen(seite: Page) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1, name: 'Akte einreichen' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Prüfakte' })).toBeVisible();
 });
 
 test('das leere Formular ist ohne axe-Verstoß', async ({ page }) => {
@@ -75,7 +75,7 @@ test('eine blockierte Akte wird ohne axe-Verstoß dargestellt', async ({ page })
   await page.getByRole('button', { name: 'Akte einreichen' }).click();
 
   await expect(page.getByRole('heading', { name: 'Ergebnis der Prüfung' })).toBeVisible();
-  await expect(page.getByText('Blockiert')).toBeVisible();
+  await expect(page.locator('.band.blockiert .wort')).toHaveText('Blockiert');
   await keineVerstoesse(page, 'Ergebnis blockiert');
 });
 
@@ -84,7 +84,7 @@ test('eine freigabereife Akte wird ohne axe-Verstoß dargestellt', async ({ page
   await belegeAblegen(page);
   await page.getByRole('button', { name: 'Akte einreichen' }).click();
 
-  await expect(page.getByText('Freigabereif')).toBeVisible();
+  await expect(page.locator('.band.freigabereif .wort')).toHaveText('Freigabereif');
   await keineVerstoesse(page, 'Ergebnis freigabereif');
 });
 
@@ -93,8 +93,10 @@ test('ein Transportfehler wird ohne axe-Verstoß dargestellt', async ({ page }) 
   await belegeAblegen(page);
   await page.getByRole('button', { name: 'Akte einreichen' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Einreichung gescheitert' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Prüfung nicht durchgeführt' })).toBeVisible();
   await expect(page.getByRole('alert')).toContainText('docker compose');
+  // Kein Ergebnisblock — auch kein leerer (Entwurf, Zustand 9).
+  await expect(page.locator('section.block')).toHaveCount(0);
   await keineVerstoesse(page, 'Fehlerfall');
 });
 
@@ -106,13 +108,13 @@ test('der Fokus wandert nach dem Absenden auf die Überschrift des Ergebnisses',
   await expect(page.getByRole('heading', { name: 'Ergebnis der Prüfung' })).toBeFocused();
 });
 
-test('die Sprungmarke ist der erste Halt und führt zum Inhalt', async ({ page }) => {
+test('die Sprungmarke ist der erste Halt und führt zum Ergebnis', async ({ page }) => {
   await page.keyboard.press('Tab');
-  const marke = page.getByRole('link', { name: 'Zum Inhalt springen' });
+  const marke = page.getByRole('link', { name: 'Zum Ergebnis springen' });
   await expect(marke).toBeFocused();
   await expect(marke).toBeVisible();
   await marke.press('Enter');
-  await expect(page).toHaveURL(/#inhalt$/);
+  await expect(page).toHaveURL(/#ergebnis$/);
 });
 
 test('Belege lassen sich ohne Zeigegerät auswählen und wieder entfernen', async ({ page }) => {
@@ -127,7 +129,7 @@ test('Belege lassen sich ohne Zeigegerät auswählen und wieder entfernen', asyn
 test('ohne Beleg ist das Absenden gesperrt und der Grund steht daneben', async ({ page }) => {
   const knopf = page.getByRole('button', { name: 'Akte einreichen' });
   await expect(knopf).toBeDisabled();
-  await expect(page.locator('#sperrgrund')).toHaveText('Mindestens ein Beleg wird gebraucht.');
+  await expect(page.locator('#sperrgrund')).toContainText('Mindestens ein Beleg wird gebraucht.');
 });
 
 test('eine Datei, die kein PDF ist, wird abgelehnt und genannt', async ({ page }) => {
@@ -138,4 +140,33 @@ test('eine Datei, die kein PDF ist, wird abgelehnt und genannt', async ({ page }
   });
   await expect(page.getByRole('alert')).toContainText('notiz.txt');
   await expect(page.getByRole('button', { name: 'Akte einreichen' })).toBeDisabled();
+});
+
+test('die Ergebnisblöcke stehen nach Handlungsnähe', async ({ page }) => {
+  await antworteMit(page, ERGEBNIS_BLOCKIERT, 422);
+  await belegeAblegen(page);
+  await page.getByRole('button', { name: 'Akte einreichen' }).click();
+
+  // `allTextContents`, nicht `allInnerTexts`: Chrome wendet bei `innerText`
+  // das `text-transform: uppercase` der Rubrik an, `textContent` nicht.
+  const rubriken = await page.locator('section.block h3').allTextContents();
+  expect(rubriken.map((t) => t.trim().split(/\s+/)[0])).toEqual([
+    'Nachforderungen',
+    'Regeln',
+    'Nachweispflichten',
+    'Erkannte',
+  ]);
+});
+
+test('ein entwertetes Ergebnis wird als entwertet gezeigt, nicht gelöscht', async ({ page }) => {
+  await antworteMit(page, ERGEBNIS_BLOCKIERT, 422);
+  await belegeAblegen(page);
+  await page.getByRole('button', { name: 'Akte einreichen' }).click();
+  await expect(page.locator('.band.blockiert')).toBeVisible();
+
+  // Ein Beleg entfernen: Das Ergebnis gehörte zu einer anderen Zusammenstellung.
+  await page.getByRole('button', { name: /Entfernen.*packliste\.pdf/ }).click();
+  await expect(page.getByRole('heading', { name: 'Vorheriges Ergebnis gilt nicht mehr' })).toBeVisible();
+  await expect(page.locator('section.block')).toHaveCount(0);
+  await keineVerstoesse(page, 'entwertetes Ergebnis');
 });

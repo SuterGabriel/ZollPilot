@@ -1,10 +1,11 @@
 /* Gestaltungstoken von ZollPilot.
  *
- * Reihenfolge nach docs/ARBEITSWEISE.md, Stufe 2: die Token zuerst, die
- * Kontrastanforderung als Anweisung neben der Farbe. Die Anweisungen sind
- * keine Kommentare, sondern Zusagen: scripts/kontrast-check.mjs liest sie,
- * rechnet das Verhältnis nach WCAG 2.1 nach und ist rot, wenn eine nicht
- * hält. In Hook und CI.
+ * Übernommen aus dem Mockup (docs/entwurf/mockup-mit-zustandsblatt.pdf,
+ * Blatt 1g). Jeder dort angegebene Kontrastwert wurde mit
+ * scripts/kontrast-check.mjs nachgerechnet — alle vierzehn stimmten auf die
+ * zweite Nachkommastelle. Die `@kontrast`-Anweisungen unten sind keine
+ * Kommentare, sondern Zusagen: Das Gate liest sie, rechnet nach WCAG 2.1
+ * nach und ist rot, wenn eine nicht hält. In Hook und CI.
  *
  * Ein Thema, hell. Kein dunkles Gegenstück — das wären doppelt so viele
  * Paare, und eine Zusage, die niemand prüft, ist schlechter als keine.
@@ -14,49 +15,89 @@
   color-scheme: light;
 
   /* Flächen */
+  --ton-arbeitsflaeche: #f4f4f2;
   --ton-grund: #ffffff;
-  --ton-flaeche: #f2f4f7;
-  --ton-rand: #c6ccd5;
 
-  /* Schrift
+  /* Schrift. Drei Gewichte, nach Aufgabe getrennt (Mockup 1h): Haupttext,
+   * Feldnamen und Rechtsverweise, Nebenangaben.
    * @kontrast --ton-text auf --ton-grund mindestens 7
-   * @kontrast --ton-text auf --ton-flaeche mindestens 7
-   * @kontrast --ton-text-leise auf --ton-grund mindestens 4.5
-   * @kontrast --ton-text-leise auf --ton-flaeche mindestens 4.5 */
-  --ton-text: #16191d;
-  --ton-text-leise: #545b64;
+   * @kontrast --ton-text auf --ton-arbeitsflaeche mindestens 7
+   * @kontrast --ton-text-mittel auf --ton-grund mindestens 7
+   * @kontrast --ton-text-leise auf --ton-grund mindestens 4.5 */
+  --ton-text: #16181a;
+  --ton-text-mittel: #3f454b;
+  --ton-text-leise: #5c636a;
 
-  /* Bedienelemente. Der weiße Text steht auf der vollen Fläche, deshalb
-   * gilt dort die Textschwelle; der Rand nur die Abgrenzungsschwelle.
-   * @kontrast --ton-grund auf --ton-aktion mindestens 4.5
+  /* Bedienelemente. Der Rahmen trägt die Abgrenzung und muss 3:1 halten;
+   * die Haarlinie trennt nur Tabellenzeilen und darf darunter bleiben,
+   * weil neben ihr immer ein Träger steht (Balken, Rahmen, Rubrikzeile).
+   * @kontrast --ton-rand auf --ton-grund mindestens 3
    * @kontrast --ton-aktion auf --ton-grund mindestens 4.5
-   * @kontrast --ton-rand auf --ton-grund mindestens 1.4 */
-  --ton-aktion: #1d4ed8;
-  --ton-fokus: #b45309;
+   * @kontrast --ton-grund auf --ton-aktion mindestens 4.5 */
+  --ton-rand: #8b908b;
+  --ton-haarlinie: #d6d8d4;
+  --ton-zeilentrennung: #eaeae7;
+  --ton-aktion: #1a4fb4;
 
-  /* Entscheidungen. Vier Zustände aus src/regelwerk.mjs, jeder mit eigener
-   * Farbe — aber nie nur mit Farbe: jede Entscheidung trägt im Kopf auch
-   * ihren Namen als Text (WCAG 1.4.1, Farbe ist kein alleiniger Träger).
-   * @kontrast --ton-frei auf --ton-grund mindestens 4.5
-   * @kontrast --ton-warnung auf --ton-grund mindestens 4.5
-   * @kontrast --ton-nachlese auf --ton-grund mindestens 4.5
-   * @kontrast --ton-blockiert auf --ton-grund mindestens 4.5 */
-  --ton-frei: #14653d;
-  --ton-warnung: #8a4b00;
-  --ton-nachlese: #1d4ed8;
-  --ton-blockiert: #b3261e;
+  /* Gesperrt: nicht über Deckkraft ausgrauen, sondern eine eigene, geprüfte
+   * Paarung. Der Rahmen darf schwächer sein — WCAG 1.4.11 nimmt gesperrte
+   * Bedienelemente aus, und der Grund der Sperre steht ohnehin als Satz
+   * darunter, nie nur in der Farbe.
+   * @kontrast --ton-text-leise auf --ton-gesperrt mindestens 4.5 */
+  --ton-gesperrt: #e9e9e6;
+  --ton-gesperrt-rand: #a9ada8;
 
-  /* Abstände, Radien, Schrift */
-  --mass-1: 0.25rem;
-  --mass-2: 0.5rem;
-  --mass-3: 0.75rem;
-  --mass-4: 1rem;
-  --mass-6: 1.5rem;
-  --mass-8: 2rem;
-  --radius: 6px;
-  --schrift: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --schrift-fest: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+  /* Die vier Entscheidungen aus src/regelwerk.mjs. Farbe ist die vierte
+   * Unterscheidung, nie die erste: davor stehen das Wort, die Form der
+   * Marke und die Stärke des Balkens.
+   * @kontrast --ton-frei auf --ton-frei-flaeche mindestens 7
+   * @kontrast --ton-warnung auf --ton-warnung-flaeche mindestens 7
+   * @kontrast --ton-nachlese auf --ton-nachlese-flaeche mindestens 7
+   * @kontrast --ton-blockiert auf --ton-blockiert-flaeche mindestens 7
+   * @kontrast --ton-text auf --ton-blockiert-flaeche mindestens 7 */
+  --ton-frei: #0f5326;
+  --ton-frei-flaeche: #e9f0e9;
+  --ton-frei-rand: #b9cdbb;
+
+  --ton-warnung: #6e4300;
+  --ton-warnung-flaeche: #f6eedd;
+  --ton-warnung-rand: #dcc79a;
+
+  --ton-nachlese: #17486f;
+  --ton-nachlese-flaeche: #e7eef5;
+  --ton-nachlese-rand: #b4c6d8;
+
+  --ton-blockiert: #8e1c16;
+  --ton-blockiert-flaeche: #f8e9e7;
+  --ton-blockiert-rand: #dfbdb9;
+
+  /* Maße: 4 px Grundeinheit, alle Abstände Vielfache davon. */
+  --mass-1: 4px;
+  --mass-2: 8px;
+  --mass-3: 12px;
+  --mass-4: 16px;
+  --mass-5: 20px;
+  --mass-6: 24px;
+  --mass-8: 32px;
+  --radius: 0;
   --hitflaeche-min: 44px;
+  --aktenspalte: 400px;
+  --zeilenmass: 78ch;
+
+  /* Schrift. Atkinson Hyperlegible und Source Code Pro stehen zuerst, weil
+   * das Mockup sie begründet wählt: Unterscheidbarkeit von 1 l I und 0 O bei
+   * 12 px, geschlitzte Null, gleiche Laufweite für Containernummern.
+   * Mitgeliefert sind sie nicht (offene Frage 6 in docs/entwurf/03-abgleich.md),
+   * deshalb die Ersatzkette dahinter. */
+  --schrift: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --schrift-fest: "Source Code Pro", ui-monospace, "Cascadia Mono", "Consolas", monospace;
+
+  --groesse-entscheidung: 32px;
+  --groesse-titel: 16px;
+  --groesse-prosa: 15px;
+  --groesse-wert: 14px;
+  --groesse-verweis: 12.5px;
+  --groesse-rubrik: 12px;
 }
 
 * {
@@ -65,9 +106,10 @@
 
 body {
   margin: 0;
-  background: var(--ton-flaeche);
+  background: var(--ton-arbeitsflaeche);
   color: var(--ton-text);
   font-family: var(--schrift);
+  font-size: var(--groesse-prosa);
   line-height: 1.5;
 }
 
@@ -78,16 +120,17 @@ h3 {
   margin: 0 0 var(--mass-3);
 }
 
-/* Sichtbarer Fokus überall. Das Standardverhalten des Browsers reicht auf
- * farbigen Flächen nicht; ein eigener Ring mit Abstand ist auf hell wie auf
- * dunkel erkennbar. */
+/* Der Fokusring ist zweilagig (Mockup 1f): innen eine weiße Lage als
+ * Abstandhalter, außen die blaue. Auf farbigem Grund trägt die weiße Lage
+ * die Sichtbarkeit, auf hellem die blaue. Damit gilt derselbe Ring überall
+ * und braucht keine Ausnahme je Untergrund. */
 :focus-visible {
-  outline: 3px solid var(--ton-fokus);
+  outline: 2px solid var(--ton-aktion);
   outline-offset: 2px;
-  border-radius: var(--mass-1);
+  box-shadow: 0 0 0 2px var(--ton-grund);
 }
 
-/* Nur für Bildschirmleser: sichtbar für Hilfsmittel, unsichtbar im Bild. */
+/* Nur für Bildschirmleser: vorhanden für Hilfsmittel, unsichtbar im Bild. */
 .nur-vorlesen {
   position: absolute;
   width: 1px;
@@ -120,10 +163,8 @@ button {
 
 button[disabled] {
   cursor: not-allowed;
-  /* Nicht über Deckkraft ausgrauen: Das senkt den Kontrast unter die
-   * geprüfte Zusage. Stattdessen eine eigene, geprüfte Paarung. */
-  background: var(--ton-flaeche);
-  border-color: var(--ton-rand);
+  background: var(--ton-gesperrt);
+  border-color: var(--ton-gesperrt-rand);
   color: var(--ton-text-leise);
 }
 
@@ -145,8 +186,49 @@ select {
 input[type='checkbox'] {
   width: auto;
   min-height: auto;
-  inline-size: 1.15rem;
-  block-size: 1.15rem;
+  inline-size: 18px;
+  block-size: 18px;
+}
+
+/* Kennungen stehen in eigener Spur und werden abgetippt, nicht gelesen
+ * (Mockup 1h). Feste Laufweite, damit HLXU8765430 und MSKU1234565
+ * stellenweise übereinanderliegen. */
+.fest {
+  font-family: var(--schrift-fest);
+  font-variant-numeric: slashed-zero;
+}
+
+/* Drei Textgewichte nach Aufgabe, in jeder Komponente dieselben. Sie stehen
+ * hier und nicht dreimal in den Komponentenstilen. */
+.leise {
+  color: var(--ton-text-leise);
+  font-size: var(--groesse-wert);
+  font-weight: 400;
+}
+
+.hilfe {
+  color: var(--ton-text-leise);
+  font-size: var(--groesse-verweis);
+}
+
+.fehler {
+  color: var(--ton-blockiert);
+  font-size: var(--groesse-verweis);
+}
+
+.rubrik {
+  margin: var(--mass-2) 0 0;
+  font-size: var(--groesse-rubrik);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ton-text-mittel);
+}
+
+.kennung {
+  background: var(--ton-arbeitsflaeche);
+  padding: 0 var(--mass-2);
+  font-weight: 700;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -12,7 +12,9 @@ export const AkteAktionen = createActionGroup({
     'Beleg entfernt': props<{ id: string }>(),
     'Belege abgelehnt': props<{ namen: string[] }>(),
     Eingereicht: props<{ stammdaten: Stammdaten }>(),
-    'Einreichung beantwortet': props<{ ergebnis: Pruefergebnis }>(),
+    // Der Zeitpunkt kommt mit der Aktion herein, damit der Reducer keine Uhr
+    // braucht und ohne Vorkehrung prüfbar bleibt.
+    'Einreichung beantwortet': props<{ ergebnis: Pruefergebnis; zeitpunkt: string }>(),
     'Einreichung fehlgeschlagen': props<{ meldung: string }>(),
     'Neu begonnen': emptyProps(),
   },
