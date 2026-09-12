@@ -1,0 +1,67 @@
+// Der Transport zum Webhook. Kein Zustand, keine Entscheidung.
+//
+// Die Adresse ist relativ: Die Oberfläche und `/webhook/` kommen aus
+// derselben Herkunft, weil nginx beides ausliefert (ADR-006). Damit gibt es
+// kein CORS, und der Browser erfährt die Adresse von n8n nie.
+
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { type Observable, catchError, of, throwError } from 'rxjs';
+
+import type { Pruefergebnis, Stammdaten } from './akte.modell';
+
+export const WEBHOOK_BELEGE = '/webhook/belege';
+
+/** Der Workflow antwortet 422, wenn die Akte nicht freigabereif ist. */
+const NICHT_FREIGABEREIF = 422;
+
+const FELD_AKTE = 'akte';
+const FELD_DATEIEN = 'dateien';
+
+@Injectable({ providedIn: 'root' })
+export class AkteDienst {
+  readonly #http = inject(HttpClient);
+
+  einreichen(stammdaten: Stammdaten, dateien: readonly File[]): Observable<Pruefergebnis> {
+    const formular = new FormData();
+    formular.append(FELD_AKTE, JSON.stringify(stammdaten));
+    for (const datei of dateien) formular.append(FELD_DATEIEN, datei, datei.name);
+
+    return this.#http.post<Pruefergebnis>(WEBHOOK_BELEGE, formular).pipe(
+      catchError((fehler: HttpErrorResponse) => {
+        // 422 ist kein Fehler, sondern die Antwort "nicht freigabereif":
+        // Der Workflow liefert in beiden Fällen das vollständige Ergebnis
+        // (Node-Konventionen im Skill n8n-code-nodes). Wer das als Fehler
+        // behandelt, verliert genau die Befunde, um die es geht.
+        if (fehler.status === NICHT_FREIGABEREIF && istPruefergebnis(fehler.error)) {
+          return of(fehler.error);
+        }
+        return throwError(() => fehler);
+      }),
+    );
+  }
+}
+
+/** Grobe Formprüfung: Genug, um 422-mit-Ergebnis von 422-mit-Fehlertext zu trennen. */
+export function istPruefergebnis(wert: unknown): wert is Pruefergebnis {
+  if (wert === null || typeof wert !== 'object') return false;
+  const kandidat = wert as Partial<Pruefergebnis>;
+  return typeof kandidat.freigabe === 'string' && Array.isArray(kandidat.befunde);
+}
+
+/** Eine Meldung, die einem Menschen sagt, was zu tun ist. */
+export function fehlermeldung(fehler: unknown): string {
+  if (!(fehler instanceof HttpErrorResponse)) {
+    return 'Unerwarteter Fehler beim Einreichen.';
+  }
+  if (fehler.status === 0) {
+    return 'Keine Verbindung zum Prüf-Workflow. Läuft der Stack (docker compose up -d --wait)?';
+  }
+  if (fehler.status === 404) {
+    return 'Der Webhook antwortet nicht (404). Ist der Workflow in n8n aktiv?';
+  }
+  if (fehler.status >= 500) {
+    return `Der Workflow ist gescheitert (${fehler.status}). Die Ursache steht in der Tabelle workflow_fehler und in der Ausführung in n8n.`;
+  }
+  return `Die Einreichung wurde abgelehnt (${fehler.status}).`;
+}

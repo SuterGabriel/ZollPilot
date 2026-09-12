@@ -22,7 +22,7 @@ export function regel(id) {
 export const ZUGRIFF = { ...KATALOG, regel };
 
 /**
- * eingangAus({ rechnung: {...}, packliste: {...} }, { konfidenzen: { pfad: 0.5 }, status: { bill_of_lading: 'draft' }, dokumente: [...] })
+ * eingangAus({ rechnung: {...}, packliste: {...} }, { konfidenzen: { pfad: 0.5 }, status: { bill_of_lading: 'draft' }, dokumente: [...], extraktion: {...} })
  */
 export function eingangAus(bereiche, optionen = {}) {
   const dokumente = [];
@@ -47,6 +47,9 @@ export function eingangAus(bereiche, optionen = {}) {
     anmeldung: bereiche.anmeldung,
     dokumente,
     assertions,
+    // Nur setzen, wenn der Test es verlangt: Eine Akte ohne Extraktion darf
+    // das Feld nicht tragen, sonst prüft der Test die Vorgabe nicht mit.
+    ...(optionen.extraktion ? { extraktion: optionen.extraktion } : {}),
   };
 }
 

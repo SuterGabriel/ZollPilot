@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "angular": {
+      "command": "npx",
+      "args": ["-y", "@angular/cli@22", "mcp", "--read-only"],
+      "cwd": "oberflaeche"
+    }
+  }
+}

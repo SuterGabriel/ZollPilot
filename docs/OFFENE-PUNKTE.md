@@ -29,9 +29,9 @@ schlechter Scan mit einer falsch gelesenen Menge blockiert die Akte
 fachlich, statt Nachextraktion zu verlangen. Das ist eine Lücke in ADR-003,
 nicht in der Extraktion — und der nächste Regelkatalog-Eintrag.
 
-**Kein Kubernetes.** N1 nennt es. Es gibt Compose mit vier Diensten,
+**Kein Kubernetes.** N1 nennt es. Es gibt Compose mit fünf Diensten,
 Healthchecks und einen CI-Job, der den Stack baut und hochfährt. Ein Chart
-käme in Stufe 4 — und nur, wenn er in der CI tatsächlich ausgerollt wird,
+käme in einer eigenen Stufe — und nur, wenn er in der CI tatsächlich ausgerollt wird,
 nicht als Beispiel.
 
 **Keine Regel trägt `legal_source: verified`.** Alle Rechtsverweise sind
@@ -58,7 +58,7 @@ bis dahin ist der Katalog ehrlich markiert.
   eine Vereinfachung, und Tesseract-Konfidenzen sind nicht kalibriert.
 - **Nachextraktion als Prozess.** Der Status existiert, der Weg
   (zweite Engine, Human Review, Rückkehr in die Prüfung) nicht. Das ist der
-  Review-Arbeitsplatz aus Stufe 4 (`DECISIONS.md`).
+  Review-Arbeitsplatz aus Stufe 5 (`DECISIONS.md`).
 - **Ursprungserklärung als eigener Beleg.** Die Extraktion trennt sie aus der
   Rechnung heraus (`felder/ursprungserklaerung.py`) und leitet Ursprungswert
   und Warenkreis aus den Positionen ab. Ob das auf echten Rechnungen hält,
@@ -92,7 +92,21 @@ bis dahin ist der Katalog ehrlich markiert.
   (`05-prozess-nachforderung.md`). Der Prototyp beginnt am Webhook.
 - **Eskalation ist Daten, nicht Prozess.** `zustaendigkeiten.yaml` kennt die
   Stufen; niemand löst sie zeitgesteuert aus.
-- **Kein Override-Pfad.** Die Tabelle existiert, der Workflow nicht.
+- **Kein Override-Pfad.** Die Tabelle `override` existiert, der Workflow
+  nicht — und die Oberfläche kann deshalb einreichen und lesen, aber nicht
+  eingreifen (`docs/OBERFLAECHE.md`). Das ist Stufe 5.
+- **Die Oberfläche zeigt keine Fundstelle.** Jede Assertion trägt Seite und
+  Bounding Box; das PDF wird nicht angezeigt und nichts darin markiert. Ohne
+  das bleibt `re_extraction_required` eine Aufforderung ohne Werkzeug.
+- **Die Oberfläche ohne Anmeldung.** Wer Port 8088 erreicht, kann Akten
+  einreichen. Für den Webhook galt das schon; eine Oberfläche macht es
+  einladend.
+- **Kein Bildschirmleser-Test.** axe läuft über jede Ansicht und findet
+  keinen Verstoß, aber automatische Prüfung deckt nur einen Teil der
+  WCAG-Kriterien ab. Ob die Reihenfolge Sinn ergibt, sagt nur ein Mensch mit
+  einem Bildschirmleser.
+- **Ein Browser in den Ende-zu-Ende-Läufen.** Chromium. Firefox und WebKit
+  laufen nicht mit.
 - **Kein Monitoring jenseits des Metrik-Endpunkts.** Prometheus, Grafana,
   Alarme: nicht im Repo (`BETRIEB.md`).
 - **Der Bündler ist ein Regex-Parser.** Kennt genau die Import-/Exportformen
@@ -104,9 +118,9 @@ bis dahin ist der Katalog ehrlich markiert.
 
 - **GitHub-Remote.** Das Repo ist lokal; das private Remote legt der Autor
   an (`gh repo create`).
-- **Docker in der CI.** Der Job `betrieb` baut das Extraktions-Image und zieht
-  das n8n-Image; auf GitHub-Runnern ist Docker vorhanden, die Laufzeit liegt
-  bei drei bis fünf Minuten.
+- **Docker in der CI.** Der Job `betrieb` baut Extraktion und Oberfläche und
+  zieht das n8n-Image; auf GitHub-Runnern ist Docker vorhanden, die Laufzeit
+  liegt bei fünf bis acht Minuten.
 - **IDP-Anbieter.** Document AI oder ABBYY brauchen Projekt oder Lizenz. Der
   Vergleichslauf gegen Tesseract auf den synthetischen Belegen (ADR-005)
   wäre der schnellste Weg zu N2 — und die erste echte Zahl hinter der

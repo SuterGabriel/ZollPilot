@@ -6,14 +6,15 @@ was vor einem echten Betrieb noch fehlt.
 
 ## Was läuft
 
-Vier Container aus `compose.yml`:
+Fünf Container aus `compose.yml`:
 
 | Dienst | Aufgabe | Port | Gesund, wenn |
 |---|---|---|---|
 | `postgres` | zwei Datenbanken: `n8n` (Workflows, Ausführungen) und `zollpilot` (Akte, Prüfungen, Fehler) | 5432, nur localhost | `pg_isready` |
 | `n8n-import` | läuft einmal beim Start: importiert Credentials und Workflows aus dem Repo, beendet sich | — | Exit 0 |
-| `n8n` | Orchestrierung, zwei Webhooks, Oberfläche | 5678, nur localhost | `GET /healthz` antwortet `ok` |
+| `n8n` | Orchestrierung, zwei Webhooks, der n8n-Editor | 5678, nur localhost | `GET /healthz` antwortet `ok` |
 | `extraktion` | Belege (PDF) → Assertions: Textlayer oder Tesseract, Klassifikation, Felder. Entscheidet nichts (ADR-005) | 8765 auf dem Host (nur localhost), 8080 im Compose-Netz | `GET /healthz` antwortet `ok` und sagt, ob OCR verfügbar ist |
+| `oberflaeche` | nginx: liefert die Angular-Anwendung aus und reicht `/webhook/` an n8n weiter. Der Einstieg für Menschen (ADR-006) | 8088, nur localhost | `GET /` liefert die Anwendung |
 
 n8n hängt nicht vom Extraktionsdienst ab: `POST /webhook/akte` läuft ohne
 ihn, `POST /webhook/belege` scheitert ohne ihn sichtbar (500, Zeile in
@@ -26,17 +27,22 @@ ihn im Repo und importiert neu — nicht umgekehrt.
 
 ```bash
 cp .env.example .env          # einmalig, Werte prüfen
-docker compose up -d --wait   # startet alles, wartet auf Health
+docker compose up -d --build --wait   # startet alles, wartet auf Health
 bash scripts/rauchtest.sh     # schickt die Testakten, prüft die Entscheidungen
 ```
 
 `--wait` kehrt erst zurück, wenn alle Dienste gesund sind. Beim ersten Start
-baut Compose das Extraktions-Image (`extraktion/Dockerfile`, ein bis zwei
-Minuten für Tesseract und die Python-Abhängigkeiten). Der Rauchtest ist der
-Beweis, dass Import, Bundle, Schema, Extraktionsdienst und beide Webhooks
-zusammen funktionieren: Runde 1 schickt Akten, Runde 2 schickt PDFs.
+baut Compose zwei Images: die Extraktion (`extraktion/Dockerfile`, ein bis
+zwei Minuten für Tesseract und die Python-Abhängigkeiten) und die Oberfläche
+(`oberflaeche/Dockerfile`, Angular-Bau und nginx). Der Rauchtest ist der
+Beweis, dass Import, Bundle, Schema, Extraktionsdienst, beide Webhooks und
+der Proxy zusammen funktionieren: Runde 1 schickt Akten, Runde 2 schickt
+PDFs, Runde 3 eine Akte durch die Oberfläche.
 
-Oberfläche: `http://localhost:5678`. Beim ersten Aufruf verlangt n8n die
+**Der Einstieg ist `http://localhost:8088`** — dort reicht die Oberfläche
+für Einreichen und Lesen, ohne Konto (`docs/OBERFLAECHE.md`).
+
+n8n selbst: `http://localhost:5678`. Beim ersten Aufruf verlangt n8n die
 Anlage eines Owner-Kontos — das lässt sich in 1.114.0 nicht abschalten, der
 frühere Schalter `N8N_USER_MANAGEMENT_DISABLED` wirkt nicht mehr. Das Konto
 ist rein lokal: Es liegt in der Datenbank `n8n` dieses Stacks, die
@@ -105,7 +111,10 @@ dieses Repos.
 | Akte meldet `unclassified` mit „Belegtyp nicht erkannt“ | Kein Fehler des Betriebs. Der Beleg ist an der Akte, die Sachbearbeitung sieht ihn in `extraktion.hinweise`; die Extraktion kennt eine Layoutfamilie (`docs/EXTRAKTION.md`) |
 | Extraktion ändern | `extraktion/` ändern, `uv run pytest`, Bewertung gegen die Basislinie, dann `docker compose build extraktion && docker compose up -d extraktion` |
 | Extraktionsdienst läuft woanders | Die Adresse steht im HTTP-Request-Node „Belege extrahieren“ (`http://extraktion:8080`) — im Repo ändern, neu importieren |
-| Workflow in der Oberfläche geändert | Wird beim nächsten Import überschrieben. Änderungen gehören ins Repo (ADR-004) |
+| Oberfläche zeigt 502 beim Einreichen | nginx erreicht n8n nicht: `docker compose ps n8n`, `docker compose logs oberflaeche` |
+| Oberfläche zeigt 413 | Die Belege überschreiten `client_max_body_size` (32 MB) in `deploy/nginx/zollpilot.conf` |
+| Oberfläche ändern | `oberflaeche/` ändern, `npm test`, `npm run e2e`, `node scripts/kontrast-check.mjs`, dann `docker compose build oberflaeche && docker compose up -d oberflaeche` |
+| Workflow im n8n-Editor geändert | Wird beim nächsten Import überschrieben. Änderungen gehören ins Repo (ADR-004) |
 | Alles zurücksetzen | `docker compose down -v` löscht beide Datenbanken |
 
 ## Geheimnisse
@@ -126,8 +135,10 @@ Ehrlich aufgeschrieben, damit die Übergabe keine Überraschung wird:
   `workflow_fehler`-Zuwachs und auf ausbleibende Prüfungen.
 - **Keine Sicherung.** Postgres-Volume ohne Backup. Nötig: `pg_dump` nach Plan,
   Wiederherstellung einmal geprobt.
-- **Kein TLS, kein Reverse Proxy, keine Authentifizierung am Webhook.** Ports
-  sind auf localhost gebunden; mehr nicht.
+- **Kein TLS, keine Authentifizierung — jetzt mit Oberfläche.** Ports sind
+  auf localhost gebunden; mehr nicht. Wer 8088 erreicht, kann Akten
+  einreichen. Das galt schon für den Webhook, aber eine Oberfläche macht es
+  einladend: vor jedem Betrieb außerhalb der eigenen Maschine ein Blocker.
 - **Ein n8n-Prozess.** Kein Queue-Modus, keine Worker. Reicht für Dutzende
   Akten am Tag, nicht für Tausende.
 - **Kein Kubernetes.** Compose ist Entwicklung und Demo. Ein Chart wäre Stufe 4

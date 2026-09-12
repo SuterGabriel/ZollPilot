@@ -1,0 +1,66 @@
+/* Die Sprungmarke liegt außerhalb des Bildes, bis sie den Fokus bekommt —
+ * der erste Tabulatorsprung führt an der Kopfzeile vorbei zum Inhalt. */
+.sprungmarke {
+  position: absolute;
+  inset-inline-start: var(--mass-4);
+  inset-block-start: calc(-1 * var(--mass-8) - var(--mass-4));
+  z-index: 1;
+  padding: var(--mass-2) var(--mass-4);
+  background: var(--ton-grund);
+  color: var(--ton-aktion);
+  border: 1px solid var(--ton-aktion);
+  border-radius: var(--radius);
+}
+
+.sprungmarke:focus-visible {
+  inset-block-start: var(--mass-4);
+}
+
+.mitte {
+  max-width: 60rem;
+  margin-inline: auto;
+  padding-inline: var(--mass-4);
+}
+
+header {
+  background: var(--ton-grund);
+  border-bottom: 1px solid var(--ton-rand);
+  padding-block: var(--mass-6);
+  margin-bottom: var(--mass-6);
+}
+
+.marke {
+  margin: 0 0 var(--mass-1);
+  font-family: var(--schrift-fest);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.8125rem;
+  color: var(--ton-text-leise);
+}
+
+h1 {
+  margin: 0 0 var(--mass-2);
+}
+
+.untertitel {
+  margin: 0;
+  max-width: 46rem;
+  color: var(--ton-text-leise);
+}
+
+main {
+  display: grid;
+  gap: var(--mass-6);
+  padding-bottom: var(--mass-8);
+}
+
+footer {
+  padding-block: var(--mass-6);
+  border-top: 1px solid var(--ton-rand);
+  color: var(--ton-text-leise);
+  font-size: 0.875rem;
+}
+
+footer p {
+  margin: 0;
+}

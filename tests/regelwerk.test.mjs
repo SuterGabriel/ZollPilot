@@ -59,3 +59,21 @@ test('Nachforderungen adressieren den Dateninhaber des fehlenden Feldes', () => 
   assert.match(bl.text, /ACTION REQUIRED/);
   assert.match(bl.text, /Akzeptierte Nachweise: bill_of_lading, sea_waybill/);
 });
+
+test('Das Ergebnis trägt die Belege der Akte, damit sichtbar wird, was erkannt wurde', () => {
+  const eingang = eingangAus({ rechnung: { gesamt: 1 } }, {
+    dokumente: [{ id: 'UNK-1', typ: 'unclassified', status: 'final', datei: 'lieferschein.pdf', hinweis: 'Belegtyp nicht erkannt' }],
+    extraktion: { version: '0.1.0', ocr: '5.5.0', belege: 4, hinweise: ['lieferschein.pdf: Belegtyp nicht erkannt'] },
+  });
+  const ergebnis = pruefeAkte(eingang, KATALOG, REGELN);
+  const unbekannt = ergebnis.dokumente.find((d) => d.id === 'UNK-1');
+  assert.equal(unbekannt.hinweis, 'Belegtyp nicht erkannt');
+  assert.equal(unbekannt.datei, 'lieferschein.pdf');
+  assert.deepEqual(ergebnis.extraktion.hinweise, ['lieferschein.pdf: Belegtyp nicht erkannt']);
+});
+
+test('Ohne Extraktion bleibt das Feld null statt zu fehlen', () => {
+  const ergebnis = pruefeAkte(eingangAus({ rechnung: { gesamt: 1 } }), KATALOG, REGELN);
+  assert.equal(ergebnis.extraktion, null);
+  assert.ok(Array.isArray(ergebnis.dokumente));
+});

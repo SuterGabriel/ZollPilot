@@ -6,16 +6,19 @@
 #      gebündelter Code-Node und Schema arbeiten zusammen.
 #   2. Die Testbelege (PDF) an /webhook/belege — dazu der Extraktionsdienst
 #      (ADR-005): PDF rein, Entscheidung raus, über denselben Node.
+#   3. Dieselbe Akte über die Oberfläche und ihren Proxy (ADR-006): Damit ist
+#      geprüft, dass nginx die Anwendung ausliefert und /webhook/ durchreicht.
 # Jede Akte trägt ihre Erwartung selbst; das Skript vergleicht. Danach:
 # Liegen die Prüfungen in Postgres?
 #
-# Aufruf: bash scripts/rauchtest.sh [http://localhost:5678] [http://localhost:8765]
+# Aufruf: bash scripts/rauchtest.sh [http://localhost:5678] [http://localhost:8765] [http://localhost:8088]
 
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
 basis="${1:-http://localhost:5678}"
 extraktion="${2:-http://localhost:8765}"
+oberflaeche="${3:-http://localhost:8088}"
 fehler=0
 runden=0
 
@@ -36,6 +39,13 @@ if [[ "$ocr" == FEHLER* ]]; then
   fehler=$((fehler + 1))
 else
   echo "  ok    Extraktion /healthz ($ocr)"
+fi
+
+if curl -fsS "$oberflaeche/" 2>/dev/null | grep -q "<app-root>"; then
+  echo "  ok    Oberfläche liefert die Anwendung aus"
+else
+  echo "  FEHLER Oberfläche antwortet nicht auf $oberflaeche/"
+  fehler=$((fehler + 1))
 fi
 
 erwartung_aus() {
@@ -77,6 +87,23 @@ for ordner in testdaten/belege/*/; do
 done
 
 echo
+echo "Runde 3: dieselbe Akte über den Proxy der Oberfläche"
+ordner=testdaten/belege/happy-path
+erwartet=$(erwartung_aus "$ordner/akte.json")
+args=(-F "akte=<$ordner/akte.json")
+for pdf in "$ordner"/*.pdf; do args+=(-F "dateien=@$pdf;type=application/pdf"); done
+tatsaechlich=$(curl -sS -X POST "${args[@]}" "$oberflaeche/webhook/belege" | freigabe_aus)
+runden=$((runden + 1))
+if [[ "$tatsaechlich" == "$erwartet" ]]; then
+  printf '  ok    %-32s %s
+' "happy-path über nginx" "$tatsaechlich"
+else
+  printf '  ROT   %-32s erwartet %s, bekommen %s
+' "happy-path über nginx" "$erwartet" "$tatsaechlich"
+  fehler=$((fehler + 1))
+fi
+
+echo
 anzahl=$(docker compose exec -T postgres psql -U "${POSTGRES_USER:-zollpilot}" -d zollpilot -tAc "select count(*) from pruefung" 2>/dev/null || echo "?")
 if [[ "$anzahl" =~ ^[0-9]+$ ]] && [[ "$anzahl" -ge "$runden" ]]; then
   echo "  ok    $anzahl Prüfungen in Postgres (pruefung), mindestens $runden erwartet"
@@ -90,4 +117,4 @@ if [[ "$fehler" -gt 0 ]]; then
   echo "$fehler Abweichungen."
   exit 1
 fi
-echo "Alle Akten und Belege liefern die erwartete Entscheidung, alle Prüfungen sind abgelegt."
+echo "Alle Akten und Belege liefern die erwartete Entscheidung — über den Webhook wie über die Oberfläche —, alle Prüfungen sind abgelegt."

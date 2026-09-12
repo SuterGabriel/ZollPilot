@@ -36,11 +36,12 @@ erweiterbar; der Sachverhalt wird nicht heimlich breiter.
 
 ## Der Ablauf
 
-1. **Eingang.** Zwei Wege in denselben Ablauf. `POST /webhook/belege` nimmt
-   die PDFs einer Sendung entgegen, dazu die Stammdaten (Akten-ID,
-   Sachverhalt, Anmeldung). `POST /webhook/akte` nimmt eine fertige Akte
-   entgegen — Dokumente mit Status und Hash, Assertions mit Wert, Konfidenz
-   und Fundstelle — etwa aus einem anderen Extraktionssystem.
+1. **Eingang.** Drei Wege in denselben Ablauf. Die **Oberfläche**
+   (`http://localhost:8088`, ADR-006) ist der Weg für Menschen: Stammdaten
+   eintragen, PDFs ablegen, absenden, Ergebnis lesen. `POST /webhook/belege`
+   ist derselbe Weg für Maschinen. `POST /webhook/akte` nimmt eine fertige
+   Akte entgegen — Dokumente mit Status und Hash, Assertions mit Wert,
+   Konfidenz und Fundstelle — etwa aus einem anderen Extraktionssystem.
 
 2. **Belege lesen.** Der Extraktionsdienst (Python, ADR-005) liest jede
    Seite: Textlayer, wenn das PDF einen hat, sonst OCR mit Wortkonfidenzen.
@@ -104,14 +105,14 @@ den laufenden Stack, Runde 2.
 
 ## Was bewusst nicht gebaut wird
 
-- **Noch keine Oberfläche.** Die Akte ist ein Datensatz, das Ergebnis ist
-  ein Datensatz. Die n8n-Ausführungsliste und Postgres sind die Sicht des
-  Prototyps. Wenn eine Oberfläche kommt (Stufe 4, `DECISIONS.md`), dann als
-  **Review-Arbeitsplatz**: einen Befund mit Fundstelle und Belegausschnitt
-  sehen, den Wert korrigieren, mit Name und Begründung übersteuern, eine
-  Nachextraktion zurück in die Prüfung schicken. Kein Dashboard. Vorher ist
-  zu klären, wer die Akte führt (PO, Rechnung, Container oder MRN — offene
-  Frage 2 in `PROJECT.md`).
+- **Kein Review-Arbeitsplatz.** Die Oberfläche kann einreichen und lesen
+  (`docs/OBERFLAECHE.md`), nicht eingreifen: Ein Befund lässt sich nicht mit
+  Name und Begründung übersteuern, ein falsch gelesener Wert nicht
+  richtigstellen, eine Nachextraktion nicht zurück in die Prüfung schicken.
+  Die Tabelle `override` existiert, der Weg dorthin nicht. Das ist Stufe 5 —
+  und sie setzt voraus, dass geklärt ist, wer die Akte führt (PO, Rechnung,
+  Container oder MRN — offene Frage 2 in `PROJECT.md`). Deshalb zeigt die
+  heutige Oberfläche einen Vorgang, keine Akte.
 - **Kein Vision-Modell in der Extraktion.** Textlayer und Tesseract liefern
   Koordinaten und Konfidenzen; ein Modell liefert beides nicht und bekäme
   die Belege unpseudonymisiert. Es käme nur als zweite Stufe für unklare

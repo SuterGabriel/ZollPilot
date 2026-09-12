@@ -1,9 +1,11 @@
-# Der Build-Kontext ist die Repo-Wurzel, damit das Test-Stage die Testbelege
-# und das Regelwerk (für die Entscheidung je Akte) sieht. Alles andere bleibt
-# draußen; die Laufzeit (final) kopiert nur extraktion/.
+# Der Build-Kontext ist die Repo-Wurzel, damit das Test-Stage der Extraktion
+# die Testbelege und das Regelwerk sieht und die Oberfläche ihre
+# nginx-Konfiguration. Alles andere bleibt draußen.
 *
 !extraktion/
 !testdaten/
+!oberflaeche/
+!deploy/nginx/
 !src/
 !package.json
 !package-lock.json
@@ -14,3 +16,8 @@ extraktion/.venv
 extraktion/.pytest_cache
 extraktion/**/__pycache__
 testdaten/**/__pycache__
+oberflaeche/node_modules
+oberflaeche/dist
+oberflaeche/.angular
+oberflaeche/test-results
+oberflaeche/playwright-report

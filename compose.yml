@@ -1,6 +1,6 @@
 # Ein Befehl fährt alles hoch:  docker compose up -d --wait
 #
-# Vier Dienste:
+# Fünf Dienste:
 #   postgres    eine Instanz, zwei Datenbanken: n8n (Workflows, Ausführungen)
 #               und zollpilot (Akte, Prüfungen, Fehler) — deploy/postgres/init.sql
 #   n8n-import  läuft einmal: importiert Credentials und die Workflows aus
@@ -10,6 +10,9 @@
 #   extraktion  der Extraktionsdienst (Python, Textlayer und Tesseract,
 #               ADR-005), gebaut aus extraktion/Dockerfile. n8n ruft ihn per
 #               HTTP unter http://extraktion:8080; er entscheidet nichts.
+#   oberflaeche nginx: liefert die gebaute Angular-Anwendung aus und reicht
+#               /webhook/ an n8n weiter. Gleiche Herkunft, deshalb kein CORS
+#               (ADR-006). Der Einstieg für Menschen: http://localhost:8088
 #
 # Geheimnisse liegen in .env (Vorlage: .env.example). Die Werte dort sind
 # Entwicklungswerte; docs/BETRIEB.md sagt, was vor einem echten Betrieb fehlt.
@@ -116,6 +119,20 @@ services:
     # ob Tesseract da ist. n8n hängt nicht von diesem Dienst ab — der Eingang
     # /webhook/akte funktioniert ohne ihn; /webhook/belege scheitert dann
     # sichtbar (workflow_fehler), nicht still.
+
+  oberflaeche:
+    build:
+      context: .
+      dockerfile: oberflaeche/Dockerfile
+    image: zollpilot-oberflaeche:dev
+    ports:
+      - "127.0.0.1:${OBERFLAECHE_PORT:-8088}:8080"
+    # Der Healthcheck steht im Dockerfile. `depends_on` auf n8n ist Absicht:
+    # Ohne n8n kann die Oberfläche nichts einreichen, und ein Proxy, der ins
+    # Leere zeigt, meldet 502 statt eines Fehlers, den jemand versteht.
+    depends_on:
+      n8n:
+        condition: service_healthy
 
 volumes:
   postgres-daten:

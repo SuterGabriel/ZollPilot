@@ -55,6 +55,10 @@ const AUSNAHMEN = new Map([
   ['praeferenznachweis', 'Bezeichner in Pfaden und Fakten (praeferenznachweis.typ)'],
   // Englischer Fachbegriff auf Frachtpapieren (Gross Weight), kein deutsches Wort.
   ['gross', 'Feldname auf B/L und AWB: Gross Weight'],
+  // Verzeichnisname der Angular-Anwendung. Ein Pfad trägt keinen Umlaut, und
+  // er steht in Kommentaren, Compose und CI. Die Prosa daneben schreibt
+  // weiterhin "Oberfläche" — nur der Pfad ist ausgenommen.
+  ['oberflaeche', 'Verzeichnisname im Repo: oberflaeche/'],
 ]);
 
 // Grundliste für den Fall, dass die richtige Schreibweise im Repo noch nirgends
