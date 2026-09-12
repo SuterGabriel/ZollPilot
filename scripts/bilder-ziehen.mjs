@@ -13,18 +13,19 @@
  *
  * Zugang: n8n 1.114 verlangt ein Owner-Konto und lässt sich nicht
  * abschalten (docs/BETRIEB.md). Die Anmeldedaten kommen aus der Umgebung,
- * nie aus einer versionierten Datei:
+ * nie aus dem Code und nie aus einer versionierten Datei, genau wie beim
+ * Anbieterleser der Extraktion:
  *
  *   ZOLLPILOT_N8N_BENUTZER    E-Mail des Owner-Kontos
  *   ZOLLPILOT_N8N_PASSWORT    Passwort dazu
  *
- * Fehlt beides, legt das Skript beim ersten Lauf ein Konto an, wenn n8n noch
- * im Einrichtungsbildschirm steht, und sagt dann, was es gesetzt hat.
+ * Steht n8n noch im Einrichtungsbildschirm, legt das Skript das Konto mit
+ * genau diesen Daten an. Fehlt eine der beiden Angaben, passiert nichts.
  *
  * Die Bilder liegen unter docs/bilder/ und gehören ins Repo: Sie sind
  * Dokumentation, kein Build-Artefakt. Wer einen Workflow ändert, zieht sie
- * neu. Ein Gate, das ein fehlendes Bild meldet, kommt mit den ersten
- * Bildern; vorher hätte es nichts zu prüfen.
+ * neu; `scripts/workflow-check.mjs` meldet ein fehlendes Bild und lehnt den
+ * Commit ab.
  */
 
 import { createRequire } from 'node:module'
@@ -41,8 +42,8 @@ const { chromium } = hole('playwright')
 
 const BASIS = process.argv[2] ?? process.env.ZOLLPILOT_N8N_BASIS ?? 'http://localhost:5678'
 const ZIEL = path.join(WURZEL, 'docs', 'bilder')
-const BENUTZER = process.env.ZOLLPILOT_N8N_BENUTZER ?? 'zollpilot@zollpilot.test'
-const PASSWORT = process.env.ZOLLPILOT_N8N_PASSWORT ?? 'ZollPilot-dev-2026'
+const BENUTZER = process.env.ZOLLPILOT_N8N_BENUTZER ?? ''
+const PASSWORT = process.env.ZOLLPILOT_N8N_PASSWORT ?? ''
 const BREITE = 1600
 const HOEHE = 1000
 // Nach dem Einpassen rückt n8n die Knoten noch; ohne diese Pause zeigt das
@@ -70,8 +71,11 @@ async function workflows() {
  * Hand angefasst werden muss.
  */
 async function anmelden(seite) {
-  await seite.goto(`${BASIS}/signin`, { waitUntil: 'domcontentloaded' })
-  await seite.waitForTimeout(500)
+  await seite.goto(`${BASIS}/signin`, { waitUntil: 'networkidle' })
+  // Die Oberfläche ist eine Vue-Anwendung: Vor dem ersten Rendern gibt es
+  // kein Formular, und ein zu früher Blick hielte eine leere Seite für eine
+  // Seite ohne Anmeldung.
+  await seite.waitForTimeout(1500)
 
   if (seite.url().includes('/setup')) {
     console.log(`  neu   Owner-Konto ${BENUTZER} wird angelegt`)
@@ -79,18 +83,26 @@ async function anmelden(seite) {
     await seite.fill('input[name="firstName"]', 'ZollPilot')
     await seite.fill('input[name="lastName"]', 'Betrieb')
     await seite.fill('input[name="password"]', PASSWORT)
-    await seite.getByRole('button', { name: /weiter|next|konto|account/i }).click()
-    await seite.waitForTimeout(2000)
+    await absenden(seite, /weiter|next|konto|account/i)
+    await seite.waitForTimeout(2500)
     return
   }
 
-  const feld = seite.locator('input[name="email"]')
-  if (await feld.count()) {
-    await feld.fill(BENUTZER)
-    await seite.fill('input[name="password"]', PASSWORT)
-    await seite.getByRole('button', { name: /anmelden|sign in|login/i }).click()
-    await seite.waitForURL((url) => !url.pathname.includes('/signin'), { timeout: 15000 })
-  }
+  // n8n nennt das Feld `emailOrLdapLoginId`, weil dort auch eine
+  // LDAP-Kennung stehen darf; `email` ist der ältere Name.
+  const feld = seite.locator('input[name="emailOrLdapLoginId"], input[name="email"]').first()
+  if (!(await feld.count())) throw new Error('kein Anmeldeformular gefunden')
+  await feld.fill(BENUTZER)
+  await seite.fill('input[name="password"]', PASSWORT)
+  await absenden(seite, /anmelden|sign in|login/i)
+  await seite.waitForURL((url) => !url.pathname.includes('/signin'), { timeout: 15000 })
+}
+
+/** Absenden über die Kennung des Formulars, sonst über die Beschriftung. */
+async function absenden(seite, beschriftung) {
+  const knopf = seite.locator('[data-test-id="form-submit-button"]').first()
+  if (await knopf.count()) return knopf.click()
+  return seite.getByRole('button', { name: beschriftung }).click()
 }
 
 /** Den Zeichenbereich suchen; n8n benennt ihn je nach Fassung anders. */
@@ -102,7 +114,32 @@ async function zeichenflaeche(seite) {
   return null
 }
 
+/**
+ * Alles ausblenden, was über der Zeichenfläche schwebt.
+ *
+ * Der Editor legt Bedienelemente auf die Fläche: die Reiter oben, den orangen
+ * Knopf unten, die Werkzeuge rechts, die Zoomknöpfe links unten. Im Bild
+ * verdecken sie Knotennamen und lenken von dem ab, worum es geht. Die
+ * Klassennamen tragen einen Hash, deshalb wird auf einen Namensteil geprüft;
+ * ändert n8n sie, erscheinen die Elemente wieder, und das Bild ist nicht
+ * falsch, nur unruhiger.
+ */
+async function schwebendes_verbergen(seite) {
+  await seite.addStyleTag({
+    content: `.tab-bar-container,
+      [class*="executionButtons"],
+      [class*="nodeButtonsWrapper"],
+      [class*="sideMenuCollapseButton"],
+      [data-test-id="canvas-controls"] { display: none !important; }`,
+  })
+}
+
 async function main() {
+  if (!BENUTZER || !PASSWORT) {
+    console.log('KEIN ZUGANG: ZOLLPILOT_N8N_BENUTZER und ZOLLPILOT_N8N_PASSWORT setzen.')
+    console.log('Das sind die Daten des Owner-Kontos im lokalen n8n; im Repo steht keines.')
+    return 1
+  }
   await mkdir(ZIEL, { recursive: true })
   const liste = await workflows()
   const browser = await chromium.launch()
@@ -124,6 +161,7 @@ async function main() {
         await seite.goto(`${BASIS}/workflow/${id}`, { waitUntil: 'networkidle', timeout: 30000 })
         const flaeche = await zeichenflaeche(seite)
         if (!flaeche) throw new Error('kein Zeichenbereich gefunden; n8n-Fassung geprüft?')
+        await schwebendes_verbergen(seite)
         // `1` ist in n8n das Kürzel für "alles einpassen". Ohne das zeigt
         // das Bild den zuletzt gespeicherten Ausschnitt, nicht den Workflow.
         await seite.keyboard.press('1')
