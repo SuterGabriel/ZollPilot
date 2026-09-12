@@ -143,6 +143,60 @@ docker run --rm -v "$PWD:/host" -e PYTHONPATH=/host/extraktion -w /host/extrakti
   kommt, ist nicht gebaut. Übersteuern geht (Stufe 5, ADR-007), aber ein
   übersteuerter Lesefehler ist verantwortet, nicht behoben.
 
+## Der Vergleichslauf
+
+Die Nahtstelle aus ADR-005 ist jetzt belegt, nicht nur beschrieben:
+`anbieter.py` ist ein zweites Lesemodul neben `lesen.py`. Es übersetzt die
+Antwort von Azure Document Intelligence (`prebuilt-read`) in dieselbe Form
+aus Seiten, Wörtern und Zeilen, mit Koordinaten in PDF-Punkten und der
+Konfidenz je Wort, die der Anbieter meldet. Alles hinter der Schicht Lesen
+bleibt gleich: Klassifikation, Felder, Normalisierung, Akte. Gewählt wurde
+Azure, weil ein Schlüssel im Kopfzeilenfeld genügt und das Kontingent F0
+kostenlos ist; ein zweiter Anbieter bekäme eine zweite Übersetzungsfunktion.
+
+Drei Regeln halten den Lauf ehrlich:
+
+- **Der Schlüssel kommt nur aus der Umgebung** (`ZOLLPILOT_AZURE_DI_ENDPOINT`,
+  `ZOLLPILOT_AZURE_DI_KEY`). Im Repo steht keiner.
+- **Antworten werden einmal aufgezeichnet** und liegen unter
+  `extraktion/tests/fixtures/anbieter/azure/<sha256>.json`, benannt nach dem
+  Hash des PDFs. Tests und Bewertung lesen nur die Aufzeichnung; sie brauchen
+  keinen Zugang und lösen keine Kosten aus.
+- **Es wird nichts erfunden.** Fehlt eine Aufzeichnung, nennt die Bewertung
+  die Belege beim Namen und läuft nicht. Fehlt der Schlüssel, sagt das
+  Aufzeichnen `KEIN ZUGANG` und endet.
+
+```bash
+cd extraktion
+uv run python -m zollpilot_extraktion.anbieter stand            # was aufgezeichnet ist
+uv run python -m zollpilot_extraktion.anbieter aufzeichnen      # einmalig, mit Schlüssel
+uv run python -m zollpilot_extraktion.bewertung --leser azure   # dieselbe Tabelle, anderer Leser
+```
+
+| Leser | Field Exact Match gesamt | Entscheidungen | Stand |
+|---|---|---|---|
+| `tesseract` (Textlayer, sonst Tesseract) | 100,0 % | 7/7 | Basislinie, `extraktion/basislinie.json` |
+| `azure` (`prebuilt-read`) | noch nicht gemessen | noch nicht gemessen | 0 von 21 Testbelegen aufgezeichnet |
+
+Die zweite Zeile ist leer, weil am 2026-09-12 kein Azure-Zugang vorlag. Das
+steht hier als Ziel mit Stand, nicht als Behauptung (`docs/ARBEITSWEISE.md`).
+Wer den Lauf zieht, trägt die Zahlen ein und nennt die Modellversion aus der
+Aufzeichnung (`analyzeResult.modelId`, `apiVersion`).
+
+Was der Lauf zeigen wird und was nicht: Auf den digitalen Belegen liest der
+Textlayer bereits alles; dort kann ein Anbieter höchstens gleichziehen. Der
+Unterschied entsteht auf dem schlechten Scan, und zwar an zwei Stellen: an
+den Wortkonfidenzen (Azure kalibriert anders als Tesseract, deshalb kann die
+Schwelle 0,80 dort eine andere Wirkung haben) und an Zeichen wie 0/O und
+1/l in der Containernummer. Gemessen wird dasselbe wie immer, Field Exact
+Match je Belegtyp und die Entscheidung je Akte; die Basislinie gehört dem
+Leser aus `lesen.py` und wird von einem Anbieter nie überschrieben.
+
+Nur synthetische Belege gehen an den Anbieter (`docs/DATENSCHUTZ.md`). Für
+echte Belege wäre der Aufruf ein Modellaufruf im Sinne der Datenschutzregel
+und bräuchte die Pseudonymisierung, die es nicht gibt. Der Vergleichslauf
+ist ein Messwerkzeug, kein Betriebsweg.
+
 ## Was ein Anbieter ersetzen würde
 
 Document AI, ABBYY oder Azure Document Intelligence ersetzen `lesen.py`
