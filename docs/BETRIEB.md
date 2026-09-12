@@ -243,6 +243,42 @@ je Schweregrad im Alertmanager eintragen (`route` in `alertmanager.yml`).
 | Workflow im n8n-Editor geändert | Wird beim nächsten Import überschrieben. Änderungen gehören ins Repo (ADR-004) |
 | Alles zurücksetzen | `docker compose down -v` löscht beide Datenbanken |
 
+## Post an ein echtes Postfach
+
+Im Demo-Betrieb geht jede Mail an GreenMail und keine nach draußen. Wer
+sehen will, wie eine Nachforderung in einem echten Postfach ankommt, setzt
+in `.env` die Zugangsdaten seines Mailanbieters und eine Umleitung
+(Vorlage in `.env.example`):
+
+```
+ZOLLPILOT_SMTP_HOST=smtpauth.bluewin.ch
+ZOLLPILOT_SMTP_PORT=465
+ZOLLPILOT_SMTP_USER=name@bluewin.ch
+ZOLLPILOT_SMTP_PASSWORT=…
+ZOLLPILOT_SMTP_SICHER=true
+ZOLLPILOT_SMTP_OHNE_STARTTLS=false
+ZOLLPILOT_ABSENDER=name@bluewin.ch
+ZOLLPILOT_POST_UMLEITEN_AN=name@bluewin.ch
+```
+
+Dann `docker compose up -d n8n`. Die Zugangsdaten überschreiben die
+SMTP-Credential aus `credentials.json` beim Start (`CREDENTIALS_OVERWRITE_DATA`
+in `compose.yml`); das Passwort steht damit nur in `.env`, die nicht im Repo
+liegt. Die Umleitung schickt jede Nachforderung an genau diese eine Adresse,
+gleich an welche Rolle sie gerichtet war. In `request_versand` steht
+weiterhin der Adressat aus dem Verteiler, nicht die Umleitung: Der Vorgang
+bleibt derselbe, nur der Briefkasten ist ein anderer. Der Rückweg per Antwort
+braucht zusätzlich ein IMAP-Postfach, das der Posteingang abfragt; das ist
+nicht vorgesehen und bleibt bei GreenMail.
+
+Wann eine Mail kommt, entscheidet `zustaendigkeiten.yaml`, nicht der Kalender
+des Betriebs: `erinnerung_0` sofort beim ersten Lauf nach der Feststellung,
+jede weitere Stufe erst, wenn ihr Cut-off aus der Akte minus Vorlauf erreicht
+ist, und zwischen zwei Versendungen an denselben Fall mindestens
+`versand.mindestabstand_stunden`. Der Lauf ist täglich um 07:00, nach jeder
+zugeordneten Antwort per Mail, oder von Hand über den Webhook (Tabelle oben).
+Wer nicht auf den Kalender warten will, gibt dem Webhook ein `jetzt` mit.
+
 ## Geheimnisse
 
 `.env` und `deploy/n8n/credentials.json` tragen Entwicklungswerte, die im Repo
