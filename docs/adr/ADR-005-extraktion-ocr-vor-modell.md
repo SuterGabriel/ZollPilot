@@ -150,6 +150,27 @@ anzufassen. Das ist die Probe, auf die die Nahtstelle gebaut war: Ein
 anderer Leser braucht eine andere Übersetzung, nicht eine andere Extraktion.
 Die Tabelle in `docs/EXTRAKTION.md` trägt die Zahlen und die Modellversion.
 
+In der Nacht auf den 13. September kam Google Document AI als zweiter
+Anbieter dazu (Prozessortyp `Document OCR`, Region eu), aus einem Grund, der
+nichts mit Technik zu tun hat: Die Ausschreibung nennt ABBYY und Google
+namentlich, Azure nicht. Das Ergebnis ist dasselbe, 100 % und 8 von 8, und
+der Weg dorthin war wieder derselbe: erster Lauf 86,3 %, Fehler in der
+Übersetzung, eine Stelle in `anbieter.py`, kein Feldextraktor angefasst.
+
+Damit ist die Aussage stärker als vorher. Ein Anbieter hinter einer
+Nahtstelle kann Zufall sein; zwei Anbieter mit gegensätzlichen Eigenheiten
+sind ein Beleg. Google sagt selbst, wo ein Wort endet, Azure sagt es nicht;
+Google liefert Anteile der Seitenkante, Azure Zoll; Google antwortet
+einstufig, Azure zweistufig; Google verlangt ein signiertes JWT, Azure einen
+Schlüssel im Kopfzeilenfeld. Übrig bleibt in beiden Fällen eine
+Übersetzungsfunktion und ein Eintrag in einer Registry.
+
+Was der Vergleich nicht sagt: welcher Anbieter besser liest. Auf einem
+Golden Set aus acht synthetischen Akten, das alle drei Leser vollständig
+lesen, ist die Messlatte zu niedrig, um zu trennen. Der Wert des Laufs liegt
+in der Austauschbarkeit, nicht in einer Rangfolge. Für eine Rangfolge
+bräuchte es echte Belege, und dann gilt zuerst die Pseudonymisierung.
+
 ## Wann wir anders entscheiden würden
 
 - **Mit einem echten Belegkorpus.** Sobald reale Rechnungen und B/L

@@ -168,64 +168,116 @@ beim PDF bleibt.
 
 Die Nahtstelle aus ADR-005 ist jetzt belegt, nicht nur beschrieben:
 `anbieter.py` ist ein zweites Lesemodul neben `lesen.py`. Es übersetzt die
-Antwort von Azure Document Intelligence (`prebuilt-read`) in dieselbe Form
-aus Seiten, Wörtern und Zeilen, mit Koordinaten in PDF-Punkten und der
-Konfidenz je Wort, die der Anbieter meldet. Alles hinter der Schicht Lesen
-bleibt gleich: Klassifikation, Felder, Normalisierung, Akte. Gewählt wurde
-Azure, weil ein Schlüssel im Kopfzeilenfeld genügt und das Kontingent F0
-kostenlos ist; ein zweiter Anbieter bekäme eine zweite Übersetzungsfunktion.
+Antwort eines IDP-Anbieters in dieselbe Form aus Seiten, Wörtern und Zeilen,
+mit Koordinaten in PDF-Punkten und der Konfidenz je Wort, die der Anbieter
+meldet. Alles hinter der Schicht Lesen bleibt gleich: Klassifikation, Felder,
+Normalisierung, Akte.
+
+Angeschlossen sind zwei Anbieter, weil eine Nahtstelle erst mit dem zweiten
+Anbieter bewiesen ist. Sie unterscheiden sich genau dort, wo eine Nahtstelle
+sich beweisen muss, und nirgends sonst:
+
+| | Azure Document Intelligence | Google Document AI |
+|---|---|---|
+| Modell | `prebuilt-read` | Prozessortyp `Document OCR` |
+| Zugang | Schlüssel im Kopfzeilenfeld | Dienstkonto, JWT gegen Zugriffstoken |
+| Aufruf | zweistufig: anstoßen, abholen | einstufig |
+| Koordinaten | Zoll, bei Bildern Pixel | Anteile der Seitenkante |
+| Wortlaut | steht am Wort | Abschnitt im Gesamttext |
+
+Ein Layout-, Rechnungs- oder trainiertes Feldmodell wäre bei beiden verfügbar
+und ist bewusst nicht gewählt: Es liefert Feldwerte und ersetzt damit die
+Schicht `felder/`, nicht die Schicht Lesen. Verglichen werden soll die Lesung,
+nicht ein fremdes Fachmodell.
 
 Drei Regeln halten den Lauf ehrlich:
 
-- **Der Schlüssel kommt nur aus der Umgebung** (`ZOLLPILOT_AZURE_DI_ENDPOINT`,
-  `ZOLLPILOT_AZURE_DI_KEY`). Im Repo steht keiner.
+- **Der Zugang kommt nur aus der Umgebung.** Azure:
+  `ZOLLPILOT_AZURE_DI_ENDPOINT`, `ZOLLPILOT_AZURE_DI_KEY`. Google:
+  `ZOLLPILOT_GOOGLE_DI_KONTO` (Pfad zur Schlüsseldatei des Dienstkontos,
+  außerhalb des Repos), `ZOLLPILOT_GOOGLE_DI_PROJEKT`,
+  `ZOLLPILOT_GOOGLE_DI_PROZESSOR`, `ZOLLPILOT_GOOGLE_DI_REGION`. Im Repo steht
+  keiner.
 - **Antworten werden einmal aufgezeichnet** und liegen unter
-  `extraktion/tests/fixtures/anbieter/azure/<sha256>.json`, benannt nach dem
-  Hash des PDFs. Tests und Bewertung lesen nur die Aufzeichnung; sie brauchen
-  keinen Zugang und lösen keine Kosten aus.
+  `extraktion/tests/fixtures/anbieter/<anbieter>/<sha256>.json`, benannt nach
+  dem Hash des PDFs. Tests und Bewertung lesen nur die Aufzeichnung; sie
+  brauchen keinen Zugang und lösen keine Kosten aus.
 - **Es wird nichts erfunden.** Fehlt eine Aufzeichnung, nennt die Bewertung
-  die Belege beim Namen und läuft nicht. Fehlt der Schlüssel, sagt das
+  die Belege beim Namen und läuft nicht. Fehlt der Zugang, sagt das
   Aufzeichnen `KEIN ZUGANG` und endet.
 
 ```bash
 cd extraktion
-uv run python -m zollpilot_extraktion.anbieter stand            # was aufgezeichnet ist
-uv run python -m zollpilot_extraktion.anbieter aufzeichnen      # einmalig, mit Schlüssel
-uv run python -m zollpilot_extraktion.bewertung --leser azure   # dieselbe Tabelle, anderer Leser
+uv run python -m zollpilot_extraktion.anbieter stand --anbieter google
+uv run python -m zollpilot_extraktion.anbieter aufzeichnen --anbieter google  # einmalig, mit Zugang
+uv run python -m zollpilot_extraktion.bewertung --leser google                # dieselbe Tabelle, anderer Leser
 ```
 
 | Leser | Field Exact Match gesamt | Entscheidungen | Stand |
 |---|---|---|---|
 | `tesseract` (Textlayer, sonst Tesseract) | 100,0 % (570/570) | 8/8 | Basislinie, `extraktion/basislinie.json` |
 | `azure` (`prebuilt-read`, API 2024-11-30) | 100,0 % (570/570) | 8/8 | 32 von 32 Testbelegen aufgezeichnet am 2026-09-12, Region Switzerland North, Stufe F0 |
+| `google` (`Document OCR`, API v1) | 100,0 % (570/570) | 8/8 | 32 von 32 Testbelegen aufgezeichnet am 2026-09-13, Region eu |
 
-Beide Leser lesen das Golden Set vollständig. Das war nicht der erste Stand:
-Der erste Vergleichslauf ergab 26,8 % und 0 von 8 Entscheidungen, und zwar
-nicht, weil Azure schlecht liest, sondern weil die Übersetzung zwei
-Eigenheiten der Antwort nicht kannte. Azures `lines` sind Zellen, nicht
-Zeilen (eine Tabellenzeile kam als sieben Zeilen an, und die Tabellen-
-extraktion über Spaltenpositionen fand keine Zeile mit allen Spalten). Und
-Azure trennt Satzzeichen ab, `Invoice No .:` statt `Invoice No.:`, womit das
-Label nicht mehr passte. Beides ist in `anbieter.py` ausgeglichen; die
-Feldextraktoren blieben unverändert, was die Nahtstelle aus ADR-005 ein
-zweites Mal bestätigt. Die Zeilenbildung schließt Wort an Nachbarwort an
-statt an die Oberkante der ganzen Zeile, weil auf dem schiefen Scan die
-Oberkante über eine Tabellenzeile um elf Punkte wandert, zwischen Nachbarn
-aber um höchstens vier.
+Alle drei Leser lesen das Golden Set vollständig. Das war bei keinem der
+beiden Anbieter der erste Stand, und die beiden Wege dorthin sind das
+eigentliche Ergebnis des Vergleichslaufs.
 
-Was der Lauf gezeigt hat: Auf den digitalen Belegen liest der Textlayer
-alles, und Azure zieht gleich. Auf dem schlechten Scan liest Azure alle
-60 Wörter der Packliste mit Konfidenz von mindestens 0,906, keines unter der
-Schwelle 0,80; der Containernummer-Fall 0/O und 1/l trat nicht auf. Ob
-Azure damit besser kalibriert ist als Tesseract oder nur auf diesem einen
-Scan gnädiger, sagt ein Beleg nicht. Gemessen wird dasselbe wie immer, Field
-Exact Match je Belegtyp und die Entscheidung je Akte; die Basislinie gehört
-dem Leser aus `lesen.py` und wird von einem Anbieter nie überschrieben.
+**Azure, erster Lauf: 26,8 % und 0 von 8.** Nicht, weil Azure schlecht liest,
+sondern weil die Übersetzung zwei Eigenheiten der Antwort nicht kannte.
+Azures `lines` sind Zellen, nicht Zeilen; eine Tabellenzeile kam als sieben
+Zeilen an, und die Tabellenextraktion über Spaltenpositionen fand keine Zeile
+mit allen Spalten. Und Azure trennt Satzzeichen ab, `Invoice No .:` statt
+`Invoice No.:`, womit das Label nicht mehr passte.
 
-Aufgezeichnet wurden 32 Belege in 14 Dateien, weil die PDFs über die Akten
-hinweg oft byteidentisch sind und der Hash den Namen gibt. Die Stufe F0
-erlaubt 20 Aufrufe pro Minute; wer schneller ist, bekommt HTTP 429, und
-das Aufzeichnen wartet dann und sendet erneut, statt den Beleg zu verlieren.
+**Google, erster Lauf: 86,3 % und 7 von 8.** Dieselbe Art Fehler an anderer
+Stelle. Google trennt nicht nur Satzzeichen, sondern auch Bindestriche:
+`MAEU-HH-778812` kam als fünf Marken, und aus der B/L-Nummer wurde
+`MAEU - HH - 778812`. Dazu umschließt Google ein Wort samt dem folgenden
+Leerzeichen, sodass sich benachbarte Umrisse überlappen; die Zeilenbildung
+verglich rechte gegen linke Kante und riss `Port of discharge:` auseinander.
+
+Beides ist in `anbieter.py` ausgeglichen, und an genau einer Stelle je
+Anbieter. **Kein Feldextraktor, keine Regel und kein Pfad wurde angefasst.**
+Das ist die Nahtstelle aus ADR-005, zweimal geprüft.
+
+Wo die beiden sich unterscheiden, ist lehrreich: Wo ein Wort endet, **sagt
+Google selbst** (`detectedBreak` an jeder Marke). Azure sagt es nicht, denn
+sein Gesamttext setzt vor das abgetrennte Zeichen selbst ein Leerzeichen.
+Für Azure bleibt deshalb nur die Lücke im Bild als Anhalt, für Google eine
+Aussage des Anbieters. Derselbe Zweck, zwei Wege, weil die Anbieter
+unterschiedlich viel über sich verraten.
+
+Der letzte Unterschied war kein Anbieterfehler, sondern ein Modellfehler bei
+uns: Auf dem schiefen Scan wandert die Oberkante einer Tabellenzeile mit dem
+waagerechten Abstand, gemessen 1,3 Grad. Eine feste Toleranz trennte deshalb
+`Type` (Oberkante 259,9) von `Gross` (254,9), obwohl beide in derselben
+Kopfzeile stehen. Die Toleranz wächst jetzt mit dem Abstand zum linken
+Nachbarn. Azure blieb davon unberührt bei 100 %, was den Verdacht entkräftet,
+hier sei auf ein Ergebnis hin geschraubt worden.
+
+Was die Läufe gezeigt haben: Auf den digitalen Belegen liest der Textlayer
+alles, und beide Anbieter ziehen gleich. Auf dem schlechten Scan liest Azure
+alle 60 Wörter der Packliste mit Konfidenz von mindestens 0,906, keines unter
+der Schwelle 0,80; der Containernummer-Fall 0/O und 1/l trat bei keinem
+Anbieter auf. Ob die Anbieter damit besser kalibriert sind als Tesseract oder
+auf diesem einen Scan nur gnädiger, sagt ein Beleg nicht. Gemessen wird
+dasselbe wie immer, Field Exact Match je Belegtyp und die Entscheidung je
+Akte; die Basislinie gehört dem Leser aus `lesen.py` und wird von einem
+Anbieter nie überschrieben.
+
+Eine Kürzung an den Google-Aufzeichnungen ist benannt, nicht stillschweigend:
+Google legt jeder Seite das gerenderte Seitenbild bei, rund 260 KB Base64 je
+Beleg. Das ist eine Kopie des Belegs, den `testdaten/` schon enthält, und es
+wird vor dem Aufzeichnen entfernt (`_google_ohne_bild`). Alles andere bleibt,
+auch was die Übersetzung nicht liest (`blocks`, `paragraphs`, `lines`); wer
+die Aufzeichnung öffnet, soll die Antwort sehen und nicht eine Auswahl.
+
+Aufgezeichnet wurden 32 Belege in 14 Dateien bei Azure und 13 bei Google,
+weil die PDFs über die Akten hinweg oft byteidentisch sind und der Hash den
+Namen gibt. Azures Stufe F0 erlaubt 20 Aufrufe pro Minute; wer schneller ist,
+bekommt HTTP 429, und das Aufzeichnen wartet dann und sendet erneut, statt
+den Beleg zu verlieren. Bei Google trat das Ratenlimit nicht auf.
 
 Nur synthetische Belege gehen an den Anbieter (`docs/DATENSCHUTZ.md`). Für
 echte Belege wäre der Aufruf ein Modellaufruf im Sinne der Datenschutzregel

@@ -21,7 +21,7 @@ nie, weil ein Feld erraten wurde. Lieber None als ein plausibler Wert.
 | Datei | Tut | Ersetzt man für |
 |---|---|---|
 | `lesen.py` | PDF → Seiten mit Wörtern (Text, Koordinaten, Konfidenz). Textlayer, sonst Tesseract. | einen anderen OCR-Anbieter |
-| `anbieter.py` | Dieselbe Form aus der Antwort eines IDP-Anbieters (Azure `prebuilt-read`), nur über Aufzeichnungen; Schlüssel nur aus der Umgebung. Der Vergleichslauf (ADR-005, `bewertung --leser azure`). | einen zweiten Anbieter |
+| `anbieter.py` | Dieselbe Form aus der Antwort eines IDP-Anbieters (Azure `prebuilt-read`, Google `Document OCR`), nur über Aufzeichnungen; Zugang nur aus der Umgebung. Der Vergleichslauf (ADR-005, `bewertung --leser azure|google`). | einen dritten Anbieter: eine Übersetzungsfunktion und ein Eintrag in `ANSCHLUESSE` |
 | `cii.py` | Rechnung als Datensatz (UN/CEFACT CII, D16B): gegen `schema/cii/` validiert, dieselben Pfade wie das PDF, Methode `strukturiert`, Konfidenz 1, keine Fundstelle. Schreibt auch (ADR-008). | UBL |
 | `klassifikation.py` | Text → Belegtyp, Draft/Final. Unbekanntes bleibt `unclassified`. | ein Klassifikationsmodell |
 | `felder/<typ>.py` | Wörter → Assertions je Belegtyp, labelgetrieben, Tabellen über Spaltenpositionen | einen trainierten Extraktor |
