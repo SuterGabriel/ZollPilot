@@ -128,7 +128,7 @@ CREATE TABLE wiedervorlage (
   eingang                   text NOT NULL,       -- akte | belege
   akte_id                   text,
   nutzlast                  jsonb,
-  status                    text NOT NULL DEFAULT 'offen',  -- offen | erledigt | erneut_gescheitert | nicht_wiederholbar
+  status                    text NOT NULL DEFAULT 'offen',  -- offen | erledigt | erneut_gescheitert | nicht_wiederholbar | verworfen (ein Mensch hat entschieden, dass der Rumpf nie durchlaufen wird)
   angelegt_am               timestamptz NOT NULL DEFAULT now(),
   wiederholt_am             timestamptz,
   wiederholung_execution_id text,

@@ -70,11 +70,18 @@ main.flaeche {
 
 /* Kopf und Fuß sind Rahmen, nicht Inhalt. Sie stehen fest im Bild und
  * nehmen deshalb nur so viel Höhe, wie sie zum Lesen brauchen; jede Zeile
- * hier fehlt der Akte darunter. */
+ * hier fehlt der Akte darunter.
+ *
+ * Die Innenabstände von Kopf und Fuß sind je 12 statt 16 px: Bei 900 px
+ * Fensterhöhe passte die leere Aktenspalte auf Windows genau, auf dem
+ * Linux-Läufer der CI rendert Chromium mit anderen Schriften sieben Pixel
+ * höher, und die Spalte bekam einen Rollbalken. Die 16 px, die Kopf und Fuß
+ * abgeben, sind der Spielraum für solche Schriftmetriken; wer Kopf oder Fuß
+ * höher macht, verbraucht ihn und sieht es im Ende-zu-Ende-Test. */
 header {
   background: var(--ton-grund);
   border-bottom: 1px solid var(--ton-haarlinie);
-  padding-block: var(--mass-4);
+  padding-block: var(--mass-3);
 }
 
 .kopf,
@@ -137,7 +144,7 @@ footer {
 }
 
 .flaeche-schmal {
-  padding-block: var(--mass-3);
+  padding-block: var(--mass-2);
 }
 
 footer p {
