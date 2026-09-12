@@ -803,3 +803,73 @@ Werkzeug editiert, das Zeichen für Zeichen ersetzt.
 **Zeitschätzung.** Delegiert: eine halbe Stunde. Von Hand: ein Vormittag,
 weil man den Widerspruch erst einmal für einen Fehler im Abgleich hält.
 
+
+## 2026-09-13, Google Document AI als zweiter Anbieter: was zwei Anbieter zeigen, was einer nicht kann
+
+**Was gebaut wurde.** Google Document AI hinter derselben Nahtstelle wie
+Azure: Übersetzung, Zugang über ein Dienstkonto, Registry statt fest
+verdrahtetem Anbieter, sieben neue Tests, 32 Aufzeichnungen. Ergebnis 100 %
+und 8 von 8, gleichauf mit Azure und der Basislinie.
+
+**Warum überhaupt.** Aus einem Grund, der nichts mit Technik zu tun hat: Die
+Anforderungsprofil nennt ABBYY und Google Document AI namentlich. Azure war der
+bequemere Weg, ein Schlüssel im Kopfzeilenfeld und eine kostenlose Stufe, und
+ich hatte ihn gewählt, ohne den Wortlaut der Anforderung ernst zu nehmen. Das
+war der Fehler, und der Nutzer hat ihn benannt. Die Lehre ist nicht „Google
+statt Azure", sondern: Wenn eine Anforderung einen Namen nennt, ist der Name
+Teil der Anforderung. Am Ende stehen jetzt beide da, was mehr wert ist als
+einer, aber die Reihenfolge war falsch herum.
+
+**Was gut lief.** Der Zugang ist von Hand gebaut statt über eine SDK-Kette:
+ein JWT mit dem privaten Schlüssel des Dienstkontos signieren und gegen ein
+Zugriffstoken tauschen, zwanzig Zeilen mit `cryptography`, das über
+pdfplumber ohnehin im Baum liegt. Der Test dazu erzeugt ein eigenes
+Schlüsselpaar und prüft die Signatur so, wie Google sie prüft; damit ist die
+eine Stelle, an der ich einen dokumentierten Ablauf nachbaue, auch die eine
+Stelle mit einem Beweis. Das Aufzeichnen lief ohne Ratenlimit durch, der
+Backoff von gestern wurde nicht gebraucht.
+
+**Was nicht funktionierte.** Der erste Vergleichslauf ergab 86,3 % und 7 von
+8, und die Fehler waren dieselbe Art wie bei Azure, nur an anderer Stelle.
+Google trennt Bindestriche als eigene Marken, aus `MAEU-HH-778812` wurde
+`MAEU - HH - 778812`, und damit fielen B/L-Nummer, Rechnungsnummer,
+Packstück-IDs und Siegelnummer aus. Ich wollte das zuerst über die Lücke im
+Bild lösen, wie bei Azure, und habe dann in die echte Antwort geschaut:
+Google trägt an jeder Marke `detectedBreak`, wenn danach ein Zwischenraum
+folgt. Der Anbieter sagt also selbst, wo ein Wort endet. Eine Heuristik über
+Lücken wäre schlechter gewesen als eine Aussage, die dasteht. Zweitens
+umschließt Google ein Wort samt dem folgenden Leerzeichen, sodass sich
+benachbarte Umrisse überlappen; die Zeilenbildung verglich rechte gegen linke
+Kante und riss `Port of discharge:` auseinander. Jetzt werden linke Kanten
+verglichen.
+
+**Der eigene Fehler im Modell.** Übrig blieb der schlechte Scan: acht Felder
+der Packstücktabelle fehlten, und QTY-03 sprang an. Ursache war keine
+Eigenheit von Google, sondern eine falsche Annahme von mir. Die Zeilenbildung
+hatte eine feste Toleranz von viereinhalb Punkten, aber ein schiefes Blatt
+lässt die Oberkante mit dem waagerechten Abstand wandern: gemessen 1,3 Grad,
+über die Blattbreite mehr als zehn Punkte. In der Kopfzeile steht `Type` bei
+Oberkante 259,9 und `Gross` bei 254,9, fünf Punkte, eine Spaltenbreite
+auseinander. Die Toleranz wächst jetzt mit dem Abstand zum linken Nachbarn.
+Dass Azure dabei unverändert bei 100 % blieb, ist der Beleg, dass hier ein
+Modell korrigiert und nicht auf ein Ergebnis hin geschraubt wurde; ein Test
+hält die gemessenen Koordinaten fest, damit die Begründung nachprüfbar
+bleibt.
+
+**Was die Testsuite abgefangen hat.** Wieder nichts vor dem Lauf, und wieder
+aus demselben Grund wie gestern: Das handgeschriebene Beispiel trug dieselbe
+Annahme wie der Code, diesmal sogar eine falsche Vorstellung von
+`detectedBreak`. Erst die echten Antworten gegen das Golden Set fanden die
+Fehler. Das ist jetzt zweimal dasselbe Muster, und es ist die wichtigste
+Lehre aus beiden Tagen: Ein Schemabeispiel aus dem Gedächtnis prüft die
+eigene Vorstellung, nicht die Wirklichkeit.
+
+**Was auffiel, ohne zu stören.** Google legt jeder Seite das gerenderte
+Seitenbild bei, rund 260 KB Base64 je Beleg, eine Kopie des Belegs, den das
+Repo schon hat. Das wird vor dem Aufzeichnen entfernt und steht so in der
+Doku; alles andere bleibt, auch was die Übersetzung nicht liest.
+
+**Zeitschätzung.** Zugang anlegen mit Klickanleitung etwa dreißig Minuten,
+Anschluss und zwei Korrekturrunden etwa anderthalb Stunden Agentenzeit. Von
+Hand geschätzt: ein Tag, davon der größte Teil für das Nachvollziehen, warum
+eine Nummer mit Bindestrichen auseinanderfällt. Schätzung, keine Messung.

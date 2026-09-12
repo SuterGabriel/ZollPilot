@@ -119,12 +119,13 @@ def bewerte(ocr: bool = True, leser_name: str = LESER_TESSERACT) -> dict[str, An
     if leser_name != LESER_TESSERACT:
         if leser_name not in ANBIETER_LESER:
             raise SystemExit(f"UNBEKANNTER LESER {leser_name}: bekannt sind {LESER_TESSERACT}, {', '.join(ANBIETER_LESER)}")
-        fehlend = [pdf for pdf, da in anbieter_stand() if not da]
+        fehlend = [pdf for pdf, da in anbieter_stand(leser_name) if not da]
         if fehlend:
             liste = "\n".join(f"  {p.relative_to(WURZEL)}" for p in fehlend)
             raise SystemExit(
                 f"KEINE AUFZEICHNUNG für {len(fehlend)} Testbelege ({leser_name}):\n{liste}\n"
-                f"Aufzeichnen mit Schlüssel in der Umgebung: python -m zollpilot_extraktion.anbieter aufzeichnen"
+                f"Aufzeichnen mit Zugang in der Umgebung: "
+                f"python -m zollpilot_extraktion.anbieter aufzeichnen --anbieter {leser_name}"
             )
         leser = ANBIETER_LESER[leser_name]
 
