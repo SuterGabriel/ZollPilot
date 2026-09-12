@@ -1,17 +1,32 @@
 .ablage {
   background: var(--ton-grund);
   border: 1px solid var(--ton-haarlinie);
-  padding: var(--mass-4);
+  padding: var(--mass-2) var(--mass-4);
   margin: 0;
 }
 
+/* Die Legende sitzt im Browser auf dem Rahmen und unterbricht ihn. Neben
+ * der Karte darüber, deren Überschrift eine Unterlinie trägt, sieht das aus
+ * wie zwei verschiedene Bauteile. `float` löst die Legende aus dieser
+ * Sonderstellung und macht sie zu einem gewöhnlichen Blockelement; damit
+ * trägt sie dieselbe Unterlinie wie die Überschrift der Karte. */
 legend {
+  float: left;
+  width: 100%;
+  margin: 0 0 var(--mass-2);
+  padding: 0 0 var(--mass-2);
+  border-bottom: 1px solid var(--ton-haarlinie);
   font-size: var(--groesse-rubrik);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--ton-text-mittel);
-  padding: 0;
+}
+
+/* Nach einer gefloateten Legende muss der erste Inhalt den Fluss wieder
+ * aufnehmen, sonst legt er sich darüber. */
+legend + * {
+  clear: both;
 }
 
 .zone {

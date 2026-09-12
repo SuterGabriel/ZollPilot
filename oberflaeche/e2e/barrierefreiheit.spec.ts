@@ -261,13 +261,13 @@ for (const groesse of [
   });
 }
 
-test('bei 960 px Fensterhöhe braucht auch die Aktenspalte keinen Rollbalken', async ({ page }) => {
-  // Die Grenze ist gemessen, nicht gewünscht: Bei 960 px passt die leere
-  // Spalte genau — kein Spielraum. Wird der Kopf, eine Karte oder ein
+test('bei 900 px Fensterhöhe braucht auch die Aktenspalte keinen Rollbalken', async ({ page }) => {
+  // Die Grenze ist gemessen, nicht gewünscht: Bei 900 px passt die leere
+  // Spalte genau, ohne Spielraum. Wird der Kopf, eine Karte oder ein
   // Abstand höher, fällt dieser Test, und zwar bevor es jemandem auf dem
   // Bildschirm auffällt. Darunter scrollt die Spalte; die Schaltfläche
   // bleibt trotzdem stehen, das prüfen die Tests darüber.
-  await page.setViewportSize({ width: 1440, height: 960 });
+  await page.setViewportSize({ width: 1440, height: 900 });
   const spalte = await page
     .locator('.akte')
     .evaluate((el) => ({ inhalt: el.scrollHeight, sichtbar: el.clientHeight }));

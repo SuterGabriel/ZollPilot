@@ -39,6 +39,12 @@ export const VERKEHRSTRAEGER = [
 
 const INCOTERM_EDITION = 2020;
 
+/** `FOB · Hamburg (DEHAM)`, ohne Klammer wenn kein Code eingetragen ist. */
+export function klauselText(code: string, ort: string, unlocode: string): string {
+  const kopf = `${code} · ${ort}`.trim();
+  return unlocode ? `${kopf} (${unlocode})` : kopf;
+}
+
 @Component({
   selector: 'app-einreichung',
   imports: [ReactiveFormsModule, BelegAblage],
@@ -88,8 +94,11 @@ export class Einreichung {
       { name: 'Richtung', wert: richtung, fest: false },
       { name: 'Verkehrsträger', wert: traeger, fest: false },
       { name: 'Präferenz', wert: w.praeferenz_beansprucht ? 'wird beansprucht' : 'nicht beansprucht', fest: false },
-      { name: 'Klausel', wert: `${w.incoterm_code} · ${w.incoterm_ort}`, fest: false },
-      { name: 'UN/LOCODE', wert: w.incoterm_unlocode || '—', fest: true },
+      // Klausel, Ort und dessen Code stehen in einer Zeile. Getrennt waren
+      // es zwei Zeilen für eine Angabe, und der Code stand ohne das, was er
+      // codiert. Fehlt er, entfällt die Klammer, statt einen Platzhalter zu
+      // zeigen.
+      { name: 'Klausel', wert: klauselText(w.incoterm_code, w.incoterm_ort, w.incoterm_unlocode), fest: false },
       { name: 'Häfen', wert: `${w.pol || '—'} → ${w.pod || '—'}`, fest: true },
       { name: 'Warennummern', wert: w.warennummern || '—', fest: true },
     ];
