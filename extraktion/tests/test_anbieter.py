@@ -112,11 +112,51 @@ def test_pixel_werden_auf_die_seitengroesse_skaliert():
     assert container.x0 == pytest.approx(1.6 * PUNKTE_PRO_ZOLL, abs=0.5)
 
 
-def test_woerter_ohne_zeile_werden_nicht_verworfen():
+def test_zeilen_entstehen_aus_der_geometrie_nicht_aus_azures_zellen():
+    """Azure liefert je Tabellenzelle eine `line`; eine Tabellenzeile ist bei uns eine Zeile."""
     antwort = antwort_in_zoll()
-    antwort["analyzeResult"]["pages"][0]["lines"] = []
+    seite = antwort["analyzeResult"]["pages"][0]
+    seite["lines"] = [{"content": w["content"], "spans": [w["span"]]} for w in seite["words"]]
     beleg = uebersetze_azure(antwort, leeres_pdf(), "beispiel.pdf")
+    assert [z.text for z in beleg.seiten[0].zeilen] == ["Container no.: MSKU1234565", "Gross weight: 1.040,00 kg"]
     assert sum(len(z.woerter) for z in beleg.seiten[0].zeilen) == 7
+
+
+def test_abgetrennte_satzzeichen_kleben_wieder_am_wort():
+    """Azure liest `Invoice No.:` als `Invoice`, `No`, `.:`; der Extraktor sucht das Label `No.:`."""
+    antwort = antwort_in_zoll()
+    seite = antwort["analyzeResult"]["pages"][0]
+    seite["words"] = [
+        wort("Invoice", 0.5, 2.0, 0.5, 0.15, 0.99, 60),
+        wort("No", 1.05, 2.0, 0.2, 0.15, 0.98, 68),
+        wort(".:", 1.25, 2.0, 0.1, 0.15, 0.90, 70),
+        wort("INV-1", 1.45, 2.0, 0.4, 0.15, 0.97, 73),
+        # Ein Satzzeichen eine halbe Spalte weiter rechts bleibt ein eigenes Wort.
+        wort("(", 2.2, 2.0, 0.05, 0.15, 0.95, 79),
+    ]
+    beleg = uebersetze_azure(antwort, leeres_pdf(), "beispiel.pdf")
+    woerter = beleg.seiten[0].woerter
+    assert [w.text for w in woerter] == ["Invoice", "No.:", "INV-1", "("]
+    geklebt = woerter[1]
+    assert geklebt.konfidenz == pytest.approx(0.90)
+    assert geklebt.x1 == pytest.approx(1.35 * PUNKTE_PRO_ZOLL, abs=0.01)
+
+
+def test_schiefer_scan_ergibt_trotzdem_eine_zeile_je_tabellenzeile():
+    """Über eine Zeile hinweg wandert die Oberkante um mehr als die Toleranz, zwischen Nachbarn nicht."""
+    antwort = antwort_in_zoll()
+    seite = antwort["analyzeResult"]["pages"][0]
+    # Zwei Tabellenzeilen, Zeilenabstand 0,2 Zoll; die Oberkante steigt je Zelle um 0,04 Zoll
+    # (2,9 Punkte), über fünf Zellen also um 11,5 Punkte, mehr als der halbe Zeilenabstand.
+    zellen = ["1", "Hydraulikpumpe", "8413.30", "12", "PCE"]
+    woerter, versatz = [], 0
+    for zeile_nr, y in enumerate((3.0, 3.2)):
+        for spalte, text in enumerate(zellen):
+            woerter.append(wort(text, 0.5 + spalte * 0.9, y + spalte * 0.04, 0.6, 0.12, 0.9, versatz))
+            versatz += len(text) + 1
+    seite["words"] = woerter
+    beleg = uebersetze_azure(antwort, leeres_pdf(), "scan.pdf")
+    assert [z.text for z in beleg.seiten[0].zeilen] == [" ".join(zellen), " ".join(zellen)]
 
 
 @pytest.mark.parametrize(
@@ -174,3 +214,45 @@ def test_akte_mit_anbieter_leser_haengt_unlesbares_an_und_nennt_den_leser(tmp_pa
     assert "Leser azure nicht verfügbar" in akte["dokumente"][0]["hinweis"]
     assert akte["extraktion"]["hinweise"] == ["beispiel.pdf: Leser azure nicht verfügbar"]
     assert issubclass(AnbieterNichtVerfuegbar, LesungNichtMoeglich)
+
+
+def test_ratenlimit_wartet_und_sendet_erneut(monkeypatch):
+    """HTTP 429 ist kein Fehler des Belegs: Nach Retry-After noch einmal, dann erst aufgeben."""
+    import email.message
+    import urllib.error
+    import urllib.request
+
+    from zollpilot_extraktion import anbieter
+
+    kopf = email.message.Message()
+    kopf["Retry-After"] = "0"
+    versuche: list[int] = []
+    gewartet: list[float] = []
+
+    class Antwort:
+        headers = {"Operation-Location": "https://beispiel.invalid/op/1"}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    def urlopen(anfrage, timeout=0):
+        versuche.append(1)
+        if len(versuche) < 3:
+            raise urllib.error.HTTPError(anfrage.full_url, 429, "Too Many Requests", kopf, io.BytesIO(b""))
+        return Antwort()
+
+    monkeypatch.setattr(urllib.request, "urlopen", urlopen)
+    monkeypatch.setattr(anbieter.time, "sleep", gewartet.append)
+    anfrage = urllib.request.Request("https://beispiel.invalid/analyze", data=b"{}", method="POST")
+    assert anbieter._sende_mit_geduld(anfrage) == "https://beispiel.invalid/op/1"
+    assert len(versuche) == 3
+    assert gewartet == [0.0, 0.0]
+
+    versuche.clear()
+    monkeypatch.setattr(anbieter, "RATENLIMIT_VERSUCHE", 2)
+    with pytest.raises(urllib.error.HTTPError):
+        anbieter._sende_mit_geduld(anfrage)
+    assert len(versuche) == 2

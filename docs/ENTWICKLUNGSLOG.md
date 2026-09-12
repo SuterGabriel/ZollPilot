@@ -435,3 +435,50 @@ davon ein spürbarer Teil für das Einlesen der vier Schichten und des
 Katalogs vor der ersten Zeile. Von Hand geschätzt: drei bis vier Tage, vor
 allem für die CII-Struktur und das Golden Set mit neuer Basislinie.
 Schätzung, keine Messung.
+
+## 2026-09-12, Vergleichslauf gezogen: Azure liest das Golden Set vollständig
+
+**Was gebaut wurde.** Der Azure-Zugang kam am Abend (Free Trial, Document
+Intelligence F0, Region Switzerland North). Die 32 Testbelege wurden
+aufgezeichnet, in 14 Dateien, weil der Hash den Namen gibt und viele PDFs
+über die Akten hinweg byteidentisch sind. Der Vergleichslauf steht: Field
+Exact Match 100 % (570 von 570), 8 von 8 Entscheidungen, dieselben Zahlen wie
+die Basislinie. Dazu ein Backoff bei HTTP 429 im Aufzeichnen, zwei
+Korrekturen in der Übersetzung, vier neue Tests, die Tabelle und der Absatz
+dazu in `docs/EXTRAKTION.md`, ein Absatz im Nachtrag von ADR-005.
+
+**Was gut lief.** Die Nahtstelle hat zum zweiten Mal gehalten. Als der erste
+Lauf 26,8 % ergab, lag der Fehler in `anbieter.py`, nicht in einem
+Feldextraktor, und die Korrektur blieb dort. Der Schlüssel lag nur in einer
+PowerShell-Sitzung; im Repo steht keiner, und der Schlüssel wurde nach der
+Aufzeichnung in Azure erneuert, weil er halb in einem Screenshot stand.
+
+**Was nicht funktionierte.** Drei Anläufe fürs Aufzeichnen: Erst schlug das
+Ratenlimit der Stufe F0 zu (20 Aufrufe pro Minute, zwei Belege mit 429),
+dann ein lokaler Verbindungsabbruch bei einem Beleg. Das Skript überspringt
+Aufgezeichnetes, also holte jeder Lauf nur die Reste; den Backoff gab es
+vorher nicht, weil der Anbieter nie live lief. Dann der erste Vergleichslauf:
+26,8 %, 0 von 8. Die Übersetzung war auf einem handgeschriebenen
+Schemabeispiel gebaut und hielt Azures `lines` für Zeilen; sie sind Zellen,
+eine Tabellenzeile kam als sieben Zeilen an. Zweitens trennt Azure
+Satzzeichen ab (`No` `.:`), und weder die Geometrie noch der Gesamttext
+(der dort selbst ein Leerzeichen trägt) sagen, ob ein Leerzeichen war. Die
+Regel ist jetzt: Ein Satzzeichenwort dichter als eine Spalte am vorigen Wort
+gehört zu ihm. Drittens der schiefe Scan: Die Oberkante wandert über eine
+Tabellenzeile um elf Punkte, die Zeilenbildung nach Oberkante riss die
+Tabelle auseinander. Jetzt schließt jedes Wort an seinen linken Nachbarn an;
+zwischen Nachbarn bleibt die Abweichung unter vier Punkten. Azures eigene
+Winkelangabe (`angle`, minus 0,55 Grad) hätte nicht gereicht, der Scan ist
+sichtbar schiefer.
+
+**Was die Testsuite abgefangen hat.** Nichts vor dem Lauf, und das ist die
+Lehre: Alle elf Anbietertests waren grün, weil sie dieselbe Annahme trugen
+wie der Code. Erst die Bewertung gegen das Golden Set mit echten Antworten
+fand die Fehler. Deshalb liegen die Aufzeichnungen jetzt im Repo und
+`bewertung --leser azure` ist Teil dessen, was vor einem Commit an
+`anbieter.py` laufen muss.
+
+**Zeitschätzung.** Zugang anlegen mit Klickanleitung etwa dreißig Minuten,
+Aufzeichnen und Korrektur etwa eine Stunde Agentenzeit. Von Hand geschätzt:
+ein halber Tag, davon der größte Teil für das Nachvollziehen, warum eine
+Tabelle auf einem schiefen Scan auseinanderfällt. Schätzung, keine Messung.

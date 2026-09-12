@@ -23,6 +23,17 @@ Koordinaten: Azure liefert für PDF Zoll (`unit: inch`), für Bilder Pixel. Beid
 werden in PDF-Punkte umgerechnet, damit Fundstellen mit `lesen.py`
 vergleichbar bleiben. Die Konfidenz je Wort ist die des Anbieters, 0 bis 1.
 
+Zwei Eigenheiten, die die Übersetzung ausgleicht, damit dieselben
+Feldextraktoren laufen (am ersten Vergleichslauf gelernt, 2026-09-12):
+
+  - Azures `lines` sind Zellen, nicht Zeilen: In einer Tabelle steht jede
+    Spalte für sich. Die Zeilen entstehen deshalb aus den Wortkoordinaten,
+    Nachbar an Nachbar, damit auch ein schiefer Scan eine Tabellenzeile als
+    eine Zeile ergibt (`_zeilen_entlang_der_nachbarn`).
+  - Azure trennt Satzzeichen ab (`No` `.:` statt `No.:`). Ein Wort, das nur
+    aus Satzzeichen besteht und dicht rechts neben dem vorigen steht, wird
+    wieder angehängt (`_klebe_satzzeichen`).
+
     python -m zollpilot_extraktion.anbieter aufzeichnen      # alle Testbelege
     python -m zollpilot_extraktion.anbieter stand            # was aufgezeichnet ist
 """
@@ -59,7 +70,24 @@ UMGEBUNG_SCHLUESSEL = "ZOLLPILOT_AZURE_DI_KEY"
 API_VERSION = "2024-11-30"
 MODELL = "prebuilt-read"
 ABFRAGE_INTERVALL_S = 1.5
+# Ratenlimit (HTTP 429): so oft warten und erneut senden; die Stufe F0 erlaubt
+# 20 Aufrufe pro Minute, eine Aufzeichnung aller Testbelege reißt das sonst.
+RATENLIMIT_VERSUCHE = 5
+RATENLIMIT_WARTEZEIT_S = 15.0
 ABFRAGE_MAX_S = 120
+
+# Zeilenbildung, zwischen Nachbarn: Azures Polygone umschließen die Glyphen
+# eng, deshalb liegt die Oberkante einer Ziffer bis zu drei Punkte unter der
+# eines Großbuchstabens derselben Zeile. Die Toleranz ist darum weiter als beim
+# Textlayer, aber deutlich unter einem Zeilenabstand (mindestens zwölf Punkte
+# im Golden Set).
+ZEILEN_TOLERANZ_PT = 4.5
+# Ein Wort nur aus diesen Zeichen ist ein abgetrenntes Satzzeichen und gehört
+# zum Wort links davon, wenn die Lücke kleiner ist als jeder Spaltenabstand
+# (im Golden Set mindestens fünfzehn Punkte) und nicht viel größer als ein
+# Leerzeichen (bei neun Punkt Schrift etwa zweieinhalb).
+KLEBE_LUECKE_PT = 6.0
+SATZZEICHEN = set(".:,;!?)]}%'\"")
 
 WURZEL = Path(__file__).resolve().parents[2]
 FIXTURES = WURZEL / "extraktion" / "tests" / "fixtures" / "anbieter" / ANBIETER_AZURE
@@ -130,30 +158,67 @@ def _wort_aus(eintrag: dict[str, Any], fx: float, fy: float) -> Wort:
     )
 
 
-def _zeilen_aus(seite: dict[str, Any], woerter: list[tuple[int, Wort]]) -> list[Zeile]:
-    """Azure kennt seine Zeilen; die Zuordnung läuft über die Textspannen.
+def _klebe_satzzeichen(woerter: list[Wort], luecke: float = KLEBE_LUECKE_PT) -> list[Wort]:
+    """Azure trennt Satzzeichen als eigene Wörter ab; Textlayer und Tesseract tun das nicht.
 
-    Jedes Wort trägt einen Versatz in den Gesamttext, jede Zeile eine oder
-    mehrere Spannen. Ein Wort gehört zu der Zeile, deren Spanne seinen
-    Versatz enthält. Wörter ohne Zeile werden nicht verworfen, sondern
-    bilden je eine eigene.
+    Ein Wort nur aus Satzzeichen, das in derselben Zeile rechts neben dem
+    vorigen Wort steht, gehört zu ihm. Ob dazwischen ein Leerzeichen war,
+    lässt sich nicht ablesen: Der Gesamttext der Antwort enthält vor dem
+    abgetrennten Zeichen selbst eines (`No .:`), und die Polygone umschließen
+    die Glyphen so eng, dass die Lücke vor einem echten Leerzeichen kleiner
+    sein kann als die vor einem Punkt. Deshalb zählt nur, dass das Zeichen
+    näher steht als eine Spalte. Konfidenz: Minimum beider; Box: verlängert.
     """
-    zeilen: list[Zeile] = []
-    zugeordnet: set[int] = set()
-    for zeile in seite.get("lines") or []:
-        spannen = [(int(s["offset"]), int(s["offset"]) + int(s["length"])) for s in zeile.get("spans") or []]
-        eigene = [w for i, (versatz, w) in enumerate(woerter) if any(a <= versatz < b for a, b in spannen) and i not in zugeordnet]
-        if not eigene:
-            continue
-        for i, (versatz, _) in enumerate(woerter):
-            if any(a <= versatz < b for a, b in spannen):
-                zugeordnet.add(i)
-        zeilen.append(Zeile(sorted(eigene, key=lambda w: w.x0)))
-    for i, (_, w) in enumerate(woerter):
-        if i not in zugeordnet:
-            zeilen.append(Zeile([w]))
-    zeilen.sort(key=lambda z: (z.top, z.x0))
-    return zeilen
+    ergebnis: list[Wort] = []
+    for wort in woerter:
+        voriges = ergebnis[-1] if ergebnis else None
+        if (
+            voriges is not None
+            and set(wort.text) <= SATZZEICHEN
+            and -1.0 <= wort.x0 - voriges.x1 <= luecke
+            and abs(wort.top - voriges.top) <= ZEILEN_TOLERANZ_PT
+        ):
+            ergebnis[-1] = Wort(
+                text=voriges.text + wort.text,
+                x0=voriges.x0,
+                top=min(voriges.top, wort.top),
+                x1=max(voriges.x1, wort.x1),
+                bottom=max(voriges.bottom, wort.bottom),
+                konfidenz=min(voriges.konfidenz, wort.konfidenz),
+            )
+        else:
+            ergebnis.append(wort)
+    return ergebnis
+
+
+def _zeilen_entlang_der_nachbarn(woerter: list[Wort], toleranz: float = ZEILEN_TOLERANZ_PT) -> list[Zeile]:
+    """Zeilen bilden, indem jedes Wort an die Zeile anschließt, deren rechtes Ende ihm am nächsten liegt.
+
+    `lesen.py` gruppiert nach der Oberkante des ersten Wortes einer Zeile. Das
+    reicht für Textlayer, weil dort nichts schief steht. Ein Scan steht
+    schief, und Azure gibt die Wörter so zurück, wie sie im Bild liegen:
+    Über eine Tabellenzeile hinweg wandert die Oberkante um mehr als die
+    Toleranz. Tesseract löst das mit eigener Zeilenerkennung, Azure liefert
+    nur Zellen. Deshalb hier: Von links nach rechts schließt ein Wort an die
+    Zeile an, deren letztes Wort links von ihm steht und in der Oberkante
+    höchstens um die Toleranz abweicht; die Abweichung zwischen Nachbarn
+    bleibt bei einem schiefen Scan klein, auch wenn sie über die Zeile groß
+    wird. Passt keine Zeile, beginnt eine neue.
+    """
+    zeilen: list[list[Wort]] = []
+    for wort in sorted(woerter, key=lambda w: (w.x0, w.top)):
+        beste: list[Wort] | None = None
+        for zeile in zeilen:
+            letztes = zeile[-1]
+            if wort.x0 < letztes.x1 - 1.0 or abs(letztes.top - wort.top) > toleranz:
+                continue
+            if beste is None or abs(zeile[-1].top - wort.top) < abs(beste[-1].top - wort.top):
+                beste = zeile
+        if beste is None:
+            zeilen.append([wort])
+        else:
+            beste.append(wort)
+    return sorted((Zeile(z) for z in zeilen), key=lambda z: (z.top, z.x0))
 
 
 def uebersetze_azure(antwort: dict[str, Any], daten: bytes, dateiname: str) -> Beleg:
@@ -171,21 +236,17 @@ def uebersetze_azure(antwort: dict[str, Any], daten: bytes, dateiname: str) -> B
             raise AnbieterAntwortUnbrauchbar(f"Antwort nennt Seite {nummer}, das PDF hat {len(groessen)}")
         breite_pt, hoehe_pt = groessen[nummer - 1]
         fx, fy = _faktor(seite, breite_pt, hoehe_pt)
-        woerter: list[tuple[int, Wort]] = []
-        for eintrag in seite.get("words") or []:
-            wort = _wort_aus(eintrag, fx, fy)
-            if not wort.text:
-                continue
-            versatz = int((eintrag.get("span") or {}).get("offset", -1))
-            woerter.append((versatz, wort))
+        roh = [_wort_aus(eintrag, fx, fy) for eintrag in seite.get("words") or []]
+        # Azure nennt die Wörter in Lesereihenfolge; das Kleben braucht Nachbarn.
+        woerter = _klebe_satzzeichen([w for w in roh if w.text])
         seiten.append(
             Seite(
                 nummer=nummer,
                 breite=breite_pt,
                 hoehe=hoehe_pt,
                 methode=METHODE_AZURE,
-                woerter=[w for _, w in woerter],
-                zeilen=_zeilen_aus(seite, woerter),
+                woerter=woerter,
+                zeilen=_zeilen_entlang_der_nachbarn(woerter),
             )
         )
     return Beleg(dateiname=dateiname, hash_sha256=sha256(daten), seiten=seiten)
@@ -199,6 +260,22 @@ def _zugang() -> tuple[str, str] | None:
     return None
 
 
+def _sende_mit_geduld(anfrage: urllib.request.Request) -> str | None:
+    """Analyse anstoßen; bei 429 nach Retry-After (oder fester Wartezeit) erneut."""
+    for versuch in range(1, RATENLIMIT_VERSUCHE + 1):
+        try:
+            with urllib.request.urlopen(anfrage, timeout=60) as antwort:
+                return antwort.headers.get("Operation-Location")
+        except urllib.error.HTTPError as e:
+            if e.code != 429 or versuch == RATENLIMIT_VERSUCHE:
+                raise
+            kopf = e.headers.get("Retry-After") if e.headers else None
+            wartezeit = float(kopf) if kopf and kopf.isdigit() else RATENLIMIT_WARTEZEIT_S
+            print(f"       Ratenlimit, warte {wartezeit:.0f} s (Versuch {versuch} von {RATENLIMIT_VERSUCHE})", flush=True)
+            time.sleep(wartezeit)
+    return None
+
+
 def rufe_azure(daten: bytes, endpunkt: str, schluessel: str) -> dict[str, Any]:
     """Ein Aufruf: Analyse anstoßen, Ergebnis abholen. Gibt die vollständige Antwort zurück."""
     url = f"{endpunkt}/documentintelligence/documentModels/{MODELL}:analyze?api-version={API_VERSION}"
@@ -209,8 +286,7 @@ def rufe_azure(daten: bytes, endpunkt: str, schluessel: str) -> dict[str, Any]:
         method="POST",
         headers={"Content-Type": "application/json", "Ocp-Apim-Subscription-Key": schluessel},
     )
-    with urllib.request.urlopen(anfrage, timeout=60) as antwort:
-        ort = antwort.headers.get("Operation-Location")
+    ort = _sende_mit_geduld(anfrage)
     if not ort:
         raise AnbieterAntwortUnbrauchbar("Azure nennt keinen Operation-Location")
 
