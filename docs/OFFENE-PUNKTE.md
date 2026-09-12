@@ -58,9 +58,10 @@ bis dahin ist der Katalog ehrlich markiert.
   eine Menge mit hoher Konfidenz falsch gelesen, bleibt der Befund
   `verletzt` — zu Recht, denn das System kann es nicht besser wissen. Der
   Pfad fängt unsichere Lesungen, nicht sichere Irrtümer.
-- **Nachextraktion als Prozess.** Der Status existiert, der Weg
-  (zweite Engine, Human Review, Rückkehr in die Prüfung) nicht. Das ist der
-  Review-Arbeitsplatz aus Stufe 5 (`DECISIONS.md`).
+- **Nachextraktion als Prozess.** Der Status existiert, der Weg (zweite
+  Engine, Human Review, Rückkehr in die Prüfung) nicht. Stufe 5 hat davon
+  nur die eine Hälfte gebaut: Ein Lesefehler lässt sich verantworten, nicht
+  beheben. Korrigieren bleibt offen.
 - **Ursprungserklärung als eigener Beleg.** Die Extraktion trennt sie aus der
   Rechnung heraus (`felder/ursprungserklaerung.py`) und leitet Ursprungswert
   und Warenkreis aus den Positionen ab. Ob das auf echten Rechnungen hält,
@@ -94,9 +95,14 @@ bis dahin ist der Katalog ehrlich markiert.
   (`05-prozess-nachforderung.md`). Der Prototyp beginnt am Webhook.
 - **Eskalation ist Daten, nicht Prozess.** `zustaendigkeiten.yaml` kennt die
   Stufen; niemand löst sie zeitgesteuert aus.
-- **Kein Override-Pfad.** Die Tabelle `override` existiert, der Workflow
-  nicht — und die Oberfläche kann deshalb einreichen und lesen, aber nicht
-  eingreifen (`docs/OBERFLAECHE.md`). Das ist Stufe 5.
+- **Der Override kennt keinen Menschen, nur ein Namensfeld.** Der Pfad ist
+  gebaut (Stufe 5, ADR-007): übersteuern, erneut prüfen, beides ablegen. Wer
+  aber den Namen tippt, prüft niemand. Ohne Anmeldung ist jeder Override im
+  Audit eine Behauptung — und das ist der Blocker vor jedem Betrieb, nicht
+  ein Schönheitsfehler.
+- **Verbrauchte Overrides benachrichtigen niemanden.** Eine Katalogänderung
+  entwertet sie richtigerweise. Wer davon erfährt, ist nicht gebaut: Die
+  Akte müsste erneut geprüft werden, damit es überhaupt auffällt.
 - **Die Oberfläche zeigt keine Fundstelle.** Jede Assertion trägt Seite und
   Bounding Box; das PDF wird nicht angezeigt und nichts darin markiert. Ohne
   das bleibt `re_extraction_required` eine Aufforderung ohne Werkzeug.

@@ -140,7 +140,8 @@ docker run --rm -v "$PWD:/host" -e PYTHONPATH=/host/extraktion -w /host/extrakti
   französische Rechnung ist `unclassified`.
 - **Den Weg nach der Nachextraktion.** `re_extraction_required` ist ein
   Status. Wer nachliest, womit, und wie das Ergebnis zurück in die Prüfung
-  kommt, ist nicht gebaut (Stufe 4, Review-Arbeitsplatz).
+  kommt, ist nicht gebaut. Übersteuern geht (Stufe 5, ADR-007) — aber ein
+  übersteuerter Lesefehler ist verantwortet, nicht behoben.
 
 ## Was ein Anbieter ersetzen würde
 
