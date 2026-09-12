@@ -78,10 +78,16 @@ bis dahin ist der Katalog ehrlich markiert.
 - **Katalog im Code-Node eingebettet** (ADR-004). Eine Schwellenänderung
   braucht Bundle und Import. Laden aus Postgres zur Laufzeit wäre der nächste
   Schritt.
-- **Assertions werden nicht abgelegt.** `document_field_assertion` und
-  `canonical_fact` existieren als Tabellen; der Workflow schreibt nur
-  `pruefung`. Die Fundstellen liegen in der Ausführung, die nach 14 Tagen
-  gelöscht wird. Für den Review-Arbeitsplatz muss das anders sein.
+- **Assertions werden abgelegt, Originale nicht.** Seit ADR-010 schreibt
+  jede Prüfung Stammdaten, Belege und Assertions nach Postgres, nur
+  anhängend. Die PDFs selbst bleiben draußen: Kein Review-Arbeitsplatz
+  kann die Fundstelle im Bild zeigen, keine erneute Extraktion mit einem
+  anderen Leser ist auf abgelegte Akten möglich. Und wie lange die
+  Aktendaten bleiben, ist eine Betriebsfrage (`DATENSCHUTZ.md`).
+- **Zwei finale Belege desselben Typs** entstehen jetzt öfter: Ein
+  Eingang mit einer neuen Fassung der Rechnung steht neben der alten. Die
+  spätere Assertion gewinnt stillschweigend; die Konfliktregel aus dem
+  Abschnitt oben wird damit dringender.
 - **Zusammengesetzte PDFs.** Ein PDF ist ein Beleg. Rechnung und Packliste in
   einer Datei werden nicht aufgetrennt (PROJECT.md verlangt es).
 - **Base64 durch n8n.** Die PDFs gehen als Base64 im JSON vom Code-Node zum
@@ -93,9 +99,15 @@ bis dahin ist der Katalog ehrlich markiert.
   `zustaendigkeiten.yaml` und zeigt auf GreenMail. Wer beim Kunden hinter
   „Lieferant/Verkäufer“ steht, ist Stammdatenpflege je Sendung, die es
   nicht gibt; bis dahin bekommt jede Rolle ein festes Postfach.
-- **Kein Mail-Intake.** Der Zielprozess beginnt mit E-Mail und Anhängen
-  (`05-prozess-nachforderung.md`). Der Prototyp beginnt am Webhook; der
-  Versand geht seit ADR-009 hinaus, der Rückweg ist noch nicht gebaut.
+- **Der Mail-Eingang kennt nur die Aktennummer.** Eine Antwort findet ihre
+  Akte über `ZP-JJJJ-NNNN` in Betreff oder Text (ADR-010). Antwortet ein
+  Lieferant ohne die Nummer, steht die Mail als unzugeordnet in
+  `mail_eingang`, und den Bildschirm, um sie von Hand zuzuordnen, gibt es
+  nicht. Eine Zuordnung über Rechnungs- oder Containernummer gegen die
+  abgelegten Assertions wäre eine Regel und gehörte nach `src/`.
+- **Kein Eingang über die Erstanlage.** Der Posteingang ergänzt eine Akte,
+  die schon geprüft wurde. Eine Sendung, deren erste Belege per Mail
+  kommen, hat keine Stammdaten; sie landet als unzugeordnet.
 - **Eine Stufe je Lauf, ein Lauf je Tag.** Der Nachforderungs-Workflow
   klettert höchstens eine Eskalationsstufe pro Tag. Wer nach einem
   Wochenende zwei Stufen versäumt hat, holt sie an zwei Tagen nach, nicht

@@ -176,7 +176,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        780,
+        1040,
         300
       ],
       "notes": "Der Statuscode folgt der Entscheidung unter Berücksichtigung menschlicher Verantwortung, nicht der reinen Regelentscheidung (ADR-007). Ohne Übersteuerung sind beide gleich. Die reine Regelentscheidung steht unverändert als freigabe im Rumpf — sie wird nie überschrieben, nur der Transport richtet sich nach dem, was der Aufrufer tun soll.",
@@ -195,7 +195,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1040,
+        1300,
         180
       ]
     },
@@ -212,7 +212,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1040,
+        1300,
         420
       ],
       "notes": "Das vollstaendige Ergebnis mit Befunden und Nachforderungen, HTTP 422. Der Versand der Nachforderungen ist kein Teil dieser Antwort: Er ist ein Vorgang mit Zustand und Stufen im Workflow zollpilot-nachforderung (ADR-009)."
@@ -446,6 +446,46 @@
         }
       },
       "notes": "Die Zeile, die POST /webhook/wiederholen spaeter liest. Bei Datenbankfehler laeuft der Zweig weiter: Die Antwort an den Aufrufer ist wichtiger als die Ablage."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Transport (ADR-010): Was die Akte an Stammdaten, Belegen und Assertions\n// hereingebracht hat, wird neben dem Ergebnis abgelegt. Auf dem Belege-Pfad\n// steht das in der Ausgabe der Extraktion, auf dem Akte-Pfad im Rumpf des\n// Webhooks; der abgefangene Zugriff liest beide Ausgänge (siehe Wiedervorlage).\nconst ausgabe = (name) => {\n  for (const ausgang of [0, 1]) {\n    try {\n      const item = $(name).first(ausgang);\n      if (item && item.json) return item.json;\n    } catch (e) { /* nicht gelaufen oder kein Item auf diesem Ausgang */ }\n  }\n  return null;\n};\nconst ergebnis = $('Akte prüfen').first().json;\nconst extrahiert = ausgabe('Belege extrahieren');\nconst eingang = Array.isArray(extrahiert?.dokumente) ? extrahiert : (ausgabe('Akte eingegangen')?.body ?? {});\nconst { dokumente = [], assertions = [], overrides, extraktion, ...stammdaten } = eingang;\nreturn [{ json: {\n  akte_id: ergebnis.akte_id,\n  stammdaten,\n  freigabe: ergebnis.freigabe_nach_override ?? ergebnis.freigabe,\n  quelle: stammdaten.quelle ?? (Array.isArray(extrahiert?.dokumente) ? 'belege' : 'akte'),\n  dokumente: dokumente.map((d) => ({ id: d.id, typ: d.typ, status: d.status, version: d.version ?? 1, aussteller: d.aussteller ?? null, hash: d.hash ?? null })),\n  assertions: assertions.map((a) => ({ dokument: a.dokument, pfad: a.pfad, roh: a.roh ?? null, wert: a.wert ?? null, konfidenz: a.konfidenz ?? null, seite: a.seite ?? null, bbox: a.bbox ?? null, methode: a.methode ?? null, herleitung: a.herleitung ?? null })),\n} }];"
+      },
+      "id": "akte-ablegen-vorbereiten",
+      "name": "Akte ablegen vorbereiten",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        180
+      ],
+      "notes": "Sammelt Stammdaten, Belege und Assertions des Eingangs fuer die Ablage (ADR-010). Nur Umformen, keine Entscheidung."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH e AS (SELECT $1::jsonb AS d),\ns AS (\n  INSERT INTO shipment (akte_id, richtung, verkehrstraeger, incoterm_code, incoterm_ort, praeferenz, status, stammdaten, zuletzt_geprueft_am)\n  SELECT d->>'akte_id',\n         COALESCE(d->'stammdaten'->'sachverhalt'->>'richtung', 'unbekannt'),\n         COALESCE(d->'stammdaten'->'sachverhalt'->>'verkehrstraeger', 'unbekannt'),\n         d->'stammdaten'->'sachverhalt'->'incoterm'->>'code',\n         d->'stammdaten'->'sachverhalt'->'incoterm'->>'named_place',\n         COALESCE((d->'stammdaten'->'sachverhalt'->>'praeferenz_beansprucht')::boolean, false),\n         COALESCE(d->>'freigabe', 'offen'), d->'stammdaten', now()\n  FROM e\n  ON CONFLICT (akte_id) DO UPDATE SET stammdaten = EXCLUDED.stammdaten, status = EXCLUDED.status,\n    zuletzt_geprueft_am = now(), richtung = EXCLUDED.richtung, verkehrstraeger = EXCLUDED.verkehrstraeger,\n    incoterm_code = EXCLUDED.incoterm_code, incoterm_ort = EXCLUDED.incoterm_ort, praeferenz = EXCLUDED.praeferenz\n  RETURNING akte_id),\nneu AS (\n  INSERT INTO document (akte_id, dokument_id, typ, status, version, aussteller, hash_sha256, quelle)\n  SELECT (SELECT akte_id FROM s), x.id, x.typ, x.status, COALESCE(x.version, 1), x.aussteller, x.hash, (SELECT d->>'quelle' FROM e)\n  FROM jsonb_to_recordset((SELECT d->'dokumente' FROM e)) AS x(id text, typ text, status text, version int, aussteller text, hash text)\n  ON CONFLICT DO NOTHING\n  RETURNING id, dokument_id),\na AS (\n  INSERT INTO document_field_assertion (dokument, akte_id, pfad, rohwert, wert, konfidenz, seite, bbox, methode, herleitung)\n  SELECT n.id, (SELECT akte_id FROM s), y.pfad, y.roh, y.wert, y.konfidenz, y.seite, y.bbox, y.methode, y.herleitung\n  FROM jsonb_to_recordset((SELECT d->'assertions' FROM e)) AS y(dokument text, pfad text, roh text, wert jsonb, konfidenz numeric, seite int, bbox jsonb, methode text, herleitung text)\n  JOIN neu n ON n.dokument_id = y.dokument\n  RETURNING id)\nSELECT (SELECT akte_id FROM s) AS akte_id, (SELECT count(*) FROM neu) AS dokumente_neu, (SELECT count(*) FROM a) AS assertions_neu",
+        "options": {
+          "queryReplacement": "={{ [ JSON.stringify($json) ] }}"
+        }
+      },
+      "id": "akte-ablegen",
+      "name": "Akte ablegen",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        800,
+        180
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "notes": "Stammdaten nach shipment, Belege nach document, Assertions nach document_field_assertion; bekannte Belege (gleiche Kennung oder gleicher Hash je Akte) werden nicht noch einmal abgelegt. Bei Datenbankfehler laeuft der Flow weiter: Die Antwort an den Aufrufer ist wichtiger als die Ablage."
     }
   ],
   "connections": {
@@ -482,7 +522,7 @@
       "main": [
         [
           {
-            "node": "Freigabereif?",
+            "node": "Akte ablegen vorbereiten",
             "type": "main",
             "index": 0
           }
@@ -581,6 +621,28 @@
         [
           {
             "node": "Antwort: Lauf gescheitert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Akte ablegen vorbereiten": {
+      "main": [
+        [
+          {
+            "node": "Akte ablegen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Akte ablegen": {
+      "main": [
+        [
+          {
+            "node": "Freigabereif?",
             "type": "main",
             "index": 0
           }

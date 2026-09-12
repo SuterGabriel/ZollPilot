@@ -90,7 +90,8 @@ services:
         n8n update:workflow --id=zollpilot-wiederholen --active=true
         n8n update:workflow --id=zollpilot-alarm --active=true
         n8n update:workflow --id=zollpilot-nachforderung --active=true
-        echo "Import abgeschlossen: Prüf-, Wiederholungs-, Alarm- und Nachforderungs-Workflow aktiv."
+        n8n update:workflow --id=zollpilot-eingang --active=true
+        echo "Import abgeschlossen: Prüf-, Wiederholungs-, Alarm-, Nachforderungs- und Eingangs-Workflow aktiv."
     depends_on:
       postgres:
         condition: service_healthy

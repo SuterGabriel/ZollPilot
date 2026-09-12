@@ -222,6 +222,8 @@ je Schweregrad im Alertmanager eintragen (`route` in `alertmanager.yml`).
 | Ein Alarm feuert | Tabelle oben: Alarmname, Prüfen, Handgriff. Der Alarm steht auch in `alarm` und im Dashboard |
 | Nachforderungen sofort versenden statt morgen früh | `curl -X POST -H 'Content-Type: application/json' -d '{"akte_id":"ZP-2026-0002"}' localhost:5678/webhook/nachforderungen`; ohne `akte_id` für alle Akten. Was versandt wurde: `select * from request_versand order by versandt_am desc` |
 | Nachsehen, was im Testpostfach liegt | `curl localhost:8025/api/user/lieferant@zollpilot.test/messages`; die Postfächer stehen in `compose.yml` unter `greenmail` |
+| Eine Antwort per Mail ist nicht angekommen | `select * from mail_eingang order by empfangen_am desc limit 10`: steht sie mit `zugeordnet = false`, sagt `grund`, warum (keine Aktennummer, keine Anhänge, Akte nie geprüft). Steht sie gar nicht: `docker compose logs n8n \| grep -i imap`; das Postfach ist `eingang@zollpilot.test` |
+| Eine Akte nachlesen, wie sie abgelegt ist | `select dokument_id, typ, status, quelle, eingegangen_am from document where akte_id = '…'`; die Werte je Feld in `document_field_assertion` (ADR-010) |
 | Eine Nachforderung schließt sich nicht, obwohl der Beleg da ist | Erledigt wird beim nächsten Lauf des Nachforderungs-Workflows (ADR-009). Sofort: den Webhook oben aufrufen. Bleibt sie offen, vermisst die letzte Prüfung den Wert noch: `select ergebnis->'nachforderungen' from pruefung where akte_id = '…' order by geprueft_am desc limit 1` |
 | Dashboard zeigt keine Zahlen | `docker compose ps sql-exporter prometheus`; unter `http://localhost:9090/targets` muss jedes Ziel `UP` sein |
 | Schema in `deploy/postgres/init.sql` geändert | Läuft nur beim ersten Start: `docker compose down -v && docker compose up -d --wait`. Löscht beide Datenbanken |
@@ -278,11 +280,14 @@ Ehrlich aufgeschrieben, damit die Übergabe keine Überraschung wird:
   Akten am Tag, nicht für Tausende.
 - **Kein Kubernetes.** Compose ist Entwicklung und Demo. Ein Chart wäre Stufe 4
   und nur dann ehrlich, wenn er in der CI ausgerollt wird.
-- **Der Versand geht an ein Testpostfach.** GreenMail nimmt an, was der
-  Nachforderungs-Workflow schickt, und vergisst es beim Neustart. Nötig:
-  die SMTP-Credential des Kunden in `deploy/n8n/credentials.json` und der
-  echte Verteiler in `zustaendigkeiten.yaml`. Der Eingang (Antworten mit
-  Anhang) ist noch nicht angebunden.
+- **Post läuft über ein Testpostfach.** GreenMail nimmt an, was der
+  Nachforderungs-Workflow schickt, liefert dem Posteingang, was als
+  Antwort kommt, und vergisst beides beim Neustart. Nötig: die SMTP- und
+  IMAP-Credentials des Kunden in `deploy/n8n/credentials.json` und der
+  echte Verteiler in `zustaendigkeiten.yaml`.
+- **Aktendaten bleiben, bis jemand löscht.** Seit ADR-010 liegt jede
+  geprüfte Akte mit Rohwerten in Postgres. Eine Löschregel nach Ablauf der
+  Aufbewahrung gibt es nicht (`docs/DATENSCHUTZ.md`).
 - **Keine Rollen in n8n.** Ein Owner, keine Trennung zwischen Betrieb und
   Fachseite.
 - **Extraktionsdienst ohne Authentifizierung und ohne Begrenzung.** Er

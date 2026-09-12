@@ -10,6 +10,10 @@
 CREATE DATABASE zollpilot;
 \connect zollpilot
 
+-- Die Akte selbst (ADR-010): Stammdaten als JSON, wie sie am Webhook
+-- ankommen, dazu die letzte Entscheidung. Der Prüf-Workflow schreibt sie bei
+-- jeder Prüfung; der Eingangs-Workflow liest sie, um eine Antwort mit einem
+-- einzelnen Beleg zur vollständigen Akte zu ergänzen.
 CREATE TABLE shipment (
   akte_id           text PRIMARY KEY,
   richtung          text NOT NULL,
@@ -17,36 +21,61 @@ CREATE TABLE shipment (
   incoterm_code     text,
   incoterm_ort      text,
   praeferenz        boolean NOT NULL DEFAULT false,
-  status            text NOT NULL DEFAULT 'offen',
-  angelegt_am       timestamptz NOT NULL DEFAULT now()
+  status            text NOT NULL DEFAULT 'offen',   -- die letzte Entscheidung
+  stammdaten        jsonb,
+  angelegt_am       timestamptz NOT NULL DEFAULT now(),
+  zuletzt_geprueft_am timestamptz
 );
 
+-- Ein Beleg je Akte, eindeutig über seine Kennung in der Akte und über den
+-- Hash der Datei. Derselbe Beleg ein zweites Mal ändert nichts (ADR-010);
+-- eine Korrektur ist ein neuer Beleg mit neuer Kennung.
 CREATE TABLE document (
-  id                text PRIMARY KEY,
+  id                bigserial PRIMARY KEY,
   akte_id           text NOT NULL REFERENCES shipment(akte_id),
+  dokument_id       text NOT NULL,          -- Kennung in der Akte: INV-1, BL-1, UE-1-E2 ...
   typ               text NOT NULL,          -- handelsrechnung, packliste, bill_of_lading, origin_declaration, unclassified, ...
   status            text NOT NULL,          -- draft | final
   version           integer NOT NULL DEFAULT 1,
   aussteller        text,
-  hash_sha256       text NOT NULL,
-  quelle            text,                   -- Mail-Thread, Upload, API
+  hash_sha256       text,
+  quelle            text,                   -- webhook | mail | api
   eingegangen_am    timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (akte_id, dokument_id),
   UNIQUE (akte_id, hash_sha256)             -- Duplikat über Hash
 );
 
--- Was ein Beleg sagt. Wird nie überschrieben, nur ergänzt.
+-- Was ein Beleg sagt. Wird nie überschrieben, nur ergänzt (ADR-001).
 CREATE TABLE document_field_assertion (
   id                bigserial PRIMARY KEY,
-  dokument_id       text NOT NULL REFERENCES document(id),
+  dokument          bigint NOT NULL REFERENCES document(id),
+  akte_id           text NOT NULL,
   pfad              text NOT NULL,          -- z. B. rechnung.positionen.0.hs6
   rohwert           text,
   wert              jsonb,
   konfidenz         numeric(4,3),
   seite             integer,
   bbox              jsonb,
-  methode           text,                   -- textlayer | ocr | vision_llm | manuell
+  methode           text,                   -- textlayer | ocr | strukturiert | abgeleitet | manuell
+  herleitung        text,
   modellversion     text,
   erzeugt_am        timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX document_field_assertion_akte_idx ON document_field_assertion (akte_id, pfad);
+
+-- Jede Mail am Eingang (ADR-010), zugeordnet oder nicht. Eine Mail ohne
+-- erkennbare Akte verschwindet nicht; sie steht hier mit Grund.
+CREATE TABLE mail_eingang (
+  id                bigserial PRIMARY KEY,
+  akte_id           text,                   -- NULL: nicht zugeordnet
+  von               text,
+  betreff           text,
+  mail_id           text,
+  anhaenge          integer NOT NULL DEFAULT 0,
+  zugeordnet        boolean NOT NULL DEFAULT false,
+  grund             text,                   -- warum nicht zugeordnet
+  freigabe          text,                   -- Entscheidung nach der erneuten Prüfung
+  empfangen_am      timestamptz NOT NULL DEFAULT now()
 );
 
 -- Was die Akte für wahr hält, mit Herkunft. Eine Korrektur ist eine neue

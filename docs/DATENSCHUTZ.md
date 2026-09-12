@@ -61,6 +61,15 @@ Ausführungen: 14 Tage, danach löschen. Der Job dafür ist nicht gebaut
 (`docs/BETRIEB.md`, „Was vor einem echten Betrieb fehlt“); bis dahin ist es
 ein Handgriff: `delete from wiedervorlage where angelegt_am < now() - interval '14 days'`.
 
+**Die Akte liegt dauerhaft in Postgres, mit Rohwerten.** Seit ADR-010
+schreibt jede Prüfung Stammdaten, Belege und Assertions in `shipment`,
+`document` und `document_field_assertion`: Parteien, Preise, Nummern, je
+Feld mit Rohwert und Fundstelle. Vorher war das nur `pruefung.ergebnis`.
+Die Aufbewahrung folgt der Zollpflicht (Art. 51 UZK: drei Jahre; § 147 AO:
+zehn), nicht der Frist für Ausführungen. Löschen nach Ablauf ist nicht
+gebaut. Die Mails am Eingang werden nicht abgelegt, nur Absender, Betreff
+und Zuordnung (`mail_eingang`); die Anhänge liegen im Postfach.
+
 **Metriken tragen keine Belegwerte.** Die Labels der Extraktionsmetriken sind
 Belegtyp und Lesemethode, die des SQL-Exporters Regelkennung, Status und
 Entscheidung. Kein Aktenzeichen, kein Betrag, kein Name; ein Test in
