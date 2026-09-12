@@ -30,12 +30,19 @@ fi
 eml=$(mktemp)
 if [[ -n "$pdf" ]]; then
   [[ -f "$pdf" ]] || { echo "Datei nicht gefunden: $pdf" >&2; exit 2; }
-  PDF="$pdf" VON="$von" AN="$an" BETREFF="$betreff" TEXT="$text" node -e "
-const fs=require('fs');const e=process.env;
-const inhalt=fs.readFileSync(e.PDF).toString('base64').match(/.{1,76}/g).join('\r\n');
-const name=require('path').basename(e.PDF);const g='zollpilot-'+Date.now();
-process.stdout.write(['From: '+e.VON,'To: '+e.AN,'Subject: '+e.BETREFF,'MIME-Version: 1.0','Content-Type: multipart/mixed; boundary=\"'+g+'\"','','--'+g,'Content-Type: text/plain; charset=utf-8','',e.TEXT,'','--'+g,'Content-Type: application/pdf; name=\"'+name+'\"','Content-Transfer-Encoding: base64','Content-Disposition: attachment; filename=\"'+name+'\"','',inhalt,'--'+g+'--',''].join('\r\n'));
-" > "$eml"
+  # Nur bash, coreutils und curl: Das Skript soll auch dort laufen, wo Git
+  # Bash `node` nicht auf dem Pfad hat.
+  name=$(basename "$pdf")
+  grenze="zollpilot-$(date +%s)"
+  {
+    printf 'From: %s\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\n' "$von" "$an" "$betreff"
+    printf 'Content-Type: multipart/mixed; boundary="%s"\r\n\r\n' "$grenze"
+    printf -- '--%s\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n%s\r\n\r\n' "$grenze" "$text"
+    printf -- '--%s\r\nContent-Type: application/pdf; name="%s"\r\n' "$grenze" "$name"
+    printf 'Content-Transfer-Encoding: base64\r\nContent-Disposition: attachment; filename="%s"\r\n\r\n' "$name"
+    base64 -w 76 "$pdf" | sed 's/$/\r/'
+    printf -- '--%s--\r\n' "$grenze"
+  } > "$eml"
 else
   printf 'From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s\r\n' "$von" "$an" "$betreff" "$text" > "$eml"
 fi
