@@ -276,6 +276,14 @@ else
 fi
 
 echo
+# Runde 5 hinterlässt eine Wiedervorlage, die nie durchlaufen kann: Die Akte
+# war absichtlich kaputt. Der Fehlerzweig kann das nicht wissen, der
+# Rauchtest schon. Er verwirft seine eigenen Zeilen, sonst feuert nach
+# 30 Minuten ein Alarm für etwas, das kein Betriebsfall ist.
+verworfen=$(sql "with v as (update wiedervorlage set status = 'verworfen', wiederholt_am = now() where akte_id like 'RAUCHTEST-%' and status = 'offen' returning 1) select count(*) from v")
+echo "  ok    ${verworfen} Wiedervorlagen des Rauchtests verworfen (kaputte Akte aus Runde 5)"
+
+echo
 anzahl=$(sql "select count(*) from pruefung" || echo "?")
 if [[ "$anzahl" =~ ^[0-9]+$ ]] && [[ "$anzahl" -ge "$runden" ]]; then
   echo "  ok    $anzahl Prüfungen in Postgres (pruefung), mindestens $runden erwartet"

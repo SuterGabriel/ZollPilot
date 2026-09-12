@@ -263,10 +263,13 @@ for (const groesse of [
 
 test('bei 900 px Fensterhöhe braucht auch die Aktenspalte keinen Rollbalken', async ({ page }) => {
   // Die Grenze ist gemessen, nicht gewünscht: Bei 900 px passt die leere
-  // Spalte genau, ohne Spielraum. Wird der Kopf, eine Karte oder ein
-  // Abstand höher, fällt dieser Test, und zwar bevor es jemandem auf dem
-  // Bildschirm auffällt. Darunter scrollt die Spalte; die Schaltfläche
-  // bleibt trotzdem stehen, das prüfen die Tests darüber.
+  // Spalte mit etwa 16 px Spielraum, und den braucht sie. Auf Windows passte
+  // sie einmal genau; auf dem Linux-Läufer der CI rendert Chromium mit
+  // anderen Schriften sieben Pixel höher, und der Test war rot, bevor es
+  // jemandem auf einem Bildschirm auffiel (app.css, Kopf und Fuß). Wird der
+  // Kopf, eine Karte oder ein Abstand höher, fällt dieser Test wieder.
+  // Darunter scrollt die Spalte; die Schaltfläche bleibt trotzdem stehen,
+  // das prüfen die Tests darüber.
   await page.setViewportSize({ width: 1440, height: 900 });
   const spalte = await page
     .locator('.akte')
