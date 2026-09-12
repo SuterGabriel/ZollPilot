@@ -484,3 +484,44 @@ eine Zeile Änderung.
 **Zeitschätzung.** Delegiert: knapp eine Stunde Agentenzeit. Von Hand
 geschätzt: ein Tag, davon ein halber für die Frage, wie n8n das
 Verzeichnis lädt und was darin auflösbar ist. Schätzung, keine Messung.
+
+## 2026-09-12: die drei Artefakte, die eine Ausschreibung beim Namen nennt
+
+**Was delegiert wurde.** Prozesslandschaft, Datenflussdiagramm,
+Betriebshandbuch, in der Form, die die Neckarsulm-Ausschreibung verlangt.
+Das Handbuch war mit den Runbooks vom Vormittag schon da; die beiden
+Diagramme entstehen in `docs/prozess/`.
+
+**Die Entscheidung, an der alles hängt.** Die Diagramme zeigen den
+Zielprozess aus `docs/05`, nicht nur das Gebaute, und markieren den
+Unterschied. Das folgt der Regel, dass Ziele mit Status dastehen statt
+weggelassen zu werden. Die Alternative, nur das Gebaute zu zeichnen, hätte
+ein Bild ergeben, das am Webhook beginnt und nach der formulierten
+Nachforderung endet; das ist kein Prozess, das ist ein Ausschnitt.
+
+**Was gut lief.** Mermaid im Repo rendert auf GitHub, ist diffbar und
+kostet kein Werkzeug. Die BPMN-Datei ist aus derselben Prozessbeschreibung
+erzeugt, mit Lanes und Layout, damit sie in einem Modeler aufgeht statt
+als leere Fläche. Zwei Formen, eine Quelle.
+
+**Was nicht funktionierte.** Der Logeintrag selbst, im ersten Anlauf: Er
+behauptete einen zweiten Generatorlauf wegen der Rückwege im Layout, bevor
+der Generator überhaupt gelaufen war. Er lief beim ersten Mal durch. Der
+Satz wurde gestrichen; er steht hier, weil er genau der Fehler ist, vor dem
+`docs/ARBEITSWEISE.md` warnt: eine Beobachtung, die vor der Beobachtung
+geschrieben wurde.
+
+**Was nicht geprüft ist.** Wie die BPMN-Datei in einem Modeler aussieht.
+Die Koordinaten sind gerechnet, das XML ist wohlgeformt, jeder Verweis löst
+auf, aber in dieser Sitzung hat niemand die Datei geöffnet. Rückwege laufen
+unter dem Pool hindurch; ob das lesbar ist, entscheidet der erste Blick in
+Camunda Modeler.
+
+**Was die Testsuite abgefangen hat.** Der Beleg-Check verlangt jetzt, dass
+die Landschaft gerendert ist, dass sie „vorgesehen“ sagt und dass die
+BPMN-Datei Layout trägt. Ein Diagramm, das nur beschreibt, wäre rot. Die
+Wohlgeformtheit prüft er nicht; das war ein einmaliger Lauf mit dem
+XML-Parser aus der Python-Standardbibliothek.
+
+**Zeitschätzung.** Delegiert: eine gute halbe Stunde. Von Hand geschätzt:
+ein Tag, davon der größte Teil im Modeler. Schätzung, keine Messung.

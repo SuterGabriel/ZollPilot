@@ -258,6 +258,15 @@ for alarm in $(grep -oE '^\s*- alert: [A-Za-z0-9]+' deploy/prometheus/alarme.yml
 done
 
 echo
+echo "Prozessdokumentation — Landschaft, Datenfluss, Handbuch"
+pruefe "Prozesslandschaft und Datenfluss liegen im Repo" datei docs/prozess/README.md
+pruefe "Prozesslandschaft ist gerendert (Mermaid), nicht nur beschrieben" enthaelt docs/prozess/README.md '```mermaid'
+pruefe "Prozesslandschaft sagt, was vorgesehen und nicht gebaut ist" enthaelt docs/prozess/README.md "vorgesehen"
+pruefe "Dieselbe Landschaft als BPMN 2.0" datei docs/prozess/sendungsakte.bpmn
+pruefe "BPMN trägt Lanes und Layout" enthaelt docs/prozess/sendungsakte.bpmn "BPNMShape\|BPMNShape"
+pruefe "Betriebshandbuch hat je Alarm einen Handgriff" enthaelt docs/BETRIEB.md "## Alarme"
+
+echo
 echo "Schritt 6 — der KI-Einsatz wird protokolliert"
 pruefe "docs/ENTWICKLUNGSLOG.md existiert" datei docs/ENTWICKLUNGSLOG.md
 pruefe "das Log hat das Pflichtfeld 'Was nicht funktionierte'" enthaelt docs/ENTWICKLUNGSLOG.md "Was nicht funktionierte"

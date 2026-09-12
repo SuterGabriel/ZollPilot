@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Erzeugt aus einer Prozessbeschreibung (docs/prozess/README.md), nicht gezeichnet.
+     Gestrichelt gedachte Schritte tragen "(vorgesehen)" im Namen und eine
+     documentation; BPMN kennt keinen Status, das Repo schon. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  id="Definitions_ZollPilot" targetNamespace="https://github.com/SuterGabriel/ZollPilot" exporter="ZollPilot" exporterVersion="0.1.0">
+  <bpmn:collaboration id="Collaboration_Sendungsakte">
+    <bpmn:participant id="Participant_Sendungsakte" name="Sendungsakte: Vollständigkeits- und Konsistenzprüfung vor der Ausfuhr" processRef="Process_Sendungsakte" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Sendungsakte" name="Sendungsakte" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Lieferant" name="Lieferant / Verkäufer">
+        <bpmn:flowNodeRef>Rechnung</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Nachliefern</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Spediteur" name="Spediteur / Carrier">
+        <bpmn:flowNodeRef>BL</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Sach" name="Sachbearbeitung Export">
+        <bpmn:flowNodeRef>Start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Mail</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Einreichen</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Ende</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Uebersteuern</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Versenden</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_ZollPilot" name="ZollPilot">
+        <bpmn:flowNodeRef>Lesen</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Pruefen</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Freigabereif</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Formulieren</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Eskalieren</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Zuordnen</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Zoll" name="Zollvertreter / Zollverwaltung">
+        <bpmn:flowNodeRef>Anmelden</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start" name="Sendung angelegt">
+      <bpmn:outgoing>Flow_0</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Mail" name="E-Mail mit Anhängen empfangen (vorgesehen)">
+      <bpmn:documentation>Vorgesehen, nicht gebaut. Stand und Beleg: docs/prozess/README.md, docs/OFFENE-PUNKTE.md.</bpmn:documentation>
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Rechnung" name="Rechnung und Packliste ausstellen">
+      <bpmn:incoming>Flow_0</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="BL" name="B/L ausstellen (Entwurf, dann final)">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Einreichen" name="Stammdaten angeben, Belege einreichen">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:incoming>Flow_20</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Lesen" name="Lesen und klassifizieren (Textlayer oder OCR)">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:incoming>Flow_19</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Pruefen" name="Akte bauen, Pflichtmatrix und Regeln prüfen">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Freigabereif" name="freigabereif?">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Anmelden" name="Ausfuhranmeldung, ABD mit MRN">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="Ende" name="Akte konsistent">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:task id="Formulieren" name="Nachforderung formulieren (Feld, Grund, Adressat)">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Uebersteuern" name="Übersteuern mit Name und Begründung">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Eskalieren" name="Erinnerung und Eskalation vor Cut-off (vorgesehen)">
+      <bpmn:documentation>Vorgesehen, nicht gebaut. Stand und Beleg: docs/prozess/README.md, docs/OFFENE-PUNKTE.md.</bpmn:documentation>
+      <bpmn:incoming>Flow_15</bpmn:incoming>
+      <bpmn:outgoing>Flow_16</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Versenden" name="Nachforderung versenden (vorgesehen)">
+      <bpmn:documentation>Vorgesehen, nicht gebaut. Stand und Beleg: docs/prozess/README.md, docs/OFFENE-PUNKTE.md.</bpmn:documentation>
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:incoming>Flow_16</bpmn:incoming>
+      <bpmn:outgoing>Flow_17</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Nachliefern" name="Fehlenden Wert nachliefern">
+      <bpmn:incoming>Flow_17</bpmn:incoming>
+      <bpmn:outgoing>Flow_18</bpmn:outgoing>
+      <bpmn:outgoing>Flow_20</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Zuordnen" name="Antwort der Akte zuordnen (vorgesehen)">
+      <bpmn:documentation>Vorgesehen, nicht gebaut. Stand und Beleg: docs/prozess/README.md, docs/OFFENE-PUNKTE.md.</bpmn:documentation>
+      <bpmn:incoming>Flow_18</bpmn:incoming>
+      <bpmn:outgoing>Flow_19</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="Flow_0" sourceRef="Start" targetRef="Rechnung" />
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="Start" targetRef="BL" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Start" targetRef="Mail" name="(vorgesehen)" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Rechnung" targetRef="Einreichen" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="BL" targetRef="Einreichen" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Mail" targetRef="Lesen" name="(vorgesehen)" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Einreichen" targetRef="Lesen" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Lesen" targetRef="Pruefen" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Pruefen" targetRef="Freigabereif" />
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Freigabereif" targetRef="Anmelden" name="ja" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Anmelden" targetRef="Ende" />
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Freigabereif" targetRef="Formulieren" name="nein" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Freigabereif" targetRef="Uebersteuern" name="verantworten" />
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="Uebersteuern" targetRef="Pruefen" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Formulieren" targetRef="Versenden" />
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="Formulieren" targetRef="Eskalieren" name="(vorgesehen)" />
+    <bpmn:sequenceFlow id="Flow_16" sourceRef="Eskalieren" targetRef="Versenden" name="(vorgesehen)" />
+    <bpmn:sequenceFlow id="Flow_17" sourceRef="Versenden" targetRef="Nachliefern" name="(vorgesehen)" />
+    <bpmn:sequenceFlow id="Flow_18" sourceRef="Nachliefern" targetRef="Zuordnen" name="(vorgesehen)" />
+    <bpmn:sequenceFlow id="Flow_19" sourceRef="Zuordnen" targetRef="Lesen" name="(vorgesehen)" />
+    <bpmn:sequenceFlow id="Flow_20" sourceRef="Nachliefern" targetRef="Einreichen" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_Sendungsakte">
+      <bpmndi:BPMNShape id="Participant_Sendungsakte_di" bpmnElement="Participant_Sendungsakte" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="2090" height="750" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Lieferant_di" bpmnElement="Lane_Lieferant" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="2060" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Spediteur_di" bpmnElement="Lane_Spediteur" isHorizontal="true">
+        <dc:Bounds x="190" y="230" width="2060" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sach_di" bpmnElement="Lane_Sach" isHorizontal="true">
+        <dc:Bounds x="190" y="380" width="2060" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_ZollPilot_di" bpmnElement="Lane_ZollPilot" isHorizontal="true">
+        <dc:Bounds x="190" y="530" width="2060" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Zoll_di" bpmnElement="Lane_Zoll" isHorizontal="true">
+        <dc:Bounds x="190" y="680" width="2060" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_di" bpmnElement="Start">
+        <dc:Bounds x="302" y="437" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="272" y="477" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Mail_di" bpmnElement="Mail">
+        <dc:Bounds x="450" y="415" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Rechnung_di" bpmnElement="Rechnung">
+        <dc:Bounds x="450" y="115" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BL_di" bpmnElement="BL">
+        <dc:Bounds x="450" y="265" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Einreichen_di" bpmnElement="Einreichen">
+        <dc:Bounds x="650" y="415" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lesen_di" bpmnElement="Lesen">
+        <dc:Bounds x="850" y="565" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Pruefen_di" bpmnElement="Pruefen">
+        <dc:Bounds x="1050" y="565" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Freigabereif_di" bpmnElement="Freigabereif">
+        <dc:Bounds x="1295" y="580" width="50" height="50" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1265" y="634" width="110" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Anmelden_di" bpmnElement="Anmelden">
+        <dc:Bounds x="1450" y="715" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Ende_di" bpmnElement="Ende">
+        <dc:Bounds x="1702" y="437" width="36" height="36" />
+        <bpmndi:BPMNLabel><dc:Bounds x="1672" y="477" width="96" height="28" /></bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Formulieren_di" bpmnElement="Formulieren">
+        <dc:Bounds x="1450" y="565" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Uebersteuern_di" bpmnElement="Uebersteuern">
+        <dc:Bounds x="1250" y="415" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Eskalieren_di" bpmnElement="Eskalieren">
+        <dc:Bounds x="1650" y="565" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Versenden_di" bpmnElement="Versenden">
+        <dc:Bounds x="1850" y="415" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Nachliefern_di" bpmnElement="Nachliefern">
+        <dc:Bounds x="2050" y="115" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Zuordnen_di" bpmnElement="Zuordnen">
+        <dc:Bounds x="2050" y="565" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0_di" bpmnElement="Flow_0">
+        <di:waypoint x="338" y="455" />
+        <di:waypoint x="394" y="455" />
+        <di:waypoint x="394" y="155" />
+        <di:waypoint x="450" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="338" y="455" />
+        <di:waypoint x="394" y="455" />
+        <di:waypoint x="394" y="305" />
+        <di:waypoint x="450" y="305" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="338" y="455" />
+        <di:waypoint x="450" y="455" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="590" y="155" />
+        <di:waypoint x="620" y="155" />
+        <di:waypoint x="620" y="455" />
+        <di:waypoint x="650" y="455" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="590" y="305" />
+        <di:waypoint x="620" y="305" />
+        <di:waypoint x="620" y="455" />
+        <di:waypoint x="650" y="455" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="590" y="455" />
+        <di:waypoint x="720" y="455" />
+        <di:waypoint x="720" y="605" />
+        <di:waypoint x="850" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="790" y="455" />
+        <di:waypoint x="820" y="455" />
+        <di:waypoint x="820" y="605" />
+        <di:waypoint x="850" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="990" y="605" />
+        <di:waypoint x="1050" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
+        <di:waypoint x="1190" y="605" />
+        <di:waypoint x="1295" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
+        <di:waypoint x="1345" y="605" />
+        <di:waypoint x="1398" y="605" />
+        <di:waypoint x="1398" y="755" />
+        <di:waypoint x="1450" y="755" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <di:waypoint x="1590" y="755" />
+        <di:waypoint x="1646" y="755" />
+        <di:waypoint x="1646" y="455" />
+        <di:waypoint x="1702" y="455" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
+        <di:waypoint x="1345" y="605" />
+        <di:waypoint x="1450" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <di:waypoint x="1320" y="580" />
+        <di:waypoint x="1320" y="495" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <di:waypoint x="1320" y="495" />
+        <di:waypoint x="1320" y="890" />
+        <di:waypoint x="1120" y="890" />
+        <di:waypoint x="1120" y="645" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <di:waypoint x="1590" y="605" />
+        <di:waypoint x="1720" y="605" />
+        <di:waypoint x="1720" y="455" />
+        <di:waypoint x="1850" y="455" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
+        <di:waypoint x="1590" y="605" />
+        <di:waypoint x="1650" y="605" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16_di" bpmnElement="Flow_16">
+        <di:waypoint x="1790" y="605" />
+        <di:waypoint x="1820" y="605" />
+        <di:waypoint x="1820" y="455" />
+        <di:waypoint x="1850" y="455" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17_di" bpmnElement="Flow_17">
+        <di:waypoint x="1990" y="455" />
+        <di:waypoint x="2020" y="455" />
+        <di:waypoint x="2020" y="155" />
+        <di:waypoint x="2050" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18_di" bpmnElement="Flow_18">
+        <di:waypoint x="2120" y="195" />
+        <di:waypoint x="2120" y="565" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19_di" bpmnElement="Flow_19">
+        <di:waypoint x="2120" y="645" />
+        <di:waypoint x="2120" y="890" />
+        <di:waypoint x="920" y="890" />
+        <di:waypoint x="920" y="645" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_20_di" bpmnElement="Flow_20">
+        <di:waypoint x="2120" y="195" />
+        <di:waypoint x="2120" y="910" />
+        <di:waypoint x="720" y="910" />
+        <di:waypoint x="720" y="495" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
