@@ -154,11 +154,12 @@ bis dahin ist der Katalog ehrlich markiert.
 - **Docker in der CI.** Der Job `betrieb` baut Extraktion und Oberfläche und
   zieht das n8n-Image; auf GitHub-Runnern ist Docker vorhanden, die Laufzeit
   liegt bei fünf bis acht Minuten.
-- **IDP-Anbieter: ein Schlüssel fehlt, sonst nichts.** Der Vergleichslauf
-  aus ADR-005 ist gebaut: ein zweites Lesemodul für Azure Document
-  Intelligence, Aufzeichnung statt Zugang, dieselbe Bewertung mit
-  `--leser azure` (`docs/EXTRAKTION.md`). Null von 32 Belegen sind
-  aufgezeichnet, weil am 12.09.2026 kein Zugang vorlag. Das kostenlose
-  Kontingent F0 reicht für die 32 synthetischen Belege; wer den Schlüssel
-  hat, zieht den Lauf in einer halben Stunde und trägt die zweite Zeile der
-  Tabelle ein. Bis dahin bleibt N2 nicht belegbar, und zwar ehrlich.
+- **IDP-Anbieter: gemessen, aber nur einer und nur synthetisch.** Der
+  Vergleichslauf aus ADR-005 ist gezogen: Azure Document Intelligence liest
+  alle 32 Testbelege aus aufgezeichneten Antworten zu 100 Prozent und
+  entscheidet 8 von 8 wie die Basislinie (`docs/EXTRAKTION.md`). Das sagt:
+  Die Nahtstelle hält, und auf digital erzeugten Belegen zieht ein Anbieter
+  höchstens gleich. Es sagt nicht, wie er auf Stempeln, Durchschlägen und
+  fremden Layouts liest; dafür fehlt weiterhin ein Korpus. Ändert sich ein
+  Testbeleg, ist seine Aufzeichnung verwaist und muss mit einem Schlüssel
+  neu gezogen werden. Google Document AI und ABBYY bleiben Recherche.

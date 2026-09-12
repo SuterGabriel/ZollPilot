@@ -48,7 +48,7 @@ und Validierung, eine Kurzdokumentation mit Übergabe an Betrieb und Support.
 | # | Anforderung | Status | Beleg im Repo |
 |---|---|---|---|
 | N1 | Kubernetes, Docker und CI/CD | teilweise belegbar | Docker: `compose.yml` mit fünf Diensten, Healthchecks und Volumes, mehrstufiges `extraktion/Dockerfile` (Basis, Test mit pytest beim Build, Laufzeit ohne Root) und `oberflaeche/Dockerfile` (Bau mit Node, Auslieferung mit nginx); CI/CD: `.github/workflows/ci.yml` mit acht Jobs, darunter die Python-Bewertung gegen eine Basislinie, axe über jede Ansicht der Oberfläche und ein Job, der den Stack baut, hochfährt und den Rauchtest ausführt. **Kubernetes: nichts im Repo**, siehe `docs/OFFENE-PUNKTE.md`. |
-| N2 | Gängige IDP-Werkzeuge, etwa ABBYY oder Google Document AI | nicht belegbar | Vergleich der Anbieter nach Tabellen, Stempeln, Training, Hosting und Rolle in `docs/07-idp-ocr.md`. Die Nahtstelle ist gebaut und mit einem zweiten Leser bewiesen: `extraktion/zollpilot_extraktion/anbieter.py` übersetzt die Antwort von Azure Document Intelligence in dieselbe Form wie `lesen.py`, Tests gegen das Antwortformat, Aufzeichnung statt Zugang, Bewertung mit `--leser azure` liefert dieselbe Tabelle. **Aber:** Am 12.09.2026 lag kein Zugang vor, null von 32 Belegen sind aufgezeichnet, die Vergleichszeile in `docs/EXTRAKTION.md` ist leer und bleibt es, bis jemand mit einem Schlüssel den Lauf zieht. Nichts wurde erfunden. Ein gebauter Leser ist Vorbereitung, keine Erfahrung mit dem Werkzeug. |
+| N2 | Gängige IDP-Werkzeuge, etwa ABBYY oder Google Document AI | teilweise belegbar | Ein gemessener Lauf gegen Azure Document Intelligence (`prebuilt-read`, API 2024-11-30, Stufe F0): `extraktion/zollpilot_extraktion/anbieter.py` übersetzt die Antwort in dieselbe Form wie `lesen.py`, alle 32 Testbelege sind als Aufzeichnungen unter `extraktion/tests/fixtures/anbieter/azure/` im Repo, Tests und Bewertung laufen daraus ohne Zugang; Ergebnis 570 von 570 Feldern und 8 von 8 Entscheidungen, gleichauf mit der Basislinie (`docs/EXTRAKTION.md`, Vergleichslauf). Anbieterbewertung in `docs/07-idp-ocr.md`. **Grenze:** ein Lauf auf synthetischen, digital erzeugten Belegen mit einem Scan; kein Training, keine Stempel, keine Monate mit dem Werkzeug. Google Document AI und ABBYY sind Recherche geblieben. |
 
 ### Erwartete Ergebnisse (was das Projekt abbildet)
 
@@ -99,7 +99,7 @@ Entwurf über Entwicklung und Betrieb bis zur Weiterentwicklung.
 | R2 | Digitalisierungsprojekte | teilweise belegbar | Dieses Projekt, und das Vorgängerprojekt, aus dem `docs/ARBEITSWEISE.md` abgeleitet ist. Mehr als zwei Projekte kann dieses Repo nicht zeigen. |
 | R3 | Prozessverständnis in Zoll und Logistik: Dokumenttypen und Abläufe der internationalen Logistik, Verschiffung, Import und Export, Zollabwicklung | belegt | Wie M3 oben: `docs/01-dokumententypologie.md` bis `docs/08-known-unknowns.md`. Die praktische Erfahrung ist eine Erfahrungsanforderung wie M1. |
 | R4 | Dokumentationskompetenz: klare, strukturierte Prozesslandschaften, Datenflussdiagramme und Betriebshandbücher | belegt | Die drei genannten Artefakte: Prozesslandschaft und Datenflussdiagramm in `docs/prozess/README.md` (gerendert im Repo) und `docs/prozess/sendungsakte.bpmn` (BPMN 2.0), Betriebshandbuch `docs/BETRIEB.md` mit Runbook je Alarm; dazu zwölf Dokumente unter `docs/`, jedes mit einem Abschnitt, was es nicht abdeckt, und ein Gate, das jeden genannten Beleg auf Existenz prüft (`scripts/beleg-check.sh`). |
-| R5 | Schnittstellen und Data Engineering: REST, Webhooks, JSON- und XML-Strukturen, gängige OCR- und IDP-Lösungen | teilweise belegbar | REST, Webhooks und JSON: wie A6; die Akte als JSON-Vertrag zwischen Extraktion, Regelwerk und Oberfläche (`src/akte/aufbau.mjs`). XML: UN/CEFACT Cross Industry Invoice D16B als Eingang und Ausgang, gegen das mitgelieferte Schema validiert (`extraktion/zollpilot_extraktion/cii.py`, `extraktion/zollpilot_extraktion/schema/cii/QUELLE.md`, ADR-008); eine XML-Rechnung ist ein Beleg ohne Leseunsicherheit und läuft durch dieselbe Kette. OCR: Tesseract mit Wortkonfidenzen. **Fehlt:** gängige IDP-Lösungen, wie N2 oben: der Leser für Azure Document Intelligence ist gebaut, ohne Zugang ohne Messung. |
+| R5 | Schnittstellen und Data Engineering: REST, Webhooks, JSON- und XML-Strukturen, gängige OCR- und IDP-Lösungen | teilweise belegbar | REST, Webhooks und JSON: wie A6; die Akte als JSON-Vertrag zwischen Extraktion, Regelwerk und Oberfläche (`src/akte/aufbau.mjs`). XML: UN/CEFACT Cross Industry Invoice D16B als Eingang und Ausgang, gegen das mitgelieferte Schema validiert (`extraktion/zollpilot_extraktion/cii.py`, `extraktion/zollpilot_extraktion/schema/cii/QUELLE.md`, ADR-008); eine XML-Rechnung ist ein Beleg ohne Leseunsicherheit und läuft durch dieselbe Kette. OCR und IDP: Tesseract mit Wortkonfidenzen und Azure Document Intelligence als zweiter Leser, gemessen auf allen 32 Testbelegen (siehe N2). **Grenze:** wie N2, ein Lauf auf synthetischen Belegen. |
 | R6 | Sicherer Umgang mit generativer KI: aktuelle Modelle und Assistenzwerkzeuge, Prompt-Entwicklung, Integration von KI-Nodes und APIs in Workflows | teilweise belegbar | Prompt-Entwicklung: die Skills, Commands, Subagents und Hooks in `.claude/` sind versionierte Prompts mit Prüfung (`docs/PIPELINE.md`); die Entwurfsprompts für Wireframe und Mockup in `docs/entwurf/`; der KI-Einsatz in der Entwicklung ist Sitzung für Sitzung protokolliert, inklusive der Fehler (`docs/ENTWICKLUNGSLOG.md`). **Fehlt:** ein AI-Node in einem Workflow. Das ist konsequent nach ADR-003, aber es ist eine Abwesenheit; die vorgesehene Stelle ist der Klassifikationsfallback (A2), pseudonymisiert nach `docs/DATENSCHUTZ.md`. |
 
 ### Formal
@@ -110,14 +110,14 @@ Entwurf über Entwicklung und Betrieb bis zur Weiterentwicklung.
 
 ### Was beide Profile gemeinsam offen lassen
 
-Drei Punkte stehen in beiden und sind in keiner belegt: ein gängiges
-IDP-Werkzeug (N2, R5), wo der Leser gebaut ist und nur der Zugang für die
-Messung fehlt; die Jahre im Betrieb (M1, R1); und ein Prozess, der bei
-E-Mail beginnt statt am Webhook (A4, A6, E1). Das Monitoring, das beide
-verlangen (A8, „stabiler Betrieb mit Monitoring“), ist seit dem
-12. September 2026 gebaut, ebenso der eigene Node (A1), die
-Prozessdokumentation (A7, R4), XML (R5) und das ABD (A2). Die Reihenfolge
-für den Rest steht in `DECISIONS.md`.
+Zwei Punkte stehen in beiden und sind in keiner belegt: die Jahre im
+Betrieb (M1, R1) und ein Prozess, der bei E-Mail beginnt statt am Webhook
+(A4, A6, E1). Das gängige IDP-Werkzeug (N2, R5) ist seit dem Abend des
+12. September 2026 mit einem gemessenen Lauf gegen Azure Document
+Intelligence teilweise belegt. Das Monitoring, das beide verlangen (A8,
+„stabiler Betrieb mit Monitoring“), ist seit demselben Tag gebaut, ebenso
+der eigene Node (A1), die Prozessdokumentation (A7, R4), XML (R5) und das
+ABD (A2). Die Reihenfolge für den Rest steht in `DECISIONS.md`.
 
 ---
 
