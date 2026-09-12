@@ -21,6 +21,26 @@ darf — Pflichtfeldlogik, keine Fachregel. `scripts/beleg-check.sh` prüft,
 dass `oberflaeche/src/` weder `rules.yaml` noch `low_confidence_below`
 erwähnt.
 
+## Angular 22, nicht das Angular von gestern
+
+Fünf Vorgaben, die sich gegenüber älteren Fassungen geändert haben. Der
+Angular-MCP (`ng mcp`, Werkzeug `get_best_practices`) liefert sie
+versionsgenau; nachgeprüft wurde jede in den ausgelieferten Typdefinitionen
+oder über `search_documentation`, denn der MCP ist ein Dokument und kein
+Compiler:
+
+- **`changeDetection: OnPush` nicht angeben.** Seit v22 ist `OnPush` die
+  Vorgabe. Die ausdrückliche Angabe ist Rauschen.
+- **`@Service()` statt `@Injectable({ providedIn: 'root' })`** für neue
+  Singleton-Dienste.
+- **`standalone: true` nicht setzen** — seit v20 die Vorgabe.
+- **Kein `@HostBinding` und `@HostListener`** — Host-Bindungen gehören ins
+  `host`-Objekt des Decorators.
+- **Signal Forms (`@angular/forms/signals`)** sind seit v22 stabil und laut
+  offizieller Empfehlung die erste Wahl für neue Formulare. Dieses Projekt
+  nutzt bewusst Reactive Forms (ADR-006); wer das ändert, ändert eine
+  Entscheidung und braucht eine ADR.
+
 ## Zustand
 
 | Wo | Was |

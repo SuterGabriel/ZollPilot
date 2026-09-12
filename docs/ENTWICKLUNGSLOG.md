@@ -204,13 +204,15 @@ zwei falsch aufgeschriebene Erwartungen auch.
 
 **Was nicht funktionierte.**
 
-- **Es gibt keinen n8n- und keinen Angular-MCP in dieser Sitzung.** Die
-  konfigurierten Server sind Gmail, Kalender und Drive von claude.ai, und die
-  hätten bei Syntax nicht geholfen. Der Ersatz war besser als eine
-  Doku-Spiegelung: die laufende n8n-Instanz selbst und die Typdefinitionen im
-  `node_modules`. `.mcp.json` richtet den Angular-MCP für die nächste Sitzung
-  ein — geprüft ist er damit nicht, denn MCP-Server werden beim Start
-  geladen.
+- **Es war kein MCP-Server angebunden, und ich habe das zuerst als Ende der
+  Sache behandelt.** Die konfigurierten Server waren Gmail, Kalender und
+  Drive von claude.ai. `.mcp.json` richtet `ng mcp` für die nächste Sitzung
+  ein — aber MCP-Server werden beim Start geladen, also war er in dieser
+  Sitzung unerreichbar. Das stimmte nur, solange niemand nachfragte: Der
+  Server spricht JSON-RPC über stdio, und das geht über die Kommandozeile
+  genauso. Nachgeholt auf Nachfrage des Nutzers, mit drei Funden (unten).
+  Die Lehre ist unangenehm und einfach: „Das Werkzeug ist nicht angebunden“
+  hieß hier „ich habe den zweiten Weg nicht gesucht“.
 
 - **Der Webhook-Node kennt kein CORS.** Nachgesehen im Node-Verzeichnis des
   laufenden Containers: weder `allowedOrigins` noch
@@ -252,6 +254,29 @@ erste Komponente stand. axe fand in fünf Ansichten keinen Verstoß — das ist
 der einzige Punkt, an dem die Prüfung nichts gefunden hat, und er sagt
 weniger, als er scheint: Automatische Prüfung deckt nur einen Teil der
 WCAG-Kriterien ab.
+
+**Was der Angular-MCP tatsächlich beigetragen hat.** Mehr als erwartet, und
+zwar Konkretes statt Allgemeinplätzen. `get_best_practices` liefert
+versionsgenaue Vorgaben, und drei davon trafen den geschriebenen Code:
+`changeDetection: OnPush` ist seit v22 die Vorgabe und gehört nicht mehr
+hingeschrieben (vier Komponenten bereinigt); `@Service()` löst
+`@Injectable({ providedIn: 'root' })` ab (zwei Dienste); und Signal Forms
+sind seit v22 stabil und laut Empfehlung die erste Wahl für neue Formulare —
+dieses Projekt bleibt bei Reactive Forms, jetzt aber als benannte
+Entscheidung statt aus Gewohnheit.
+
+Wichtiger als die Funde ist, wie sie geprüft wurden: Der MCP ist ein
+Dokument, kein Compiler. `@Service` und `@angular/forms/signals` wurden in
+den ausgelieferten Typdefinitionen nachgesehen, bevor eine Zeile entstand.
+Zur OnPush-Vorgabe schwiegen die Typen — erst `search_documentation` mit
+`version: 22` lieferte den Satz „ChangeDetectionStrategy.OnPush is the
+default strategy (since v22)". Ohne diesen Beleg wäre das Entfernen eine
+Verhaltensänderung auf Verdacht gewesen.
+
+Auch der Server selbst wurde nachgesehen statt erinnert: In Version 22 hat
+er sechs Werkzeuge (`get_best_practices`, `search_documentation`,
+`list_projects`, `onpush_zoneless_migration`, `devserver_wait_for_build`,
+`ai_tutor`), nicht drei wie in v20.
 
 **Die interessanteste Fachstelle.** Der Workflow antwortet 422, wenn die
 Akte nicht freigabereif ist — für den Angular-HttpClient ein Fehler, fachlich

@@ -4,7 +4,7 @@
 // echtes `input[type=file]` mit Beschriftung, das mit der Tastatur bedienbar
 // ist. Was kein PDF ist, wird abgelehnt und genannt.
 
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 
 import { AkteAktionen } from '../akte/akte.aktionen';
@@ -15,7 +15,6 @@ const BYTE_JE_KILOBYTE = 1024;
 
 @Component({
   selector: 'app-beleg-ablage',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './beleg-ablage.html',
   styleUrl: './beleg-ablage.css',
 })

@@ -5,7 +5,7 @@
 // kein CORS, und der Browser erfährt die Adresse von n8n nie.
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { type Observable, catchError, of, throwError } from 'rxjs';
 
 import type { Pruefergebnis, Stammdaten } from './akte.modell';
@@ -18,7 +18,7 @@ const NICHT_FREIGABEREIF = 422;
 const FELD_AKTE = 'akte';
 const FELD_DATEIEN = 'dateien';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class AkteDienst {
   readonly #http = inject(HttpClient);
 
