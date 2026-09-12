@@ -65,6 +65,59 @@ und Validierung, eine Kurzdokumentation mit Übergabe an Betrieb und Support.
 
 ---
 
+## Profil B: technische Projektsteuerung für n8n-Workflows und Prozessdigitalisierung
+
+Dieselbe Rolle, ausführlicher beschrieben: Wo das erste Profil vier
+Must-haves nennt, nennt dieses acht Aufgabenblöcke und sechs Anforderungen.
+Was oben belegt ist, wird hier nicht wiederholt, sondern verwiesen. Die
+Zeilen mit `offen` sind der Arbeitsplan; ihre Belegspalte nennt Pfade, die
+es noch nicht gibt, und der Beleg-Check lässt das für diesen Status zu.
+
+### Aufgabenstellung
+
+Verlangt wird das vollständige Lebenszyklus-Management der Workflows: vom
+Entwurf über Entwicklung und Betrieb bis zur Weiterentwicklung.
+
+### Aufgabenblöcke
+
+| # | Aufgabe | Status | Beleg im Repo |
+|---|---|---|---|
+| A1 | Entwicklung in n8n von Anfang bis Ende: Architektur, Konzeption, eigene Nodes und Code, produktives Deployment hochverfügbarer Flows für komplexe Dokumentenketten | teilweise belegbar | Architektur und Konzeption: `DECISIONS.md`, ADR-004 (n8n orchestriert, `src/` entscheidet). Custom Code: der Code-Node ist ein Build-Artefakt aus `src/` (`scripts/n8n-bundle.mjs`). Deployment: `compose.yml` mit idempotentem Import. **Fehlt:** ein eigener Node als npm-Paket (Node-Entwicklung im engen Sinn), vorgesehen unter `nodes/`; Hochverfügbarkeit ist ein n8n-Prozess ohne Queue-Modus (`docs/BETRIEB.md`). |
+| A2 | Intelligente Dokumentenverarbeitung: KI- und regelbasierte Klassifikation von Verschiffungs-, Transport- und Zolldokumenten, etwa B/L, CMR, Handelsrechnung, Ursprungszeugnis, ABD | teilweise belegbar | Regelbasierte Klassifikation mit Draft-Erkennung in `extraktion/zollpilot_extraktion/klassifikation.py` für Handelsrechnung, Proformarechnung, Packliste, B/L, Sea Waybill, A.TR und Ursprungserklärung; Typologie aller genannten Belege inklusive CMR und ABD in `docs/01-dokumententypologie.md`. **Fehlt:** ABD und CMR in der Klassifikation (ABD in Arbeit auf dem Branch `extraktion`); KI-Klassifikation als Fallback bei niedriger Konfidenz, mit Pseudonymisierung, ist Stufe 3b (`DECISIONS.md`) und nicht gebaut. |
+| A3 | Automatisierte Vollständigkeits- und Konsistenzprüfung: Validierungslogik, die je Zollsachverhalt prüft, ob alle nötigen Dokumente vorliegen und inhaltlich übereinstimmen | belegt | Vollständigkeit als Nachweis statt Dokument: `pflichtmatrix.yaml`, `src/pflichtmatrix.mjs`. Konsistenz: 13 Regeln aus `rules.yaml` in `src/regeln/`, Cross-Document-Abgleich von Container, Ursprung, Mengen, Gewichten, Warennummern und Summen, hart vor weich, in `src/regelwerk.mjs`; Grenzfälle je Regel in `tests/regeln/`. Sachverhaltsbezug über Richtung, Verkehrsträger, Incoterm und Präferenzabsicht (`docs/02-pflichtmatrix.md`). |
+| A4 | Automatisierter Nachforderungsprozess mit Mahnwesen: ausgelöste Folge-Workflows, die Nachforderungen und Erinnerungen an Partner und Lieferanten versenden | teilweise belegbar | Die Nachforderung selbst ist gebaut: je fehlendem Wert Feld, Grund, akzeptierte Nachweise, Adressat und Folge (`src/nachforderung.mjs`), Adressaten und fünf Eskalationsstufen als Daten in `zustaendigkeiten.yaml`, Prozess in `docs/05-prozess-nachforderung.md`; der Versand-Node im Workflow ist vorbereitet und bewusst deaktiviert; die Tabelle `request_case` existiert im Schema. **Fehlt:** der Zustand über die Zeit (offene Nachforderungen, Stufe, letzter Versand), ein zeitgesteuerter Workflow, der fällige Stufen versendet, Idempotenz bei erneutem Eingang, und der Rückweg einer Antwort in die Akte. Vorgesehen als eigene Stufe mit ADR (`docs/OFFENE-PUNKTE.md`). |
+| A5 | Datenextraktion mit Qualitätssicherung: strukturierte Daten aus unstrukturierten Dokumenten über Parser, Regex, OCR und KI-Nodes, mit Plausibilitäts- und Regelprüfung | teilweise belegbar | Parser und Regex: labelgetriebene Feldextraktion je Belegtyp in `extraktion/zollpilot_extraktion/felder/`; OCR: Tesseract mit Wortkonfidenzen in `extraktion/zollpilot_extraktion/lesen.py`; QA: Field Exact Match und Entscheidung je Akte gegen `extraktion/basislinie.json`, Plausibilität und Regeln wie A3. **Fehlt:** AI-Nodes; kein Modell ist angebunden (siehe A2 und R6). |
+| A6 | Integration und Routing über mehrere Systeme: REST, Webhooks und Datenbanken, Ablage in Zielsystemen wie DMS oder ERP, Weiterleitung an externe Partner wie Speditionen und Zollagenturen | teilweise belegbar | Webhooks: zwei Eingänge (`workflows/zollpilot-akte-pruefen.json`); REST: Aufruf des Extraktionsdienstes per HTTP; Datenbank: Postgres mit Fachschema (`deploy/postgres/init.sql`); Oberfläche über nginx-Proxy derselben Herkunft (`deploy/nginx/zollpilot.conf`). Dispatching: Nachforderungen adressieren Rollen (Spediteur, Zollvertreter, Lieferant) in `zustaendigkeiten.yaml`. **Fehlt:** DMS- und ERP-Ablage, Mail als Eingang und Ausgang; ein Ausgangsadapter mit Dateiablage als Referenz ist vorgesehen (`docs/OFFENE-PUNKTE.md`). |
+| A7 | Prozessdokumentation | teilweise belegbar | Prozess und Zuständigkeiten in `docs/05-prozess-nachforderung.md`, Nutzersicht in `docs/PRODUKT.md`, Betrieb in `docs/BETRIEB.md`, Datenfluss als Textgrafik in `README.md`. **Fehlt:** die Form, die R4 verlangt: Prozesslandschaft als BPMN, Datenflussdiagramm, Betriebshandbuch mit Runbooks je Alarm. |
+| A8 | Betrieb und Lebenszyklus: laufendes Monitoring, Incident Management, Fehleranalyse und Leistungsoptimierung der produktiven Flows | teilweise belegbar | Metrik-Endpunkt mit Ereigniszählern je Workflow ist konfiguriert (`compose.yml`), Fehlerpfad mit Ausführungs-ID in `workflow_fehler` (`workflows/zollpilot-fehler.json`, Fehlerzweig im Prüf-Workflow), Alarmziele beschrieben in `docs/BETRIEB.md`, Healthchecks je Dienst, Rauchtest gegen den laufenden Stack (`scripts/rauchtest.sh`). **Fehlt:** niemand holt die Metriken ab. Kein Prometheus, kein Dashboard, keine Alarmregel, keine Wiedervorlage eines gescheiterten Laufs. In Arbeit auf dem Branch `betrieb`. |
+
+### Anforderungen
+
+| # | Anforderung | Status | Beleg im Repo |
+|---|---|---|---|
+| R1 | n8n-Expertise: Praxiserfahrung mit n8n oder vergleichbaren Plattformen im produktiven Einsatz, mit Setup, eigenen Code-Nodes in JavaScript, TypeScript oder Python, Fehlerbehandlung, Versionierung und Betrieb | teilweise belegbar | Wie M1 oben: Setup (`compose.yml`), Custom Code (`scripts/n8n-bundle.mjs`, Code-Nodes im Workflow), Fehlerbehandlung (Fehler-Workflow, Fehlerzweig, drei Antwortcodes), Versionierung (Workflows als Export im Repo, Bundle-Check in der CI), Betrieb (`docs/BETRIEB.md`). Die Jahre im Unternehmenseinsatz kann ein Repo nicht zeigen; siehe Hinweis zu M1. |
+| R2 | Digitalisierungsprojekte | teilweise belegbar | Dieses Projekt, und das Vorgängerprojekt, aus dem `docs/ARBEITSWEISE.md` abgeleitet ist. Mehr als zwei Projekte kann dieses Repo nicht zeigen. |
+| R3 | Prozessverständnis in Zoll und Logistik: Dokumenttypen und Abläufe der internationalen Logistik, Verschiffung, Import und Export, Zollabwicklung | belegt | Wie M3 oben: `docs/01-dokumententypologie.md` bis `docs/08-known-unknowns.md`. Die praktische Erfahrung ist eine Erfahrungsanforderung wie M1. |
+| R4 | Dokumentationskompetenz: klare, strukturierte Prozesslandschaften, Datenflussdiagramme und Betriebshandbücher | teilweise belegbar | Elf Dokumente unter `docs/`, jedes mit einem Abschnitt, was es nicht abdeckt; Betriebshandbuch in Prosa (`docs/BETRIEB.md`). **Fehlt:** die drei genannten Artefakte in ihrer Form, siehe A7. Vorgesehen unter `docs/prozess/`. |
+| R5 | Schnittstellen und Data Engineering: REST, Webhooks, JSON- und XML-Strukturen, gängige OCR- und IDP-Lösungen | teilweise belegbar | REST, Webhooks und JSON: wie A6; die Akte als JSON-Vertrag zwischen Extraktion, Regelwerk und Oberfläche (`src/akte/aufbau.mjs`). OCR: Tesseract. **Fehlt:** XML; keine Schnittstelle liest oder schreibt XML (in Arbeit auf dem Branch `extraktion`: UN/CEFACT CII als Ein- und Ausgang). Gängige IDP-Lösungen: wie N2 oben, nicht belegbar ohne Lizenz; Vergleichslauf in Arbeit. |
+| R6 | Sicherer Umgang mit generativer KI: aktuelle Modelle und Assistenzwerkzeuge, Prompt-Entwicklung, Integration von KI-Nodes und APIs in Workflows | teilweise belegbar | Prompt-Entwicklung: die Skills, Commands, Subagents und Hooks in `.claude/` sind versionierte Prompts mit Prüfung (`docs/PIPELINE.md`); die Entwurfsprompts für Wireframe und Mockup in `docs/entwurf/`; der KI-Einsatz in der Entwicklung ist Sitzung für Sitzung protokolliert, inklusive der Fehler (`docs/ENTWICKLUNGSLOG.md`). **Fehlt:** ein AI-Node in einem Workflow. Das ist konsequent nach ADR-003, aber es ist eine Abwesenheit; die vorgesehene Stelle ist der Klassifikationsfallback (A2), pseudonymisiert nach `docs/DATENSCHUTZ.md`. |
+
+### Formal
+
+| # | Anforderung | Status | Anmerkung |
+|---|---|---|---|
+| F6 | Sprachkenntnisse: deutsch | belegt | Jedes Dokument, jeder Commit, jeder Node-Name in diesem Repo. |
+
+### Was beide Profile gemeinsam offen lassen
+
+Vier Punkte stehen in beiden und sind in keiner belegt: ein Monitoring, das
+tatsächlich abgeholt wird (A8, „stabiler Betrieb mit Monitoring“); ein
+gängiges IDP-Werkzeug (N2, R5); die Jahre im Betrieb (M1, R1); und ein
+Prozess, der bei E-Mail beginnt statt am Webhook (A4, A6, E1). Die
+Reihenfolge, in der sie geschlossen werden, steht in `DECISIONS.md`.
+
+---
+
 ## Was dieses Repo grundsätzlich nicht belegen kann
 
 - **Jahre.** Produktionserfahrung (M1) ist Zeit unter Last. Ein Repo zeigt Arbeitsweise.
