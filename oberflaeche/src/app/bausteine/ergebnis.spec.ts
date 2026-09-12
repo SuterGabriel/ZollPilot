@@ -148,3 +148,15 @@ describe('Ergebnis', () => {
     expect(marke?.getAttribute('aria-hidden')).toBe('true');
   });
 });
+
+describe('Rückverfolgbarkeit', () => {
+  it('nennt die Ausführungs-ID, damit der Betrieb die Ausführung wiederfindet', () => {
+    expect(text(fertig())).toContain('Ausführung');
+    expect(text(fertig())).toContain('65');
+  });
+
+  it('lässt sie weg, wenn die Akte nicht über den Workflow kam', () => {
+    const ohne = { ...ERGEBNIS_BLOCKIERT, ausfuehrung: null };
+    expect(text(fertig(ohne))).not.toContain('Ausführung');
+  });
+});

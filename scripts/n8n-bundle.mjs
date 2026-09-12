@@ -86,6 +86,12 @@ export function erzeugeCode() {
     '// die Akte auch direkt als json liefern.',
     'const eingang = $input.first().json.body ?? $input.first().json;',
     'const ergebnis = pruefeAkte(eingang, KATALOG, REGELN);',
+    '',
+    '// Die Ausführungs-ID gehört nicht in die Entscheidung, sondern an sie:',
+    '// Mit ihr findet der Betrieb die Ausführung in n8n wieder, mit Eingabe und',
+    '// Ausgabe je Node. Sie entsteht im Transport und wird deshalb hier',
+    '// angehängt, nicht in src/regelwerk.mjs (ADR-004).',
+    "ergebnis.ausfuehrung = typeof $execution === 'undefined' ? null : ($execution.id ?? null);",
     'return [{ json: ergebnis }];',
     '',
   ].join('\n');

@@ -78,6 +78,9 @@
         @if (gepruefetAm()) {
           · geprüft {{ zeitText(gepruefetAm()) }}
         }
+        @if (gepruefteAkte.ausfuehrung) {
+          · Ausführung <span class="fest">{{ gepruefteAkte.ausfuehrung }}</span>
+        }
       </p>
       <p class="zaehlung">
         {{ regelBilanz().offen }} {{ regelBilanz().offen === 1 ? 'Regelbefund' : 'Regelbefunde' }} offen ·
