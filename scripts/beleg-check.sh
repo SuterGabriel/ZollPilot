@@ -271,6 +271,11 @@ pruefe "Workflow versendet wirklich (SMTP an GreenMail)" enthaelt workflows/zoll
 pruefe "Versand wird festgehalten" enthaelt deploy/postgres/init.sql "CREATE TABLE request_versand"
 pruefe "Postfach im Stack" enthaelt compose.yml "  greenmail:"
 pruefe "Rauchtest spielt den Vorgang durch" enthaelt scripts/rauchtest.sh "Runde 8"
+pruefe "Die Oberfläche verlangt eine Anmeldung" enthaelt deploy/nginx/zollpilot.conf "auth_basic_user_file"
+pruefe "Passwortdatei liegt im Repo (Demo-Werte)" datei deploy/nginx/zollpilot.htpasswd
+pruefe "Der geprüfte Name geht als Header an n8n" enthaelt deploy/nginx/zollpilot.conf "X-Benutzer"
+pruefe "Der Befund sagt, woher der Name stammt" enthaelt src/override.mjs "uebersteuert_identitaet"
+pruefe "Rauchtest prüft Anmeldung und Herkunft des Namens" enthaelt scripts/rauchtest.sh "Identität des Übersteuernden"
 
 echo
 echo "Prozessdokumentation — Landschaft, Datenfluss, Handbuch"

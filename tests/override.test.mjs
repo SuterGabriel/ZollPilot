@@ -141,3 +141,13 @@ test('Ganze Akte: ein Pflichteintrag lässt sich über seine Kennung übersteuer
   assert.equal(pfl.uebersteuert_von, 'G. Suter');
   assert.deepEqual(ergebnis.uebersteuerungen.angewandt.map((u) => u.kennung), ['PFL-02']);
 });
+
+test('Die Herkunft des Namens steht am Befund: proxy, wenn geprüft, sonst angegeben (ADR-009)', () => {
+  const befund = { status: 'verletzt' };
+  const basis = { regel: 'TRN-01', fassung: '0.1.0@2026-09-12', benutzer: 'sachbearbeitung', begruendung: 'Reederei hat den Umlad bestätigt' };
+  const geprueft = hefteAn(befund, 'TRN-01', '0.1.0@2026-09-12', [{ ...basis, identitaet: 'proxy' }]);
+  assert.equal(geprueft.uebersteuert_identitaet, 'proxy');
+  const getippt = hefteAn(befund, 'TRN-01', '0.1.0@2026-09-12', [basis]);
+  assert.equal(getippt.uebersteuert_identitaet, 'angegeben');
+  assert.equal(getippt.uebersteuert_von, 'sachbearbeitung');
+});

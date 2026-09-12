@@ -126,9 +126,13 @@ bash scripts/rauchtest.sh     # Runde 3 schickt eine Akte durch den Proxy
 - **Keine Fundstelle am Beleg.** Jede Assertion trägt Seite und Bounding
   Box, aber die Oberfläche zeigt das PDF nicht an und markiert nichts
   darin. Ohne das bleibt "nachlesen" eine Aufforderung ohne Werkzeug.
-- **Keine Anmeldung.** Wer den Port erreicht, kann einreichen. Vor jedem
-  Betrieb außerhalb der eigenen Maschine ein Blocker, kein
-  Schönheitsfehler.
+- **Die Anmeldung ist nicht ihre, sondern die des Proxys.** nginx verlangt
+  Zugangsdaten und reicht den geprüften Namen an n8n weiter (ADR-009); die
+  Oberfläche selbst weiß nichts davon und zeigt beim Übersteuern weiterhin
+  ein Namensfeld. Hinter dem Proxy ersetzt der geprüfte Name das Getippte,
+  und der Befund sagt es (`uebersteuert_identitaet`). Den Namen aus `/wer`
+  anzuzeigen statt ihn abzufragen, ist der nächste Schritt an der
+  Oberfläche.
 - **Keine Übersicht.** Es gibt keine Liste früherer Prüfungen; die liegen in
   Postgres (`pruefung`, Sicht `rule_result`) und werden dort abgefragt.
 - **Ein Sachverhalt.** Richtung und Verkehrsträger lassen sich umstellen,

@@ -68,6 +68,10 @@ export function hefteAn(befund, kennung, fassung, overrides) {
           uebersteuert_von: gueltig.benutzer,
           uebersteuert_am: gueltig.erzeugt_am ?? null,
           uebersteuerungsgrund: gueltig.begruendung,
+          // Woher der Name stammt (ADR-009): `proxy`, wenn nginx ihn geprüft
+          // und als Header mitgegeben hat; sonst `angegeben`, also getippt.
+          // Ein Audit-Eintrag ohne diese Angabe wäre eine Behauptung.
+          uebersteuert_identitaet: gueltig.identitaet ?? 'angegeben',
         }
       : {}),
     ...(verbraucht.length > 0
