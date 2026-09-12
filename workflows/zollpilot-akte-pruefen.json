@@ -41,7 +41,8 @@
       "position": [
         260,
         300
-      ]
+      ],
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -279,7 +280,8 @@
       "position": [
         260,
         640
-      ]
+      ],
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -301,7 +303,8 @@
         520,
         640
       ],
-      "notes": "Der Extraktionsdienst aus compose.yml (Python, Textlayer und Tesseract, ADR-005). Antwort ist die Akte mit dokumente[] und assertions[] — dieselbe Form wie am Eingang /webhook/akte. Die Adresse ist der Dienstname im Compose-Netz; außerhalb von Compose über EXTRAKTION_URL anpassen (docs/BETRIEB.md). Fällt der Dienst aus, scheitert der Lauf sichtbar und landet in workflow_fehler."
+      "notes": "Der Extraktionsdienst aus compose.yml (Python, Textlayer und Tesseract, ADR-005). Antwort ist die Akte mit dokumente[] und assertions[] — dieselbe Form wie am Eingang /webhook/akte. Die Adresse ist der Dienstname im Compose-Netz; außerhalb von Compose über EXTRAKTION_URL anpassen (docs/BETRIEB.md). Fällt der Dienst aus, scheitert der Lauf sichtbar und landet in workflow_fehler.",
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -317,6 +320,71 @@
         0,
         -40
       ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ fehler: true, meldung: \"Der Pruef-Workflow ist gescheitert. Die Akte wurde nicht geprueft.\", ausfuehrung: $execution.id }) }}",
+        "options": {
+          "responseCode": 500
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        900
+      ],
+      "id": "a7f1c4e2-5b3d-4a6f-9c81-2e4d6b8a0f13",
+      "name": "Antwort: Lauf gescheitert",
+      "notes": "Ohne diesen Zweig antwortet ein gescheiterter Lauf mit 200 und leerem Rumpf: Der Aufrufer koennte \"freigabereif\" nicht von \"abgestuerzt\" unterscheiden. Der Rumpf nennt bewusst nur die Ausfuehrungs-ID, keine Fehlermeldung und keine Akteninhalte - der Fehlertext kann Belegwerte enthalten (docs/DATENSCHUTZ.md). Das Ganze steht im Fehler-Workflow und in der Ausfuehrung in n8n.",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "workflow_fehler"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "workflow_name": "={{ $workflow.name }}",
+            "workflow_id": "={{ $workflow.id }}",
+            "execution_id": "={{ $execution.id }}",
+            "node_name": "={{ $prevNode.name }}",
+            "meldung": "={{ $json.error ?? \"ohne Meldung\" }}",
+            "ausfuehrung_url": "={{ $env.WEBHOOK_URL ? $env.WEBHOOK_URL.replace(/\\/+$/, \"\") + \"/workflow/\" + $workflow.id + \"/executions/\" + $execution.id : null }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        780,
+        900
+      ],
+      "id": "c3b9d1f4-8e27-4a15-b6c0-9d5e2f7a1b48",
+      "name": "Fehler festhalten",
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Der behandelte Fehler startet den Fehler-Workflow nicht: Ein Node mit continueErrorOutput gilt n8n als erledigt, der Lauf endet erfolgreich. Ohne diesen Node fiele die Zeile in workflow_fehler weg - der Aufrufer bekaeme 500, der Betrieb erfuehre nichts. Deshalb schreibt dieser Zweig selbst. Bei Datenbankfehler laeuft er weiter: Die Antwort an den Aufrufer ist wichtiger als die Ablage.",
+      "notesInFlow": false
     }
   ],
   "connections": {
@@ -336,6 +404,13 @@
         [
           {
             "node": "Ergebnis speichern",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fehler festhalten",
             "type": "main",
             "index": 0
           }
@@ -412,6 +487,13 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Fehler festhalten",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
@@ -420,6 +502,24 @@
         [
           {
             "node": "Akte prüfen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fehler festhalten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fehler festhalten": {
+      "main": [
+        [
+          {
+            "node": "Antwort: Lauf gescheitert",
             "type": "main",
             "index": 0
           }

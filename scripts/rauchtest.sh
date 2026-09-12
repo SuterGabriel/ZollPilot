@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Rauchtest gegen das laufende System (docker compose up -d --wait).
 #
-# Vier Runden, ein Beweis:
+# Fünf Runden, ein Beweis:
 #   1. Die Testakten (fertige Assertions) an /webhook/akte — Compose, Import,
 #      gebündelter Code-Node und Schema arbeiten zusammen.
 #   2. Die Testbelege (PDF) an /webhook/belege — dazu der Extraktionsdienst
@@ -11,6 +11,9 @@
 #   4. Dieselbe Akte mit einer Übersteuerung (ADR-007): Der Befund bleibt
 #      verletzt, die Regelentscheidung bleibt blockiert, nur die Entscheidung
 #      unter menschlicher Verantwortung dreht — und mit ihr der Statuscode.
+#   5. Eine Akte, an der der Workflow scheitert: Der Aufrufer bekommt 500 mit
+#      der Ausführungs-ID, nicht 200 mit leerem Rumpf, und der Betrieb bekommt
+#      seine Zeile in `workflow_fehler`.
 # Jede Akte trägt ihre Erwartung selbst; das Skript vergleicht. Danach:
 # Liegen die Prüfungen in Postgres?
 #
@@ -136,6 +139,24 @@ if [[ "$befund" == "verletzt Rauchtest blockiert freigabereif" && "$code" == "20
   printf '  ok    %-32s Befund bleibt verletzt, HTTP %s\n' "TRN-01 übersteuert" "$code"
 else
   printf '  ROT   %-32s bekommen "%s", HTTP %s\n' "TRN-01 übersteuert" "$befund" "$code"
+  fehler=$((fehler + 1))
+fi
+
+echo
+echo "Runde 5: ein gescheiterter Lauf ist von einer Freigabe unterscheidbar"
+# Ohne Fehlerzweig antwortet ein abgestürzter Workflow mit 200 und leerem
+# Rumpf — der Aufrufer hielte das für „freigabereif". Geprüft wird beides:
+# der Statuscode und dass der Betrieb die Zeile bekommt.
+vorher=$(docker compose exec -T postgres psql -U "${POSTGRES_USER:-zollpilot}" -d zollpilot -tAc "select count(*) from workflow_fehler" 2>/dev/null || echo 0)
+kaputt=$(curl -sS -w '\n%{http_code}' -X POST -H 'Content-Type: application/json' \
+  -d '{"akte_id":"RAUCHTEST-KAPUTT","dokumente":"keine Liste"}' "$basis/webhook/akte")
+kaputt_code=${kaputt##*$'\n'}
+kaputt_rumpf=${kaputt%$'\n'*}
+nachher=$(docker compose exec -T postgres psql -U "${POSTGRES_USER:-zollpilot}" -d zollpilot -tAc "select count(*) from workflow_fehler" 2>/dev/null || echo 0)
+if [[ "$kaputt_code" == "500" ]] && [[ "$kaputt_rumpf" == *'"fehler":true'* ]] && [[ "$nachher" -gt "$vorher" ]]; then
+  printf '  ok    %-32s HTTP %s, in workflow_fehler festgehalten\n' "kaputte Akte" "$kaputt_code"
+else
+  printf '  ROT   %-32s HTTP %s, workflow_fehler %s→%s, Rumpf: %s\n' "kaputte Akte" "$kaputt_code" "$vorher" "$nachher" "${kaputt_rumpf:0:80}"
   fehler=$((fehler + 1))
 fi
 

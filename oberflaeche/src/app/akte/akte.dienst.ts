@@ -59,6 +59,13 @@ export function istPruefergebnis(wert: unknown): wert is Pruefergebnis {
   return typeof kandidat.freigabe === 'string' && Array.isArray(kandidat.befunde);
 }
 
+/** Die Ausführungs-ID aus dem Rumpf einer 500-Antwort, wenn einer da ist. */
+function ausfuehrungAus(rumpf: unknown): string | null {
+  if (rumpf === null || typeof rumpf !== 'object') return null;
+  const wert = (rumpf as { ausfuehrung?: unknown }).ausfuehrung;
+  return typeof wert === 'string' || typeof wert === 'number' ? String(wert) : null;
+}
+
 /** Eine Meldung, die einem Menschen sagt, was zu tun ist. */
 export function fehlermeldung(fehler: unknown): string {
   if (!(fehler instanceof HttpErrorResponse)) {
@@ -71,7 +78,12 @@ export function fehlermeldung(fehler: unknown): string {
     return 'Der Webhook antwortet nicht (404). Ist der Workflow in n8n aktiv?';
   }
   if (fehler.status >= 500) {
-    return `Der Workflow ist gescheitert (${fehler.status}). Die Ursache steht in der Tabelle workflow_fehler und in der Ausführung in n8n.`;
+    // Der Fehlerzweig des Workflows nennt die Ausführung. Mit ihr findet der
+    // Betrieb den Lauf in n8n und die Zeile in `workflow_fehler` — ohne sie
+    // bleibt „gescheitert" eine Auskunft, mit der niemand etwas anfangen kann.
+    const ausfuehrung = ausfuehrungAus(fehler.error);
+    const fundstelle = ausfuehrung ? ` Ausführung ${ausfuehrung}.` : '';
+    return `Der Workflow ist gescheitert (${fehler.status}). Die Akte wurde nicht geprüft.${fundstelle} Die Ursache steht in der Tabelle workflow_fehler und in der Ausführung in n8n.`;
   }
   return `Die Einreichung wurde abgelehnt (${fehler.status}).`;
 }

@@ -105,10 +105,45 @@ docker compose logs n8n-import     # wenn Workflows fehlen
 docker compose logs -f extraktion  # je Anfrage: Akten-ID, Dateien, Dauer — nie Belegtext
 ```
 
-**Metriken.** `GET http://localhost:5678/metrics` liefert
-Prometheus-Format (`N8N_METRICS=true`): Ausführungen je Workflow und Status,
-Warteschlange, Prozessdaten. Ein Prometheus, der das abholt, ist nicht Teil
-dieses Repos.
+**Metriken.** `GET http://localhost:5678/metrics` liefert Prometheus-Format.
+Mit `N8N_METRICS=true` allein stehen dort nur Prozesswerte — CPU, Heap,
+Eventloop. Die sagen, ob n8n lebt, nie ob eine Prüfung gelaufen ist. Erst
+`N8N_METRICS_INCLUDE_MESSAGE_EVENT_BUS_METRICS=true` erzeugt die Zähler, auf
+die ein Alarm sich stützen kann; die beiden Label-Schalter machen sie je
+Workflow lesbar. Alle drei stehen in `compose.yml`.
+
+```
+n8n_workflow_started_total{workflow_id="zollpilot-akte-pruefen",…}  145
+n8n_workflow_success_total{workflow_id="zollpilot-akte-pruefen",…}  141
+n8n_workflow_failed_total{workflow_id="zollpilot-akte-pruefen",…}     4
+```
+
+**Worauf ein Alarm gehört.** Drei Dinge, in dieser Reihenfolge:
+
+1. **Zuwachs in `workflow_fehler`.** Das ist das verlässliche Signal. Ein
+   Fehler, den der Workflow selbst behandelt (Fehlerzweig, siehe unten),
+   zählt für n8n als erfolgreicher Lauf — `n8n_workflow_failed_total` bleibt
+   dann stehen. Die Tabelle bekommt die Zeile trotzdem, auf beiden Wegen.
+2. **`n8n_workflow_failed_total` > 0.** Fängt, was kein Zweig abfängt.
+3. **Ausbleibende Prüfungen.** `n8n_workflow_started_total` wächst in einem
+   Zeitfenster nicht: Niemand reicht mehr ein, oder der Weg dorthin ist tot.
+   Das merkt kein Fehlerzähler.
+
+Ein Prometheus, der das abholt, ist nicht Teil dieses Repos.
+
+**Drei Antworten, drei Bedeutungen.** Der Webhook unterscheidet sie, und ein
+Aufrufer darf sich darauf verlassen:
+
+| Code | Bedeutung |
+|---|---|
+| 200 | geprüft und freigabereif — unter Berücksichtigung der Übersteuerungen (ADR-007) |
+| 422 | geprüft, nicht freigabereif. Kein Fehler: Der Rumpf trägt das vollständige Ergebnis |
+| 500 | **nicht geprüft.** Der Lauf ist gescheitert. Der Rumpf nennt die Ausführungs-ID und sonst nichts |
+
+Der Fehlerzweig ist der Grund für den dritten Fall. Ohne ihn endet ein
+abgestürzter Lauf mit 200 und leerem Rumpf — der Aufrufer könnte „freigabereif"
+nicht von „abgestürzt" unterscheiden. `scripts/rauchtest.sh`, Runde 5, prüft
+das bei jedem Lauf.
 
 ## Was Support tun kann
 
@@ -143,9 +178,10 @@ mehr wechseln, sonst sind alle Credentials in n8n unlesbar.
 
 Ehrlich aufgeschrieben, damit die Übergabe keine Überraschung wird:
 
-- **Kein Monitoring, kein Alarm.** Der Metrik-Endpunkt existiert; niemand
-  liest ihn. Nötig: Prometheus oder gleichwertig, Alarm auf
-  `workflow_fehler`-Zuwachs und auf ausbleibende Prüfungen.
+- **Kein Alarm.** Die Metriken sagen jetzt, was zu überwachen wäre — Zähler
+  je Workflow, Erfolg und Fehler getrennt —, und oben steht, worauf ein Alarm
+  gehört. Niemand holt sie ab. Nötig: Prometheus oder gleichwertig, plus die
+  drei Regeln von oben. Das ist Konfiguration, keine Entwicklung mehr.
 - **Keine Sicherung.** Postgres-Volume ohne Backup. Nötig: `pg_dump` nach Plan,
   Wiederherstellung einmal geprobt.
 - **Kein TLS, keine Authentifizierung — jetzt mit Oberfläche.** Ports sind

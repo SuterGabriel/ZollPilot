@@ -81,8 +81,15 @@ services:
       N8N_HOST: ${N8N_HOST:-localhost}
       N8N_PROTOCOL: http
       WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5678/}
+      # Ohne die Ereignisbus-Metriken liefert /metrics nur Prozess- und
+      # Node-Werte: CPU, Heap, Eventloop. Das sagt, ob n8n lebt, nie ob eine
+      # Prüfung gelaufen oder gescheitert ist — und genau danach fragt ein
+      # Alarm. Erst dieser Schalter erzeugt die Zähler je Ereignis
+      # (`n8n_events_*`), die Labels machen sie je Workflow lesbar.
       N8N_METRICS: "true"
+      N8N_METRICS_INCLUDE_MESSAGE_EVENT_BUS_METRICS: "true"
       N8N_METRICS_INCLUDE_WORKFLOW_ID_LABEL: "true"
+      N8N_METRICS_INCLUDE_WORKFLOW_NAME_LABEL: "true"
       N8N_LOG_LEVEL: info
       N8N_LOG_OUTPUT: console
       EXECUTIONS_DATA_PRUNE: "true"
