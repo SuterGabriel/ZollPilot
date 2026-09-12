@@ -393,13 +393,13 @@ def erzeuge(akte_datei: Path) -> None:
         "quelle": f"testdaten/akten/{akte_datei.name}",
         "synthetisch": True,
     }
-    (ordner / "akte.json").write_text(json.dumps(stammdaten, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (ordner / "akte.json").write_text(json.dumps(stammdaten, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
 
     erwartet = []
     for a in akte["assertions"]:
         wert = sonder.get("ueberschreibe", {}).get((a["dokument"], a["pfad"]), a["wert"])
         erwartet.append({"dokument": a["dokument"], "typ": dokumente[a["dokument"]]["typ"], "pfad": a["pfad"], "wert": wert})
-    (ordner / "erwartet.json").write_text(json.dumps(erwartet, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (ordner / "erwartet.json").write_text(json.dumps(erwartet, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     print(f"  {name:<28} {len(list(ordner.glob('*.pdf')))} PDFs, {len(erwartet)} erwartete Assertions")
 
 
