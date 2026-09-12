@@ -47,7 +47,7 @@ h2 {
 .zusammenfassung {
   margin: 0;
   display: grid;
-  gap: var(--mass-1);
+  gap: 2px;
   font-size: var(--groesse-wert);
 }
 
