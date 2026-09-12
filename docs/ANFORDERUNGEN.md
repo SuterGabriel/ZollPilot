@@ -11,7 +11,7 @@ Kennungen bleiben stabil. Leere Belege sind ehrlich leer.
 
 **Legende Status:** `offen` = noch nichts im Repo · `in Arbeit` = angefangen ·
 `belegt` = im Repo nachprüfbar · `teilweise belegbar` = das Repo zeigt die
-Arbeitsweise, nicht die Jahre — mit Hinweis, was fehlt · `nicht belegbar` = durch
+Arbeitsweise, nicht die Jahre, mit Hinweis, was fehlt · `nicht belegbar` = durch
 ein Portfolio-Projekt grundsätzlich nicht nachweisbar, wird offen angesprochen ·
 `zu klären` = formale Anforderung außerhalb des Repos.
 
@@ -32,13 +32,13 @@ und Validierung, eine Kurzdokumentation mit Übergabe an Betrieb und Support.
 | # | Anforderung | Status | Beleg im Repo |
 |---|---|---|---|
 | M1 | Produktionserfahrung mit n8n, Entwicklung und Betrieb | teilweise belegbar | Zwei Workflows als Export in `workflows/` (Prüfung mit Webhook, Postgres, IF, Respond; Fehler-Workflow mit Error Trigger); Betrieb mit `compose.yml` (Healthchecks, idempotenter Import, Metriken, Execution-Pruning), `scripts/rauchtest.sh` gegen das laufende System, Übergabe in `docs/BETRIEB.md`. Siehe Hinweis unten. |
-| M2 | IDP, OCR und Datenextraktion aus Dokumenten | belegt | Extraktionspipeline in `extraktion/` (Python, ADR-005): Textlayer mit Koordinaten oder Tesseract mit Wortkonfidenzen (`extraktion/zollpilot_extraktion/lesen.py`), regelbasierte Klassifikation mit Draft-Erkennung, labelgetriebene Feldextraktion je Belegtyp (`extraktion/zollpilot_extraktion/felder/`), jede Assertion mit Fundstelle, Konfidenz und Methode; Anbieterbewertung in `docs/07-idp-ocr.md`; Datenmodell trennt Belegaussage und Aktenwert (`src/akte/aufbau.mjs`, `deploy/postgres/init.sql`); Konfidenzpfad: Prüfziffernfehler bei niedriger Konfidenz löst Nachextraktion aus (`src/regeln/TRN-02.mjs`); Golden Set aus sieben Belegsätzen (PDF) in `testdaten/belege/`, Messung Field Exact Match und Entscheidung je Akte gegen `extraktion/basislinie.json` (`docs/EXTRAKTION.md`). **Grenze, offen benannt:** labelgetrieben, eine Layoutfamilie, synthetische Belege — Genauigkeit auf echten Scans ist hier nicht messbar (`docs/OFFENE-PUNKTE.md`). |
+| M2 | IDP, OCR und Datenextraktion aus Dokumenten | belegt | Extraktionspipeline in `extraktion/` (Python, ADR-005): Textlayer mit Koordinaten oder Tesseract mit Wortkonfidenzen (`extraktion/zollpilot_extraktion/lesen.py`), regelbasierte Klassifikation mit Draft-Erkennung, labelgetriebene Feldextraktion je Belegtyp (`extraktion/zollpilot_extraktion/felder/`), jede Assertion mit Fundstelle, Konfidenz und Methode; Anbieterbewertung in `docs/07-idp-ocr.md`; Datenmodell trennt Belegaussage und Aktenwert (`src/akte/aufbau.mjs`, `deploy/postgres/init.sql`); Konfidenzpfad: Prüfziffernfehler bei niedriger Konfidenz löst Nachextraktion aus (`src/regeln/TRN-02.mjs`); Golden Set aus sieben Belegsätzen (PDF) in `testdaten/belege/`, Messung Field Exact Match und Entscheidung je Akte gegen `extraktion/basislinie.json` (`docs/EXTRAKTION.md`). **Grenze, offen benannt:** labelgetrieben, eine Layoutfamilie, synthetische Belege. Die Genauigkeit auf echten Scans ist hier nicht messbar (`docs/OFFENE-PUNKTE.md`). |
 | M3 | Logistik- und Zollfachlichkeit: Dokumenttypen und Prozesse | belegt | Dokumententypologie mit Feldern und Fehlerquellen in `docs/01-dokumententypologie.md`; Pflichtmatrix, Schwellen und Incoterms in `docs/02-pflichtmatrix.md`; Regelkatalog mit über vierzig Regeln in `docs/03-regelwerk-vollstaendig.md`, davon 13 ausführbar in `rules.yaml`; Prozess, Zuständigkeiten und Fristen in `docs/05-prozess-nachforderung.md`; Regulatorik bis 2028 in `docs/06-regulatorik.md`; Grenzen des eigenen Wissens in `docs/08-known-unknowns.md` |
-| M4 | Eigener Code in JavaScript oder Python | belegt | JavaScript: Regelwerk, Validatoren und Normalisierung in `src/` (ohne Framework), 89 Tests in `tests/`, Prüfziffern ISO 6346 und Mod 7 gegen Referenzwerte, eigene Gates in `scripts/` mit Testsuiten. TypeScript: Angular 22 mit ngrx in `oberflaeche/` (strikt getypt), 43 Unit-Tests und 10 Ende-zu-Ende-Tests mit axe. Python: Extraktionsdienst in `extraktion/` (FastAPI, pdfplumber, Tesseract) mit 98 Tests, Belegerzeugung `testdaten/erzeuge-belege.py`, Bewertung gegen eine Basislinie. Jede Sprache dort, wo ihre Werkzeuge sind — nicht nebeneinander zur Schau. |
+| M4 | Eigener Code in JavaScript oder Python | belegt | JavaScript: Regelwerk, Validatoren und Normalisierung in `src/` (ohne Framework), 89 Tests in `tests/`, Prüfziffern ISO 6346 und Mod 7 gegen Referenzwerte, eigene Gates in `scripts/` mit Testsuiten. TypeScript: Angular 22 mit ngrx in `oberflaeche/` (strikt getypt), 43 Unit-Tests und 10 Ende-zu-Ende-Tests mit axe. Python: Extraktionsdienst in `extraktion/` (FastAPI, pdfplumber, Tesseract) mit 98 Tests, Belegerzeugung `testdaten/erzeuge-belege.py`, Bewertung gegen eine Basislinie. Jede Sprache dort, wo ihre Werkzeuge sind, nicht nebeneinander zur Schau. |
 
 > **Zu M1, offen benannt:** „Produktionserfahrung“ ist eine
 > Erfahrungs-, keine Werkzeuganforderung. Dieses Repo zeigt, *wie* n8n
-> produktionstauglich eingesetzt wird — Entscheidung außerhalb des Workflows,
+> produktionstauglich eingesetzt wird: Entscheidung außerhalb des Workflows,
 > Workflow als Build-Artefakt, Fehlerpfad, Betriebsdokument. Es kann nicht
 > ersetzen, einen n8n-Betrieb über Monate mit echtem Ticketaufkommen getragen
 > zu haben. Das wird im Gespräch so gesagt.
@@ -48,7 +48,7 @@ und Validierung, eine Kurzdokumentation mit Übergabe an Betrieb und Support.
 | # | Anforderung | Status | Beleg im Repo |
 |---|---|---|---|
 | N1 | Kubernetes, Docker und CI/CD | teilweise belegbar | Docker: `compose.yml` mit fünf Diensten, Healthchecks und Volumes, mehrstufiges `extraktion/Dockerfile` (Basis, Test mit pytest beim Build, Laufzeit ohne Root) und `oberflaeche/Dockerfile` (Bau mit Node, Auslieferung mit nginx); CI/CD: `.github/workflows/ci.yml` mit acht Jobs, darunter die Python-Bewertung gegen eine Basislinie, axe über jede Ansicht der Oberfläche und ein Job, der den Stack baut, hochfährt und den Rauchtest ausführt. **Kubernetes: nichts im Repo**, siehe `docs/OFFENE-PUNKTE.md`. |
-| N2 | Gängige IDP-Werkzeuge, etwa ABBYY oder Google Document AI | nicht belegbar | Vergleich der Anbieter nach Tabellen, Stempeln, Training, Hosting und Rolle in `docs/07-idp-ocr.md`. Die Nahtstelle ist gebaut — ein Anbieter ersetzt `extraktion/zollpilot_extraktion/lesen.py` (Wörter mit Koordinaten und Konfidenz) und liefert dieselbe Assertion —, aber Tesseract ist kein gängiges IDP-Tool im Sinne des Anforderungsprofils. Ohne Lizenz beziehungsweise Projektzugang lässt sich kein Aufruf im Repo zeigen; die Bewertung ist Recherche, nicht Erfahrung. |
+| N2 | Gängige IDP-Werkzeuge, etwa ABBYY oder Google Document AI | nicht belegbar | Vergleich der Anbieter nach Tabellen, Stempeln, Training, Hosting und Rolle in `docs/07-idp-ocr.md`. Die Nahtstelle ist gebaut: Ein Anbieter ersetzt `extraktion/zollpilot_extraktion/lesen.py` (Wörter mit Koordinaten und Konfidenz) und liefert dieselbe Assertion. Aber Tesseract ist kein gängiges IDP-Tool im Sinne des Anforderungsprofils. Ohne Lizenz beziehungsweise Projektzugang lässt sich kein Aufruf im Repo zeigen; die Bewertung ist Recherche, nicht Erfahrung. |
 
 ### Erwartete Ergebnisse (was das Projekt abbildet)
 
@@ -70,7 +70,7 @@ und Validierung, eine Kurzdokumentation mit Übergabe an Betrieb und Support.
 - **Jahre.** Produktionserfahrung (M1) ist Zeit unter Last. Ein Repo zeigt Arbeitsweise.
 - **Fremde Werkzeuge ohne Zugang.** ABBYY und Document AI (N2) brauchen Lizenz oder Projekt.
 - **Echte Dokumente.** Alle Testdaten sind synthetisch (`docs/DATENSCHUTZ.md`). Die
-  Extraktion kennt eine Layoutfamilie — die, die `testdaten/erzeuge-belege.py`
+  Extraktion kennt eine Layoutfamilie, nämlich die, die `testdaten/erzeuge-belege.py`
   rendert. Die Genauigkeit auf echten Scans, Stempeln und fremden Layouts kann
   hier nicht gemessen werden; die Bewertung misst die Pipeline, nicht die
   Wirklichkeit (ADR-005).

@@ -1,6 +1,6 @@
 # Die Extraktion
 
-Stufe 3: aus Belegen (PDF) werden Assertions — Behauptungen mit Fundstelle
+Stufe 3: aus Belegen (PDF) werden Assertions, also Behauptungen mit Fundstelle
 und Konfidenz. Die Entscheidung bleibt in `src/` (ADR-003, ADR-005). Dieses
 Dokument sagt, wie die Extraktion arbeitet, wie sie gemessen wird, und was
 die Messung nicht misst.
@@ -9,7 +9,7 @@ die Messung nicht misst.
 
 ```
 PDF
- │  lesen.py            Textlayer mit Koordinaten (pdfplumber) — oder Rendern
+ │  lesen.py            Textlayer mit Koordinaten (pdfplumber), sonst Rendern
  │                      (pypdfium2), Vorverarbeitung, Tesseract mit Wortkonfidenz
  ▼
 Seiten mit Wörtern (Text, x0, top, x1, bottom, Konfidenz), zu Zeilen gruppiert
@@ -25,7 +25,7 @@ Assertions {dokument, pfad, wert, roh, konfidenz, seite, bbox, methode}
  │  akte.py             Dokumente mit Hash, Status, Aussteller; Ursprungserklärung
  │                      als eigener Beleg mit Träger; nichts wird verworfen
  ▼
-Akte — dieselbe Form wie testdaten/akten/*.json → src/regelwerk.mjs
+Akte: dieselbe Form wie testdaten/akten/*.json → src/regelwerk.mjs
 ```
 
 Alle Feldextraktoren arbeiten auf Wörtern mit Koordinaten, nie auf reinem
@@ -36,7 +36,7 @@ und jede Fundstelle bleibt bis in die Datenbank erhalten
 ## Konfidenz
 
 - **Textlayer:** 0,99, eine Konstante. Ein Textlayer ist keine Lesung, aber
-  auch keine Gewissheit — er kann aus einer fremden OCR stammen.
+  auch keine Gewissheit; er kann aus einer fremden OCR stammen.
 - **OCR:** die Wortkonfidenz von Tesseract, 0 bis 1. Die Feldkonfidenz ist das
   **Minimum** über die Wörter des Feldes: Ein Betrag ist so sicher wie seine
   unsicherste Ziffer.
@@ -74,7 +74,7 @@ Die sieben Akten in `testdaten/akten/` sind die Referenz. Aus ihnen erzeugt
 Ursprungserklärung, Packliste, B/L) sowie `akte.json` (Stammdaten und
 erwartete Entscheidung) und `erwartet.json` (welche Assertions die PDFs
 tragen). Der Lauf ist byteidentisch reproduzierbar, auf Windows wie auf
-Linux — reportlab mit `invariant`, Rauschen mit festem Startwert, Schrift
+Linux: reportlab mit `invariant`, Rauschen mit festem Startwert, Schrift
 aus Pillow statt aus dem System; die CI erzeugt die Belege neu und verlangt,
 dass sich nichts ändert.
 
@@ -83,7 +83,7 @@ misst zwei Dinge (`docs/07-idp-ocr.md`, Kennzahlen):
 
 | Kennzahl | Definition | Stand 2026-09-12 |
 |---|---|---|
-| Field Exact Match je Belegtyp | erwartete Assertions mit gleichem Dokument, Pfad und normalisiertem Wert / alle erwarteten | Handelsrechnung 199/199, Packliste 122/122, B/L 49/49, Ursprungserklärung 50/50 — **420/420** |
+| Field Exact Match je Belegtyp | erwartete Assertions mit gleichem Dokument, Pfad und normalisiertem Wert / alle erwarteten | Handelsrechnung 199/199, Packliste 122/122, B/L 49/49, Ursprungserklärung 50/50, zusammen **420/420** |
 | Entscheidung je Akte | `src/cli.mjs` auf der extrahierten Akte liefert die erwartete Freigabe, dieselben Regeln, dieselben Pflichtbefunde | **7/7** |
 
 Die Basislinie liegt in `extraktion/basislinie.json` und wird bewusst
@@ -92,13 +92,13 @@ Basislinie sagt `KEINE BASISLINIE` und ist rot; ein Lauf darunter ist rot.
 Beides läuft im CI-Job `extraktion`.
 
 **Der schlechte Scan.** In der JSON-Akte steht ein per OCR falsch gelesener
-Container mit Konfidenz 0,55 — eine Behauptung über die Extraktion, die den
+Container mit Konfidenz 0,55: eine Behauptung über die Extraktion, die den
 Konfidenzpfad deterministisch zeigt. In `testdaten/belege/schlechter-scan/`
 ist die Packliste ein echtes Bild: mit Pillow gezeichnet, um 1,4 Grad
 gedreht, unscharf, körnig, kontrastarm. Tesseract liest sie nach der
 Vorverarbeitung mit Wortkonfidenzen zwischen 0,64 und 0,96; die
 Containernummer richtig mit 0,92. Die Entscheidung ist deshalb
-`freigabereif` — der Konfidenzpfad wird auf diesem Scan nicht ausgelöst,
+`freigabereif`; der Konfidenzpfad wird auf diesem Scan nicht ausgelöst,
 weil nichts falsch gelesen wird. Das ist das Ergebnis, nicht die Erwartung:
 `akte.json` sagt es, und die Bewertung würde eine Änderung melden.
 
@@ -125,7 +125,7 @@ docker run --rm -v "$PWD:/host" -e PYTHONPATH=/host/extraktion -w /host/extrakti
 - **Fremde Layouts.** Die Extraktoren kennen Labels wie „Invoice No“ und
   Tabellenköpfe wie „Pos | Description | HS code“. Die PDFs sind aus dem
   Golden Set erzeugt; 420/420 beweist, dass Rendern, Lesen und Extrahieren
-  zusammenpassen — nicht, dass eine Rechnung eines anderen Ausstellers gelesen
+  zusammenpassen, nicht, dass eine Rechnung eines anderen Ausstellers gelesen
   würde. Sie würde weniger Felder liefern, und die Regeln sagen
   `nicht_pruefbar`.
 - **Echte Scans.** Stempel, Durchschläge, Handschrift, Fax: keiner der Belege
@@ -140,7 +140,7 @@ docker run --rm -v "$PWD:/host" -e PYTHONPATH=/host/extraktion -w /host/extrakti
   französische Rechnung ist `unclassified`.
 - **Den Weg nach der Nachextraktion.** `re_extraction_required` ist ein
   Status. Wer nachliest, womit, und wie das Ergebnis zurück in die Prüfung
-  kommt, ist nicht gebaut. Übersteuern geht (Stufe 5, ADR-007) — aber ein
+  kommt, ist nicht gebaut. Übersteuern geht (Stufe 5, ADR-007), aber ein
   übersteuerter Lesefehler ist verantwortet, nicht behoben.
 
 ## Was ein Anbieter ersetzen würde
@@ -148,7 +148,7 @@ docker run --rm -v "$PWD:/host" -e PYTHONPATH=/host/extraktion -w /host/extrakti
 Document AI, ABBYY oder Azure Document Intelligence ersetzen `lesen.py`
 (Wörter mit Koordinaten und Konfidenz) oder zusätzlich `felder/` (fertige
 Feldwerte) und liefern dieselbe Assertion. Regelwerk, Tests, Workflow und
-Bewertung ändern sich nicht — die Bewertung würde beide Wege gegeneinander
+Bewertung ändern sich nicht; die Bewertung würde beide Wege gegeneinander
 messen. Das ist der Vergleichslauf, den ADR-005 unter „Wann wir anders
 entscheiden würden“ nennt; er braucht ein Projekt beim Anbieter und die
 Klärung aus `docs/DATENSCHUTZ.md`.

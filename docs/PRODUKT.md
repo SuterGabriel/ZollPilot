@@ -30,7 +30,7 @@ Der Prototyp deckt einen Sachverhalt: **Ausfuhr in ein Drittland, Seefracht
 FCL, Präferenz beansprucht.** Vier Belegtypen: Handelsrechnung, Packliste,
 B/L, Präferenznachweis. Dreizehn Regeln, sechs Pflichteinträge, eine
 Eskalationskette. Warum so eng: Ein Flow, der einen Sachverhalt vollständig
-kann — inklusive Fehlerpfad, Konfidenzpfad, Nachforderung — ist
+kann, inklusive Fehlerpfad, Konfidenzpfad und Nachforderung, ist
 überzeugender als vierzig halbfertige Checks. Der Katalog ist ohne Deployment
 erweiterbar; der Sachverhalt wird nicht heimlich breiter.
 
@@ -40,19 +40,19 @@ erweiterbar; der Sachverhalt wird nicht heimlich breiter.
    (`http://localhost:8088`, ADR-006) ist der Weg für Menschen: Stammdaten
    eintragen, PDFs ablegen, absenden, Ergebnis lesen. `POST /webhook/belege`
    ist derselbe Weg für Maschinen. `POST /webhook/akte` nimmt eine fertige
-   Akte entgegen — Dokumente mit Status und Hash, Assertions mit Wert,
-   Konfidenz und Fundstelle — etwa aus einem anderen Extraktionssystem.
+   Akte entgegen: Dokumente mit Status und Hash, Assertions mit Wert,
+   Konfidenz und Fundstelle, etwa aus einem anderen Extraktionssystem.
 
 2. **Belege lesen.** Der Extraktionsdienst (Python, ADR-005) liest jede
    Seite: Textlayer, wenn das PDF einen hat, sonst OCR mit Wortkonfidenzen.
    Er erkennt den Belegtyp und ob es ein Entwurf ist, findet die Felder und
-   gibt Assertions zurück — jede mit Seite, Bounding Box, Rohtext, Konfidenz
+   gibt Assertions zurück, jede mit Seite, Bounding Box, Rohtext, Konfidenz
    und Methode. Er setzt keinen Fakt und trifft keine Entscheidung. Ein Beleg,
    den er nicht kennt, bleibt als `unclassified` an der Akte und wird
    gemeldet.
 
 3. **Akte aufbauen.** Nur finale Belege werden zu Fakten. Ein Draft-B/L trägt
-   nichts bei — und die Akte sagt das. Unbekannte Belegtypen bleiben an der
+   nichts bei, und die Akte sagt das. Unbekannte Belegtypen bleiben an der
    Akte und werden gemeldet, nie verworfen.
 
 4. **Pflichtmatrix.** Für den Sachverhalt: Welche Daten müssen nachgewiesen
@@ -67,7 +67,7 @@ erweiterbar; der Sachverhalt wird nicht heimlich breiter.
 
 6. **Entscheidung.** `freigabereif`, `freigabe_mit_warnungen`,
    `nachextraktion_erforderlich` oder `blockiert`. Ein Override ist eine
-   Entscheidung mit Namen und Begründung — nicht gebaut, aber als Tabelle
+   Entscheidung mit Namen und Begründung, nicht gebaut, aber als Tabelle
    vorgesehen.
 
 7. **Nachforderung.** Je Befund ein Fall: welches Feld, welche Position,
@@ -96,7 +96,7 @@ Grundfalls. Der Fehlerpfad ist der Demo-Inhalt:
 
 Aufruf: `node src/cli.mjs testdaten/akten/*.json`.
 
-Dieselben sieben Akten liegen als Belege in `testdaten/belege/` — je
+Dieselben sieben Akten liegen als Belege in `testdaten/belege/`, je
 Handelsrechnung, Packliste und B/L als PDF, erzeugt aus den JSON-Akten. Dort
 ist der schlechte Scan ein echtes Bild, das Tesseract liest; was dabei
 herauskommt, misst die Bewertung (`docs/EXTRAKTION.md`), statt dass es in
@@ -108,10 +108,10 @@ den laufenden Stack, Runde 2.
 - **Kein vollständiger Review-Arbeitsplatz.** Übersteuern ist gebaut
   (Stufe 5, ADR-007): Ein Befund lässt sich mit Name und Begründung
   verantworten, und die Prüfung läuft danach erneut. Nicht gebaut ist das
-  Korrigieren — ein falsch gelesener Wert lässt sich nicht richtigstellen,
+  Korrigieren: Ein falsch gelesener Wert lässt sich nicht richtigstellen,
   eine Nachextraktion nicht zurück in die Prüfung schicken. Das setzt
   voraus, dass geklärt ist, wer die Akte führt (PO, Rechnung, Container oder
-  MRN — offene Frage 2 in `PROJECT.md`). Deshalb zeigt die heutige
+  MRN, offene Frage 2 in `PROJECT.md`). Deshalb zeigt die heutige
   Oberfläche einen Vorgang, keine Akte.
 - **Kein Vision-Modell in der Extraktion.** Textlayer und Tesseract liefern
   Koordinaten und Konfidenzen; ein Modell liefert beides nicht und bekäme

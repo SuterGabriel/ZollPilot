@@ -36,7 +36,7 @@ Parteien (Name, Adresse, Ansprechpartner, EORI, USt-IdNr., REX) durch
 Platzhalter ersetzt, die Zuordnung bleibt lokal. Stufe 3 braucht das noch
 nicht: Die Extraktion (ADR-005) liest Textlayer und Tesseract im eigenen
 Container, kein Beleg verlässt den Stack. Die Pseudonymisierung ist deshalb
-nicht gebaut — und sie entsteht mit dem ersten Modellaufruf, in derselben
+nicht gebaut, und sie entsteht mit dem ersten Modellaufruf, in derselben
 ADR, nicht danach (`docs/ARBEITSWEISE.md`, Stufe 3).
 
 **Der Extraktionsdienst protokolliert keinen Belegtext.** Je Anfrage stehen
@@ -46,7 +46,7 @@ n8n und damit in der Ausführung, die nach 14 Tagen gelöscht wird.
 
 **Fehlerprotokoll ohne Nutzdaten.** Der Fehler-Workflow
 (`workflows/zollpilot-fehler.json`) schreibt Workflow, Ausführung, Node und
-Meldung nach `workflow_fehler` — nicht die Akte. Wer den Inhalt braucht,
+Meldung nach `workflow_fehler`, nicht die Akte. Wer den Inhalt braucht,
 öffnet die Ausführung in n8n, wo der Zugriff geregelt ist.
 
 **Ausführungsdaten werden gelöscht.** `compose.yml` setzt

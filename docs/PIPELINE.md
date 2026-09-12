@@ -61,8 +61,8 @@ Nachlesen, nicht durch eine Prüfung.
 | `regeln` | Katalog vollständig ausgezeichnet, `[MVP]` in `docs/03` deckungsgleich mit `rules.yaml`, jede Regel hat Implementierung und Test, keine nackte Zahl in `src/regeln/`; dazu die Testsuite des Gates selbst |
 | `tests` | 89 Tests: Validatoren gegen Referenzwerte, Grenzfälle je Regel, Aktenaufbau, Pflichtmatrix, Regelwerk, alle Testakten gegen ihre Erwartung |
 | `workflows` | der Code-Node ist aus dem aktuellen `src/` gebündelt; die Workflow-Dateien sind strukturell gültig, ohne Geheimnisse, der Code-Node parst |
-| `extraktion` | Tesseract installiert, `uv sync --frozen`, 98 Python-Tests inklusive OCR auf dem schlechten Scan und Entscheidung je Akte über `src/cli.mjs`; die Belege werden neu erzeugt und müssen byteidentisch sein; die Bewertung (Field Exact Match je Belegtyp, Entscheidung je Akte) muss die Basislinie in `extraktion/basislinie.json` halten — ohne Basislinie rot |
-| `oberflaeche` | Kontrast der Gestaltungstoken nachgerechnet, Bau ohne Warnung, 43 Tests für Zustand, Dienst und Darstellung, dann Playwright mit axe über jede Ansicht — leeres Formular, Formular mit Belegen, Ergebnis, Fehlerfall — dazu Tastaturbedienung und Fokusverwaltung |
+| `extraktion` | Tesseract installiert, `uv sync --frozen`, 98 Python-Tests inklusive OCR auf dem schlechten Scan und Entscheidung je Akte über `src/cli.mjs`; die Belege werden neu erzeugt und müssen byteidentisch sein; die Bewertung (Field Exact Match je Belegtyp, Entscheidung je Akte) muss die Basislinie in `extraktion/basislinie.json` halten; ohne Basislinie rot |
+| `oberflaeche` | Kontrast der Gestaltungstoken nachgerechnet, Bau ohne Warnung, 43 Tests für Zustand, Dienst und Darstellung, dann Playwright mit axe über jede Ansicht (leeres Formular, Formular mit Belegen, Ergebnis, Fehlerfall), dazu Tastaturbedienung und Fokusverwaltung |
 | `betrieb` | `docker compose up --build --wait` (baut Extraktion und Oberfläche), dann `scripts/rauchtest.sh`: sieben Akten über `/webhook/akte`, sieben Belegsätze (PDF) über `/webhook/belege`, eine Akte über den nginx-Proxy der Oberfläche, Entscheidungen gegen die Erwartung, fünfzehn Prüfungen in Postgres. Der teuerste Job, und der einzige, der beweist, dass die Teile zusammen laufen |
 
 ## Die Gates im Einzelnen
@@ -70,7 +70,7 @@ Nachlesen, nicht durch eine Prüfung.
 **`scripts/beleg-check.sh`** prüft die Belegspalte in
 [ANFORDERUNGEN.md](ANFORDERUNGEN.md): Zeilen mit Status `offen`, `zu klären`,
 `teilweise belegbar` oder `nicht belegbar` dürfen auf etwas zeigen, das es
-noch nicht gibt — dort ist der Eintrag ein Ziel. Alles andere muss
+noch nicht gibt; dort ist der Eintrag ein Ziel. Alles andere muss
 existieren. Dazu ADR-Pflichtabschnitte, Skills, Commands, Hooks, und dass
 jede Zusage in `CLAUDE.md` ein Gegenstück im Repo hat.
 
@@ -89,20 +89,20 @@ Nodes, keine Geheimnisse in Parametern, Code-Nodes parsen.
 **`scripts/rauchtest.sh`** ist kein Gate im Hook, sondern der Beweis im
 Betrieb. Jede Testakte trägt ihre Erwartung; das Skript vergleicht die
 Antwort des Webhooks damit und zählt die Zeilen in `pruefung`. Runde 2
-schickt die PDFs — derselbe Vergleich, nur dass die Assertions unterwegs
+schickt die PDFs: derselbe Vergleich, nur dass die Assertions unterwegs
 vom Extraktionsdienst entstehen.
 
 **`scripts/kontrast-check.mjs`** ist das Gate der Farben (ADR-006). Die
 Gestaltungstoken in `oberflaeche/src/styles.css` erklären ihre Ansprüche als
 `@kontrast`-Anweisungen; das Skript rechnet sie nach WCAG 2.1 nach. Findet es
-keine Anweisung, ist der Lauf rot — ein Prüfer ohne Grundlage meldet den
+keine Anweisung, ist der Lauf rot; ein Prüfer ohne Grundlage meldet den
 Stand, nie Erfolg. Es hat eine eigene Testsuite mit Referenzwerten aus der
 WCAG-Definition.
 
 **`zollpilot_extraktion.bewertung`** ist das Gate der Extraktion
 (`docs/EXTRAKTION.md`). Es misst gegen das Golden Set und vergleicht mit
 der Basislinie im Repo. Fehlt sie, steht `KEINE BASISLINIE` in der ersten
-Zeile und der Lauf ist rot — die Lehre aus Falle 3 in
+Zeile und der Lauf ist rot; die Lehre aus Falle 3 in
 [ARBEITSWEISE.md](ARBEITSWEISE.md).
 
 ## Die Gegenprobe
@@ -113,13 +113,13 @@ wieder grün, jeweils mit gelesener Meldung:
 | Gate | Eingriff | Meldung |
 |---|---|---|
 | Bundle-Check | eine Kommentarzeile an `src/regeln/befund.mjs` angehängt | „Der Code-Node im Workflow ist veraltet“, Exit 1 |
-| Regel-Check | `const X = 6000;` in `src/regeln/VAL-03.mjs` | „nackte Zahl 6000 — gehört als parameters/tolerance in rules.yaml“ |
+| Regel-Check | `const X = 6000;` in `src/regeln/VAL-03.mjs` | „nackte Zahl 6000, gehört als parameters/tolerance in rules.yaml“ |
 | Regel-Check | `[MVP]` an QTY-03 in `docs/03` entfernt | „QTY-03: im Katalog, aber in docs/03 nicht als [MVP] markiert“ |
 | Beleg-Check | `docs/BETRIEB.md` verschoben | drei Belege fehlen, Exit 1 |
 | Beleg-Check (Stufe 3) | Gates angelegt, bevor `docs/EXTRAKTION.md` und `basislinie.json` existierten | „FEHLT docs/EXTRAKTION.md existiert“, „FEHLT Basislinie der Bewertung liegt im Repo“, Exit 1 |
 | Bewertung | Lauf vor dem Anlegen der Basislinie | „KEINE BASISLINIE: extraktion/basislinie.json fehlt“, Exit 1 |
 | Beleg-Check (Stufe 4) | Gates angelegt, bevor `docs/OBERFLAECHE.md` und die ADR in `DECISIONS.md` standen | „FEHLT docs/OBERFLAECHE.md existiert“, „FEHLT ADR-006 … in DECISIONS.md verlinkt“, Exit 1 |
-| pytest (OCR) | Scan mit 34 % Rauschen | `test_scan_wird_per_ocr_gelesen_mit_konfidenz`: `'unclassified' == 'packliste'` — ein echter Fund, nicht inszeniert (Entwicklungslog) |
+| pytest (OCR) | Scan mit 34 % Rauschen | `test_scan_wird_per_ocr_gelesen_mit_konfidenz`: `'unclassified' == 'packliste'`, ein echter Fund, nicht inszeniert (Entwicklungslog) |
 
 Dazu die Fälle, in denen ein Gate ohne Absicht rot wurde, bevor es fertig
 war: Der Prosa-Check fand sieben Umschriften in neuen Dateien, der Rauchtest
@@ -137,12 +137,12 @@ Der glaubwürdigste Abschnitt, weil ihn niemand schreiben müsste:
 - **Rechtsverweise.** Kein Gate prüft, ob `Art. 70 UZK` das sagt, was die
   Regel behauptet. `legal_source` sagt nur, dass es niemand geprüft hat.
 - **Pfade in Backticks.** Der Verweis-Check prüft nur `[Text](Ziel)`. Ein
-  Pfad in Backticks darf auf etwas zeigen, das erst entsteht — außer in der
+  Pfad in Backticks darf auf etwas zeigen, das erst entsteht, außer in der
   Belegspalte, dort greift der Beleg-Check.
 - **Prosa in Code** wird nur in reinen Kommentarzeilen geprüft. Ein Umlaut in
   einer Zeichenkette im Code fällt nicht auf.
 - **Extraktionsqualität auf fremden Belegen.** Die Bewertung misst gegen
-  PDFs, die aus dem Golden Set erzeugt sind — eine Layoutfamilie, keine
+  PDFs, die aus dem Golden Set erzeugt sind: eine Layoutfamilie, keine
   Stempel, keine Handschrift. 420/420 sagt, dass die Pipeline stimmt, nicht,
   dass sie eine fremde Rechnung liest (`docs/EXTRAKTION.md`).
 - **Kalibrierung der OCR-Konfidenz.** Kein Gate prüft, ob 0,80 im Katalog
