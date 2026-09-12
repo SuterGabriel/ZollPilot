@@ -6,6 +6,7 @@ Layoutfamilie (ADR-005, Konsequenzen). Was er nicht findet, lässt er weg;
 die Regel meldet dann `nicht_pruefbar`.
 """
 
+from .abd import extrahiere_abd
 from .bill_of_lading import extrahiere_bill_of_lading
 from .handelsrechnung import extrahiere_handelsrechnung
 from .packliste import extrahiere_packliste
@@ -15,6 +16,7 @@ EXTRAKTOREN = {
     "handelsrechnung": extrahiere_handelsrechnung,
     "packliste": extrahiere_packliste,
     "bill_of_lading": extrahiere_bill_of_lading,
+    "abd": extrahiere_abd,
 }
 
 __all__ = [

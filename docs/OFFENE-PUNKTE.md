@@ -154,7 +154,11 @@ bis dahin ist der Katalog ehrlich markiert.
 - **Docker in der CI.** Der Job `betrieb` baut Extraktion und Oberfläche und
   zieht das n8n-Image; auf GitHub-Runnern ist Docker vorhanden, die Laufzeit
   liegt bei fünf bis acht Minuten.
-- **IDP-Anbieter.** Document AI oder ABBYY brauchen Projekt oder Lizenz. Der
-  Vergleichslauf gegen Tesseract auf den synthetischen Belegen (ADR-005)
-  wäre der schnellste Weg zu N2, und die erste echte Zahl hinter der
-  Anbieterbewertung in `07-idp-ocr.md`.
+- **IDP-Anbieter: ein Schlüssel fehlt, sonst nichts.** Der Vergleichslauf
+  aus ADR-005 ist gebaut: ein zweites Lesemodul für Azure Document
+  Intelligence, Aufzeichnung statt Zugang, dieselbe Bewertung mit
+  `--leser azure` (`docs/EXTRAKTION.md`). Null von 32 Belegen sind
+  aufgezeichnet, weil am 12.09.2026 kein Zugang vorlag. Das kostenlose
+  Kontingent F0 reicht für die 32 synthetischen Belege; wer den Schlüssel
+  hat, zieht den Lauf in einer halben Stunde und trägt die zweite Zeile der
+  Tabelle ein. Bis dahin bleibt N2 nicht belegbar, und zwar ehrlich.

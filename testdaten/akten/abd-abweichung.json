@@ -1,0 +1,709 @@
+{
+  "akte_id": "ZP-2026-0008",
+  "beschreibung": "ABD-Abweichung: Die Ausfuhranmeldung nennt einen anderen (gültigen) Container als Packliste und B/L. Angemeldet ist ein anderer Vorgang als verladen wird.",
+  "erwartung": {
+    "freigabe": "blockiert",
+    "regeln": [
+      "CUS-05"
+    ]
+  },
+  "stichtag": "2026-09-12",
+  "sachverhalt": {
+    "richtung": "export_third_country",
+    "verkehrstraeger": "sea",
+    "praeferenz_beansprucht": true,
+    "incoterm": {
+      "code": "FOB",
+      "named_place": "Hamburg",
+      "named_place_unlocode": "DEHAM",
+      "edition": 2020
+    },
+    "route": {
+      "pol": "DEHAM",
+      "pod": "SGSIN"
+    }
+  },
+  "anmeldung": {
+    "richtung": "export",
+    "warennummern": [
+      "84133080",
+      "84842000"
+    ]
+  },
+  "dokumente": [
+    {
+      "id": "INV-1",
+      "typ": "handelsrechnung",
+      "status": "final",
+      "version": 1,
+      "aussteller": "Nordlicht Maschinenbau GmbH",
+      "hash": "sha256:synthetisch-inv-1"
+    },
+    {
+      "id": "PL-1",
+      "typ": "packliste",
+      "status": "final",
+      "version": 1,
+      "aussteller": "Nordlicht Maschinenbau GmbH",
+      "hash": "sha256:synthetisch-pl-1"
+    },
+    {
+      "id": "BL-1",
+      "typ": "bill_of_lading",
+      "status": "final",
+      "version": 1,
+      "aussteller": "Maersk Line (synthetisch)",
+      "hash": "sha256:synthetisch-bl-1"
+    },
+    {
+      "id": "ABD-1",
+      "typ": "abd",
+      "status": "final",
+      "version": 1,
+      "aussteller": "Nordlicht Maschinenbau GmbH",
+      "hash": "sha256:synthetisch-abd-1"
+    },
+    {
+      "id": "UE-1",
+      "typ": "origin_declaration",
+      "status": "final",
+      "version": 1,
+      "aussteller": "Nordlicht Maschinenbau GmbH",
+      "hash": "sha256:synthetisch-ue-1",
+      "traeger": "INV-1",
+      "hinweis": "Ursprungserklärung auf der Rechnung, als eigener Belegtyp klassifiziert"
+    }
+  ],
+  "assertions": [
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.nummer",
+      "wert": "INV-2026-0417",
+      "roh": "INV-2026-0417",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.datum",
+      "wert": "2026-09-08",
+      "roh": "2026-09-08",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.waehrung",
+      "wert": "EUR",
+      "roh": "EUR",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.verkaeufer.name",
+      "wert": "Nordlicht Maschinenbau GmbH",
+      "roh": "Nordlicht Maschinenbau GmbH",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.verkaeufer.land",
+      "wert": "DE",
+      "roh": "DE",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.verkaeufer.eori",
+      "wert": "DE123456789012345",
+      "roh": "DE123456789012345",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.kaeufer.name",
+      "wert": "Aurora Trading Pte. Ltd.",
+      "roh": "Aurora Trading Pte. Ltd.",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.kaeufer.land",
+      "wert": "SG",
+      "roh": "SG",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.0.nr",
+      "wert": 1,
+      "roh": "1",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.0.beschreibung",
+      "wert": "Hydraulikpumpe Typ HP-40",
+      "roh": "Hydraulikpumpe Typ HP-40",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.0.menge",
+      "wert": 12,
+      "roh": "12",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.0.einheit",
+      "wert": "PCE",
+      "roh": "PCE",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.0.einzelpreis",
+      "wert": 1450,
+      "roh": "1450",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.0.netto",
+      "wert": 17400,
+      "roh": "17400",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.0.hs6",
+      "wert": "841330",
+      "roh": "841330",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.0.ursprung",
+      "wert": "DE",
+      "roh": "DE",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.1.nr",
+      "wert": 2,
+      "roh": "2",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.1.beschreibung",
+      "wert": "Dichtungssatz HP-40",
+      "roh": "Dichtungssatz HP-40",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.1.menge",
+      "wert": 12,
+      "roh": "12",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.1.einheit",
+      "wert": "PCE",
+      "roh": "PCE",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.1.einzelpreis",
+      "wert": 85,
+      "roh": "85",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.1.netto",
+      "wert": 1020,
+      "roh": "1020",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.1.hs6",
+      "wert": "848420",
+      "roh": "848420",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.positionen.1.ursprung",
+      "wert": "DE",
+      "roh": "DE",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.zuschlaege",
+      "wert": 0,
+      "roh": "0",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.rabatte",
+      "wert": 0,
+      "roh": "0",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "INV-1",
+      "pfad": "rechnung.gesamt",
+      "wert": 18420,
+      "roh": "18420",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.nummer",
+      "wert": "PL-2026-0417",
+      "roh": "PL-2026-0417",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.container_id",
+      "wert": "MSKU1234565",
+      "roh": "MSKU1234565",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.positionen.0.nr",
+      "wert": 1,
+      "roh": "1",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.positionen.0.menge",
+      "wert": 12,
+      "roh": "12",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.positionen.0.hs6",
+      "wert": "841330",
+      "roh": "841330",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.positionen.1.nr",
+      "wert": 2,
+      "roh": "2",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.positionen.1.menge",
+      "wert": 12,
+      "roh": "12",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.positionen.1.hs6",
+      "wert": "848420",
+      "roh": "848420",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.packstuecke.0.id",
+      "wert": "PAL-1",
+      "roh": "PAL-1",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.packstuecke.0.art",
+      "wert": "Palette",
+      "roh": "Palette",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.packstuecke.0.brutto_kg",
+      "wert": 980,
+      "roh": "980",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.packstuecke.0.netto_kg",
+      "wert": 900,
+      "roh": "900",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.packstuecke.1.id",
+      "wert": "KAR-1",
+      "roh": "KAR-1",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.packstuecke.1.art",
+      "wert": "Karton",
+      "roh": "Karton",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.packstuecke.1.brutto_kg",
+      "wert": 60,
+      "roh": "60",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.packstuecke.1.netto_kg",
+      "wert": 48,
+      "roh": "48",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "PL-1",
+      "pfad": "packliste.brutto_gesamt_kg",
+      "wert": 1040,
+      "roh": "1040",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "BL-1",
+      "pfad": "bill_of_lading.nummer",
+      "wert": "MAEU-HH-778812",
+      "roh": "MAEU-HH-778812",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "BL-1",
+      "pfad": "bill_of_lading.container_id",
+      "wert": "MSKU1234565",
+      "roh": "MSKU1234565",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "BL-1",
+      "pfad": "bill_of_lading.seal",
+      "wert": "ML-SG-44821",
+      "roh": "ML-SG-44821",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "BL-1",
+      "pfad": "bill_of_lading.pol",
+      "wert": "DEHAM",
+      "roh": "DEHAM",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "BL-1",
+      "pfad": "bill_of_lading.pod",
+      "wert": "SGSIN",
+      "roh": "SGSIN",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "BL-1",
+      "pfad": "bill_of_lading.brutto_kg",
+      "wert": 1046,
+      "roh": "1046",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "BL-1",
+      "pfad": "bill_of_lading.on_board",
+      "wert": "2026-09-11",
+      "roh": "2026-09-11",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "UE-1",
+      "pfad": "praeferenznachweis.typ",
+      "wert": "origin_declaration",
+      "roh": "origin_declaration",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "UE-1",
+      "pfad": "praeferenznachweis.ursprung",
+      "wert": "DE",
+      "roh": "DE",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "UE-1",
+      "pfad": "praeferenznachweis.rex_nummer",
+      "wert": "DEREX12345678",
+      "roh": "DEREX12345678",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "UE-1",
+      "pfad": "praeferenznachweis.ursprungswert",
+      "wert": 18420,
+      "roh": "18420",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "UE-1",
+      "pfad": "praeferenznachweis.warenkreis.0.pos",
+      "wert": 1,
+      "roh": "1",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "UE-1",
+      "pfad": "praeferenznachweis.warenkreis.0.hs6",
+      "wert": "841330",
+      "roh": "841330",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "UE-1",
+      "pfad": "praeferenznachweis.warenkreis.1.pos",
+      "wert": 2,
+      "roh": "2",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "UE-1",
+      "pfad": "praeferenznachweis.warenkreis.1.hs6",
+      "wert": "848420",
+      "roh": "848420",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.mrn",
+      "wert": "26DE5100001234567A",
+      "roh": "26DE5100001234567A",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.ausfuehrer.name",
+      "wert": "Nordlicht Maschinenbau GmbH",
+      "roh": "Nordlicht Maschinenbau GmbH",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.ausfuehrer.eori",
+      "wert": "DE123456789012345",
+      "roh": "DE123456789012345",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.bestimmungsland",
+      "wert": "SG",
+      "roh": "SG",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.container_id",
+      "wert": "HLXU8765430",
+      "roh": "HLXU8765430",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.positionen.0.nr",
+      "wert": 1,
+      "roh": "1",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.positionen.0.warennummer",
+      "wert": "84133080",
+      "roh": "84133080",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.positionen.0.menge",
+      "wert": 12,
+      "roh": "12",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.positionen.1.nr",
+      "wert": 2,
+      "roh": "2",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.positionen.1.warennummer",
+      "wert": "84842000",
+      "roh": "84842000",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.positionen.1.menge",
+      "wert": 12,
+      "roh": "12",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    }
+  ]
+}

@@ -53,7 +53,15 @@ TESSERACT_WORTEBENE = 5
 TESSERACT_KONFIDENZ_MAXIMUM = 100.0
 
 
-class OcrNichtVerfuegbar(RuntimeError):
+class LesungNichtMoeglich(RuntimeError):
+    """Der Leser kann diesen Beleg nicht lesen; die Akte meldet das, verwirft aber nichts.
+
+    Gemeinsame Wurzel für Tesseract ohne Installation und für einen Anbieter
+    ohne Aufzeichnung (`anbieter.py`): `akte.py` behandelt beide gleich.
+    """
+
+
+class OcrNichtVerfuegbar(LesungNichtMoeglich):
     """Eine Seite braucht OCR, aber Tesseract ist nicht installiert."""
 
 

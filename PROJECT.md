@@ -42,8 +42,8 @@ darf dafür nicht nötig sein.
 | Sachverhalt | Ausfuhr in ein Drittland |
 | Verkehrsträger | Seefracht (Container, FCL) |
 | Besonderheit | Präferenzbeanspruchung |
-| Belegtypen | Handelsrechnung, Packliste, B/L, Präferenznachweis |
-| Regeln | 13 (siehe `rules.yaml`), 6 Pflichteinträge (`pflichtmatrix.yaml`) |
+| Belegtypen | Handelsrechnung, Packliste, B/L, Präferenznachweis, Ausfuhrbegleitdokument (ABD) |
+| Regeln | 14 (siehe `rules.yaml`), 7 Pflichteinträge (`pflichtmatrix.yaml`) |
 | Nachforderung | Eine Eskalationskette, E-Mail |
 
 **Bewusst außerhalb**
@@ -52,7 +52,7 @@ Import, Luft- und Straßenfracht, CBAM, Dual-Use-Screening, ERP-/DMS-Anbindung,
 eBL-Plattformen, ATLAS-Statusnachrichten, Kubernetes/CI-CD, kommerzielle
 IDP-Produkte (ABBYY, Document AI). Alle sind in Datenmodell und Regelkatalog
 vorgesehen, aber nicht implementiert. Das ist eine Aussage, keine Lücke:
-"dreizehn von über vierzig Regeln implementiert, Katalog erweiterbar ohne Deployment"
+"vierzehn von über vierzig Regeln implementiert, Katalog erweiterbar ohne Deployment"
 ist stärker als vierzig halbfertige Checks.
 
 ---
@@ -184,7 +184,7 @@ Anbieterangaben von 95 %+ stammen aus kuratierten Testsets und sind nicht
 
 ## 8. Testdaten
 
-Sieben synthetische Akten, ausschließlich erfundene Firmen und Werte. Sie
+Acht synthetische Akten, ausschließlich erfundene Firmen und Werte. Sie
 liegen zweimal vor: als bereits extrahierte Datensätze in `testdaten/akten/`
 (erzeugt von `testdaten/erzeuge-akten.mjs`, jede mit ihrer erwarteten
 Entscheidung, das Golden Set) und als Belege in `testdaten/belege/` (je

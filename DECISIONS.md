@@ -15,6 +15,7 @@ rekonstruiert Begründungen, die er nie hatte, und das merkt man ihnen an.
 | [ADR-005](docs/adr/ADR-005-extraktion-ocr-vor-modell.md) | Extraktion als eigener Python-Dienst: Textlayer und OCR mit Koordinaten zuerst, ein Vision-Modell nur dahinter und nur pseudonymisiert; Golden Set und Basislinie im Repo | angenommen | 2026-09-12 |
 | [ADR-006](docs/adr/ADR-006-oberflaeche-angular-gleiche-herkunft.md) | Die Eingabe bekommt eine Oberfläche: Angular mit ngrx, ausgeliefert von nginx, das `/webhook/` weiterreicht, also gleiche Herkunft statt CORS; Kontrast und axe als Gates | angenommen | 2026-09-12 |
 | [ADR-007](docs/adr/ADR-007-uebersteuern-statt-umentscheiden.md) | Ein Mensch übersteuert einen Befund, ändert ihn aber nie: Das Regelergebnis bleibt stehen, die Verantwortung steht daneben. Akte und Belege liegen in Postgres | angenommen | 2026-09-12 |
+| [ADR-008](docs/adr/ADR-008-strukturierte-rechnung-ist-ein-beleg.md) | Eine strukturierte Rechnung (UN/CEFACT CII) ist ein Beleg wie jeder andere: dieselben Pfade, Methode `strukturiert`, Konfidenz 1, keine Fundstelle; gegen das Schema validiert, in beide Richtungen | angenommen | 2026-09-12 |
 
 Vorgesehen, noch nicht entschieden: Intake über Mail (Stufe 2), sekundäre
 Extraktion mit Vision-Modell samt Pseudonymisierung (Stufe 3b), echte

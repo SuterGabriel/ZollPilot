@@ -96,6 +96,7 @@ Toleranzen. Alle Vergleiche laufen nach Normalisierung.
 | CUS-02 | Status wird aus der Systemnachricht übernommen, nicht aus dem Vorhandensein eines PDFs | hart | ABD ≠ Ausgangsvermerk | Umsatzsteuerrisiko § 9 UStDV |
 | CUS-03 | Verfahren und wirtschaftlicher Zweck kompatibel (Verkauf, Reparatur, Rückware, Wiederausfuhr) | hart | Verfahrensrecht | falsche Abgaben, Bewilligungspflicht |
 | CUS-04 | ENS/ICS2-Daten konsistent zu Rechnung und B/L (HS-6, Parteien, Container) | hart | Art. 127 UZK | ENS-Zurückweisung, Verladeverbot |
+| CUS-05 **[MVP]** | Ausfuhrbegleitdokument deckt Rechnung und Packliste: Warennummer auf HS-6 je Position, Container identisch | hart | Art. 263 UZK; Vorgangsidentität | angemeldet ist ein anderer Zollvorgang als verladen wird, Beschau |
 
 ## Technische Meta-Regel
 

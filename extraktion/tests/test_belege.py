@@ -18,7 +18,7 @@ from zollpilot_extraktion.bewertung import entscheidung, vergleiche
 
 from conftest import BELEGE, OHNE_OCR, lade
 
-DIGITAL = ["happy-path", "praeferenznachweis-fehlt", "ursprungswiderspruch", "container-abweichung", "draft-bl", "kostenlose-position"]
+DIGITAL = ["happy-path", "praeferenznachweis-fehlt", "ursprungswiderspruch", "container-abweichung", "draft-bl", "kostenlose-position", "abd-abweichung"]
 
 
 def _befunde(felder: dict) -> list[str]:
@@ -29,7 +29,7 @@ def _befunde(felder: dict) -> list[str]:
 def test_digitale_belege_treffen_das_golden_set(belege, name):
     stammdaten, dateien, erwartet = lade(BELEGE / name)
     akte = extrahiere_akte(stammdaten, dateien, ocr=False)
-    assert {d["typ"] for d in akte["dokumente"]} >= {"handelsrechnung", "packliste", "bill_of_lading"}
+    assert {d["typ"] for d in akte["dokumente"]} >= {"handelsrechnung", "packliste", "bill_of_lading", "abd"}
     assert all(d["methoden"] == ["textlayer"] for d in akte["dokumente"] if "methoden" in d)
     felder = vergleiche(erwartet, akte)
     assert _befunde(felder) == []
@@ -77,7 +77,7 @@ def test_stammdaten_werden_durchgereicht_belegaussagen_nicht(belege):
     akte = extrahiere_akte(stammdaten, dateien, ocr=False)
     assert akte["akte_id"] == stammdaten["akte_id"]
     assert akte["sachverhalt"] == stammdaten["sachverhalt"]
-    assert "extraktion" in akte and akte["extraktion"]["belege"] == 3
+    assert "extraktion" in akte and akte["extraktion"]["belege"] == 4
 
 
 @pytest.mark.skipif(shutil.which("node") is None, reason="Node fehlt")

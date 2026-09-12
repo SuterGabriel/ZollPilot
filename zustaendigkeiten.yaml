@@ -25,6 +25,10 @@ owners:
     primaer: Zollvertreter/Spediteur
     sekundaer: interne Zollabteilung
     ausloeser: nach Überlassung
+  abd:
+    primaer: Zollvertreter/Spediteur
+    sekundaer: interne Zollabteilung
+    ausloeser: nach Überlassung
   sachverhalt:
     primaer: Sachbearbeitung Export
     sekundaer: Vertrieb

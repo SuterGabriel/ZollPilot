@@ -54,6 +54,14 @@
       "hash": "sha256:synthetisch-bl-1"
     },
     {
+      "id": "ABD-1",
+      "typ": "abd",
+      "status": "final",
+      "version": 1,
+      "aussteller": "Nordlicht Maschinenbau GmbH",
+      "hash": "sha256:synthetisch-abd-1"
+    },
+    {
       "id": "UE-1",
       "typ": "origin_declaration",
       "status": "final",
@@ -592,6 +600,105 @@
       "pfad": "praeferenznachweis.warenkreis.1.hs6",
       "wert": "848420",
       "roh": "848420",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.mrn",
+      "wert": "26DE5100001234567A",
+      "roh": "26DE5100001234567A",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.ausfuehrer.name",
+      "wert": "Nordlicht Maschinenbau GmbH",
+      "roh": "Nordlicht Maschinenbau GmbH",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.ausfuehrer.eori",
+      "wert": "DE123456789012345",
+      "roh": "DE123456789012345",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.bestimmungsland",
+      "wert": "SG",
+      "roh": "SG",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.container_id",
+      "wert": "MSKU1234565",
+      "roh": "MSKU1234565",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.positionen.0.nr",
+      "wert": 1,
+      "roh": "1",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.positionen.0.warennummer",
+      "wert": "84133080",
+      "roh": "84133080",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.positionen.0.menge",
+      "wert": 12,
+      "roh": "12",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.positionen.1.nr",
+      "wert": 2,
+      "roh": "2",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.positionen.1.warennummer",
+      "wert": "84842000",
+      "roh": "84842000",
+      "konfidenz": 0.99,
+      "seite": 1,
+      "methode": "textlayer"
+    },
+    {
+      "dokument": "ABD-1",
+      "pfad": "abd.positionen.1.menge",
+      "wert": 12,
+      "roh": "12",
       "konfidenz": 0.99,
       "seite": 1,
       "methode": "textlayer"

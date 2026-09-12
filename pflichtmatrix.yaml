@@ -69,6 +69,21 @@ entries:
       EUR.1 und Ursprungserklärung auf der Rechnung erfüllen dieselbe Anforderung.
       A.TR erfüllt sie nicht (ORG-03).
 
+  - id: PFL-07
+    required_data: abd.mrn
+    label: MRN der überlassenen Ausfuhranmeldung
+    required_evidence: [abd, aes_nachricht]
+    required_document_form: none
+    hardness: hard
+    legal_basis: "Art. 263 UZK (Ausfuhranmeldung); Art. 137 UZK-DA (elektronische Anmeldung über 1.000 EUR oder 1.000 kg)"
+    legal_source: secondary
+    note: >
+      Das ABD (Ausfuhrbegleitdokument) und die AES-Statusnachricht tragen dieselbe MRN.
+      Die Schwelle aus Art. 137 UZK-DA ist hier nicht als Bedingung modelliert: Die Pflichtmatrix
+      kennt nur Gleichheitsbedingungen, und jede Testakte liegt darüber. Unter der Schwelle
+      wäre der Eintrag falsch; das steht in docs/OFFENE-PUNKTE.md, sobald ein Sachverhalt darunter kommt.
+      Das ABD ist nicht der Ausgangsvermerk (docs/01, CUS-02).
+
   - id: PFL-06
     required_data: sachverhalt.incoterm.code
     label: Incoterm mit benanntem Ort

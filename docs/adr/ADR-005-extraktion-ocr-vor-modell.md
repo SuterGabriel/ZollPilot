@@ -124,6 +124,24 @@ Pseudonymisierung, die es heute nicht gibt, und deshalb heute nicht.
 - **N2 bleibt nicht belegbar.** Tesseract ist kein „gängiges IDP-Tool“ im
   Sinne des Anforderungsprofils. Die Nahtstelle ist da, der Beleg nicht.
 
+## Nachtrag 2026-09-12: der Vergleichslauf ist gebaut
+
+Die Konsequenz „N2 bleibt nicht belegbar“ galt, weil die Nahtstelle nur
+beschrieben war. Jetzt gibt es `anbieter.py`: ein zweites Lesemodul, das die
+Antwort von Azure Document Intelligence in dieselbe Form wie `lesen.py`
+übersetzt, und `bewertung.py --leser azure`, das dieselbe Tabelle für den
+anderen Leser liefert. Antworten werden einmal aufgezeichnet und liegen als
+Fixtures im Repo; Tests und Bewertung brauchen keinen Zugang. Der Schlüssel
+kommt nur aus der Umgebung.
+
+Was sich damit ändert: Die Austauschbarkeit an einer Stelle ist gezeigt,
+nicht behauptet. Was sich nicht ändert: Ohne Aufzeichnung gibt es keine
+Zahl. Am Tag des Nachtrags lag kein Zugang vor, die Tabelle in
+`docs/EXTRAKTION.md` trägt den Stand. Und der Anbieteraufruf bleibt ein
+Messwerkzeug auf synthetischen Belegen; für echte Belege gilt weiter die
+Pseudonymisierungsregel aus `docs/DATENSCHUTZ.md`, die diese Entscheidung
+nicht aufhebt.
+
 ## Wann wir anders entscheiden würden
 
 - **Mit einem echten Belegkorpus.** Sobald reale Rechnungen und B/L
