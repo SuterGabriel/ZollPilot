@@ -50,6 +50,7 @@ export function eingangAus(bereiche, optionen = {}) {
     // Nur setzen, wenn der Test es verlangt: Eine Akte ohne Extraktion darf
     // das Feld nicht tragen, sonst prüft der Test die Vorgabe nicht mit.
     ...(optionen.extraktion ? { extraktion: optionen.extraktion } : {}),
+    ...(optionen.overrides ? { overrides: optionen.overrides } : {}),
   };
 }
 

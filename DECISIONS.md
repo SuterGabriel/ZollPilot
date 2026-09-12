@@ -14,12 +14,13 @@ rekonstruiert Begründungen, die er nie hatte — und das merkt man ihnen an.
 | [ADR-004](docs/adr/ADR-004-n8n-orchestriert-src-entscheidet.md) | n8n orchestriert, `src/` entscheidet; der Code-Node ist ein Build-Artefakt aus `src/` | angenommen | 2026-09-12 |
 | [ADR-005](docs/adr/ADR-005-extraktion-ocr-vor-modell.md) | Extraktion als eigener Python-Dienst: Textlayer und OCR mit Koordinaten zuerst, ein Vision-Modell nur dahinter und nur pseudonymisiert; Golden Set und Basislinie im Repo | angenommen | 2026-09-12 |
 | [ADR-006](docs/adr/ADR-006-oberflaeche-angular-gleiche-herkunft.md) | Die Eingabe bekommt eine Oberfläche: Angular mit ngrx, ausgeliefert von nginx, das `/webhook/` weiterreicht — gleiche Herkunft statt CORS; Kontrast und axe als Gates | angenommen | 2026-09-12 |
+| [ADR-007](docs/adr/ADR-007-uebersteuern-statt-umentscheiden.md) | Ein Mensch übersteuert einen Befund, ändert ihn aber nie: Das Regelergebnis bleibt stehen, die Verantwortung steht daneben. Akte und Belege liegen in Postgres | angenommen | 2026-09-12 |
 
 Vorgesehen, noch nicht entschieden: Intake über Mail (Stufe 2), sekundäre
-Extraktion mit Vision-Modell samt Pseudonymisierung (Stufe 3b),
-Review-Arbeitsplatz mit Override-Pfad (Stufe 4, Oberfläche), Betrieb jenseits
-von Compose. Diese bekommen fortlaufend die nächste freie Nummer, wenn sie
-fällig sind.
+Extraktion mit Vision-Modell samt Pseudonymisierung (Stufe 3b), echte
+Anmeldung statt Namensfeld (Voraussetzung für einen Betrieb, ADR-007),
+Betrieb jenseits von Compose. Diese bekommen fortlaufend die nächste freie
+Nummer, wenn sie fällig sind.
 
 Reihenfolge, am 2026-09-12 festgelegt: Die Extraktion (Python) kommt vor der
 Oberfläche (Angular), weil sie die einzige offene Must-have-Lücke des

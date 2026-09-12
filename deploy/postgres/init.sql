@@ -71,6 +71,11 @@ CREATE TABLE pruefung (
   stichtag          date,
   katalog_version   text,
   freigabe          text NOT NULL,
+  -- Dieselbe Prüfung, gelesen mit den Übersteuerungen als verantwortet
+  -- (ADR-007). Ohne Übersteuerung stehen hier beide gleich. Zwei Spalten
+  -- statt einer, weil die Auswertung sonst nicht mehr sagen könnte, wie oft
+  -- das Regelwerk blockiert hat und wie oft ein Mensch darüber hinweg ist.
+  freigabe_nach_override text,
   befunde_verletzt  integer,
   nachforderungen   integer,
   ergebnis          jsonb NOT NULL,
@@ -111,13 +116,36 @@ CREATE TABLE workflow_fehler (
   ausfuehrung_url   text
 );
 
--- Überrides sind Entscheidungen mit Namen. Ohne Begründung kein Override
+-- Overrides sind Entscheidungen mit Namen. Ohne Begründung kein Override
 -- (PROJECT.md, Abschnitt 6).
+--
+-- `regel` hält eine Regel- oder eine Pflichtmatrix-Kennung; beides lässt sich
+-- übersteuern. `fassung` ist die Katalogversion, gegen die entschieden wurde:
+-- Ändert sich der Katalog, ist der Override verbraucht, weil die Person eine
+-- andere Regel verantwortet hat als die jetzt geltende (ADR-007). Verbrauchte
+-- Overrides bleiben stehen — sie sind der Nachweis, dass einmal jemand
+-- entschieden hat.
 CREATE TABLE override (
   id                bigserial PRIMARY KEY,
   akte_id           text NOT NULL,
   regel             text NOT NULL,
+  fassung           text NOT NULL,
   benutzer          text NOT NULL,
   begruendung       text NOT NULL CHECK (length(begruendung) > 10),
-  erzeugt_am        timestamptz NOT NULL DEFAULT now()
+  erzeugt_am        timestamptz NOT NULL DEFAULT now(),
+  -- Eine Kennung, eine Fassung, eine Entscheidung. Wer es anders sieht,
+  -- schreibt eine neue Fassung, nicht einen zweiten Override.
+  UNIQUE (akte_id, regel, fassung)
 );
+
+-- Wer hat was verantwortet, und galt es noch. Beantwortet die Frage, die
+-- eine Zollprüfung stellt, mit einer Abfrage statt einer Rekonstruktion.
+CREATE VIEW override_wirkung AS
+SELECT p.id AS pruefung_id, p.akte_id, p.geprueft_am, p.katalog_version,
+       u->>'kennung' AS kennung, u->>'benutzer' AS benutzer,
+       u->>'begruendung' AS begruendung, true AS gewirkt
+FROM pruefung p, jsonb_array_elements(p.ergebnis->'uebersteuerungen'->'angewandt') u
+UNION ALL
+SELECT p.id, p.akte_id, p.geprueft_am, p.katalog_version,
+       v->>'kennung', v->>'benutzer', NULL, false
+FROM pruefung p, jsonb_array_elements(p.ergebnis->'uebersteuerungen'->'verbraucht') v;

@@ -26,6 +26,9 @@ function scopePasst(scope, sachverhalt) {
 }
 
 export function pruefePflichtmatrix(akte, matrix) {
+  // Die Fassung der Pflichtmatrix. Ein Override haftet an ihr, damit eine
+  // Katalogänderung ihn verbraucht (ADR-007).
+  const fassung = `${matrix.version}@${matrix.valid_from}`;
   const sachverhalt = fakt(akte, 'sachverhalt');
   if (!scopePasst(matrix.scope, sachverhalt)) {
     return { anwendbar: false, befunde: [], grund: `Pflichtmatrix ${matrix.version} deckt diesen Sachverhalt nicht` };
@@ -44,6 +47,7 @@ export function pruefePflichtmatrix(akte, matrix) {
       haerte: eintrag.hardness,
       akzeptierte_nachweise: eintrag.required_evidence,
       rechtsgrundlage: eintrag.legal_basis,
+      fassung,
     };
 
     // Stammdaten (sachverhalt.*) haben keine Belegherkunft; ihr Vorhandensein genügt.
