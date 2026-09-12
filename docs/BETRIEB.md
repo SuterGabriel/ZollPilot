@@ -251,7 +251,7 @@ in `.env` die Zugangsdaten seines Mailanbieters und eine Umleitung
 (Vorlage in `.env.example`):
 
 ```
-ZOLLPILOT_SMTP_HOST=smtpauth.bluewin.ch
+ZOLLPILOT_SMTP_HOST=smtpauths.bluewin.ch
 ZOLLPILOT_SMTP_PORT=465
 ZOLLPILOT_SMTP_USER=name@bluewin.ch
 ZOLLPILOT_SMTP_PASSWORT=…
@@ -261,10 +261,16 @@ ZOLLPILOT_ABSENDER=name@bluewin.ch
 ZOLLPILOT_POST_UMLEITEN_AN=name@bluewin.ch
 ```
 
-Dann `docker compose up -d n8n`. Die Zugangsdaten überschreiben die
-SMTP-Credential aus `credentials.json` beim Start (`CREDENTIALS_OVERWRITE_DATA`
-in `compose.yml`); das Passwort steht damit nur in `.env`, die nicht im Repo
-liegt. Die Umleitung schickt jede Nachforderung an genau diese eine Adresse,
+Dann `docker compose up -d n8n`. Die SMTP-Credential in `credentials.json`
+trägt bewusst keine Daten: n8n füllt eine Überschreibung nur in Felder, die
+leer sind (`applyOverwrite` in `credentials-overwrites.js`). Server, Konto und
+Absender kommen deshalb ausschließlich aus `CREDENTIALS_OVERWRITE_DATA` in
+`compose.yml`, das ohne `.env` auf GreenMail zeigt. Das Passwort steht damit
+nur in `.env`, die nicht im Repo liegt. Stünden die Werte in
+`credentials.json`, ginge jede Mail weiter an GreenMail, und zwar ohne
+Fehlermeldung: GreenMail nimmt jede Adresse an und legt für sie ein Postfach
+an. Wer prüfen will, wohin eine Mail wirklich ging, sieht dort nach:
+`curl -s http://localhost:8025/api/user/<adresse>/messages`. Die Umleitung schickt jede Nachforderung an genau diese eine Adresse,
 gleich an welche Rolle sie gerichtet war. In `request_versand` steht
 weiterhin der Adressat aus dem Verteiler, nicht die Umleitung: Der Vorgang
 bleibt derselbe, nur der Briefkasten ist ein anderer. Der Rückweg per Antwort

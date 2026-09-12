@@ -190,7 +190,9 @@
         "subject": "={{ $json.betreff }}",
         "emailFormat": "text",
         "text": "={{ $json.text }}",
-        "options": {}
+        "options": {
+          "appendAttribution": false
+        }
       },
       "id": "senden",
       "name": "Nachforderung senden",
@@ -202,11 +204,11 @@
       ],
       "credentials": {
         "smtp": {
-          "id": "zollpilot-greenmail-smtp",
-          "name": "ZollPilot GreenMail SMTP"
+          "id": "zollpilot-smtp",
+          "name": "ZollPilot SMTP"
         }
       },
-      "notes": "SMTP an GreenMail (compose.yml). Im Zielsystem: die echte SMTP-Credential, sonst nichts. Scheitert der Versand, scheitert der Lauf sichtbar (Fehler-Workflow), und die Stufe gilt nicht als versandt, weil erst der naechste Node sie festhaelt."
+      "notes": "Die Credential traegt keine Daten; Server, Konto und Absender kommen aus CREDENTIALS_OVERWRITE_DATA (compose.yml), im Demo-Betrieb GreenMail. n8n fuellt eine Ueberschreibung nur in leere Felder, deshalb steht in credentials.json nichts. Scheitert der Versand, scheitert der Lauf sichtbar (Fehler-Workflow), und die Stufe gilt nicht als versandt, weil erst der naechste Node sie festhaelt."
     },
     {
       "parameters": {
