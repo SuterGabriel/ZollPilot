@@ -1,0 +1,50 @@
+# Prometheus holt ab, was die Dienste anbieten. Vier Quellen, ein Takt.
+#
+#   n8n           Ereigniszähler je Workflow (compose.yml schaltet sie ein),
+#                 dazu Prozesswerte. Sagt, ob ein Lauf gestartet, gelungen
+#                 oder gescheitert ist. Ein vom Fehlerzweig behandelter Lauf
+#                 gilt n8n als gelungen; deshalb reicht diese Quelle nicht.
+#   extraktion    der Python-Dienst: Anfragen, Dauer, Textlayer gegen OCR,
+#                 Konfidenzverteilung (extraktion/zollpilot_extraktion/metriken.py)
+#   sql-exporter  die fachlichen Zähler aus der Prüftabelle: Freigaben,
+#                 Befunde je Regel und Status, Fehler, offene Wiedervorlagen,
+#                 verbrauchte Übersteuerungen (deploy/sql-exporter/)
+#   alertmanager  damit sichtbar ist, ob der Weg vom Alarm zum Empfänger lebt
+#
+# Alarmregeln: deploy/prometheus/alarme.yml. Empfänger: deploy/alertmanager/.
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - /etc/prometheus/alarme.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: n8n
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["n8n:5678"]
+
+  - job_name: extraktion
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["extraktion:8080"]
+
+  - job_name: sql-exporter
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["sql-exporter:9399"]
+
+  - job_name: alertmanager
+    static_configs:
+      - targets: ["alertmanager:9093"]

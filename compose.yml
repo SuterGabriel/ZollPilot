@@ -1,6 +1,6 @@
 # Ein Befehl fährt alles hoch:  docker compose up -d --wait
 #
-# Fünf Dienste:
+# Neun Dienste, fünf für die Akte und vier fürs Hinsehen:
 #   postgres    eine Instanz, zwei Datenbanken: n8n (Workflows, Ausführungen)
 #               und zollpilot (Akte, Prüfungen, Fehler), deploy/postgres/init.sql
 #   n8n-import  läuft einmal: importiert Credentials und die Workflows aus
@@ -13,6 +13,19 @@
 #   oberflaeche nginx: liefert die gebaute Angular-Anwendung aus und reicht
 #               /webhook/ an n8n weiter. Gleiche Herkunft, deshalb kein CORS
 #               (ADR-006). Der Einstieg für Menschen: http://localhost:8088
+#   prometheus  holt die Metriken ab: n8n, Extraktion, SQL-Exporter. Wertet
+#               die Alarmregeln aus (deploy/prometheus/). http://localhost:9090
+#   alertmanager nimmt die Alarme entgegen und liefert sie an n8n
+#               (/webhook/alarm), wo sie als Zeile in `alarm` landen.
+#   sql-exporter macht aus der Prüftabelle die fachlichen Zähler: Freigaben,
+#               Befunde je Regel, Fehler, offene Wiedervorlagen. Der
+#               Code-Node kann nichts exportieren; die Tabelle ist ohnehin
+#               der Ort der Wahrheit (deploy/sql-exporter/).
+#   grafana     das Dashboard, aus dem Repo provisioniert (deploy/grafana/).
+#               http://localhost:3000, Lesen ohne Anmeldung.
+#
+# Der Stack braucht n8n, Postgres und die Extraktion; das Monitoring ist
+# Zuschauer. Fällt Grafana aus, prüft ZollPilot weiter.
 #
 # Geheimnisse liegen in .env (Vorlage: .env.example). Die Werte dort sind
 # Entwicklungswerte; docs/BETRIEB.md sagt, was vor einem echten Betrieb fehlt.
@@ -68,7 +81,9 @@ services:
         n8n import:credentials --input=/deploy/credentials.json
         n8n import:workflow --separate --input=/workflows
         n8n update:workflow --id=zollpilot-akte-pruefen --active=true
-        echo "Import abgeschlossen, Prüf-Workflow aktiv."
+        n8n update:workflow --id=zollpilot-wiederholen --active=true
+        n8n update:workflow --id=zollpilot-alarm --active=true
+        echo "Import abgeschlossen: Prüf-, Wiederholungs- und Alarm-Workflow aktiv."
     depends_on:
       postgres:
         condition: service_healthy
@@ -90,6 +105,7 @@ services:
       N8N_METRICS_INCLUDE_MESSAGE_EVENT_BUS_METRICS: "true"
       N8N_METRICS_INCLUDE_WORKFLOW_ID_LABEL: "true"
       N8N_METRICS_INCLUDE_WORKFLOW_NAME_LABEL: "true"
+      N8N_METRICS_INCLUDE_NODE_TYPE_LABEL: "true"
       N8N_LOG_LEVEL: info
       N8N_LOG_OUTPUT: console
       EXECUTIONS_DATA_PRUNE: "true"
@@ -141,6 +157,84 @@ services:
       n8n:
         condition: service_healthy
 
+  # --- Monitoring: Zuschauer, keine Abhängigkeit der Akte -------------------
+
+  prometheus:
+    image: prom/prometheus:${PROMETHEUS_VERSION:-v3.5.0}
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=30d
+    volumes:
+      - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./deploy/prometheus/alarme.yml:/etc/prometheus/alarme.yml:ro
+      - prometheus-daten:/prometheus
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9090/-/healthy >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  alertmanager:
+    image: prom/alertmanager:${ALERTMANAGER_VERSION:-v0.28.1}
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+    volumes:
+      - ./deploy/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    ports:
+      - "127.0.0.1:${ALERTMANAGER_PORT:-9093}:9093"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9093/-/healthy >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  sql-exporter:
+    image: burningalchemist/sql_exporter:${SQL_EXPORTER_VERSION:-0.18.0}
+    # Die Verbindung kommt aus .env über das Flag, nicht aus der
+    # Konfigurationsdatei: Dort steht dann kein Passwort.
+    command:
+      - -config.file=/etc/sql_exporter/sql_exporter.yml
+      - -config.data-source-name=postgresql://${POSTGRES_USER:-zollpilot}:${POSTGRES_PASSWORD:-zollpilot-dev}@postgres:5432/zollpilot?sslmode=disable
+    volumes:
+      - ./deploy/sql-exporter:/etc/sql_exporter:ro
+    # Kein Healthcheck: Das Image hat keine Shell. Ob der Exporter lebt, sagt
+    # Prometheus (`up{job="sql-exporter"}`), und dafür gibt es einen Alarm.
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  grafana:
+    image: grafana/grafana:${GRAFANA_VERSION:-12.1.0}
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORT:-zollpilot-dev}
+      # Lesen ohne Konto, auf localhost. Vor einem Betrieb außerhalb der
+      # eigenen Maschine abschalten (docs/BETRIEB.md).
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+    volumes:
+      - ./deploy/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./deploy/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-daten:/var/lib/grafana
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+    depends_on:
+      prometheus:
+        condition: service_healthy
+
 volumes:
   postgres-daten:
   n8n-daten:
+  prometheus-daten:
+  grafana-daten:

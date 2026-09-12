@@ -6,7 +6,7 @@ was vor einem echten Betrieb noch fehlt.
 
 ## Was läuft
 
-Fünf Container aus `compose.yml`:
+Neun Container aus `compose.yml`, fünf für die Akte und vier fürs Hinsehen:
 
 | Dienst | Aufgabe | Port | Gesund, wenn |
 |---|---|---|---|
@@ -15,10 +15,18 @@ Fünf Container aus `compose.yml`:
 | `n8n` | Orchestrierung, zwei Webhooks, der n8n-Editor | 5678, nur localhost | `GET /healthz` antwortet `ok` |
 | `extraktion` | Belege (PDF) → Assertions: Textlayer oder Tesseract, Klassifikation, Felder. Entscheidet nichts (ADR-005) | 8765 auf dem Host (nur localhost), 8080 im Compose-Netz | `GET /healthz` antwortet `ok` und sagt, ob OCR verfügbar ist |
 | `oberflaeche` | nginx: liefert die Angular-Anwendung aus und reicht `/webhook/` an n8n weiter. Der Einstieg für Menschen (ADR-006) | 8088, nur localhost | `GET /` liefert die Anwendung |
+| `prometheus` | holt alle 15 s die Metriken von n8n, Extraktion und SQL-Exporter ab und wertet die Alarmregeln aus (`deploy/prometheus/`) | 9090, nur localhost | `GET /-/healthy` |
+| `alertmanager` | nimmt die Alarme von Prometheus entgegen und liefert sie an n8n, `POST /webhook/alarm` (`deploy/alertmanager/`) | 9093, nur localhost | `GET /-/healthy` |
+| `sql-exporter` | macht aus der Prüftabelle die fachlichen Zähler: Freigaben, Befunde je Regel, Fehler, offene Wiedervorlagen (`deploy/sql-exporter/`) | 9399, nur im Compose-Netz | Prometheus meldet `up{job="sql-exporter"}`; kein Healthcheck, das Image hat keine Shell |
+| `grafana` | das Dashboard „ZollPilot“, aus dem Repo provisioniert (`deploy/grafana/`). Lesen ohne Anmeldung | 3000, nur localhost | `GET /api/health` |
 
 n8n hängt nicht vom Extraktionsdienst ab: `POST /webhook/akte` läuft ohne
 ihn, `POST /webhook/belege` scheitert ohne ihn sichtbar (500, Zeile in
-`workflow_fehler` mit Node „Belege extrahieren“).
+`workflow_fehler` mit Node „Belege extrahieren“, Zeile in `wiedervorlage`).
+
+Das Monitoring ist Zuschauer. Fällt Grafana, Prometheus oder der Exporter
+aus, prüft ZollPilot weiter; nur niemand sieht mehr zu. Umgekehrt hängt
+kein Prüfpfad an einem der vier.
 
 Der Stand im Repo ist der Stand im System. Wer einen Workflow ändert, ändert
 ihn im Repo und importiert neu, nicht umgekehrt.
@@ -37,10 +45,16 @@ zwei Minuten für Tesseract und die Python-Abhängigkeiten) und die Oberfläche
 (`oberflaeche/Dockerfile`, Angular-Bau und nginx). Der Rauchtest ist der
 Beweis, dass Import, Bundle, Schema, Extraktionsdienst, beide Webhooks und
 der Proxy zusammen funktionieren: Runde 1 schickt Akten, Runde 2 schickt
-PDFs, Runde 3 eine Akte durch die Oberfläche.
+PDFs, Runde 3 eine Akte durch die Oberfläche, Runde 4 übersteuert, Runde 5
+lässt einen Lauf scheitern, Runde 6 wiederholt einen gescheiterten Lauf,
+Runde 7 fragt das Monitoring, ob es all das gesehen hat.
 
 **Der Einstieg ist `http://localhost:8088`.** Dort reicht die Oberfläche
 für Einreichen und Lesen, ohne Konto (`docs/OBERFLAECHE.md`).
+
+**Das Dashboard ist `http://localhost:3000`.** Lesen ohne Anmeldung;
+ändern kann nur `admin` mit dem Passwort aus `.env`, und die Änderung ist
+beim nächsten Start weg, weil das Dashboard aus dem Repo kommt.
 
 n8n selbst: `http://localhost:5678`. Beim ersten Aufruf verlangt n8n die
 Anlage eines Owner-Kontos; das lässt sich in 1.114.0 nicht abschalten, der
@@ -105,32 +119,6 @@ docker compose logs n8n-import     # wenn Workflows fehlen
 docker compose logs -f extraktion  # je Anfrage: Akten-ID, Dateien, Dauer, nie Belegtext
 ```
 
-**Metriken.** `GET http://localhost:5678/metrics` liefert Prometheus-Format.
-Mit `N8N_METRICS=true` allein stehen dort nur Prozesswerte: CPU, Heap,
-Eventloop. Die sagen, ob n8n lebt, nie ob eine Prüfung gelaufen ist. Erst
-`N8N_METRICS_INCLUDE_MESSAGE_EVENT_BUS_METRICS=true` erzeugt die Zähler, auf
-die ein Alarm sich stützen kann; die beiden Label-Schalter machen sie je
-Workflow lesbar. Alle drei stehen in `compose.yml`.
-
-```
-n8n_workflow_started_total{workflow_id="zollpilot-akte-pruefen",…}  145
-n8n_workflow_success_total{workflow_id="zollpilot-akte-pruefen",…}  141
-n8n_workflow_failed_total{workflow_id="zollpilot-akte-pruefen",…}     4
-```
-
-**Worauf ein Alarm gehört.** Drei Dinge, in dieser Reihenfolge:
-
-1. **Zuwachs in `workflow_fehler`.** Das ist das verlässliche Signal. Ein
-   Fehler, den der Workflow selbst behandelt (Fehlerzweig, siehe unten),
-   zählt für n8n als erfolgreicher Lauf, und `n8n_workflow_failed_total` bleibt
-   dann stehen. Die Tabelle bekommt die Zeile trotzdem, auf beiden Wegen.
-2. **`n8n_workflow_failed_total` > 0.** Fängt, was kein Zweig abfängt.
-3. **Ausbleibende Prüfungen.** `n8n_workflow_started_total` wächst in einem
-   Zeitfenster nicht: Niemand reicht mehr ein, oder der Weg dorthin ist tot.
-   Das merkt kein Fehlerzähler.
-
-Ein Prometheus, der das abholt, ist nicht Teil dieses Repos.
-
 **Drei Antworten, drei Bedeutungen.** Der Webhook unterscheidet sie, und ein
 Aufrufer darf sich darauf verlassen:
 
@@ -138,12 +126,83 @@ Aufrufer darf sich darauf verlassen:
 |---|---|
 | 200 | geprüft und freigabereif, unter Berücksichtigung der Übersteuerungen (ADR-007) |
 | 422 | geprüft, nicht freigabereif. Kein Fehler: Der Rumpf trägt das vollständige Ergebnis |
-| 500 | **nicht geprüft.** Der Lauf ist gescheitert. Der Rumpf nennt die Ausführungs-ID und sonst nichts |
+| 500 | **nicht geprüft.** Der Lauf ist gescheitert. Der Rumpf nennt die Ausführungs-ID, ob der Lauf wiederholbar ist, und sonst nichts |
 
 Der Fehlerzweig ist der Grund für den dritten Fall. Ohne ihn endet ein
 abgestürzter Lauf mit 200 und leerem Rumpf; der Aufrufer könnte „freigabereif"
 nicht von „abgestürzt" unterscheiden. `scripts/rauchtest.sh`, Runde 5, prüft
 das bei jedem Lauf.
+
+**Einen gescheiterten Lauf wiederholen.** Der Fehlerzweig legt neben der
+Zeile in `workflow_fehler` eine Zeile in `wiedervorlage` ab: welcher Eingang
+lief und was erneut hinein müsste. Wer die Ursache behoben hat, muss die
+Belege nicht noch einmal suchen:
+
+```bash
+curl -X POST -H 'Content-Type: application/json' \
+  -d '{"execution_id":"1234"}' http://localhost:5678/webhook/wiederholen
+```
+
+Antwort 200 mit dem Ergebnis des wiederholten Laufs (`ergebnis.freigabe`),
+404 wenn zu dieser Ausführung nichts offen ist. Die Zeile wechselt auf
+`erledigt`, oder auf `erneut_gescheitert`, wenn auch der zweite Lauf
+scheitert; der hat dann seine eigene Zeile. Offene Zeilen:
+
+```sql
+select execution_id, eingang, akte_id, status, angelegt_am from wiedervorlage where status = 'offen';
+```
+
+`nutzlast` in dieser Tabelle trägt Aktendaten, anders als `workflow_fehler`.
+Das ist ihr Zweck und der Grund für die Aufbewahrungsregel in
+`docs/DATENSCHUTZ.md`. `scripts/rauchtest.sh`, Runde 6, hält den
+Extraktionsdienst an, reicht ein, bringt ihn zurück und wiederholt.
+
+## Alarme
+
+Prometheus holt die Metriken ab (`http://localhost:9090`), wertet
+`deploy/prometheus/alarme.yml` aus und übergibt an den Alertmanager
+(`http://localhost:9093`). Der liefert an n8n, `POST /webhook/alarm`, und
+der Workflow `zollpilot-alarm` schreibt jeden Alarm als Zeile nach `alarm`,
+mit Beginn und Ende. Grafana (`http://localhost:3000`) zeigt beides, die
+Zähler und die Alarme. `scripts/rauchtest.sh`, Runde 7, prüft, dass die
+Zahlen des Laufs dort ankommen.
+
+**Woher die Zahlen kommen.** Drei Quellen, weil keine allein reicht:
+
+- **n8n** zählt Läufe je Workflow (`n8n_workflow_started_total`,
+  `n8n_workflow_success_total`, `n8n_workflow_failed_total`). Erst
+  `N8N_METRICS_INCLUDE_MESSAGE_EVENT_BUS_METRICS=true` erzeugt sie; ohne den
+  Schalter stehen unter `/metrics` nur CPU, Heap und Eventloop. Ein vom
+  Fehlerzweig behandelter Fehler zählt hier als Erfolg.
+- **Die Extraktion** zählt selbst (`GET :8765/metrics`): Anfragen, Dauer,
+  Belege je Typ und Lesemethode, Konfidenz je Assertion. Kein Belegtext.
+- **Der SQL-Exporter** liest die Prüftabelle: Prüfungen je Entscheidung,
+  Befunde je Regel und Status, Fehler aus `workflow_fehler`, offene
+  Wiedervorlagen, verbrauchte Übersteuerungen. Der Code-Node kann nichts
+  exportieren; die Tabelle ist ohnehin der Ort der Wahrheit.
+
+**Die Alarme und ihre Handgriffe.** Jeder Alarm aus `alarme.yml` steht hier
+mit dem, was zu tun ist. Ein Alarm ohne Handgriff wäre Lärm.
+
+| Alarm | Schwere | Heißt | Prüfen | Handgriff |
+|---|---|---|---|---|
+| `ZollPilotN8nNichtErreichbar` | kritisch | Kein Webhook nimmt an | `docker compose ps n8n`, `docker compose logs n8n` | `docker compose up -d n8n`. Kommt n8n nicht hoch, Postgres prüfen; Datenbank `n8n` ist seine |
+| `ZollPilotExtraktionNichtErreichbar` | kritisch | `/webhook/belege` scheitert, `/webhook/akte` läuft | `docker compose ps extraktion`, `docker compose logs extraktion` | `docker compose up -d extraktion`. Danach die offenen Wiedervorlagen wiederholen (oben) |
+| `ZollPilotLaufGescheitert` | kritisch | Mindestens ein Lauf ist in 15 Minuten gescheitert | `select * from workflow_fehler order by aufgetreten_am desc limit 5` | Ursache beheben (Node und Meldung stehen in der Zeile), dann `POST /webhook/wiederholen` je `execution_id` |
+| `ZollPilotSqlExporterNichtErreichbar` | warnung | Alle `zollpilot_*`-Zähler sind blind | `docker compose logs sql-exporter`; meist die Verbindung zu Postgres | `docker compose up -d sql-exporter`. Passwort in `.env` und `compose.yml` müssen übereinstimmen |
+| `ZollPilotOhneOcr` | warnung | Scans werden `unclassified` | `curl localhost:8765/healthz` zeigt `ocr.verfuegbar: false` | `docker compose build extraktion && docker compose up -d extraktion` |
+| `ZollPilotWiedervorlageOffen` | warnung | Gescheiterte Läufe warten seit 30 Minuten | `select * from wiedervorlage where status = 'offen'` | Je Zeile `POST /webhook/wiederholen`. Bleibt sie `erneut_gescheitert`, ist die Ursache nicht behoben |
+| `ZollPilotKeinEingang` | warnung | Seit 24 Stunden keine Prüfung | Ist das plausibel (Wochenende, Feiertag)? Sonst: erreicht der Aufrufer den Webhook? | Von außen eine Testakte schicken (`scripts/rauchtest.sh` oder eine Akte aus `testdaten/akten/`). Das Fenster ist ein Betriebsparameter in `alarme.yml` |
+| `ZollPilotExtraktionLangsam` | warnung | p95 über 60 s, der Proxy bricht bei 180 s ab | Dashboard „Belege je Lesemethode“: mehr OCR? Größere Dateien? | Kurzfristig nichts kaputt. Mittelfristig: mehr CPU für den Container, oder Scans vorab verkleinern |
+| `ZollPilotNachextraktionHaeufig` | hinweis | Über 20 % der Befunde verlangen Nachextraktion | Dashboard „Lesefehler je Regel“: welches Feld? Konfidenz p10 nach Methode | Kein Betriebsfehler. Fachseite informieren: schlechte Scans oder ein fremdes Layout (`docs/EXTRAKTION.md`) |
+| `ZollPilotOverrideVerbraucht` | hinweis | Eine Übersteuerung galt für eine andere Katalogfassung | `select * from override_wirkung where not gewirkt` | Fachseite informieren. Wer die Akte weiter verantworten will, übersteuert erneut, gegen die neue Fassung (ADR-007) |
+| `ZollPilotPostgresVerbindungenKnapp` | warnung | Über 80 % von `max_connections` belegt | `select application_name, count(*) from pg_stat_activity group by 1` | n8n hält Verbindungen; `docker compose restart n8n` gibt sie frei. Dauerhaft: `max_connections` in Postgres erhöhen |
+
+**Wer den Alarm bekommt.** Eine Tabelle und ein Dashboard, kein Mensch. Der
+Versand-Node im Alarm-Workflow ist vorbereitet und deaktiviert, aus
+demselben Grund wie bei den Nachforderungen: kein SMTP im Demo-Betrieb. Vor
+einem echten Betrieb: SMTP-Zugang hinterlegen, Node aktivieren, Empfänger
+je Schweregrad im Alertmanager eintragen (`route` in `alertmanager.yml`).
 
 ## Was Support tun kann
 
@@ -151,7 +210,10 @@ das bei jedem Lauf.
 |---|---|
 | Webhook antwortet 404 | Workflow nicht aktiv. In n8n prüfen; sonst `docker compose restart n8n-import n8n` |
 | Antwort 422 | Kein Fehler. Die Akte ist nicht freigabereif; das Ergebnis im Body sagt, warum und wer nachliefern muss |
-| Antwort 500 | Zeile in `workflow_fehler` lesen, Ausführung in n8n öffnen |
+| Antwort 500 | Zeile in `workflow_fehler` lesen, Ausführung in n8n öffnen. Sagt der Rumpf `wiederholbar: true`: Ursache beheben, dann `POST /webhook/wiederholen` mit der Ausführungs-ID |
+| Ein Alarm feuert | Tabelle oben: Alarmname, Prüfen, Handgriff. Der Alarm steht auch in `alarm` und im Dashboard |
+| Dashboard zeigt keine Zahlen | `docker compose ps sql-exporter prometheus`; unter `http://localhost:9090/targets` muss jedes Ziel `UP` sein |
+| Schema in `deploy/postgres/init.sql` geändert | Läuft nur beim ersten Start: `docker compose down -v && docker compose up -d --wait`. Löscht beide Datenbanken |
 | Postgres-Node rot, Antwort trotzdem da | Absicht: `onError: continueRegularOutput`. Die Antwort an den Aufrufer ist wichtiger als die Ablage. Fehler steht in `workflow_fehler` |
 | Regel oder Schwelle ändern | Nicht in n8n. `rules.yaml` ändern, `npm test`, `npm run bundle`, committen, `docker compose restart n8n-import n8n` |
 | 500 auf `/webhook/belege`, `workflow_fehler` nennt „Belege extrahieren“ | Extraktionsdienst nicht erreichbar: `docker compose ps extraktion`, `docker compose logs extraktion`, dann `docker compose up -d extraktion` |
@@ -178,10 +240,18 @@ mehr wechseln, sonst sind alle Credentials in n8n unlesbar.
 
 Ehrlich aufgeschrieben, damit die Übergabe keine Überraschung wird:
 
-- **Kein Alarm.** Die Metriken sagen jetzt, was zu überwachen wäre: Zähler
-  je Workflow, Erfolg und Fehler getrennt. Oben steht, worauf ein Alarm
-  gehört. Niemand holt sie ab. Nötig: Prometheus oder gleichwertig, plus die
-  drei Regeln von oben. Das ist Konfiguration, keine Entwicklung mehr.
+- **Kein Mensch am Ende des Alarms.** Prometheus wertet aus, der
+  Alertmanager liefert, n8n schreibt die Zeile, Grafana zeigt sie. Geweckt
+  wird niemand: Der Versand-Node ist deaktiviert. Nötig: SMTP oder ein
+  Pager-Dienst als Empfänger im Alertmanager, und eine Bereitschaft, die
+  die Runbooks oben kennt.
+- **Das Monitoring läuft ohne Anmeldung und ohne Redundanz.** Grafana ist
+  für jeden auf localhost lesbar, Prometheus und Alertmanager sind einzelne
+  Container ohne Sicherung ihrer Daten. Für eine Demo richtig, für einen
+  Betrieb nicht.
+- **Die Wiedervorlage wächst.** `wiedervorlage.nutzlast` trägt Aktendaten und
+  wird nicht automatisch gelöscht. Nötig: dieselbe Frist wie für
+  Ausführungen (14 Tage), als Job oder als Aufgabe des Alarm-Workflows.
 - **Keine Sicherung.** Postgres-Volume ohne Backup. Nötig: `pg_dump` nach Plan,
   Wiederherstellung einmal geprobt.
 - **Kein TLS, keine Authentifizierung, jetzt auch mit Oberfläche.** Ports sind

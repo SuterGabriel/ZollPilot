@@ -53,3 +53,39 @@ def test_kaputtes_base64_ist_422():
     antwort = client.post("/extraktion/akte", json={"akte": {}, "dateien": [{"name": "x.pdf", "inhalt_base64": "%%%"}]})
     assert antwort.status_code == 422
     assert "x.pdf" in antwort.json()["detail"]
+
+
+def test_metriken_zaehlen_belege_nach_typ_und_methode(belege):
+    """Der Metrik-Endpunkt liefert nach einer Anfrage Zähler je Belegtyp und
+    Lesemethode, die Dauer und die Konfidenzverteilung. Kein Belegtext."""
+    stammdaten, dateien, _ = lade(BELEGE / "happy-path")
+    client.post(
+        "/extraktion/akte",
+        json={"akte": stammdaten, "dateien": [{"name": n, "inhalt_base64": base64.b64encode(d).decode()} for n, d in dateien]},
+    )
+    antwort = client.get("/metrics")
+    assert antwort.status_code == 200
+    text = antwort.text
+    assert 'zollpilot_extraktion_anfragen_total{ergebnis="ok"}' in text
+    assert 'zollpilot_extraktion_dokumente_total{methode="textlayer",typ="handelsrechnung"}' in text
+    assert 'zollpilot_extraktion_dokumente_total{methode="textlayer",typ="bill_of_lading"}' in text
+    assert "zollpilot_extraktion_dauer_sekunden_bucket" in text
+    assert 'zollpilot_extraktion_assertion_konfidenz_bucket{le="0.8",methode="textlayer"}' in text
+    assert "zollpilot_extraktion_ocr_verfuegbar" in text
+    # Was nie in einer Metrik stehen darf: ein Wert aus einem Beleg.
+    assert "MSKU" not in text
+    assert "Nordlicht" not in text
+
+
+def test_metriken_zaehlen_abgelehnte_anfragen():
+    vorher = client.get("/metrics").text
+    client.post("/extraktion/akte", json={"akte": {}, "dateien": []})
+    nachher = client.get("/metrics").text
+
+    def wert(text: str) -> float:
+        for zeile in text.splitlines():
+            if zeile.startswith('zollpilot_extraktion_anfragen_total{ergebnis="abgelehnt"}'):
+                return float(zeile.split()[-1])
+        return 0.0
+
+    assert wert(nachher) == wert(vorher) + 1

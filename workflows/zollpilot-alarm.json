@@ -1,0 +1,230 @@
+{
+  "id": "zollpilot-alarm",
+  "name": "ZollPilot – Alarm",
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "errorWorkflow": "zollpilot-fehler"
+  },
+  "meta": {
+    "beschreibung": "Der Alertmanager (deploy/alertmanager/alertmanager.yml) liefert Alarme an POST /webhook/alarm. Jeder Alarm wird eine Zeile in `alarm`, mit Beginn und Ende. Der Versand an Menschen ist vorbereitet und deaktiviert, wie bei den Nachforderungen."
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "alarm",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "alarm-eingegangen",
+      "name": "Alarm eingegangen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "zollpilot-alarm",
+      "notes": "Antwortet sofort mit 200: Der Alertmanager wiederholt sonst die Zustellung. Rumpf im Alertmanager-Format: {status, alerts: [{status, labels, annotations, startsAt, endsAt, fingerprint}]}."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Transport: Der Alertmanager schickt eine Gruppe, jede Zeile in `alarm` ist\n// ein Alarm mit seinem Zustand. Name, Schwere und Texte kommen aus\n// deploy/prometheus/alarme.yml; hier wird nur umgeformt.\nconst b = $input.first().json.body ?? {};\nconst nie = (t) => !t || String(t).startsWith('0001');\nreturn (b.alerts ?? []).map((a) => ({\n  json: {\n    fingerprint: a.fingerprint ?? null,\n    name: a.labels?.alertname ?? 'unbekannt',\n    schwere: a.labels?.schwere ?? null,\n    zustand: a.status ?? b.status ?? 'unbekannt',\n    zusammenfassung: a.annotations?.zusammenfassung ?? null,\n    beschreibung: a.annotations?.beschreibung ?? null,\n    begonnen_am: nie(a.startsAt) ? null : a.startsAt,\n    beendet_am: nie(a.endsAt) ? null : a.endsAt,\n    labels: JSON.stringify(a.labels ?? {}),\n  },\n}));"
+      },
+      "id": "alarme-aufteilen",
+      "name": "Alarme aufteilen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "alarm"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fingerprint": "={{ $json.fingerprint }}",
+            "name": "={{ $json.name }}",
+            "schwere": "={{ $json.schwere }}",
+            "zustand": "={{ $json.zustand }}",
+            "zusammenfassung": "={{ $json.zusammenfassung }}",
+            "beschreibung": "={{ $json.beschreibung }}",
+            "begonnen_am": "={{ $json.begonnen_am }}",
+            "beendet_am": "={{ $json.beendet_am }}",
+            "labels": "={{ $json.labels }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "fingerprint",
+              "displayName": "fingerprint",
+              "type": "string",
+              "required": false,
+              "display": true
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "type": "string",
+              "required": true,
+              "display": true
+            },
+            {
+              "id": "schwere",
+              "displayName": "schwere",
+              "type": "string",
+              "required": false,
+              "display": true
+            },
+            {
+              "id": "zustand",
+              "displayName": "zustand",
+              "type": "string",
+              "required": true,
+              "display": true
+            },
+            {
+              "id": "zusammenfassung",
+              "displayName": "zusammenfassung",
+              "type": "string",
+              "required": false,
+              "display": true
+            },
+            {
+              "id": "beschreibung",
+              "displayName": "beschreibung",
+              "type": "string",
+              "required": false,
+              "display": true
+            },
+            {
+              "id": "begonnen_am",
+              "displayName": "begonnen_am",
+              "type": "dateTime",
+              "required": false,
+              "display": true
+            },
+            {
+              "id": "beendet_am",
+              "displayName": "beendet_am",
+              "type": "dateTime",
+              "required": false,
+              "display": true
+            },
+            {
+              "id": "labels",
+              "displayName": "labels",
+              "type": "object",
+              "required": false,
+              "display": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "alarm-ablegen",
+      "name": "Alarm ablegen",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        520,
+        300
+      ],
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "notes": "Bei Datenbankfehler laeuft der Flow weiter; der Fehler landet ueber den Fehler-Workflow in workflow_fehler. Ein Alarm ueber eine tote Datenbank kommt dann nicht in der toten Datenbank an, aber er steht in Prometheus."
+    },
+    {
+      "parameters": {
+        "fromEmail": "zollpilot@example.invalid",
+        "toEmail": "={{ $json.an }}",
+        "subject": "=[ZollPilot] {{ $json.zustand }}: {{ $json.name }}",
+        "emailFormat": "text",
+        "text": "={{ $json.zusammenfassung }}\n\n{{ $json.beschreibung }}\n\nSeit: {{ $json.begonnen_am }}",
+        "options": {}
+      },
+      "id": "alarm-senden",
+      "name": "Alarm senden",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        780,
+        300
+      ],
+      "disabled": true,
+      "notes": "Absichtlich deaktiviert, aus demselben Grund wie „Nachforderung senden“: kein SMTP im Demo-Betrieb. Bis dahin ist der Alarm eine Zeile in `alarm` und ein Feld im Dashboard, kein Mensch wird geweckt. Das steht so in docs/BETRIEB.md."
+    },
+    {
+      "parameters": {
+        "content": "## Alarm\n\nPrometheus wertet `deploy/prometheus/alarme.yml` aus, der Alertmanager liefert hierher. Jeder Alarm wird eine Zeile mit Beginn und Ende.\n\nEntscheidung: keine. Was ein Alarm ist, steht in der Regeldatei; was zu tun ist, im Runbook in `docs/BETRIEB.md`.",
+        "height": 200,
+        "width": 380
+      },
+      "id": "notiz",
+      "name": "Notiz",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        40
+      ]
+    }
+  ],
+  "connections": {
+    "Alarm eingegangen": {
+      "main": [
+        [
+          {
+            "node": "Alarme aufteilen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alarme aufteilen": {
+      "main": [
+        [
+          {
+            "node": "Alarm ablegen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alarm ablegen": {
+      "main": [
+        [
+          {
+            "node": "Alarm senden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

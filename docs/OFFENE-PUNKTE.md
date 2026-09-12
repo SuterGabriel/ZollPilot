@@ -100,9 +100,11 @@ bis dahin ist der Katalog ehrlich markiert.
   aber den Namen tippt, prüft niemand. Ohne Anmeldung ist jeder Override im
   Audit eine Behauptung, und das ist der Blocker vor jedem Betrieb, nicht
   ein Schönheitsfehler.
-- **Verbrauchte Overrides benachrichtigen niemanden.** Eine Katalogänderung
-  entwertet sie richtigerweise. Wer davon erfährt, ist nicht gebaut: Die
-  Akte müsste erneut geprüft werden, damit es überhaupt auffällt.
+- **Verbrauchte Overrides erreichen den Betrieb, nicht die Fachseite.** Eine
+  Katalogänderung entwertet sie richtigerweise. Seit dem Monitoring gibt es
+  dafür einen Alarm (`ZollPilotOverrideVerbraucht`), aber er feuert erst,
+  wenn die Akte erneut geprüft wird, und er endet in einer Tabelle. Wer die
+  Akte verantwortet hat, erfährt es weiterhin nur, wenn jemand nachsieht.
 - **Die Oberfläche zeigt keine Fundstelle.** Jede Assertion trägt Seite und
   Bounding Box; das PDF wird nicht angezeigt und nichts darin markiert. Ohne
   das bleibt `re_extraction_required` eine Aufforderung ohne Werkzeug.
@@ -115,8 +117,18 @@ bis dahin ist der Katalog ehrlich markiert.
   einem Bildschirmleser.
 - **Ein Browser in den Ende-zu-Ende-Läufen.** Chromium. Firefox und WebKit
   laufen nicht mit.
-- **Kein Monitoring jenseits des Metrik-Endpunkts.** Prometheus, Grafana,
-  Alarme: nicht im Repo (`BETRIEB.md`).
+- **Kein Mensch am Ende des Alarms.** Prometheus wertet aus, der
+  Alertmanager liefert, n8n schreibt die Zeile, Grafana zeigt sie. Der
+  Versand-Node ist deaktiviert wie der für Nachforderungen. Ein Alarm ist
+  damit eine Zeile, die jemand lesen muss (`BETRIEB.md`).
+- **Die Wiedervorlage wird nicht aufgeräumt.** `wiedervorlage.nutzlast`
+  trägt Aktendaten; die Frist von 14 Tagen steht in `DATENSCHUTZ.md`, der
+  Job, der sie durchsetzt, nicht im Repo.
+- **Wiederholen heißt nicht korrigieren.** `POST /webhook/wiederholen`
+  schickt denselben Rumpf noch einmal. Das hilft, wenn ein Dienst weg war;
+  es hilft nicht, wenn der Rumpf selbst falsch ist. Ein Lauf, der am
+  Verpacken der Belege scheitert, ist `nicht_wiederholbar` und braucht eine
+  neue Einreichung.
 - **Der Bündler ist ein Regex-Parser.** Kennt genau die Import-/Exportformen
   aus `src/`. Ein `export default` bricht ihn sichtbar.
 - **`regel-check` erkennt Regex-Literale heuristisch.** Ein Regex direkt nach

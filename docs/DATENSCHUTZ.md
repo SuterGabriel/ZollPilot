@@ -53,6 +53,19 @@ Meldung nach `workflow_fehler`, nicht die Akte. Wer den Inhalt braucht,
 `EXECUTIONS_DATA_MAX_AGE` auf 14 Tage. Was die Akte dauerhaft braucht, liegt
 in `pruefung` und den Aktentabellen, nicht in der Ausführungshistorie.
 
+**Die Wiedervorlage trägt Nutzdaten, absichtlich.** `wiedervorlage.nutzlast`
+hält den Rumpf eines gescheiterten Laufs, damit er sich wiederholen lässt,
+ohne dass jemand die Belege neu einreicht. Das ist der Zweck der Tabelle und
+der Unterschied zu `workflow_fehler`. Dafür gilt dieselbe Frist wie für
+Ausführungen: 14 Tage, danach löschen. Der Job dafür ist nicht gebaut
+(`docs/BETRIEB.md`, „Was vor einem echten Betrieb fehlt“); bis dahin ist es
+ein Handgriff: `delete from wiedervorlage where angelegt_am < now() - interval '14 days'`.
+
+**Metriken tragen keine Belegwerte.** Die Labels der Extraktionsmetriken sind
+Belegtyp und Lesemethode, die des SQL-Exporters Regelkennung, Status und
+Entscheidung. Kein Aktenzeichen, kein Betrag, kein Name; ein Test in
+`extraktion/tests/test_dienst.py` prüft das für die Extraktion.
+
 **Vertraglich zu klären** vor produktivem Einsatz eines externen Anbieters:
 Region, Aufbewahrung, Logging, Unterauftragsverarbeiter, Ausschluss von
 Modelltraining auf Kundendaten. Offene Frage 10 in `PROJECT.md`.

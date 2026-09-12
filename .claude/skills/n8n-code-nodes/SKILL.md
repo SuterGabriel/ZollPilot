@@ -64,6 +64,34 @@ extrahieren“ (`http://extraktion:8080/extraktion/akte`, Dienst aus
 - **Ein Ausfall des Dienstes ist ein sichtbarer Fehler** (500,
   `workflow_fehler`), keine leere Akte. Kein `continueOnFail` an diesem Node.
 
+## Vorgänger im Code-Node lesen
+
+Drei Eigenheiten, die jede eine Sitzung gekostet haben (Entwicklungslog,
+12.09.2026, Monitoring):
+
+- **`$('Node').first()` wirft nicht, wenn der Node nicht gelaufen ist.** Es
+  gibt `undefined` zurück; `.json` darauf ist der Absturz. Jeden Zugriff auf
+  einen Vorgänger, der nicht sicher gelaufen ist, abfangen.
+- **`isExecuted` gibt es nur in Ausdrücken.** Im Code-Node darauf zu bauen,
+  liefert stillschweigend das Falsche. Ob ein Node lief, sagt der
+  abgefangene Zugriff auf seine Ausgabe.
+- **Fehlerausgang ist Ausgang 1.** Ein Node mit `continueErrorOutput`, dessen
+  Fehlerzweig genommen wurde, hat seine Daten unter `.first(1)`, nicht unter
+  `.first()`. Wer beide Fälle braucht, liest beide Ausgänge.
+
+Das Muster steht im Node „Wiedervorlage vorbereiten“ des Prüf-Workflows:
+eine Funktion `ausgabe(name)`, die Ausgang 0 und 1 versucht und sonst `null`
+liefert.
+
+## Wiedervorlage und Alarm
+
+Der Fehlerzweig legt neben `workflow_fehler` eine Zeile in `wiedervorlage`
+ab: Eingang und Rumpf, damit `zollpilot-wiederholen` den Lauf über denselben
+Webhook wiederholen kann. Dafür nimmt „Belege verpacken“ auch JSON mit
+`dateien[]` entgegen, nicht nur Multipart. `zollpilot-alarm` nimmt den
+Alertmanager entgegen und schreibt nach `alarm`. Beide Workflows entscheiden
+nichts; `compose.yml` aktiviert sie beim Import.
+
 ## Node-Konventionen
 
 - **Namen auf Deutsch, als Handlung oder Frage:** „Akte prüfen“, „Ergebnis

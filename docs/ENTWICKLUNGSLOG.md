@@ -390,3 +390,55 @@ Namensfeld ist keine Anmeldung und sagt das auch auf dem Bildschirm — vor
 jedem Betrieb außerhalb der eigenen Maschine ist das ein Blocker. Und wer
 erfährt, dass eine Katalogänderung Overrides verbraucht hat, ist niemand:
 Es fällt erst bei der nächsten Prüfung derselben Akte auf.
+
+## 2026-09-12: Monitoring, das abgeholt wird, und Läufe, die sich wiederholen lassen
+
+**Was delegiert wurde.** Zuerst die zweite Ausschreibung (Neckarsulm)
+wörtlich ins Mapping, damit jede Stufe sagt, welche Zeile sie schließt.
+Dann der Aufgabenblock A8: Prometheus, Alertmanager, SQL-Exporter und
+Grafana in den Stack; fachliche Zähler aus der Prüftabelle; Metriken der
+Extraktion; elf Alarmregeln, jede mit Runbook; Alarme über n8n als Zeile in
+Postgres; Wiedervorlage gescheiterter Läufe; zwei neue Rauchtestrunden.
+Parallel arbeitet ein zweiter Chat auf dem Branch `extraktion` an
+IDP-Vergleich, ABD und XML. Die Aufteilung ist nach Dateien, nicht nach
+Themen: Dieser Branch besitzt Compose, `deploy/`, `workflows/` und die
+gemeinsamen Dokumente, der andere `extraktion/`, `testdaten/` und `src/`.
+
+**Was gut lief.** Die Entscheidung, die fachlichen Zähler aus der
+Prüftabelle zu ziehen statt aus n8n. Der Code-Node kann nichts exportieren,
+die Tabelle ist ohnehin der Ort der Wahrheit, und der Postgres-Exporter
+selbst verweist für Fachabfragen auf den SQL-Exporter. Und die Alarmkette
+hat sich bewiesen, bevor der Rauchtest sie prüfen konnte: Der Exporter
+startete beim ersten Versuch nicht, Prometheus meldete
+`ZollPilotSqlExporterNichtErreichbar`, der Alertmanager lieferte an n8n, die
+Zeile stand in `alarm`, und als der Exporter dann lief, zählte er seinen
+eigenen Ausfall zurück.
+
+**Was nicht funktionierte.** Dreimal am Node „Wiedervorlage vorbereiten“,
+und jedes Mal war es eine Eigenheit von n8n, nicht die Idee. Erstens wirft
+`$('Node').first()` nicht, wenn der Node nicht gelaufen ist; es gibt
+`undefined` zurück, und `.json` darauf ist der Absturz. Zweitens ist
+`isExecuted` nur für Ausdrücke dokumentiert; im Code-Node hielt der so
+abgesicherte Code jeden Belege-Lauf für einen Akte-Lauf und legte nichts
+ab. Drittens liegt die Ausgabe eines Nodes, dessen Fehlerausgang genommen
+wurde, auf Ausgang 1, und `.first()` liest Ausgang 0. Der Node liest jetzt
+beide Ausgänge in einem abgefangenen Zugriff und kommt ohne `isExecuted`
+aus. Dazu der SQL-Exporter: Die dokumentierte Umgebungsvariable für die
+Verbindung kennt Version 0.18.0 nicht, das Flag schon, aber nur, wenn die
+Datei einen Platzhalter trägt. Und der Metrik-Endpunkt der Extraktion
+antwortete als eingehängte App mit einer Umleitung auf `/metrics/`, die
+Prometheus schluckt und `curl -f` nicht; jetzt ist es eine feste Route.
+
+**Was die Testsuite abgefangen hat.** Alle drei Fehler am Wiedervorlage-Node
+hat Runde 6 des Rauchtests gefunden; keiner wäre beim Lesen aufgefallen.
+Der erste Lauf endete mit 200 und leerem Rumpf, genau der Fall, für den der
+Fehlerzweig gebaut wurde, nur diesmal ausgelöst vom Fehlerzweig selbst. Die
+Umleitung auf `/metrics/` fand Runde 7. Neu im Beleg-Check: Jeder Alarmname
+aus `alarme.yml` muss in der Betriebsdoku stehen. Ein Alarm ohne Runbook
+ist ab jetzt ein roter Lauf, kein Vorsatz.
+
+**Zeitschätzung.** Delegiert: eine Sitzung, etwa drei Stunden Agentenzeit,
+davon ein Drittel im Stack (Bauen, Importieren, sieben Runden je Lauf).
+Von Hand geschätzt: zwei bis drei Tage, und die Nachforschung zu den drei
+n8n-Eigenheiten hätte davon den größten Teil gekostet. Schätzung, keine
+Messung.

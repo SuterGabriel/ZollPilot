@@ -28,7 +28,8 @@ Stand 12. September 2026, Stufen 0 bis 4 des Plans in
 | Testdaten | 7 synthetische Akten als JSON, dieselben 7 als Belegsätze (PDF) in [testdaten/belege/](testdaten/belege/), erzeugt und byteidentisch reproduzierbar; der schlechte Scan ist ein echtes Bild für Tesseract |
 | Messung | Field Exact Match je Belegtyp und Entscheidung je Akte gegen das Golden Set, Basislinie in [extraktion/basislinie.json](extraktion/basislinie.json), als CI-Job |
 | n8n | 2 Workflows als Export; ein Prüf-Workflow mit zwei Eingängen (Akte, Belege); der Code-Node ist aus `src/` gebündelt (ADR-004) |
-| Betrieb | `compose.yml` mit Postgres, Import, n8n, Extraktionsdienst und nginx; Rauchtest gegen den laufenden Stack mit Akten, PDFs und einem Lauf durch die Oberfläche |
+| Betrieb | `compose.yml` mit Postgres, Import, n8n, Extraktionsdienst und nginx; Rauchtest in sieben Runden gegen den laufenden Stack: Akten, PDFs, Oberfläche, Übersteuerung, gescheiterter Lauf, Wiederholung, Monitoring |
+| Monitoring | Prometheus, Alertmanager, SQL-Exporter und Grafana im selben Stack: fachliche Zähler aus der Prüftabelle (Freigaben, Befunde je Regel, Nachextraktion), Lesemetriken der Extraktion, elf Alarmregeln mit Runbook je Alarm, Alarme landen über n8n als Zeile in Postgres; gescheiterte Läufe lassen sich über `POST /webhook/wiederholen` wiederholen. [docs/BETRIEB.md](docs/BETRIEB.md) |
 | Rechtsverweise | Sekundärrecherche, keine Regel trägt `verified` ([docs/08](docs/08-known-unknowns.md)) |
 
 ## Schnellstart
@@ -66,9 +67,10 @@ docker compose up -d --build --wait
 bash scripts/rauchtest.sh                     # Akten, PDFs und ein Lauf durch die Oberfläche
 ```
 
-Dann **`http://localhost:8088`** für die Oberfläche und
-`http://localhost:5678` für n8n; Prüfungen liegen in Postgres, Tabelle
-`pruefung`. Übergabe an Betrieb: [docs/BETRIEB.md](docs/BETRIEB.md).
+Dann **`http://localhost:8088`** für die Oberfläche, `http://localhost:3000`
+für das Dashboard und `http://localhost:5678` für n8n; Prüfungen liegen in
+Postgres, Tabelle `pruefung`. Übergabe an Betrieb:
+[docs/BETRIEB.md](docs/BETRIEB.md).
 
 ## Wie es funktioniert
 
@@ -94,6 +96,9 @@ Belege (PDF)                                  Akte (Dokumente + Assertions)
 
    Browser → nginx → /webhook/ → n8n          gleiche Herkunft, kein CORS (ADR-006)
         oberflaeche/                              zeigt das Ergebnis, entscheidet nichts
+
+   Prometheus ← n8n, Extraktion, SQL-Exporter (Prüftabelle)   Zuschauer, keine Abhängigkeit
+        → Alertmanager → n8n /webhook/alarm → Tabelle `alarm` → Grafana
 ```
 
 ## Wegweiser
