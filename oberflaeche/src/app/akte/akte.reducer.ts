@@ -10,7 +10,7 @@
 // 10). Wer nur `null` setzt, nimmt dem Menschen die Information, dass es
 // eine frühere Entscheidung gab.
 //
-// Reine Funktionen, ohne Angular und ohne Uhr — der Zeitpunkt kommt mit der
+// Reine Funktionen, ohne Angular und ohne Uhr: Der Zeitpunkt kommt mit der
 // Aktion herein, nicht aus `new Date()` im Reducer.
 
 import { createFeature, createReducer, createSelector, on } from '@ngrx/store';
@@ -36,7 +36,7 @@ export interface AkteZustand {
   uebersteuerungen: Uebersteuerung[];
   /**
    * Die zuletzt eingereichten Stammdaten. Ohne sie könnte eine Übersteuerung
-   * keine neue Prüfung auslösen — sie wären in der Komponente gefangen.
+   * keine neue Prüfung auslösen; sie wären in der Komponente gefangen.
    */
   stammdaten: Stammdaten | null;
   fehler: string | null;
@@ -147,7 +147,7 @@ export const waehleEinreichbar = createSelector(
 
 /**
  * Ein Ergebnis wird nur gezeigt, wenn es noch gilt. Ein entwertetes bleibt
- * im Zustand — die Oberfläche sagt, dass es eines gab, zeigt es aber nicht.
+ * im Zustand; die Oberfläche sagt, dass es eines gab, zeigt es aber nicht.
  */
 export const waehleGueltigesErgebnis = createSelector(selectErgebnis, selectStand, selectVeraltet, (ergebnis, stand, veraltet) =>
   stand === 'fertig' && !veraltet ? ergebnis : null,
@@ -161,7 +161,7 @@ export const waehleEntwertet = createSelector(
 );
 
 /**
- * Befunde, die keine `ok` sind — in der Reihenfolge, die das Regelwerk
+ * Befunde, die keine `ok` sind, in der Reihenfolge, die das Regelwerk
  * geliefert hat (hart vor weich). Hier wird nicht bewertet, nur gefiltert.
  */
 export const waehleOffeneBefunde = createSelector(
@@ -205,7 +205,7 @@ export interface Adressatengruppe {
 /**
  * Nachforderungen nach Adressat, weil die reale Handlung eine Nachricht je
  * Empfänger ist (Entwurf 1b). Bei nur einem Adressaten wäre die Gliederung
- * eine leere Hülle — dann liefert der Selektor eine einzige Gruppe, und die
+ * eine leere Hülle; dann liefert der Selektor eine einzige Gruppe, und die
  * Darstellung lässt die Überschrift weg.
  */
 export const waehleNachforderungenNachAdressat = createSelector(
@@ -230,7 +230,7 @@ export const waehleMehrereAdressaten = createSelector(
 /**
  * Die beiden Entscheidungen, wenn sie auseinandergehen (ADR-007).
  *
- * Liefert `null`, solange niemand übersteuert hat — dann gibt es nichts zu
+ * Liefert `null`, solange niemand übersteuert hat; dann gibt es nichts zu
  * erklären. Geht es auseinander, muss die Oberfläche beides zeigen: Ein
  * roter Befund, der nicht blockiert, sieht sonst wie ein Fehler aus.
  */
@@ -244,7 +244,7 @@ export const waehleFreigabeUnterschied = createSelector(waehleGueltigesErgebnis,
  * Der Name aus der zuletzt eingetragenen Übersteuerung, zur Vorbelegung.
  *
  * Das ist eine Bequemlichkeit, keine Anmeldung: Wer hier steht, hat es
- * selbst getippt. ADR-007 sagt das ausdrücklich — ein Override mit
+ * selbst getippt. ADR-007 sagt das ausdrücklich: Ein Override mit
  * erfundenem Namen ist im Audit wertlos, und nichts hindert daran.
  */
 export const waehleLetzterBenutzer = createSelector(
@@ -261,7 +261,7 @@ export const waehleUebersteuerteBefunde = createSelector(
 /**
  * Übersteuerungen, die durch eine Katalogänderung hinfällig wurden. Sie
  * verschwinden nicht: Sie sind der Nachweis, dass einmal jemand entschieden
- * hat — und die Aufforderung, erneut zu entscheiden.
+ * hat, und die Aufforderung, erneut zu entscheiden.
  */
 export const waehleVerbrauchteUebersteuerungen = createSelector(
   waehleGueltigesErgebnis,

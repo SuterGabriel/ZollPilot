@@ -4,7 +4,7 @@
 ausführliche Fassung liegt jeweils in `docs/adr/`.
 
 Eine ADR entsteht im Moment der Entscheidung. Wer sie rückwirkend schreibt,
-rekonstruiert Begründungen, die er nie hatte — und das merkt man ihnen an.
+rekonstruiert Begründungen, die er nie hatte, und das merkt man ihnen an.
 
 | Nr. | Thema | Status | Datum |
 |---|---|---|---|
@@ -13,7 +13,7 @@ rekonstruiert Begründungen, die er nie hatte — und das merkt man ihnen an.
 | [ADR-003](docs/adr/ADR-003-kein-modell-in-der-entscheidung.md) | Kein Modell in der Entscheidungsschicht; Lesefehler vor Fachfehler | angenommen | 2026-09-12 |
 | [ADR-004](docs/adr/ADR-004-n8n-orchestriert-src-entscheidet.md) | n8n orchestriert, `src/` entscheidet; der Code-Node ist ein Build-Artefakt aus `src/` | angenommen | 2026-09-12 |
 | [ADR-005](docs/adr/ADR-005-extraktion-ocr-vor-modell.md) | Extraktion als eigener Python-Dienst: Textlayer und OCR mit Koordinaten zuerst, ein Vision-Modell nur dahinter und nur pseudonymisiert; Golden Set und Basislinie im Repo | angenommen | 2026-09-12 |
-| [ADR-006](docs/adr/ADR-006-oberflaeche-angular-gleiche-herkunft.md) | Die Eingabe bekommt eine Oberfläche: Angular mit ngrx, ausgeliefert von nginx, das `/webhook/` weiterreicht — gleiche Herkunft statt CORS; Kontrast und axe als Gates | angenommen | 2026-09-12 |
+| [ADR-006](docs/adr/ADR-006-oberflaeche-angular-gleiche-herkunft.md) | Die Eingabe bekommt eine Oberfläche: Angular mit ngrx, ausgeliefert von nginx, das `/webhook/` weiterreicht, also gleiche Herkunft statt CORS; Kontrast und axe als Gates | angenommen | 2026-09-12 |
 | [ADR-007](docs/adr/ADR-007-uebersteuern-statt-umentscheiden.md) | Ein Mensch übersteuert einen Befund, ändert ihn aber nie: Das Regelergebnis bleibt stehen, die Verantwortung steht daneben. Akte und Belege liegen in Postgres | angenommen | 2026-09-12 |
 
 Vorgesehen, noch nicht entschieden: Intake über Mail (Stufe 2), sekundäre
@@ -24,9 +24,9 @@ Nummer, wenn sie fällig sind.
 
 Reihenfolge, am 2026-09-12 festgelegt: Die Extraktion (Python) kommt vor der
 Oberfläche (Angular), weil sie die einzige offene Must-have-Lücke des
-Anforderungsprofils schließt. Eine Oberfläche kommt nur als Review-Arbeitsplatz —
-Befund mit Fundstelle sehen, korrigieren, übersteuern mit Name und Begründung
-— nicht als Dashboard.
+Anforderungsprofils schließt. Eine Oberfläche kommt nur als Review-Arbeitsplatz:
+Befund mit Fundstelle sehen, korrigieren, übersteuern mit Name und
+Begründung. Kein Dashboard.
 
 ## Anforderungen
 

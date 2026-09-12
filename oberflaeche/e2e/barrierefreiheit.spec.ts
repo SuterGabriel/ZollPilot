@@ -1,7 +1,7 @@
 // Barrierefreiheit wird geprüft, nicht behauptet (docs/ARBEITSWEISE.md).
 //
 // axe läuft über jede Ansicht: das leere Formular, das Formular mit Belegen,
-// das Ergebnis und den Fehlerfall. Dazu die Dinge, die axe nicht sieht —
+// das Ergebnis und den Fehlerfall. Dazu die Dinge, die axe nicht sieht:
 // Tastaturbedienung und wohin der Fokus nach dem Absenden wandert.
 
 import AxeBuilder from '@axe-core/playwright';
@@ -39,7 +39,7 @@ const MASSSTAB = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
 
 async function keineVerstoesse(seite: Page, wo: string) {
   const bericht = await new AxeBuilder({ page: seite }).withTags(MASSSTAB).analyze();
-  const befunde = bericht.violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.length}x — ${v.help}`);
+  const befunde = bericht.violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.length}x: ${v.help}`);
   expect(befunde, `axe-Verstöße in ${wo}:\n${befunde.join('\n')}`).toEqual([]);
 }
 
@@ -95,7 +95,7 @@ test('ein Transportfehler wird ohne axe-Verstoß dargestellt', async ({ page }) 
 
   await expect(page.getByRole('heading', { name: 'Prüfung nicht durchgeführt' })).toBeVisible();
   await expect(page.getByRole('alert')).toContainText('docker compose');
-  // Kein Ergebnisblock — auch kein leerer (Entwurf, Zustand 9).
+  // Kein Ergebnisblock, auch kein leerer (Entwurf, Zustand 9).
   await expect(page.locator('section.block')).toHaveCount(0);
   await keineVerstoesse(page, 'Fehlerfall');
 });
@@ -173,7 +173,7 @@ test('ein entwertetes Ergebnis wird als entwertet gezeigt, nicht gelöscht', asy
 
 test('ein Befund lässt sich übersteuern, ohne dass er verschwindet', async ({ page }) => {
   // Erst blockiert, nach der Übersteuerung antwortet der Workflow mit dem
-  // zweiten Prüfstück — genau so, wie er es im Betrieb täte.
+  // zweiten Prüfstück, genau so, wie er es im Betrieb täte.
   await antworteMit(page, ERGEBNIS_BLOCKIERT, 422);
   await belegeAblegen(page);
   await page.getByRole('button', { name: 'Akte einreichen' }).click();
@@ -220,7 +220,7 @@ test('ohne Namen oder Begründung ist das Übersteuern gesperrt und der Grund st
  * Ab 1024 px füllt die Anwendung das Fenster; was länger wird, bewegt sich
  * in seiner Spalte. Der Grund steht in `app.css`: Wer einen Befund liest,
  * braucht die Akte daneben. Ohne diesen Test wäre das eine Absichtserklärung
- * — ein zusätzlicher Absatz im Kopf genügt, um sie zu brechen.
+ * Ein zusätzlicher Absatz im Kopf genügt, um sie zu brechen.
  */
 async function seitenscrollung(seite: Page) {
   return seite.evaluate(() => {
@@ -249,7 +249,7 @@ for (const groesse of [
     const gefuellt = await seitenscrollung(page);
     expect(gefuellt.hoehe, `mit Ergebnis bei ${groesse.width}x${groesse.height}`).toBeLessThanOrEqual(gefuellt.sichtbar);
 
-    // Und die Spalte bewegt sich wirklich — sonst wäre der Befund unerreichbar.
+    // Und die Spalte bewegt sich wirklich; sonst wäre der Befund unerreichbar.
     const spalte = page.locator('.ergebnis-spalte');
     const beweglich = await spalte.evaluate((el) => el.scrollHeight > el.clientHeight);
     expect(beweglich, 'die Ergebnisspalte muss scrollen können').toBe(true);
@@ -274,7 +274,7 @@ test('bei 900 px Fensterhöhe braucht auch die Aktenspalte keinen Rollbalken', a
   expect(spalte.inhalt, `Aktenspalte: ${spalte.inhalt} in ${spalte.sichtbar}`).toBeLessThanOrEqual(spalte.sichtbar);
 });
 
-test('unter 1024 px scrollt die Seite wieder — sonst wäre Inhalt unerreichbar', async ({ page }) => {
+test('unter 1024 px scrollt die Seite wieder, sonst wäre Inhalt unerreichbar', async ({ page }) => {
   await page.setViewportSize({ width: 400, height: 720 });
   await antworteMit(page, ERGEBNIS_BLOCKIERT, 422);
   await belegeAblegen(page);

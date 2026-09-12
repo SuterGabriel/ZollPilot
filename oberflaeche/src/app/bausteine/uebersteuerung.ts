@@ -2,7 +2,7 @@
 //
 // Diese Komponente entscheidet nichts. Sie nimmt einen Namen und eine
 // Begründung entgegen, gibt beides dem Regelwerk und zeigt danach, was
-// zurückkam. Der Befund daneben behält seinen Status — ein übersteuerter
+// zurückkam. Der Befund daneben behält seinen Status: Ein übersteuerter
 // Befund verschwindet nicht, er bekommt eine Unterschrift.
 //
 // Das Namensfeld ist keine Anmeldung. Es steht so in ADR-007, und es steht
@@ -54,7 +54,7 @@ export class Uebersteuerung {
   readonly verbraucht = computed(() => this.befund().uebersteuerung_verbraucht ?? []);
 
   /**
-   * Warum das Absenden gesperrt ist — oder `null`, wenn es nicht gesperrt
+   * Warum das Absenden gesperrt ist, oder `null`, wenn es nicht gesperrt
    * ist. Ein Grund statt einer stummen Sperre: Sonst sitzt jemand vor einer
    * toten Schaltfläche.
    */

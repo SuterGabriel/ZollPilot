@@ -59,7 +59,7 @@ describe('akteReducer', () => {
     expect(mitErgebnis().gepruefetAm).toBe(ZEIT);
   });
 
-  it('entwertet ein Ergebnis, wenn sich die Belege ändern — statt es zu löschen', () => {
+  it('entwertet ein Ergebnis, wenn sich die Belege ändern, statt es zu löschen', () => {
     const fertig = mitErgebnis();
     const nachHinzufuegen = akteReducer(fertig, AkteAktionen.belegeHinzugefuegt({ belege: [beleg('c')] }));
 
@@ -132,7 +132,7 @@ describe('Selektoren', () => {
 
   it('liefern die Bilanz: wie viele geprüft, wie viele offen', () => {
     // Die Zahl der geprüften Regeln steht im Ergebnis und darf nicht
-    // verlorengehen — „12 von 13 ohne Befund" ist die Aussage, nicht „nichts".
+    // verlorengehen. „12 von 13 ohne Befund" ist die Aussage, nicht „nichts".
     expect(waehleRegelBilanz.projector(ERGEBNIS_BLOCKIERT)).toEqual({ gesamt: 1, offen: 1, ohneBefund: 0 });
     expect(waehleRegelBilanz.projector(ERGEBNIS_FREI)).toEqual({ gesamt: 0, offen: 0, ohneBefund: 0 });
     expect(waehleRegelBilanz.projector(null)).toEqual({ gesamt: 0, offen: 0, ohneBefund: 0 });
@@ -229,7 +229,7 @@ describe('Übersteuerungen', () => {
     });
   });
 
-  it('führt übersteuerte Befunde weiterhin als offen — sie verschwinden nicht', () => {
+  it('führt übersteuerte Befunde weiterhin als offen, sie verschwinden nicht', () => {
     expect(waehleUebersteuerteBefunde.projector(ERGEBNIS_UEBERSTEUERT).map((b) => b.regel)).toEqual(['TRN-01']);
     // Und derselbe Befund steht unverändert in der Liste der offenen.
     const offen = waehleOffeneBefunde.projector(ERGEBNIS_UEBERSTEUERT);

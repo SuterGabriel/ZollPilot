@@ -38,8 +38,8 @@ h3 .zahl {
 }
 
 /* Das Entscheidungsband. Vier Unterscheidungen stehen vor der Farbe: das
- * Wort, die Form der Marke, die Stärke des Balkens und — bei der
- * Nachextraktion — ein gestrichelter statt durchgezogener Balken. */
+ * Wort, die Form der Marke, die Stärke des Balkens und, bei der
+ * Nachextraktion, ein gestrichelter statt durchgezogener Balken. */
 .band {
   border-left: 4px solid currentColor;
   background: var(--ton-arbeitsflaeche);
@@ -55,7 +55,7 @@ h3 .zahl {
   gap: var(--mass-3);
 }
 
-/* Gehen die beiden Entscheidungen auseinander, braucht das einen Satz — ein
+/* Gehen die beiden Entscheidungen auseinander, braucht das einen Satz; ein
    grünes Band über einer Liste roter Befunde sieht sonst nach Fehler aus
    (ADR-007, Konsequenz „zwei Ebenen sind schwerer zu lesen als eine"). Der
    Text erbt die Farbe des Bandes und steht damit auf einer bereits
@@ -101,7 +101,7 @@ h3 .zahl {
   transform: rotate(45deg);
 }
 
-/* Nachextraktion: offener Ring und gestrichelter Balken — unfertig, nicht
+/* Nachextraktion: offener Ring und gestrichelter Balken: unfertig, nicht
  * falsch. Das ist kein Fehlerzustand (docs/entwurf/03-abgleich.md). */
 .band.nachextraktion_erforderlich {
   color: var(--ton-nachlese);
@@ -344,7 +344,7 @@ summary {
   margin: var(--mass-2) 0 0;
 }
 
-/* Ein Verweis, der wie eine Schaltfläche aussieht — aber ein Verweis bleibt,
+/* Ein Verweis, der wie eine Schaltfläche aussieht, aber ein Verweis bleibt,
  * weil er den Mailclient öffnet und nicht die Anwendung bedient. */
 .knopf-artig {
   display: inline-flex;

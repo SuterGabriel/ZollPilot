@@ -1,7 +1,7 @@
 // Das Einreichungsformular: Stammdaten der Akte, Belege, absenden.
 //
 // Die Stammdaten sind kein Zustand im Store, sondern ein Formular in dieser
-// Komponente — ein Formular ist bereits eine Zustandsverwaltung, und zwei
+// Komponente: Ein Formular ist bereits eine Zustandsverwaltung, und zwei
 // davon übereinander bringen nur Abgleichaufwand. In den Store geht erst,
 // was die Einreichung ausmacht (ADR-006).
 //
@@ -80,7 +80,7 @@ export class Einreichung {
   /** Die Formularwerte als Signal, damit die Zusammenfassung mitläuft. */
   readonly werte = toSignal(this.formular.valueChanges, { initialValue: this.formular.getRawValue() });
 
-  /** Was in der eingeklappten Ansicht steht — Bezeichnung und Wert. */
+  /** Was in der eingeklappten Ansicht steht: Bezeichnung und Wert. */
   readonly zusammenfassung = computed(() => {
     const w = this.formular.getRawValue();
     // Auf `werte()` zugreifen, damit das Signal die Neuberechnung auslöst;
@@ -99,8 +99,8 @@ export class Einreichung {
       // codiert. Fehlt er, entfällt die Klammer, statt einen Platzhalter zu
       // zeigen.
       { name: 'Klausel', wert: klauselText(w.incoterm_code, w.incoterm_ort, w.incoterm_unlocode), fest: false },
-      { name: 'Häfen', wert: `${w.pol || '—'} → ${w.pod || '—'}`, fest: true },
-      { name: 'Warennummern', wert: w.warennummern || '—', fest: true },
+      { name: 'Häfen', wert: `${w.pol || 'offen'} → ${w.pod || 'offen'}`, fest: true },
+      { name: 'Warennummern', wert: w.warennummern || 'keine', fest: true },
     ];
   });
 
@@ -143,7 +143,7 @@ export class Einreichung {
     this.#store.dispatch(AkteAktionen.eingereicht({ stammdaten: this.stammdaten() }));
   }
 
-  /** Warum das Absenden gesperrt ist — als Text, nicht nur als grauer Knopf. */
+  /** Warum das Absenden gesperrt ist, als Text und nicht nur als grauer Knopf. */
   sperrgrund(): string | null {
     if (this.laeuft()) return 'Die Akte wird gerade geprüft.';
     if (this.belege().length === 0) return 'Mindestens ein Beleg wird gebraucht.';

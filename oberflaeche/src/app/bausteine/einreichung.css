@@ -15,7 +15,7 @@ form {
   padding-block: var(--mass-3) var(--mass-2);
   /* Die Kante trennt die Leiste von dem, was darunter durchläuft. Ohne sie
    * sieht eine halb verdeckte Zeile nach Fehler aus statt nach Rand. Sie
-   * erscheint nur, wenn die Spalte wirklich scrollt — passt der Inhalt,
+   * erscheint nur, wenn die Spalte wirklich scrollt; passt der Inhalt,
    * steht die Leiste an ihrem natürlichen Platz und die Kante fällt mit dem
    * Spaltenende zusammen. */
   border-top: 1px solid var(--ton-haarlinie);

@@ -2,7 +2,7 @@
   <section class="platzhalter" aria-labelledby="platzhalter-titel">
     <h2 id="platzhalter-titel">Noch keine Prüfung</h2>
     <p class="leise">
-      Belege beilegen, dann die Akte einreichen. Das Ergebnis erscheint hier — an dieser
+      Belege beilegen, dann die Akte einreichen. Das Ergebnis erscheint hier, an dieser
       Stelle, in dieser Breite.
     </p>
     <p class="rubrik">Was geprüft wird</p>
@@ -33,7 +33,7 @@
       Die Belege werden gelesen und gegen den Katalog geprüft. Bei gescannten Belegen dauert
       das bis zu einer Minute.
     </p>
-    <p class="rubrik">Ergebnisblöcke — Platzhalter, spätere Anordnung</p>
+    <p class="rubrik">Ergebnisblöcke: Platzhalter in späterer Anordnung</p>
     <ul class="bilanz">
       <li><span class="bezeichnung">Nachforderungen</span> <span class="leise">was zu tun ist</span></li>
       <li><span class="bezeichnung">Regeln</span> <span class="leise">Befund, Konsequenz, Rechtsgrundlage</span></li>
@@ -56,7 +56,7 @@
       blockiert. Es liegt keine Entscheidung vor.
     </p>
     <p class="leise">
-      Kein Ergebnisblock wird angezeigt — auch keine leeren. Ein leerer Block hieße „nichts
+      Kein Ergebnisblock wird angezeigt, auch keine leeren. Ein leerer Block hieße „nichts
       offen", und das ist hier nicht bekannt. Die Belege bleiben beigelegt und erhalten.
     </p>
     <button type="button" class="zweitrangig" (click)="neuBeginnen()">Von vorn beginnen</button>
@@ -69,7 +69,7 @@
 
     <!-- Das Band zeigt die Entscheidung, die gilt: mit den Übersteuerungen,
          wenn es welche gibt. Was das Regelwerk allein gesagt hat, steht
-         darunter — und verschwindet nie (ADR-007). -->
+         darunter, und verschwindet nie (ADR-007). -->
     <div class="band" [class]="gepruefteAkte.freigabe_nach_override">
       <p class="entscheidung">
         <span class="marke" aria-hidden="true"></span>
@@ -111,12 +111,12 @@
 
     @if (!gepruefteAkte.pflichtmatrix.anwendbar) {
       <p class="meldung hinweis">
-        {{ gepruefteAkte.pflichtmatrix.grund }} — es wurden nur die Regeln geprüft, keine
+        {{ gepruefteAkte.pflichtmatrix.grund }}. Es wurden nur die Regeln geprüft, keine
         Nachweispflichten.
       </p>
     }
 
-    <!-- 1 — Nachforderungen: was zu tun ist. Steht oben, weil es die einzige
+    <!-- 1. Nachforderungen: was zu tun ist. Steht oben, weil es die einzige
          Handlung auf diesem Bildschirm ist. -->
     <section class="block" id="block-nachforderungen" aria-labelledby="titel-nachforderungen">
       <h3 id="titel-nachforderungen">
@@ -148,7 +148,7 @@
                     <span class="leise">Kopie: {{ fall.adressat.sekundaer }}</span>
                   }
                 </p>
-                <p class="begruendung"><span class="fest">{{ fall.feld }}</span> — {{ fall.widerspruch }}</p>
+                <p class="begruendung"><span class="fest">{{ fall.feld }}</span>: {{ fall.widerspruch }}</p>
                 <p class="leise">{{ fall.folge }}</p>
                 <details>
                   <summary>Anschreiben</summary>
@@ -174,7 +174,7 @@
       }
     </section>
 
-    <!-- 2 — Regeln -->
+    <!-- 2. Regeln -->
     <section class="block" id="block-regeln" aria-labelledby="titel-regeln">
       <h3 id="titel-regeln">
         Regeln
@@ -217,7 +217,7 @@
       </p>
     </section>
 
-    <!-- 3 — Nachweispflichten -->
+    <!-- 3. Nachweispflichten -->
     <section class="block" id="block-pflichten" aria-labelledby="titel-pflichten">
       <h3 id="titel-pflichten">
         Nachweispflichten
@@ -247,7 +247,7 @@
 
       @if (erfuelltePflicht().length > 0) {
         <details class="erfuellt">
-          <summary>{{ erfuelltePflicht().length }} erfüllt — je mit dem Beleg, der sie erfüllt</summary>
+          <summary>{{ erfuelltePflicht().length }} erfüllt, je mit dem Beleg, der sie erfüllt</summary>
           <ul class="erfuellt-liste">
             @for (befund of erfuelltePflicht(); track befund.id) {
               <li>
@@ -261,7 +261,7 @@
       }
     </section>
 
-    <!-- 4 — Erkannte Belege. Zuletzt: Beleg für das Ergebnis, keine Handlung. -->
+    <!-- 4. Erkannte Belege. Zuletzt: Beleg für das Ergebnis, keine Handlung. -->
     <section class="block" id="block-belege" aria-labelledby="titel-belege">
       <h3 id="titel-belege">
         Erkannte Belege
@@ -294,7 +294,7 @@
                     }
                   </td>
                   <td>{{ dokument.status === 'final' ? 'final' : 'Entwurf' }}</td>
-                  <td class="fest">{{ dokument.datei ?? '—' }}</td>
+                  <td class="fest">{{ dokument.datei ?? 'keine Datei' }}</td>
                   <td>
                     {{ methodenText(dokument) }}
                     @if (dokument.seiten) {

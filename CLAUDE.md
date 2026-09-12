@@ -15,7 +15,7 @@ Agentenbezogene liegt versioniert im Repo.
    Fundstelle und Konfidenz) werden nie überschrieben; Fakten sind Ableitungen
    aus finalen Dokumenten. `src/akte/aufbau.mjs`.
 3. **Regeln sind Daten.** Schwellen, Toleranzen, Rechtsverweise stehen in
-   `rules.yaml` mit `valid_from`. Keine nackte Zahl in `src/regeln/` —
+   `rules.yaml` mit `valid_from`. Keine nackte Zahl in `src/regeln/`;
    `scripts/regel-check.mjs` prüft das.
 4. **Kein Modell in der Entscheidungsschicht.** Modelle extrahieren,
    klassifizieren, normalisieren. Freigabe läuft ausschließlich deterministisch

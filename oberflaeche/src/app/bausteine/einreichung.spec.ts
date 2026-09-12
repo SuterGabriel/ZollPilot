@@ -1,5 +1,5 @@
 // Das Formular: Was der Nutzer einträgt, muss genau der Datensatz werden, den
-// die Extraktion erwartet — und jede Eingabe braucht eine Beschriftung.
+// die Extraktion erwartet, und jede Eingabe braucht eine Beschriftung.
 
 import { TestBed } from '@angular/core/testing';
 import { provideMockStore } from '@ngrx/store/testing';

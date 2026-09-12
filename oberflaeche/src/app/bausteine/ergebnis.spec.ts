@@ -28,7 +28,7 @@ const text = (fixture: ReturnType<typeof baue>) => (fixture.nativeElement as HTM
 
 describe('Ergebnis', () => {
   it('zeigt vor dem Absenden einen Platzhalter, keinen leeren Bereich', () => {
-    // Die Ergebnisspalte bleibt vorhanden und erklärt sich — sonst springt
+    // Die Ergebnisspalte bleibt vorhanden und erklärt sich; sonst springt
     // der Bildschirm nach dem Absenden.
     const inhalt = text(baue({}));
     expect(inhalt).toContain('Noch keine Prüfung');
@@ -60,7 +60,7 @@ describe('Ergebnis', () => {
     expect(inhalt).toContain('TRN-01');
     expect(inhalt).toContain('B/L nennt HLXU8765430, Packliste MSKU1234565');
     expect(inhalt).toContain('Bezeichnet ggf. eine andere physische Sendung');
-    // Keine Regel trägt heute `verified` — das muss sichtbar sein.
+    // Keine Regel trägt heute `verified`, und das muss sichtbar sein.
     expect(inhalt).toContain('Praxisannahme');
     expect(inhalt).toContain('0.1.0@2026-09-12');
   });
@@ -144,7 +144,7 @@ describe('Ergebnis', () => {
     expect(document.activeElement).toBe(ueberschrift);
   });
 
-  it('hält die Marke von Hilfsmitteln fern — sie sagt dasselbe wie das Wort', () => {
+  it('hält die Marke von Hilfsmitteln fern, sie sagt dasselbe wie das Wort', () => {
     const marke = (fertig().nativeElement as HTMLElement).querySelector('.marke');
     expect(marke?.getAttribute('aria-hidden')).toBe('true');
   });
@@ -167,7 +167,7 @@ describe('Ergebnis und Übersteuerung', () => {
     expect(text(fertig())).toContain('Übersteuern');
   });
 
-  it('zeigt bei abweichenden Entscheidungen beide — die Regel und die Verantwortung', () => {
+  it('zeigt bei abweichenden Entscheidungen beide: die Regel und die Verantwortung', () => {
     const inhalt = text(fertig(ERGEBNIS_UEBERSTEUERT));
     expect(inhalt).toContain('Das Regelwerk allein sagt');
     expect(inhalt).toContain('Blockiert');

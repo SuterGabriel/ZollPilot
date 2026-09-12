@@ -3,7 +3,7 @@
 // `File` ist nicht serialisierbar und gehört deshalb nicht in den Store
 // (app.config.ts schaltet `strictStateSerializability` ein, damit diese Regel
 // bricht statt zu verblassen). Der Store hält die Angaben zum Beleg, dieser
-// Dienst die Datei dazu — verbunden über dieselbe Kennung.
+// Dienst die Datei dazu, verbunden über dieselbe Kennung.
 
 import { Service } from '@angular/core';
 
@@ -18,7 +18,7 @@ export class BelegSpeicher {
 
   /**
    * Nimmt Dateien an und liefert die Angaben dazu. Was kein PDF ist, wird
-   * abgelehnt und gemeldet — nicht stillschweigend übergangen.
+   * abgelehnt und gemeldet, nicht stillschweigend übergangen.
    */
   annehmen(dateien: readonly File[]): { belege: Beleg[]; abgelehnt: string[] } {
     const belege: Beleg[] = [];

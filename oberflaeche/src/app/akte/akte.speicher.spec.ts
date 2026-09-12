@@ -19,7 +19,7 @@ describe('BelegSpeicher', () => {
     expect(new Set(belege.map((b) => b.id)).size).toBe(2);
   });
 
-  it('lehnt ab, was kein PDF ist — und nennt es beim Namen', () => {
+  it('lehnt ab, was kein PDF ist, und nennt es beim Namen', () => {
     const { belege, abgelehnt } = speicher.annehmen([datei('gut.pdf'), datei('notiz.txt', 'text/plain')]);
     expect(belege.map((b) => b.name)).toEqual(['gut.pdf']);
     expect(abgelehnt).toEqual(['notiz.txt']);

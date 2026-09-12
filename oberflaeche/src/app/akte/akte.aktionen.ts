@@ -1,5 +1,5 @@
 // Was in dieser Oberfläche geschehen kann. Die Namen sagen, was passiert ist,
-// nicht was zu tun ist — eine Aktion ist ein Ereignis, kein Befehl.
+// nicht was zu tun ist. Eine Aktion ist ein Ereignis, kein Befehl.
 
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 
@@ -17,7 +17,7 @@ export const AkteAktionen = createActionGroup({
     'Einreichung beantwortet': props<{ ergebnis: Pruefergebnis; zeitpunkt: string }>(),
     'Einreichung fehlgeschlagen': props<{ meldung: string }>(),
     // Ein Mensch verantwortet einen Befund (ADR-007). Die Akte wird danach
-    // erneut geprüft — die Übersteuerung ist eine Eingabe des Regelwerks,
+    // erneut geprüft; die Übersteuerung ist eine Eingabe des Regelwerks,
     // kein Eingriff in ein vorhandenes Ergebnis.
     'Befund uebersteuert': props<{ uebersteuerung: Uebersteuerung }>(),
     'Uebersteuerung zurueckgenommen': props<{ regel: string }>(),

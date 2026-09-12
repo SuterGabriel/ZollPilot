@@ -1,4 +1,4 @@
-# Sendungsakte — automatisierte Vollständigkeits- und Konsistenzprüfung von Zolldokumenten
+# Sendungsakte: automatisierte Vollständigkeits- und Konsistenzprüfung von Zolldokumenten
 
 Proof of Concept, n8n-basiert. Stand der Wissensbasis: September 2026.
 Umsetzungsstand und Belege: `README.md`, `docs/ANFORDERUNGEN.md`; was fehlt:
@@ -16,7 +16,7 @@ Drei Konstruktionsprinzipien, die alles Weitere bestimmen:
 
 **Nachweis statt Dokument.** Geprüft wird nicht "liegt Beleg X vor", sondern "ist
 Datum Y nachgewiesen". Ein Präferenzursprung kann über EUR.1 oder über eine
-Ursprungserklärung auf der Rechnung belegt sein — beides erfüllt dieselbe
+Ursprungserklärung auf der Rechnung belegt sein; beides erfüllt dieselbe
 Anforderung. Das Modell trennt deshalb `required_data`, `required_evidence` und
 `required_document_form` (Anknüpfung: Art. 163 UZK).
 
@@ -120,16 +120,16 @@ Rechnung und B/L erzeugt bei Streckengeschäften systematisch Fehlalarme.
 
 Reihenfolge ist bewusst: das Billigste und Sicherste zuerst.
 
-**Stufe 1 — offline deterministisch.** Vollständig ohne Netz prüfbar und damit
+**Stufe 1, offline deterministisch.** Vollständig ohne Netz prüfbar und damit
 harte Gates: Container-ID (ISO 6346, Modulo 11), AWB-Seriennummer (Modulo 7),
 USt-IdNr. DE (Format plus Prüfziffer), Incoterm gegen Wertliste, Summenlogik der
 Rechnung, Datumschronologie, Gewichtslogik (brutto ≥ netto > 0).
 
-**Stufe 2 — Online-Lookups, nicht blockierend.** EORI (TAXUD EOS), USt-IdNr.
+**Stufe 2, Online-Lookups, nicht blockierend.** EORI (TAXUD EOS), USt-IdNr.
 (VIES, § 18e UStG), REX-Portal, UN/LOCODE, TARIC/EZT. Asynchron mit Retry, da die
 Verfügbarkeit schwankt. Ein Lookup-Ausfall darf die Akte nicht blockieren.
 
-**Stufe 3 — semantisch.** Warenbeschreibung, Layoutvarianten, Feldzuordnung in
+**Stufe 3, semantisch.** Warenbeschreibung, Layoutvarianten, Feldzuordnung in
 Tabellen. Hier arbeitet das Modell, nie allein entscheidend.
 
 **Grundsatz:** Cross-Document-Prüfungen laufen ausschließlich auf normalisierten
@@ -187,7 +187,7 @@ Anbieterangaben von 95 %+ stammen aus kuratierten Testsets und sind nicht
 Sieben synthetische Akten, ausschließlich erfundene Firmen und Werte. Sie
 liegen zweimal vor: als bereits extrahierte Datensätze in `testdaten/akten/`
 (erzeugt von `testdaten/erzeuge-akten.mjs`, jede mit ihrer erwarteten
-Entscheidung — das Golden Set) und als Belege in `testdaten/belege/` (je
+Entscheidung, das Golden Set) und als Belege in `testdaten/belege/` (je
 Handelsrechnung, Packliste und B/L als PDF, erzeugt daraus von
 `testdaten/erzeuge-belege.py`, byteidentisch reproduzierbar). Der schlechte
 Scan ist dort ein echtes Bild für Tesseract. Darunter zwingend:
@@ -245,7 +245,7 @@ Was das Datenmodell bis 2028 beeinflusst:
   Der gemeinsame eFTI-Datensatz ist ein sinnvoller Zielschema-Kandidat.
 - **eBL / DCSA**: Plattformübergreifender Austausch seit 2026 möglich. B/L wird
   schrittweise vom PDF zum API-Datensatz. Das Modell braucht dafür `issued`,
-  `controller`, `endorsed`, `surrendered` — nicht nur `document_file`.
+  `controller`, `endorsed`, `surrendered`, nicht nur `document_file`.
 - **CBAM** seit 01.01.2026 in der Definitivphase mit 50-t-Schwelle.
 - **EU Customs Data Hub**: für B2B-See- und LKW-Verkehr vor 2028 keine
   unmittelbare Umstellung; Datenmodell sollte auf UZK-Anhang-B-Datenelemente
@@ -262,6 +262,6 @@ Was das Datenmodell bis 2028 beeinflusst:
 5. Wer verantwortet fachlich Einreihung, Ursprung und Zollwert?
 6. Welche Präferenzabkommen deckt der MVP ab, und in welcher Regelversion?
 7. Welche Felder dürfen automatisch korrigiert werden, welche brauchen Vier-Augen-Prinzip?
-8. Welche Toleranzen gibt der Zollverantwortliche frei — und wie wird das dokumentiert?
+8. Welche Toleranzen gibt der Zollverantwortliche frei, und wie wird das dokumentiert?
 9. Welche Fehlerrate ist für MRN, EORI, Betrag, HS-Code, Ursprung und Container akzeptabel?
 10. Welche Daten dürfen an Cloud-IDP- oder Vision-LLM-Anbieter, in welcher Region, mit welcher Aufbewahrung und welchem Ausschluss von Modelltraining?

@@ -22,8 +22,8 @@ Stand 12. September 2026, Stufen 0 bis 4 des Plans in
 | Sachverhalt | Ausfuhr Drittland, Seefracht FCL, Präferenz beansprucht |
 | Regeln | 13 ausführbar in [rules.yaml](rules.yaml), über 40 im Katalog [docs/03](docs/03-regelwerk-vollstaendig.md) |
 | Pflichtmatrix | 6 Einträge in [pflichtmatrix.yaml](pflichtmatrix.yaml): Nachweis statt Dokument |
-| Extraktion (IDP/OCR) | Python-Dienst in [extraktion/](extraktion/): Textlayer mit Koordinaten oder Tesseract mit Wortkonfidenzen, Klassifikation, Felder je Belegtyp, jede Assertion mit Fundstelle (ADR-005). **Eine Layoutfamilie, synthetische Belege** — was das heißt: [docs/EXTRAKTION.md](docs/EXTRAKTION.md) |
-| Oberfläche | Angular 22 mit ngrx in [oberflaeche/](oberflaeche/): Belege einreichen, Entscheidung mit Begründung je Regel lesen (ADR-006). Kontrast nachgerechnet, axe über jede Ansicht — [docs/OBERFLAECHE.md](docs/OBERFLAECHE.md) |
+| Extraktion (IDP/OCR) | Python-Dienst in [extraktion/](extraktion/): Textlayer mit Koordinaten oder Tesseract mit Wortkonfidenzen, Klassifikation, Felder je Belegtyp, jede Assertion mit Fundstelle (ADR-005). **Eine Layoutfamilie, synthetische Belege.** Was das heißt: [docs/EXTRAKTION.md](docs/EXTRAKTION.md) |
+| Oberfläche | Angular 22 mit ngrx in [oberflaeche/](oberflaeche/): Belege einreichen, Entscheidung mit Begründung je Regel lesen (ADR-006). Kontrast nachgerechnet, axe über jede Ansicht: [docs/OBERFLAECHE.md](docs/OBERFLAECHE.md) |
 | Tests | 91 in JavaScript (Prüfziffern gegen Referenzwerte, Grenzfälle je Regel), 98 in Python (Normalisierung, Klassifikation, Tabellen, Ende zu Ende auf den PDFs), 43 + 10 in TypeScript (Zustand, Dienst, Darstellung; axe und Tastatur) |
 | Testdaten | 7 synthetische Akten als JSON, dieselben 7 als Belegsätze (PDF) in [testdaten/belege/](testdaten/belege/), erzeugt und byteidentisch reproduzierbar; der schlechte Scan ist ein echtes Bild für Tesseract |
 | Messung | Field Exact Match je Belegtyp und Entscheidung je Akte gegen das Golden Set, Basislinie in [extraktion/basislinie.json](extraktion/basislinie.json), als CI-Job |
@@ -106,7 +106,7 @@ Belege (PDF)                                  Akte (Dokumente + Assertions)
 | [docs/PRODUKT.md](docs/PRODUKT.md) | Nutzersicht und Ablauf, was bewusst nicht gebaut wird |
 | [docs/EXTRAKTION.md](docs/EXTRAKTION.md) | die Extraktion: Schichten, Konfidenz, Messung, Grenzen |
 | [docs/OBERFLAECHE.md](docs/OBERFLAECHE.md) | die Oberfläche: Zustand, die 422-Falle, Barrierefreiheit, was sie nicht kann |
-| [docs/entwurf/](docs/entwurf/) | Prompts für Wireframe und Mockup — der Entwurf, an dem die Oberfläche ausgerichtet wird |
+| [docs/entwurf/](docs/entwurf/) | Prompts für Wireframe und Mockup, der Entwurf, an dem die Oberfläche ausgerichtet wird |
 | [docs/PIPELINE.md](docs/PIPELINE.md) | Hook, Agenten-Hook, CI, und was nicht geprüft wird |
 | [docs/BETRIEB.md](docs/BETRIEB.md) | Start, Stopp, Logs, Fehler, was vor echtem Betrieb fehlt |
 | [docs/ENTWICKLUNGSLOG.md](docs/ENTWICKLUNGSLOG.md) | KI-Einsatz, ehrlich, inklusive der Fehler |

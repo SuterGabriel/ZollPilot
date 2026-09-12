@@ -9,7 +9,7 @@
   <p class="grund">„{{ befund().uebersteuerungsgrund }}"</p>
   <p class="leise">
     Der Befund bleibt bestehen. Die Übersteuerung ändert nur, was unter menschlicher
-    Verantwortung freigegeben ist — nicht, was die Regel sagt.
+    Verantwortung freigegeben ist, und nicht, was die Regel sagt.
   </p>
   <!-- Der Zusatz steht im `aria-label`, nicht in einem eigenen Element: Ein
        Kindknoten trägt seinen Beitrag zum zugänglichen Namen immer mit einem
@@ -27,7 +27,7 @@
 } @else if (offen()) {
   <div class="formular">
     <p class="warnung">
-      Das Namensfeld ist keine Anmeldung. Es prüft nichts und beweist nichts — es hält
+      Das Namensfeld ist keine Anmeldung. Es prüft nichts und beweist nichts. Es hält
       fest, wer die Freigabe verantwortet.
     </p>
 
@@ -86,7 +86,7 @@
       <li>
         Verbraucht: {{ alt.benutzer }} hat am {{ zeitText(alt.erzeugt_am) }} gegen Fassung
         <span class="fest">{{ alt.fassung }}</span> entschieden. Der Katalog hat sich
-        seitdem geändert — die Entscheidung galt einer anderen Regel.
+        seitdem geändert; die Entscheidung galt einer anderen Regel.
       </li>
     }
   </ul>
