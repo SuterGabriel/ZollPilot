@@ -26,7 +26,7 @@ Setzt `core.hooksPath` auf `.githooks/`. Nach jedem frischen Klon einmal nötig.
 
 ## Stufe 1: der Git-Hook
 
-`.githooks/pre-commit` führt sechs Gates aus; Umfang je Gate mit Grund:
+`.githooks/pre-commit` führt sieben Gates aus; Umfang je Gate mit Grund:
 
 | Gate | Umfang | Warum dieser Umfang |
 |---|---|---|
@@ -36,6 +36,7 @@ Setzt `core.hooksPath` auf `.githooks/`. Nach jedem frischen Klon einmal nötig.
 | `scripts/regel-check.mjs` | ganzer Baum | Katalog, Dokumentation, Code und Test liegen selten im selben Commit |
 | `scripts/n8n-bundle.mjs --check` | nur bei Änderung an `src/`, Katalog oder Workflow | sonst hat sich am Bundle nichts geändert |
 | `scripts/workflow-check.mjs` | nur bei Änderung unter `workflows/` | prüft nur diese Dateien |
+| `scripts/kontrast-check.mjs` | nur bei Änderung an der Stildatei der Oberfläche | sonst hat sich an keiner Farbe etwas geändert |
 
 Zusammen unter zwei Sekunden. Tests laufen hier nicht: Sie gehören in die CI,
 wo Warten nichts kostet.
@@ -51,7 +52,7 @@ Nachlesen, nicht durch eine Prüfung.
 
 ## Stufe 3: GitHub Actions
 
-`.github/workflows/ci.yml`, sieben Jobs:
+`.github/workflows/ci.yml`, acht Jobs:
 
 | Job | Prüft |
 |---|---|
@@ -61,7 +62,8 @@ Nachlesen, nicht durch eine Prüfung.
 | `tests` | 89 Tests: Validatoren gegen Referenzwerte, Grenzfälle je Regel, Aktenaufbau, Pflichtmatrix, Regelwerk, alle Testakten gegen ihre Erwartung |
 | `workflows` | der Code-Node ist aus dem aktuellen `src/` gebündelt; die Workflow-Dateien sind strukturell gültig, ohne Geheimnisse, der Code-Node parst |
 | `extraktion` | Tesseract installiert, `uv sync --frozen`, 98 Python-Tests inklusive OCR auf dem schlechten Scan und Entscheidung je Akte über `src/cli.mjs`; die Belege werden neu erzeugt und müssen byteidentisch sein; die Bewertung (Field Exact Match je Belegtyp, Entscheidung je Akte) muss die Basislinie in `extraktion/basislinie.json` halten — ohne Basislinie rot |
-| `betrieb` | `docker compose up --build --wait` (baut das Extraktions-Image), dann `scripts/rauchtest.sh`: sieben Akten über `/webhook/akte`, sieben Belegsätze (PDF) über `/webhook/belege`, Entscheidungen gegen die Erwartung, vierzehn Prüfungen in Postgres. Der teuerste Job, und der einzige, der beweist, dass die Teile zusammen laufen |
+| `oberflaeche` | Kontrast der Gestaltungstoken nachgerechnet, Bau ohne Warnung, 43 Tests für Zustand, Dienst und Darstellung, dann Playwright mit axe über jede Ansicht — leeres Formular, Formular mit Belegen, Ergebnis, Fehlerfall — dazu Tastaturbedienung und Fokusverwaltung |
+| `betrieb` | `docker compose up --build --wait` (baut Extraktion und Oberfläche), dann `scripts/rauchtest.sh`: sieben Akten über `/webhook/akte`, sieben Belegsätze (PDF) über `/webhook/belege`, eine Akte über den nginx-Proxy der Oberfläche, Entscheidungen gegen die Erwartung, fünfzehn Prüfungen in Postgres. Der teuerste Job, und der einzige, der beweist, dass die Teile zusammen laufen |
 
 ## Die Gates im Einzelnen
 
@@ -90,6 +92,13 @@ Antwort des Webhooks damit und zählt die Zeilen in `pruefung`. Runde 2
 schickt die PDFs — derselbe Vergleich, nur dass die Assertions unterwegs
 vom Extraktionsdienst entstehen.
 
+**`scripts/kontrast-check.mjs`** ist das Gate der Farben (ADR-006). Die
+Gestaltungstoken in `oberflaeche/src/styles.css` erklären ihre Ansprüche als
+`@kontrast`-Anweisungen; das Skript rechnet sie nach WCAG 2.1 nach. Findet es
+keine Anweisung, ist der Lauf rot — ein Prüfer ohne Grundlage meldet den
+Stand, nie Erfolg. Es hat eine eigene Testsuite mit Referenzwerten aus der
+WCAG-Definition.
+
 **`zollpilot_extraktion.bewertung`** ist das Gate der Extraktion
 (`docs/EXTRAKTION.md`). Es misst gegen das Golden Set und vergleicht mit
 der Basislinie im Repo. Fehlt sie, steht `KEINE BASISLINIE` in der ersten
@@ -109,6 +118,7 @@ wieder grün, jeweils mit gelesener Meldung:
 | Beleg-Check | `docs/BETRIEB.md` verschoben | drei Belege fehlen, Exit 1 |
 | Beleg-Check (Stufe 3) | Gates angelegt, bevor `docs/EXTRAKTION.md` und `basislinie.json` existierten | „FEHLT docs/EXTRAKTION.md existiert“, „FEHLT Basislinie der Bewertung liegt im Repo“, Exit 1 |
 | Bewertung | Lauf vor dem Anlegen der Basislinie | „KEINE BASISLINIE: extraktion/basislinie.json fehlt“, Exit 1 |
+| Beleg-Check (Stufe 4) | Gates angelegt, bevor `docs/OBERFLAECHE.md` und die ADR in `DECISIONS.md` standen | „FEHLT docs/OBERFLAECHE.md existiert“, „FEHLT ADR-006 … in DECISIONS.md verlinkt“, Exit 1 |
 | pytest (OCR) | Scan mit 34 % Rauschen | `test_scan_wird_per_ocr_gelesen_mit_konfidenz`: `'unclassified' == 'packliste'` — ein echter Fund, nicht inszeniert (Entwicklungslog) |
 
 Dazu die Fälle, in denen ein Gate ohne Absicht rot wurde, bevor es fertig
@@ -139,8 +149,14 @@ Der glaubwürdigste Abschnitt, weil ihn niemand schreiben müsste:
   eine sinnvolle Schwelle ist.
 - **n8n-Semantik.** Der Workflow-Check prüft Struktur, nicht ob n8n den Node
   in dieser Version kennt. Das prüft erst der Import im Job `betrieb`.
-- **Der Job `betrieb` prüft sieben Akten und sieben Belegsätze**, nicht
-  Last, nicht Ausfall von Postgres oder des Extraktionsdienstes, nicht das
-  Verhalten bei zwei gleichzeitigen Anfragen.
+- **Der Job `betrieb` prüft sieben Akten, sieben Belegsätze und einen Lauf
+  durch die Oberfläche**, nicht Last, nicht Ausfall von Postgres oder des
+  Extraktionsdienstes, nicht das Verhalten bei zwei gleichzeitigen Anfragen.
+- **axe findet nicht alles.** Automatische Prüfung deckt einen Teil der
+  WCAG-Kriterien ab; Verständlichkeit, sinnvolle Reihenfolge und
+  Alternativtexte, die etwas sagen, prüft kein Werkzeug. Ein Test mit
+  einem Bildschirmleser hat nicht stattgefunden.
+- **Ein Browser.** Die Ende-zu-Ende-Läufe nutzen Chromium. Firefox und
+  WebKit laufen nicht mit.
 - **Python-Prosa** wird nur in Kommentarzeilen geprüft, wie bei den anderen
   Sprachen; Docstrings nicht.

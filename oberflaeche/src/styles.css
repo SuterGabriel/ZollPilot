@@ -1,0 +1,159 @@
+/* Gestaltungstoken von ZollPilot.
+ *
+ * Reihenfolge nach docs/ARBEITSWEISE.md, Stufe 2: die Token zuerst, die
+ * Kontrastanforderung als Anweisung neben der Farbe. Die Anweisungen sind
+ * keine Kommentare, sondern Zusagen: scripts/kontrast-check.mjs liest sie,
+ * rechnet das Verhältnis nach WCAG 2.1 nach und ist rot, wenn eine nicht
+ * hält. In Hook und CI.
+ *
+ * Ein Thema, hell. Kein dunkles Gegenstück — das wären doppelt so viele
+ * Paare, und eine Zusage, die niemand prüft, ist schlechter als keine.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Flächen */
+  --ton-grund: #ffffff;
+  --ton-flaeche: #f2f4f7;
+  --ton-rand: #c6ccd5;
+
+  /* Schrift
+   * @kontrast --ton-text auf --ton-grund mindestens 7
+   * @kontrast --ton-text auf --ton-flaeche mindestens 7
+   * @kontrast --ton-text-leise auf --ton-grund mindestens 4.5
+   * @kontrast --ton-text-leise auf --ton-flaeche mindestens 4.5 */
+  --ton-text: #16191d;
+  --ton-text-leise: #545b64;
+
+  /* Bedienelemente. Der weiße Text steht auf der vollen Fläche, deshalb
+   * gilt dort die Textschwelle; der Rand nur die Abgrenzungsschwelle.
+   * @kontrast --ton-grund auf --ton-aktion mindestens 4.5
+   * @kontrast --ton-aktion auf --ton-grund mindestens 4.5
+   * @kontrast --ton-rand auf --ton-grund mindestens 1.4 */
+  --ton-aktion: #1d4ed8;
+  --ton-fokus: #b45309;
+
+  /* Entscheidungen. Vier Zustände aus src/regelwerk.mjs, jeder mit eigener
+   * Farbe — aber nie nur mit Farbe: jede Entscheidung trägt im Kopf auch
+   * ihren Namen als Text (WCAG 1.4.1, Farbe ist kein alleiniger Träger).
+   * @kontrast --ton-frei auf --ton-grund mindestens 4.5
+   * @kontrast --ton-warnung auf --ton-grund mindestens 4.5
+   * @kontrast --ton-nachlese auf --ton-grund mindestens 4.5
+   * @kontrast --ton-blockiert auf --ton-grund mindestens 4.5 */
+  --ton-frei: #14653d;
+  --ton-warnung: #8a4b00;
+  --ton-nachlese: #1d4ed8;
+  --ton-blockiert: #b3261e;
+
+  /* Abstände, Radien, Schrift */
+  --mass-1: 0.25rem;
+  --mass-2: 0.5rem;
+  --mass-3: 0.75rem;
+  --mass-4: 1rem;
+  --mass-6: 1.5rem;
+  --mass-8: 2rem;
+  --radius: 6px;
+  --schrift: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --schrift-fest: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+  --hitflaeche-min: 44px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ton-flaeche);
+  color: var(--ton-text);
+  font-family: var(--schrift);
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  margin: 0 0 var(--mass-3);
+}
+
+/* Sichtbarer Fokus überall. Das Standardverhalten des Browsers reicht auf
+ * farbigen Flächen nicht; ein eigener Ring mit Abstand ist auf hell wie auf
+ * dunkel erkennbar. */
+:focus-visible {
+  outline: 3px solid var(--ton-fokus);
+  outline-offset: 2px;
+  border-radius: var(--mass-1);
+}
+
+/* Nur für Bildschirmleser: sichtbar für Hilfsmittel, unsichtbar im Bild. */
+.nur-vorlesen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  min-height: var(--hitflaeche-min);
+  padding: var(--mass-2) var(--mass-4);
+  border: 1px solid var(--ton-aktion);
+  border-radius: var(--radius);
+  background: var(--ton-aktion);
+  color: var(--ton-grund);
+  cursor: pointer;
+}
+
+button[disabled] {
+  cursor: not-allowed;
+  /* Nicht über Deckkraft ausgrauen: Das senkt den Kontrast unter die
+   * geprüfte Zusage. Stattdessen eine eigene, geprüfte Paarung. */
+  background: var(--ton-flaeche);
+  border-color: var(--ton-rand);
+  color: var(--ton-text-leise);
+}
+
+button.zweitrangig {
+  background: var(--ton-grund);
+  color: var(--ton-aktion);
+}
+
+input,
+select {
+  min-height: var(--hitflaeche-min);
+  padding: var(--mass-2);
+  border: 1px solid var(--ton-rand);
+  border-radius: var(--radius);
+  background: var(--ton-grund);
+  width: 100%;
+}
+
+input[type='checkbox'] {
+  width: auto;
+  min-height: auto;
+  inline-size: 1.15rem;
+  block-size: 1.15rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

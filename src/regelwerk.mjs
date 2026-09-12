@@ -76,6 +76,13 @@ export function pruefeAkte(eingang, katalog, register) {
     pflichtmatrix,
     befunde,
     regeln_ohne_implementierung: nichtImplementiert,
+    // Welche Belege die Akte trägt, mit Status und — wenn sie aus der
+    // Extraktion kommen — Seitenzahl, Lesemethode und Hinweis. Ohne das
+    // könnte ein Aufrufer nur sehen, was fehlt, nie was erkannt wurde; und
+    // ein `unclassified` wäre eine Kennung ohne Grund (CLAUDE.md, harte
+    // Grenze 2: nichts stillschweigend verwerfen).
+    dokumente: akte.dokumente ?? [],
+    extraktion: eingang.extraktion ?? null,
     unbekannte_dokumente: akte.unbekannte_dokumente,
     nicht_klassifiziert: (akte.dokumente ?? []).filter((d) => d.typ === 'unclassified').map((d) => d.id),
     referenzen: {

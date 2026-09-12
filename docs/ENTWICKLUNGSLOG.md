@@ -182,3 +182,93 @@ davon ein Drittel Docker-Läufe. Von Hand geschätzt: zwei bis drei Tage —
 der Tabellenleser, die Belegerzeugung und die Reproduzierbarkeit über zwei
 Betriebssysteme sind die Zeitfresser, nicht der Dienst. Schätzung, keine
 Messung.
+
+---
+
+## 2026-09-12 — Stufe 4: die Eingabe bekommt eine Oberfläche
+
+**Was delegiert wurde.** Die Frage „können wir die Eingabe mit Angular
+machen“, und daraus: ADR-006, die Anwendung in `oberflaeche/` mit ngrx, das
+Kontrast-Gate, Ende-zu-Ende mit axe, nginx als Proxy derselben Herkunft, der
+Compose-Dienst, der CI-Job, Skill und Dokumente. Dazu die Bitte, die Syntax
+nicht zu raten, sondern zu prüfen.
+
+**Was gut lief.** Die Prüfung vor dem Schreiben hat sich sofort bezahlt
+gemacht: Die Parameter des HTTP-Request-Node wurden gegen den ausgelieferten
+Node-Code im laufenden Container geprüft, nicht gegen eine Erinnerung. Dabei
+kam heraus, dass `contentType` die Vorgabe `json` hat — der Node lief also
+schon, aber der Workflow sagte es nicht. Jetzt sagt er es. Genauso bei
+ngrx: Jedes Symbol wurde vor der Verwendung in den Typdefinitionen
+nachgeschlagen. Der erste `ng build` war grün, der erste Testlauf bis auf
+zwei falsch aufgeschriebene Erwartungen auch.
+
+**Was nicht funktionierte.**
+
+- **Es gibt keinen n8n- und keinen Angular-MCP in dieser Sitzung.** Die
+  konfigurierten Server sind Gmail, Kalender und Drive von claude.ai, und die
+  hätten bei Syntax nicht geholfen. Der Ersatz war besser als eine
+  Doku-Spiegelung: die laufende n8n-Instanz selbst und die Typdefinitionen im
+  `node_modules`. `.mcp.json` richtet den Angular-MCP für die nächste Sitzung
+  ein — geprüft ist er damit nicht, denn MCP-Server werden beim Start
+  geladen.
+
+- **Der Webhook-Node kennt kein CORS.** Nachgesehen im Node-Verzeichnis des
+  laufenden Containers: weder `allowedOrigins` noch
+  `Access-Control-Allow-Origin`. Damit war die Entscheidung für einen Proxy
+  keine Vorliebe, sondern die einzige Möglichkeit — und das steht so in
+  ADR-006, statt als Architekturgeschmack.
+
+- **Die Sperrdatei war in sich inkonsistent.** `npm ci` im Container brach
+  ab: `@emnapi/runtime@1.11.3` fehlte. Der Grund war nicht Alpine gegen
+  Debian, wie zuerst vermutet, sondern ein schrittweise gewachsener
+  `package-lock.json` aus mehreren `npm install`-Läufen, in dem
+  `@emnapi/core` oben lag und seine Laufzeit nur verschachtelt. Erst das
+  Nachsehen im Lock zeigte es; `rm -rf node_modules package-lock.json` und
+  ein sauberer Lauf haben es behoben. Zwei Vermutungen vorher waren falsch.
+
+- **Drei Werkzeugfehler an derselben Wurzel.** Textersetzungen per Python auf
+  Dateien mit CRLF greifen nicht, und ein Skript, das an der zweiten
+  Prüfzusage abbricht, schreibt auch die erste nicht. Dreimal passiert, bevor
+  konsequent das Edit-Werkzeug benutzt wurde, das Zeilenenden kennt.
+
+- **`import.meta` gibt es in Playwright nicht** (es übersetzt nach
+  CommonJS), und `config.rootDir` zeigt auf `e2e/`, nicht auf die
+  Konfiguration. Beide Annahmen brachen sichtbar. Der Ersatz zählt keine
+  Ebenen mehr, sondern sucht `testdaten/belege/` aufwärts und wirft mit
+  einer lesbaren Meldung, wenn es fehlt.
+
+- **`strict` fehlte im Angular-Gerüst.** Nachträglich eingeschaltet, dazu
+  `noUnusedLocals` und `noUnusedParameters`. Der Code hielt; eine
+  Compiler-Warnung über ein überflüssiges `?.` blieb und wurde beseitigt,
+  statt sie stehen zu lassen.
+
+**Was die Testsuite abgefangen hat.** Der Prosa-Hook schlug beim Schreiben
+des Reducers zu: `laeuft` im Kommentar ist die Umschrift von „läuft“ und
+gehörte in Backticks — gemeldet in der Sekunde, in der die Datei entstand.
+Der Beleg-Check meldete `docs/OBERFLAECHE.md` und den fehlenden Eintrag von
+ADR-006 in `DECISIONS.md`, bevor beide existierten; die Gates standen wieder
+vor den Belegen. Der Kontrast-Check rechnete elf Farbpaare nach, bevor die
+erste Komponente stand. axe fand in fünf Ansichten keinen Verstoß — das ist
+der einzige Punkt, an dem die Prüfung nichts gefunden hat, und er sagt
+weniger, als er scheint: Automatische Prüfung deckt nur einen Teil der
+WCAG-Kriterien ab.
+
+**Die interessanteste Fachstelle.** Der Workflow antwortet 422, wenn die
+Akte nicht freigabereif ist — für den Angular-HttpClient ein Fehler, fachlich
+das Ergebnis. Wer das nicht trennt, verliert genau die Befunde, um die es
+geht, und zwar geräuschlos: Die Oberfläche zeigte dann „Einreichung
+gescheitert“ statt „blockiert, TRN-01 verletzt“. Der Fall steht jetzt in
+beide Richtungen im Test, samt 422 ohne verwertbaren Körper.
+
+**Was offen blieb.** Die Oberfläche zeigt einen Vorgang, keine Akte: Ein
+zweiter Beleg zur selben Sendung beginnt von vorn, weil es keine
+Aktenidentität gibt — offene Frage 2, umgangen und nicht gelöst. Übersteuern,
+Korrigieren und die Fundstelle am Beleg fehlen; das ist Stufe 5. Und ngrx ist
+für diesen einen Bildschirm mehr Gerüst, als er braucht. Das steht als Wette
+in ADR-006 und nicht als Selbstverständlichkeit.
+
+**Zeitschätzung.** Delegiert: eine Sitzung, etwa zweieinhalb Stunden
+Agentenzeit, davon ein gutes Stück Docker- und Browser-Installation. Von
+Hand geschätzt: zwei bis drei Tage — der Zustand und die Komponenten sind
+schnell, die Barrierefreiheitsprüfung mit echten Läufen, die nginx-Kette und
+die Nachführung der elf Dokumente sind es nicht. Schätzung, keine Messung.

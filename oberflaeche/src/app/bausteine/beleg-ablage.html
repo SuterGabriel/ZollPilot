@@ -1,0 +1,56 @@
+<fieldset class="ablage">
+  <legend id="ablage-titel">Belege</legend>
+
+  <div
+    class="zone"
+    [class.darueber]="ueberAblage()"
+    (dragover)="darueber($event, true)"
+    (dragleave)="darueber($event, false)"
+    (drop)="abgelegt($event)"
+  >
+    <p id="ablage-hinweis" class="hinweis">
+      PDF-Dateien einer Sendung: Handelsrechnung, Packliste, Bill of Lading. Welcher Beleg
+      welcher ist, entscheidet die Extraktion — die Reihenfolge spielt keine Rolle.
+    </p>
+
+    <label class="waehlen" for="beleg-eingabe">Dateien auswählen</label>
+    <input
+      id="beleg-eingabe"
+      class="nur-vorlesen"
+      type="file"
+      multiple
+      accept="application/pdf"
+      aria-describedby="ablage-hinweis"
+      (change)="ausDateifeld($event)"
+    />
+    <p class="hinweis leise">… oder Dateien hierher ziehen.</p>
+  </div>
+
+  @if (abgelehnt().length > 0) {
+    <p class="abgelehnt" role="alert">
+      Nicht angenommen, weil kein PDF: {{ abgelehnt().join(', ') }}
+    </p>
+  }
+
+  <p class="stand" aria-live="polite">
+    @if (anzahl() === 0) {
+      Noch kein Beleg ausgewählt.
+    } @else {
+      {{ anzahl() }} {{ anzahl() === 1 ? 'Beleg' : 'Belege' }} bereit zum Einreichen.
+    }
+  </p>
+
+  @if (anzahl() > 0) {
+    <ul class="liste" aria-labelledby="ablage-titel">
+      @for (beleg of belege(); track beleg.id) {
+        <li>
+          <span class="name">{{ beleg.name }}</span>
+          <span class="groesse leise">{{ kilobyte(beleg.groesse) }}</span>
+          <button type="button" class="zweitrangig" (click)="entfernen(beleg.id)">
+            Entfernen<span class="nur-vorlesen">: {{ beleg.name }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</fieldset>

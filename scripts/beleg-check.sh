@@ -86,7 +86,7 @@ echo
 echo "Schritt 3 — Regeln und Skills liegen im Repo, nicht global"
 pruefe "CLAUDE.md existiert" datei CLAUDE.md
 pruefe "CLAUDE.md bleibt auf einer Bildschirmseite (max. 60 Zeilen)" hoechstens_zeilen CLAUDE.md 60
-for skill in zoll-domain n8n-code-nodes adr extraktion; do
+for skill in zoll-domain n8n-code-nodes adr extraktion oberflaeche; do
   pruefe "Skill $skill hat eine SKILL.md" datei ".claude/skills/$skill/SKILL.md"
   pruefe "Skill $skill steht in CLAUDE.md" enthaelt CLAUDE.md "\`$skill\`"
 done
@@ -109,10 +109,12 @@ pruefe "Fixture: nackte Zahl" datei scripts/fixtures/regel-check/NackteZahl.mjs
 pruefe "Fixture: nur Literale" datei scripts/fixtures/regel-check/NurLiterale.mjs
 pruefe "Fixture: die erlaubte Lücke 0/1/2" datei scripts/fixtures/regel-check/NullEinsZwei.mjs
 pruefe "Workflow-Check liegt im Repo" datei scripts/workflow-check.mjs
+pruefe "Kontrast-Check liegt im Repo" datei scripts/kontrast-check.mjs
+pruefe "Kontrast-Check hat eine Testsuite" datei scripts/kontrast-check.test.mjs
 pruefe "docs/PIPELINE.md existiert" datei docs/PIPELINE.md
 pruefe "PIPELINE.md sagt, was nicht geprüft wird" enthaelt docs/PIPELINE.md "## Was die Pipeline nicht prüft"
 pruefe "CI existiert" datei .github/workflows/ci.yml
-for job in belege dokumente regeln tests workflows extraktion betrieb; do
+for job in belege dokumente regeln tests workflows extraktion oberflaeche betrieb; do
   pruefe "CI hat den Job $job" enthaelt .github/workflows/ci.yml "  $job:"
 done
 
@@ -181,6 +183,25 @@ pruefe "Workflow ruft den Dienst, entscheidet nicht selbst" enthaelt workflows/z
 pruefe "Rauchtest schickt PDFs" enthaelt scripts/rauchtest.sh "webhook/belege"
 pruefe "docs/EXTRAKTION.md existiert" datei docs/EXTRAKTION.md
 pruefe "EXTRAKTION.md sagt, was die Messung nicht misst" enthaelt docs/EXTRAKTION.md "## Was die Messung nicht misst"
+
+echo
+echo "Stufe 4 — die Oberfläche: barrierefrei geprüft, nicht behauptet (ADR-006)"
+pruefe "ADR-006 existiert" datei docs/adr/ADR-006-oberflaeche-angular-gleiche-herkunft.md
+pruefe "Angular-Projekt existiert" datei oberflaeche/angular.json
+pruefe "TypeScript laeuft strikt" enthaelt oberflaeche/tsconfig.json '"strict": true'
+pruefe "Zustand mit ngrx, nicht in der Komponente" datei oberflaeche/src/app/akte/akte.reducer.ts
+pruefe "Dateien liegen nicht im Store" enthaelt oberflaeche/src/app/app.config.ts "strictStateSerializability"
+pruefe "Die Oberfläche kennt keine Fachregel" enthaelt_nicht_rekursiv oberflaeche/src "rules.yaml\\|low_confidence_below"
+pruefe "422 wird als Ergebnis behandelt, nicht als Fehler" enthaelt oberflaeche/src/app/akte/akte.dienst.spec.ts "behandelt 422 als Ergebnis"
+pruefe "Gestaltungstoken erklären ihren Kontrast" enthaelt oberflaeche/src/styles.css "@kontrast"
+pruefe "axe läuft über jede Ansicht" enthaelt oberflaeche/e2e/barrierefreiheit.spec.ts "AxeBuilder"
+pruefe "Tastaturbedienung ist geprüft" enthaelt oberflaeche/e2e/barrierefreiheit.spec.ts "ohne Zeigegerät"
+pruefe "nginx-Konfiguration liegt im Repo" datei deploy/nginx/zollpilot.conf
+pruefe "Gleiche Herkunft statt CORS" enthaelt deploy/nginx/zollpilot.conf "proxy_pass http://n8n:5678/webhook/"
+pruefe "Oberfläche in Compose" enthaelt compose.yml "  oberflaeche:"
+pruefe "Rauchtest prüft die Oberfläche" enthaelt scripts/rauchtest.sh "Proxy der Oberfläche"
+pruefe "docs/OBERFLAECHE.md existiert" datei docs/OBERFLAECHE.md
+pruefe "OBERFLAECHE.md sagt, was sie nicht kann" enthaelt docs/OBERFLAECHE.md "## Was sie nicht kann"
 
 echo
 echo "Betrieb — angewendet, nicht als Beispiel abgelegt"

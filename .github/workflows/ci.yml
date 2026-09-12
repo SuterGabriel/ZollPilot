@@ -131,15 +131,56 @@ jobs:
         working-directory: extraktion
         run: uv run python -m zollpilot_extraktion.bewertung
 
+  oberflaeche:
+    name: Oberfläche (Angular, axe)
+    runs-on: ubuntu-latest
+    # Stufe 4 (ADR-006). Der Kontrast-Check rechnet die Zusagen der
+    # Gestaltungstoken nach, die Unit-Tests prüfen Zustand und Darstellung,
+    # und Playwright lässt axe über jede Ansicht laufen — das ist die
+    # Merge-Bedingung für jede Änderung an der Oberfläche
+    # (docs/ARBEITSWEISE.md, Stufe 2).
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: oberflaeche/package-lock.json
+      - name: Abhängigkeiten
+        working-directory: oberflaeche
+        run: npm ci
+      - name: Kontrast der Gestaltungstoken
+        run: node scripts/kontrast-check.mjs
+      - name: Bauen
+        working-directory: oberflaeche
+        run: npm run build
+      - name: Tests
+        working-directory: oberflaeche
+        run: npm test
+      - name: Browser für axe
+        working-directory: oberflaeche
+        run: npm run e2e:install
+      - name: Barrierefreiheit und Bedienung
+        working-directory: oberflaeche
+        run: npm run e2e
+      - name: Bericht bei Fehler
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-bericht
+          path: oberflaeche/playwright-report/
+          retention-days: 7
+
   betrieb:
     name: Stack läuft und entscheidet
     runs-on: ubuntu-latest
-    needs: [tests, workflows, extraktion]
+    needs: [tests, workflows, extraktion, oberflaeche]
     # Der teuerste Job und der einzige, der beweist, dass Compose, Import,
     # gebündelter Code-Node, Extraktionsdienst, Schema und Webhook zusammen
-    # funktionieren: Stack hochfahren (baut das Extraktions-Image), sieben
-    # Akten über /webhook/akte und sieben Belegsätze (PDF) über /webhook/belege,
-    # Entscheidungen gegen die Erwartung, Prüfungen in Postgres.
+    # funktionieren: Stack hochfahren (baut Extraktion und Oberfläche), sieben
+    # Akten über /webhook/akte, sieben Belegsätze (PDF) über /webhook/belege
+    # und eine Akte über den nginx-Proxy der Oberfläche, Entscheidungen gegen
+    # die Erwartung, Prüfungen in Postgres.
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
@@ -148,7 +189,7 @@ jobs:
       - name: Umgebung
         run: cp .env.example .env
       - name: Stack hochfahren
-        run: docker compose up -d --wait
+        run: docker compose up -d --build --wait
       - name: Rauchtest
         run: bash scripts/rauchtest.sh
       - name: Logs bei Fehler

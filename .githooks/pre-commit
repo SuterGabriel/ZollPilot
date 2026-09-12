@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Stufe 1: die Prüfung auf dieser Maschine, vor dem Commit.
 #
-# Sechs Gates, zusammen unter zwei Sekunden. Der Hook ist mit --no-verify
+# Sieben Gates, zusammen unter zwei Sekunden. Der Hook ist mit --no-verify
 # umgehbar, und das ist Absicht: Ein Hook, der eine halbe Minute braucht, wird
 # umgangen, und ein Hook, der routinemäßig umgangen wird, erzwingt nichts.
 # Dieselben Gates laufen in der CI noch einmal, dort sind sie nicht umgehbar.
@@ -14,6 +14,7 @@
 #   Regel-Check     ganzer Baum
 #   Bundle-Check    nur wenn src/, Katalog oder Workflow vorgemerkt sind
 #   Workflow-Check  nur wenn workflows/ vorgemerkt ist
+#   Kontrast-Check  nur wenn die Stildatei der Oberfläche vorgemerkt ist
 #
 # Einrichten: bash scripts/hooks-installieren.sh
 
@@ -65,6 +66,12 @@ fi
 
 if printf '%s\n' "$vorgemerkt" | grep -qE '^workflows/'; then
   lauf "Workflows" node scripts/workflow-check.mjs
+fi
+
+# Die Gestaltungstoken der Oberfläche erklären ihre Kontrastverhältnisse
+# selbst (ADR-006). Wer eine Farbe ändert, ändert eine Zusage.
+if printf '%s\n' "$vorgemerkt" | grep -qE '^oberflaeche/src/styles\.css$|^scripts/kontrast-check'; then
+  lauf "Kontrast" node scripts/kontrast-check.mjs
 fi
 
 if [ "$fehler" -gt 0 ]; then

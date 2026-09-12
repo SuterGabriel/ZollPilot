@@ -1,0 +1,173 @@
+.ergebnis {
+  background: var(--ton-grund);
+  border: 1px solid var(--ton-rand);
+  border-radius: var(--radius);
+  padding: var(--mass-6);
+  display: grid;
+  gap: var(--mass-3);
+}
+
+h2 {
+  margin: 0;
+}
+
+h3 {
+  margin: var(--mass-4) 0 0;
+  font-size: 1rem;
+}
+
+/* Die Entscheidung. Farbe trägt hier nichts allein: Der Name steht als Text
+ * daneben, und der linke Balken gibt eine zweite, nicht farbige Spur. */
+.entscheidung {
+  margin: 0;
+  padding: var(--mass-3) var(--mass-4);
+  border-left: 6px solid currentColor;
+  background: var(--ton-flaeche);
+  display: grid;
+  gap: var(--mass-1);
+}
+
+.entscheidung .marke {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.entscheidung.freigabereif {
+  color: var(--ton-frei);
+}
+
+.entscheidung.freigabe_mit_warnungen {
+  color: var(--ton-warnung);
+}
+
+.entscheidung.nachextraktion_erforderlich {
+  color: var(--ton-nachlese);
+}
+
+.entscheidung.blockiert {
+  color: var(--ton-blockiert);
+}
+
+.leise {
+  color: var(--ton-text-leise);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.fest {
+  font-family: var(--schrift-fest);
+}
+
+.meldung {
+  margin: 0;
+  padding: var(--mass-3);
+  border-radius: var(--radius);
+  background: var(--ton-flaeche);
+}
+
+.meldung.blockiert {
+  color: var(--ton-blockiert);
+}
+
+.meldung.warnung {
+  color: var(--ton-warnung);
+}
+
+.tabellenrahmen {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 34rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: var(--mass-2);
+  border-bottom: 1px solid var(--ton-rand);
+  vertical-align: top;
+}
+
+thead th {
+  border-bottom-width: 2px;
+}
+
+td .leise,
+td .hinweis {
+  display: block;
+}
+
+.hinweis {
+  color: var(--ton-warnung);
+  font-size: 0.875rem;
+}
+
+.befunde,
+.hinweisliste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--mass-3);
+}
+
+.befunde li {
+  border: 1px solid var(--ton-rand);
+  border-radius: var(--radius);
+  padding: var(--mass-3);
+  display: grid;
+  gap: var(--mass-1);
+}
+
+.kopf {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--mass-2);
+  font-weight: 600;
+}
+
+.kennung {
+  font-family: var(--schrift-fest);
+  background: var(--ton-flaeche);
+  padding: 0 var(--mass-2);
+  border-radius: var(--radius);
+}
+
+.status {
+  color: var(--ton-warnung);
+}
+
+.status.hart {
+  color: var(--ton-blockiert);
+}
+
+.begruendung {
+  margin: 0;
+}
+
+.quelle {
+  font-style: italic;
+}
+
+details pre {
+  background: var(--ton-flaeche);
+  padding: var(--mass-3);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  font-family: var(--schrift-fest);
+  font-size: 0.875rem;
+  margin: var(--mass-2) 0 0;
+}
+
+summary {
+  cursor: pointer;
+  min-height: var(--hitflaeche-min);
+  display: flex;
+  align-items: center;
+}

@@ -1,0 +1,89 @@
+.ablage {
+  border: 1px solid var(--ton-rand);
+  border-radius: var(--radius);
+  padding: var(--mass-4);
+  margin: 0;
+}
+
+legend {
+  font-weight: 600;
+  padding-inline: var(--mass-2);
+}
+
+.zone {
+  border: 2px dashed var(--ton-rand);
+  border-radius: var(--radius);
+  padding: var(--mass-6) var(--mass-4);
+  text-align: center;
+  background: var(--ton-grund);
+}
+
+/* Das Hervorheben beim Darüberziehen ist eine Zugabe für das Zeigegerät.
+ * Es trägt keine Information, die nicht auch im Text steht. */
+.zone.darueber {
+  border-color: var(--ton-aktion);
+  border-style: solid;
+}
+
+.hinweis {
+  margin: 0 0 var(--mass-3);
+}
+
+.leise {
+  color: var(--ton-text-leise);
+}
+
+/* Die Beschriftung ist die sichtbare Schaltfläche; das Dateifeld selbst liegt
+ * nur für Bildschirmleser darunter. Der Fokusring muss deshalb von der
+ * Eingabe auf die Beschriftung wandern. */
+.waehlen {
+  display: inline-block;
+  min-height: var(--hitflaeche-min);
+  padding: var(--mass-2) var(--mass-4);
+  border: 1px solid var(--ton-aktion);
+  border-radius: var(--radius);
+  background: var(--ton-aktion);
+  color: var(--ton-grund);
+  cursor: pointer;
+  line-height: calc(var(--hitflaeche-min) - 2 * var(--mass-2));
+}
+
+/* Die Beschriftung steht vor der Eingabe, deshalb `:has` und nicht `+`. */
+.waehlen:has(+ input[type='file']:focus-visible) {
+  outline: 3px solid var(--ton-fokus);
+  outline-offset: 2px;
+}
+
+.abgelehnt {
+  color: var(--ton-blockiert);
+  margin: var(--mass-3) 0 0;
+}
+
+.stand {
+  margin: var(--mass-3) 0 0;
+  color: var(--ton-text-leise);
+}
+
+.liste {
+  list-style: none;
+  margin: var(--mass-3) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--mass-2);
+}
+
+.liste li {
+  display: flex;
+  align-items: center;
+  gap: var(--mass-3);
+  padding: var(--mass-2);
+  background: var(--ton-grund);
+  border: 1px solid var(--ton-rand);
+  border-radius: var(--radius);
+}
+
+.liste .name {
+  flex: 1;
+  font-family: var(--schrift-fest);
+  overflow-wrap: anywhere;
+}

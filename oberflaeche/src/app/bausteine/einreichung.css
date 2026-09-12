@@ -1,0 +1,62 @@
+form {
+  display: grid;
+  gap: var(--mass-6);
+}
+
+fieldset {
+  border: 1px solid var(--ton-rand);
+  border-radius: var(--radius);
+  padding: var(--mass-4);
+  margin: 0;
+}
+
+legend {
+  font-weight: 600;
+  padding-inline: var(--mass-2);
+}
+
+.raster {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--mass-4);
+}
+
+.feld {
+  display: grid;
+  gap: var(--mass-1);
+  margin: 0;
+}
+
+.feld label {
+  font-weight: 600;
+}
+
+.hilfe {
+  color: var(--ton-text-leise);
+  font-size: 0.875rem;
+}
+
+.fehler {
+  color: var(--ton-blockiert);
+  font-size: 0.875rem;
+}
+
+/* Die Kontrollkästchen-Zeile: Kästchen und Beschriftung nebeneinander, der
+ * Hilfetext darunter über beide Spalten. */
+.kasten {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--mass-2);
+  margin-top: var(--mass-4);
+}
+
+.kasten .hilfe {
+  grid-column: 1 / -1;
+}
+
+.absenden {
+  display: flex;
+  align-items: center;
+  gap: var(--mass-4);
+  flex-wrap: wrap;
+}
