@@ -667,3 +667,37 @@ Drittel an den zwei GreenMail-Eigenheiten. Von Hand geschätzt: drei bis
 vier Tage, der größte Teil für das Zustandsmodell und den Beweis über
 Zeit. Schätzung, keine Messung. Der Rückweg (Antwort mit Anhang in die
 Akte), die Identität am Proxy und der Übersichtsbildschirm stehen noch aus.
+
+## 2026-09-12: Stufe 6, zweiter Teil: der Name am Override ist geprüft
+
+**Was delegiert wurde.** Die Identität aus ADR-009: Basic Auth in nginx,
+der geprüfte Benutzername als Header an n8n, der Befund sagt, woher der
+Name stammt. Dazu der Rauchtest, der beides zeigt: hinter dem Proxy
+`proxy`, direkt am Webhook `angegeben`.
+
+**Die Entscheidung, an der alles hängt.** Ein direkter Aufruf wird nicht
+abgewiesen, sondern markiert. Die ADR sagte zuerst „lehnt ab“; das hätte
+jeden Aufrufer ohne Proxy, auch den Rauchtest und jede Integration,
+gezwungen, einen Header zu setzen, den n8n nicht prüfen kann. Ehrlicher
+ist die Markierung: Der Audit-Eintrag sagt, ob der Name geprüft war.
+
+**Was nicht funktionierte.** Zweimal nginx. Erstens kopierte das
+Dockerfile die Passwortdatei nicht ins Image; nginx antwortete mit 403 und
+schrieb den Grund ins Log, der Rauchtest sah nur „keine Anwendung“.
+Zweitens, und das war die eigentliche Lektion: `/wer` gab den Namen mit
+`return` zurück, und `return` läuft in nginx vor der Zugriffsprüfung. Der
+Pfad war nie geschützt und hat jeden mitgeschickten Namen ungeprüft
+zurückgegeben; von Hand sah das nach Erfolg aus. Jetzt liefert ein
+Inhaltshandler (`empty_gif`) den Namen im Antwortkopf, und der kommt erst
+nach der Anmeldung dran. Ein falsches Passwort bekommt 401, wie es sein
+soll.
+
+**Was die Testsuite abgefangen hat.** Den fehlenden Kopiervorgang, beim
+ersten Lauf des Rauchtests nach dem Umbau. Die Lücke bei `/wer` hat kein
+Test gefunden; sie fiel beim Lesen des nginx-Logs auf, weil der Pfad ohne
+Passwortdatei hätte scheitern müssen und es nicht tat. Der Rauchtest prüft
+jetzt ausdrücklich, dass ein Aufruf ohne Zugangsdaten 401 bekommt.
+
+**Zeitschätzung.** Delegiert: eine gute halbe Stunde. Von Hand: ein halber
+Tag, und die `return`-Falle hätte vermutlich länger überlebt. Schätzung,
+keine Messung.

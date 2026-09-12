@@ -93,8 +93,12 @@ B, D, E mit GreenMail, F mit nginx. Erkennbar im Repo an:
 - `workflows/zollpilot-nachforderung.json`: Zeitplan und Webhook, liest,
   entscheidet im gebündelten Code-Node, schreibt, versendet.
 - `greenmail` in `compose.yml`, SMTP für den Versand, IMAP für den Eingang.
-- `deploy/nginx/`: Basic Auth mit Passwortdatei, Benutzername als Header;
-  der Code-Node lehnt einen Override ohne diesen Header ab.
+- `deploy/nginx/`: Basic Auth mit Passwortdatei, Benutzername als Header
+  `X-Benutzer`. Der Code-Node ersetzt damit den getippten Namen jeder
+  Übersteuerung und vermerkt am Befund `uebersteuert_identitaet: proxy`;
+  ohne Header bleibt der Name eine Angabe und heißt so (`angegeben`). Ein
+  Aufrufer direkt am Webhook wird nicht abgewiesen, aber sein Override
+  trägt sichtbar keine geprüfte Identität.
 
 ## Konsequenzen
 

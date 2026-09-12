@@ -51,7 +51,14 @@ lässt einen Lauf scheitern, Runde 6 wiederholt einen gescheiterten Lauf,
 Runde 7 fragt das Monitoring, ob es all das gesehen hat.
 
 **Der Einstieg ist `http://localhost:8088`.** Dort reicht die Oberfläche
-für Einreichen und Lesen, ohne Konto (`docs/OBERFLAECHE.md`).
+für Einreichen, Lesen und Übersteuern (`docs/OBERFLAECHE.md`). Sie verlangt
+eine Anmeldung: Demo-Zugänge `sachbearbeitung` und `teamleitung`, Passwort
+`zollpilot-dev`, aus `deploy/nginx/zollpilot.htpasswd`. nginx reicht den
+geprüften Namen als `X-Benutzer` an n8n; er steht dann an jeder
+Übersteuerung als `uebersteuert_von` mit `uebersteuert_identitaet: proxy`
+(ADR-009). Neuer Zugang: `openssl passwd -apr1` und eine Zeile in der
+Datei, dann `docker compose build oberflaeche && docker compose up -d
+oberflaeche`.
 
 **Das Dashboard ist `http://localhost:3000`.** Lesen ohne Anmeldung;
 ändern kann nur `admin` mit dem Passwort aus `.env`, und die Änderung ist
@@ -260,10 +267,13 @@ Ehrlich aufgeschrieben, damit die Übergabe keine Überraschung wird:
   Ausführungen (14 Tage), als Job oder als Aufgabe des Alarm-Workflows.
 - **Keine Sicherung.** Postgres-Volume ohne Backup. Nötig: `pg_dump` nach Plan,
   Wiederherstellung einmal geprobt.
-- **Kein TLS, keine Authentifizierung, jetzt auch mit Oberfläche.** Ports sind
-  auf localhost gebunden; mehr nicht. Wer 8088 erreicht, kann Akten
-  einreichen. Das galt schon für den Webhook, aber eine Oberfläche macht es
-  einladend: vor jedem Betrieb außerhalb der eigenen Maschine ein Blocker.
+- **Kein TLS, und Basic Auth ist kein Benutzerverzeichnis.** Die Oberfläche
+  verlangt eine Anmeldung, aber die Zugangsdaten gehen unverschlüsselt über
+  die Leitung, es gibt keine Rollen, keinen Passwortwechsel, keine
+  Abmeldung. Und n8n prüft den Header `X-Benutzer` nicht selbst: Wer Port
+  5678 direkt erreicht, kann ihn setzen. Vor jedem Betrieb außerhalb der
+  eigenen Maschine: TLS am Proxy, n8n nur über den Proxy erreichbar, OIDC
+  statt Passwortdatei. Die Nahtstelle bleibt der eine Header.
 - **Ein n8n-Prozess.** Kein Queue-Modus, keine Worker. Reicht für Dutzende
   Akten am Tag, nicht für Tausende.
 - **Kein Kubernetes.** Compose ist Entwicklung und Demo. Ein Chart wäre Stufe 4

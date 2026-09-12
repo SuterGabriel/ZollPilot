@@ -74,11 +74,16 @@ else
   echo "  ok    Extraktion /healthz ($ocr)"
 fi
 
-startseite=$(curl -fsS "$oberflaeche/" 2>/dev/null)
-if printf '%s\n' "$startseite" | grep -q "<app-root>"; then
-  echo "  ok    Oberfläche liefert die Anwendung aus"
+# Die Oberfläche steht hinter einer Anmeldung (ADR-009): ohne Zugangsdaten
+# 401, mit ihnen die Anwendung. Die Demo-Zugangsdaten stehen in
+# deploy/nginx/zollpilot.htpasswd.
+zugang="${OBERFLAECHE_ZUGANG:-sachbearbeitung:zollpilot-dev}"
+ohne=$(curl -s -o /dev/null -w '%{http_code}' "$oberflaeche/" 2>/dev/null)
+startseite=$(curl -fsS -u "$zugang" "$oberflaeche/" 2>/dev/null)
+if [[ "$ohne" == "401" ]] && printf '%s\n' "$startseite" | grep -q "<app-root>"; then
+  echo "  ok    Oberfläche verlangt eine Anmeldung und liefert dann die Anwendung aus"
 else
-  echo "  FEHLER Oberfläche antwortet nicht auf $oberflaeche/"
+  echo "  FEHLER Oberfläche: ohne Anmeldung HTTP $ohne (401 erwartet), mit Anmeldung keine Anwendung"
   fehler=$((fehler + 1))
 fi
 
@@ -126,7 +131,7 @@ ordner=testdaten/belege/happy-path
 erwartet=$(erwartung_aus "$ordner/akte.json")
 args=(-F "akte=<$ordner/akte.json")
 for pdf in "$ordner"/*.pdf; do args+=(-F "dateien=@$pdf;type=application/pdf"); done
-tatsaechlich=$(curl -sS -X POST "${args[@]}" "$oberflaeche/webhook/belege" | freigabe_aus)
+tatsaechlich=$(curl -sS -u "$zugang" -X POST "${args[@]}" "$oberflaeche/webhook/belege" | freigabe_aus)
 runden=$((runden + 1))
 if [[ "$tatsaechlich" == "$erwartet" ]]; then
   printf '  ok    %-32s %s
@@ -167,6 +172,19 @@ if [[ "$befund" == "verletzt Rauchtest blockiert freigabereif" && "$code" == "20
   printf '  ok    %-32s Befund bleibt verletzt, HTTP %s\n' "TRN-01 übersteuert" "$code"
 else
   printf '  ROT   %-32s bekommen "%s", HTTP %s\n' "TRN-01 übersteuert" "$befund" "$code"
+  fehler=$((fehler + 1))
+fi
+# Direkt am Webhook ist der Name eine Angabe. Hinter dem Proxy ersetzt der
+# geprüfte Benutzername den getippten, und der Befund sagt, woher er stammt
+# (ADR-009). Wer den Audit-Eintrag liest, sieht den Unterschied.
+runden=$((runden + 1))
+herkunft=$(curl -sS -u "$zugang" -X POST -H 'Content-Type: application/json' --data-binary "$uebersteuert" "$oberflaeche/webhook/akte" | node -e "
+let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const t=JSON.parse(s).befunde.find(b=>b.regel==='TRN-01');console.log([t.uebersteuert_von,t.uebersteuert_identitaet].join(' '))}catch{console.log('KEINE ANTWORT')}})")
+direkt=$(ANTWORT="${antwort%$'\n'*}" node -e "const t=JSON.parse(process.env.ANTWORT).befunde.find(b=>b.regel==='TRN-01');console.log(t.uebersteuert_identitaet)")
+if [[ "$herkunft" == "sachbearbeitung proxy" && "$direkt" == "angegeben" ]]; then
+  printf '  ok    %-32s über nginx: sachbearbeitung (proxy); direkt: Rauchtest (angegeben)\n' "Identität des Übersteuernden"
+else
+  printf '  ROT   %-32s über nginx "%s", direkt "%s"\n' "Identität des Übersteuernden" "$herkunft" "$direkt"
   fehler=$((fehler + 1))
 fi
 

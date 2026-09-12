@@ -104,11 +104,13 @@ bis dahin ist der Katalog ehrlich markiert.
   Nachforderung nicht im selben Augenblick, sondern wenn der
   Nachforderungs-Workflow das nächste Mal läuft (ADR-009, Option A wäre
   die andere Wahl).
-- **Der Override kennt keinen Menschen, nur ein Namensfeld.** Der Pfad ist
-  gebaut (Stufe 5, ADR-007): übersteuern, erneut prüfen, beides ablegen. Wer
-  aber den Namen tippt, prüft niemand. Ohne Anmeldung ist jeder Override im
-  Audit eine Behauptung, und das ist der Blocker vor jedem Betrieb, nicht
-  ein Schönheitsfehler.
+- **Der Override kennt jetzt einen geprüften Namen, aber nur hinter dem
+  Proxy.** nginx meldet an und reicht den Benutzernamen weiter; der Befund
+  trägt `uebersteuert_identitaet: proxy` (ADR-009). Wer den Webhook direkt
+  aufruft, bekommt `angegeben`, und n8n selbst prüft den Header nicht: Wer
+  Port 5678 erreicht, kann ihn setzen. Vor einem Betrieb muss n8n nur über
+  den Proxy erreichbar sein, und Basic Auth ist kein Benutzerverzeichnis:
+  keine Rollen, kein Passwortwechsel, keine Abmeldung.
 - **Verbrauchte Overrides erreichen den Betrieb, nicht die Fachseite.** Eine
   Katalogänderung entwertet sie richtigerweise. Seit dem Monitoring gibt es
   dafür einen Alarm (`ZollPilotOverrideVerbraucht`), aber er feuert erst,
@@ -117,9 +119,10 @@ bis dahin ist der Katalog ehrlich markiert.
 - **Die Oberfläche zeigt keine Fundstelle.** Jede Assertion trägt Seite und
   Bounding Box; das PDF wird nicht angezeigt und nichts darin markiert. Ohne
   das bleibt `re_extraction_required` eine Aufforderung ohne Werkzeug.
-- **Die Oberfläche ohne Anmeldung.** Wer Port 8088 erreicht, kann Akten
-  einreichen. Für den Webhook galt das schon; eine Oberfläche macht es
-  einladend.
+- **Die Oberfläche hinter Basic Auth, ohne TLS.** Wer Port 8088 erreicht,
+  braucht Zugangsdaten aus `deploy/nginx/zollpilot.htpasswd`; die stehen im
+  Repo, weil es Demo-Werte sind. Ohne TLS gehen sie im Klartext über die
+  Leitung. Auf localhost ist das egal, außerhalb ein Blocker.
 - **Kein Bildschirmleser-Test.** axe läuft über jede Ansicht und findet
   keinen Verstoß, aber automatische Prüfung deckt nur einen Teil der
   WCAG-Kriterien ab. Ob die Reihenfolge Sinn ergibt, sagt nur ein Mensch mit
