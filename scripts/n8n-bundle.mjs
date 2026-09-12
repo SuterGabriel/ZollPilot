@@ -48,6 +48,7 @@ const MODULE = [
   'src/regeln/TRN-01.mjs',
   'src/regeln/TRN-02.mjs',
   'src/regeln/REF-03.mjs',
+  'src/regeln/CUS-05.mjs',
   'src/regeln/index.mjs',
   'src/pflichtmatrix.mjs',
   'src/override.mjs',

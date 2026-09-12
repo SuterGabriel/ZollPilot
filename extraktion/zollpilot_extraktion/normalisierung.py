@@ -153,6 +153,21 @@ def als_warencode(text: str | None) -> str | None:
     return code if code.isdigit() else None
 
 
+# MRN: 18 Zeichen, Jahr, Land, Kennung (docs/04). Nur die Struktur; die
+# Prüfziffer an Stelle 18 bleibt bewusst ungeprüft, weil das Verfahren in
+# den Quellen widersprüchlich beschrieben ist (docs/08). Was nicht passt,
+# liefert None, damit die Pflichtmatrix den Nachweis als fehlend meldet.
+MRN = re.compile(r"[0-9]{2}[A-Z]{2}[A-Z0-9]{14}")
+
+
+def als_mrn(text: str | None) -> str | None:
+    if not text:
+        return None
+    t = re.sub(r"[\s\-]", "", str(text)).upper()
+    m = MRN.search(t)
+    return m.group(0) if m else None
+
+
 def als_containernummer(text: str | None) -> str | None:
     """Leerzeichen und Bindestriche entfernen, Großschreibung. Prüfziffer prüft src/validatoren/container.mjs."""
     if not text:

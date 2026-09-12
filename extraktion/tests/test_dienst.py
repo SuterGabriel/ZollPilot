@@ -30,7 +30,8 @@ def test_json_eingang(belege):
     assert antwort.status_code == 200, antwort.text
     akte = antwort.json()
     assert akte["akte_id"] == stammdaten["akte_id"]
-    assert len(akte["dokumente"]) == 4
+    # Rechnung, Ursprungserklärung darauf, Packliste, B/L, ABD.
+    assert len(akte["dokumente"]) == 5
     assert len(akte["assertions"]) >= len(erwartet) - 2
 
 
@@ -42,7 +43,7 @@ def test_multipart_eingang(belege):
         files=[("dateien", (n, d, "application/pdf")) for n, d in dateien],
     )
     assert antwort.status_code == 200, antwort.text
-    assert len(antwort.json()["dokumente"]) == 4
+    assert len(antwort.json()["dokumente"]) == 5
 
 
 def test_ohne_dateien_ist_422():

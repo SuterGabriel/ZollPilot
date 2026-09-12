@@ -38,6 +38,7 @@ PRAEFIX = {
     "eur_med": "EURMED",
     "atr": "ATR",
     "origin_declaration": "UE",
+    "abd": "ABD",
     TYP_UNCLASSIFIED: "UNK",
 }
 
@@ -53,6 +54,12 @@ def _aussteller(typ: str, beleg: Beleg, assertions: list) -> str | None:
         return aussteller_packliste(beleg)
     if typ == "bill_of_lading":
         return aussteller_bill_of_lading(beleg)
+    if typ == "abd":
+        # Aussteller im Sinne der Akte ist der Ausführer, nicht die Zollstelle:
+        # Er hat angemeldet, und ihn trifft die Berichtigungspflicht.
+        for a in assertions:
+            if a.pfad == "abd.ausfuehrer.name":
+                return a.wert
     return None
 
 

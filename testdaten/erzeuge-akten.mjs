@@ -90,10 +90,27 @@ function grundfall({ id, beschreibung, aenderung = {} }) {
     ...aenderung.praeferenznachweis,
   };
 
+  // Das Ausfuhrbegleitdokument: die lesbare Fassung der überlassenen
+  // Anmeldung. Die MRN ist erfunden, aber strukturgültig (docs/04: 18 Zeichen,
+  // Jahr, Land, Kennung); eine Prüfziffer wird bewusst nicht berechnet
+  // (docs/08). Die Warennummern sind die achtstelligen aus `anmeldung`.
+  const abd = {
+    mrn: '26DE5100001234567A',
+    ausfuehrer: { name: 'Nordlicht Maschinenbau GmbH', eori: 'DE123456789012345' },
+    bestimmungsland: 'SG',
+    container_id: CONTAINER_A,
+    positionen: [
+      { nr: 1, warennummer: '84133080', menge: 12 },
+      { nr: 2, warennummer: '84842000', menge: 12 },
+    ],
+    ...aenderung.abd,
+  };
+
   const dokumente = [
     dokument('INV-1', 'handelsrechnung', { aussteller: 'Nordlicht Maschinenbau GmbH' }),
     dokument('PL-1', 'packliste', { aussteller: 'Nordlicht Maschinenbau GmbH' }),
     dokument('BL-1', 'bill_of_lading', { aussteller: 'Maersk Line (synthetisch)', ...aenderung.bl_dokument }),
+    dokument('ABD-1', 'abd', { aussteller: 'Nordlicht Maschinenbau GmbH' }),
   ];
   if (!aenderung.ohne_praeferenznachweis) {
     dokumente.push(dokument('UE-1', nachweis.typ, { aussteller: 'Nordlicht Maschinenbau GmbH', traeger: 'INV-1', hinweis: 'Ursprungserklärung auf der Rechnung, als eigener Belegtyp klassifiziert' }));
@@ -105,6 +122,7 @@ function grundfall({ id, beschreibung, aenderung = {} }) {
     ...assertionsAus('PL-1', 'packliste', packliste, aenderung.konfidenzen),
     ...assertionsAus('BL-1', 'bill_of_lading', bl, aenderung.konfidenzen),
     ...(aenderung.ohne_praeferenznachweis ? [] : assertionsAus('UE-1', 'praeferenznachweis', nachweis, aenderung.konfidenzen)),
+    ...assertionsAus('ABD-1', 'abd', abd, aenderung.konfidenzen),
   ];
 
   return {
@@ -168,7 +186,10 @@ const akten = [
     aenderung: {
       packliste: { container_id: 'MSKU1234568' },
       konfidenzen: { 'packliste.container_id': 0.55 },
-      erwartung: { freigabe: 'nachextraktion_erforderlich', regeln: ['TRN-01', 'TRN-02'] },
+      // Dieselbe unsichere Lesung erreicht drei Regeln: Prüfziffer (TRN-02),
+      // Vergleich mit dem B/L (TRN-01) und Vergleich mit dem ABD (CUS-05).
+      // Alle drei sagen nachlesen, keine sagt Fachfehler.
+      erwartung: { freigabe: 'nachextraktion_erforderlich', regeln: ['TRN-01', 'TRN-02', 'CUS-05'] },
     },
   }),
   grundfall({
@@ -196,8 +217,20 @@ const akten = [
           { pos: 3, hs6: '848420' },
         ],
       },
+      abd: {
+        positionen: [
+          { nr: 1, warennummer: '84133080', menge: 12 },
+          { nr: 2, warennummer: '84842000', menge: 12 },
+          { nr: 3, warennummer: '84842000', menge: 2 },
+        ],
+      },
       erwartung: { freigabe: 'blockiert', regeln: ['VAL-03'] },
     },
+  }),
+  grundfall({
+    id: 'ZP-2026-0008',
+    beschreibung: 'ABD-Abweichung: Die Ausfuhranmeldung nennt einen anderen (gültigen) Container als Packliste und B/L. Angemeldet ist ein anderer Vorgang als verladen wird.',
+    aenderung: { abd: { container_id: CONTAINER_B }, erwartung: { freigabe: 'blockiert', regeln: ['CUS-05'] } },
   }),
 ];
 
@@ -209,6 +242,7 @@ const namen = {
   'ZP-2026-0005': 'draft-bl',
   'ZP-2026-0006': 'schlechter-scan',
   'ZP-2026-0007': 'kostenlose-position',
+  'ZP-2026-0008': 'abd-abweichung',
 };
 
 for (const akte of akten) {

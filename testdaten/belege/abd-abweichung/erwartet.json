@@ -273,7 +273,7 @@
     "dokument": "BL-1",
     "typ": "bill_of_lading",
     "pfad": "bill_of_lading.container_id",
-    "wert": "HLXU8765430"
+    "wert": "MSKU1234565"
   },
   {
     "dokument": "BL-1",
@@ -381,7 +381,7 @@
     "dokument": "ABD-1",
     "typ": "abd",
     "pfad": "abd.container_id",
-    "wert": "MSKU1234565"
+    "wert": "HLXU8765430"
   },
   {
     "dokument": "ABD-1",

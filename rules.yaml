@@ -27,8 +27,8 @@ defaults:
   on_low_confidence: re_extraction_required
   # Unterhalb dieser Extraktionskonfidenz gilt ein Befund zuerst als
   # Lesefehler, nicht als Dokumentfehler (OCR-01 in docs/03). Das gilt für
-  # jede Regel, deren Vergleich auf extrahierten Werten beruht, zehn von
-  # dreizehn. Die drei anderen tragen den Pfad bewusst nicht: CLS-02 liest
+  # jede Regel, deren Vergleich auf extrahierten Werten beruht, elf von
+  # vierzehn. Die drei anderen tragen den Pfad bewusst nicht: CLS-02 liest
   # Stammdaten der Anmeldung, REF-03 und ORG-03 lesen den Dokumentstatus
   # beziehungsweise den Belegtyp, keine extrahierten Feldwerte.
   # tests/regeln/konfidenzpfad.test.mjs hält beides fest.
@@ -184,6 +184,23 @@ rules:
     legal_basis: "Art. 15 UZK (Richtigkeit der Angaben)"
     legal_source: secondary
     consequence: Draft-B/L oder Verify Copy als Anmeldegrundlage, Korrekturpflicht
+    valid_from: "2026-09-12"
+
+  - id: CUS-05
+    name: Ausfuhrbegleitdokument deckt Rechnung und Packliste
+    hardness: hard
+    risk: compliance
+    inputs: ["abd.positionen[].warennummer", "abd.positionen[].nr", abd.container_id, "rechnung.positionen[].hs6", packliste.container_id]
+    assertion: >
+      first `digits` digits of abd.warennummer identical to rechnung.hs6 for the same
+      position number, every position on both sides, and abd.container_id identical
+      to packliste.container_id after normalization
+    parameters:
+      digits: 6
+    legal_basis: "Art. 263 UZK (Ausfuhranmeldung); Vorgangsidentität (docs/03, CUS-01)"
+    legal_source: secondary
+    consequence: Angemeldet ist ein anderer Zollvorgang als verladen wird; Beschau, Berichtigung der Anmeldung
+    note: Die MRN wird hier nicht geprüft. Struktur sichert die Normalisierung, Vorhandensein PFL-07; die Prüfziffer bleibt offen (docs/08).
     valid_from: "2026-09-12"
 
   # Weiche Regel als Gegenbeispiel: bewusst keine gesetzliche Toleranz

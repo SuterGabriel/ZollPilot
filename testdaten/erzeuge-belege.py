@@ -303,6 +303,44 @@ def bl_pdf(pfad: Path, r: dict[str, Any], bl: dict[str, Any], aussteller: str, d
     b.speichere()
 
 
+def abd_pdf(pfad: Path, akte: dict[str, Any], r: dict[str, Any], a: dict[str, Any]) -> None:
+    """Das Ausfuhrbegleitdokument: MRN, Zollstellen, Parteien, Positionen, Container.
+
+    Deutsche Beschriftung wie im ATLAS-Ausdruck; die Warennummern sind
+    achtstellig (KN), nicht HS-6. Der Hinweis am Ende steht absichtlich da:
+    Das ABD ist nicht der Ausgangsvermerk (docs/01).
+    """
+    b = Blatt(pfad)
+    b.titel("AUSFUHRBEGLEITDOKUMENT")
+    b.text(RAND, "Export Accompanying Document (EAD), Ausdruck aus ATLAS-AES, synthetisch", 9)
+    b.zeile(20)
+    b.text(RAND, f"MRN: {a['mrn']}", 12, fett=True)
+    b.zeile(18)
+    b.text(RAND, "Ausfuhrzollstelle: DE002210 Hamburg (synthetisch)")
+    b.text(320, "Ausgangszollstelle: DE002210")
+    b.zeile()
+    b.text(RAND, f"Bestimmungsland: {a['bestimmungsland']}")
+    b.text(320, f"Bezugsnummer: {r['nummer']}")
+    b.zeile(26)
+
+    y_links = partei(b, RAND, "Ausführer/Versender", a["ausfuehrer"]["name"], r["verkaeufer"]["land"], a["ausfuehrer"].get("eori"), b.y)
+    y_rechts = partei(b, 320, "Empfänger", r["kaeufer"]["name"], r["kaeufer"]["land"], None, b.y)
+    b.y = min(y_links, y_rechts) - 10
+
+    b.text(RAND, f"Container: {a['container_id']}")
+    b.text(320, "Verkehrszweig an der Grenze: 1 (Seeverkehr)")
+    b.zeile(26)
+
+    beschreibung = {p["nr"]: p["beschreibung"] for p in r["positionen"]}
+    b.tabelle(
+        [("Pos", RAND, "l"), ("Warennummer", 90, "l"), ("Warenbezeichnung", 190, "l"), ("Menge", 440, "r"), ("Einheit", 455, "l")],
+        [[str(q["nr"]), q["warennummer"], beschreibung.get(q["nr"], "Waren laut Rechnung"), str(q["menge"]), "PCE"] for q in a["positionen"]],
+    )
+    b.zeile(10)
+    b.text(RAND, "Dieses Dokument ist nicht der Ausgangsvermerk. Der Ausgang wird durch die Statusnachricht bestätigt.", 8)
+    b.speichere()
+
+
 def scan_packliste_pdf(pfad: Path, r: dict[str, Any], p: dict[str, Any], aussteller: str) -> None:
     """Die Packliste als schlechter Scan: mit Pillow gezeichnet, gedreht, verrauscht, unscharf — nur ein Bild im PDF."""
     breite_px = int(BREITE / 72 * SCAN_DPI)
@@ -379,6 +417,7 @@ def erzeuge(akte_datei: Path) -> None:
     else:
         packliste_pdf(ordner / "packliste.pdf", r, belege["PL-1"], aussteller)
     bl_pdf(ordner / "bill-of-lading.pdf", r, belege["BL-1"], dokumente["BL-1"]["aussteller"], dokumente["BL-1"]["status"] == "draft")
+    abd_pdf(ordner / "ausfuhrbegleitdokument.pdf", akte, r, belege["ABD-1"])
 
     erwartung = dict(akte["erwartung"])
     if "erwartung" in sonder:
