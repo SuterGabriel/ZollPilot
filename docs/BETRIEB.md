@@ -12,7 +12,7 @@ Neun Container aus `compose.yml`, fünf für die Akte und vier fürs Hinsehen:
 |---|---|---|---|
 | `postgres` | zwei Datenbanken: `n8n` (Workflows, Ausführungen) und `zollpilot` (Akte, Prüfungen, Fehler) | 5432, nur localhost | `pg_isready` |
 | `n8n-import` | läuft einmal beim Start: importiert Credentials und Workflows aus dem Repo, beendet sich | keiner | Exit 0 |
-| `n8n` | Orchestrierung, zwei Webhooks, der n8n-Editor | 5678, nur localhost | `GET /healthz` antwortet `ok` |
+| `n8n` | Orchestrierung: vier Workflows (Prüfung, Fehler, Wiederholung, Alarm), ein eigener Node für die Extraktion aus `nodes/n8n-nodes-zollpilot/`, der n8n-Editor | 5678, nur localhost | `GET /healthz` antwortet `ok` |
 | `extraktion` | Belege (PDF) → Assertions: Textlayer oder Tesseract, Klassifikation, Felder. Entscheidet nichts (ADR-005) | 8765 auf dem Host (nur localhost), 8080 im Compose-Netz | `GET /healthz` antwortet `ok` und sagt, ob OCR verfügbar ist |
 | `oberflaeche` | nginx: liefert die Angular-Anwendung aus und reicht `/webhook/` an n8n weiter. Der Einstieg für Menschen (ADR-006) | 8088, nur localhost | `GET /` liefert die Anwendung |
 | `prometheus` | holt alle 15 s die Metriken von n8n, Extraktion und SQL-Exporter ab und wertet die Alarmregeln aus (`deploy/prometheus/`) | 9090, nur localhost | `GET /-/healthy` |
@@ -220,7 +220,9 @@ je Schweregrad im Alertmanager eintragen (`route` in `alertmanager.yml`).
 | Akte meldet `unclassified` mit Hinweis „OCR nicht verfügbar“ | `curl localhost:8765/healthz` zeigt `ocr.verfuegbar: false`: Image ohne Tesseract, neu bauen mit `docker compose build extraktion` |
 | Akte meldet `unclassified` mit „Belegtyp nicht erkannt“ | Kein Fehler des Betriebs. Der Beleg ist an der Akte, die Sachbearbeitung sieht ihn in `extraktion.hinweise`; die Extraktion kennt eine Layoutfamilie (`docs/EXTRAKTION.md`) |
 | Extraktion ändern | `extraktion/` ändern, `uv run pytest`, Bewertung gegen die Basislinie, dann `docker compose build extraktion && docker compose up -d extraktion` |
-| Extraktionsdienst läuft woanders | Die Adresse steht im HTTP-Request-Node „Belege extrahieren“ (`http://extraktion:8080`): im Repo ändern, neu importieren |
+| Extraktionsdienst läuft woanders | Die Adresse steht in der Credential „ZollPilot Extraktion“ (`deploy/n8n/credentials.json`), nicht im Workflow: dort ändern, `docker compose restart n8n-import n8n`. Ein Token in derselben Credential geht als Bearer mit |
+| Node „Belege extrahieren“ fehlt nach dem Import („Unrecognized node type“) | n8n findet das Erweiterungsverzeichnis nicht: `N8N_CUSTOM_EXTENSIONS=/custom` und der Mount von `nodes/n8n-nodes-zollpilot/dist` müssen bei `n8n` **und** `n8n-import` stehen. `docker compose logs n8n \| grep -i custom` |
+| Eigenen Node ändern | `nodes/n8n-nodes-zollpilot/` ändern, `npm run build`, `npm test`, `dist/` mit committen (die CI vergleicht), dann `docker compose restart n8n-import n8n` |
 | Oberfläche zeigt 502 beim Einreichen | nginx erreicht n8n nicht: `docker compose ps n8n`, `docker compose logs oberflaeche` |
 | Oberfläche zeigt 413 | Die Belege überschreiten `client_max_body_size` (32 MB) in `deploy/nginx/zollpilot.conf` |
 | Oberfläche ändern | `oberflaeche/` ändern, `npm test`, `npm run e2e`, `node scripts/kontrast-check.mjs`, dann `docker compose build oberflaeche && docker compose up -d oberflaeche` |

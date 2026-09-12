@@ -96,6 +96,18 @@ jobs:
         run: node scripts/n8n-bundle.mjs --check
       - name: Workflow-Struktur
         run: node scripts/workflow-check.mjs
+      # Der eigene Node: aus TypeScript gebaut, dist/ liegt im Repo, weil
+      # compose.yml es direkt einhängt. Hier wird nachgebaut und verglichen,
+      # damit dist/ nie älter ist als die Quelle. Dann die Tests ohne n8n.
+      - name: Eigener Node, Abhängigkeiten
+        working-directory: nodes/n8n-nodes-zollpilot
+        run: npm ci
+      - name: Eigener Node, dist ist aktuell
+        working-directory: nodes/n8n-nodes-zollpilot
+        run: npm run build && git diff --exit-code -- dist
+      - name: Eigener Node, Tests
+        working-directory: nodes/n8n-nodes-zollpilot
+        run: npm test
 
   extraktion:
     name: Extraktion (Python, OCR)

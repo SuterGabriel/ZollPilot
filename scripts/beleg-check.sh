@@ -183,7 +183,8 @@ pruefe "Bewertung meldet eine fehlende Basislinie" enthaelt extraktion/zollpilot
 pruefe "Dockerfile existiert" datei extraktion/Dockerfile
 pruefe "Dienst in Compose" enthaelt compose.yml "  extraktion:"
 pruefe "Workflow hat den Belege-Eingang" enthaelt workflows/zollpilot-akte-pruefen.json '"path": "belege"'
-pruefe "Workflow ruft den Dienst, entscheidet nicht selbst" enthaelt workflows/zollpilot-akte-pruefen.json "extraktion:8080"
+pruefe "Workflow ruft den Dienst über den eigenen Node, entscheidet nicht selbst" enthaelt workflows/zollpilot-akte-pruefen.json "CUSTOM.zollPilotExtraktion"
+pruefe "Adresse des Dienstes steht in der Credential, nicht im Workflow" enthaelt deploy/n8n/credentials.json "extraktion:8080"
 pruefe "Rauchtest schickt PDFs" enthaelt scripts/rauchtest.sh "webhook/belege"
 pruefe "docs/EXTRAKTION.md existiert" datei docs/EXTRAKTION.md
 pruefe "EXTRAKTION.md sagt, was die Messung nicht misst" enthaelt docs/EXTRAKTION.md "## Was die Messung nicht misst"
@@ -221,6 +222,17 @@ pruefe "Übergabe an Betrieb existiert" datei docs/BETRIEB.md
 pruefe "BETRIEB.md sagt, was fehlt" enthaelt docs/BETRIEB.md "## Was vor einem echten Betrieb fehlt"
 pruefe "Beispiel-Umgebung ohne echte Geheimnisse" datei .env.example
 pruefe ".env ist ignoriert" enthaelt .gitignore "^.env$"
+
+echo
+echo "Node-Entwicklung — ein eigener Node, gebaut und geprüft"
+pruefe "Paket existiert" datei nodes/n8n-nodes-zollpilot/package.json
+pruefe "Node-Quelle in TypeScript" datei nodes/n8n-nodes-zollpilot/nodes/ZollPilotExtraktion/ZollPilotExtraktion.node.ts
+pruefe "Credential-Typ in TypeScript" datei nodes/n8n-nodes-zollpilot/credentials/ZollPilotExtraktionApi.credentials.ts
+pruefe "Gebauter Node liegt im Repo (compose.yml hängt ihn ein)" datei nodes/n8n-nodes-zollpilot/dist/nodes/ZollPilotExtraktion/ZollPilotExtraktion.node.js
+pruefe "Node hat eine Testsuite ohne n8n" datei nodes/n8n-nodes-zollpilot/test/ZollPilotExtraktion.test.mjs
+pruefe "Node trägt keinen Fachparameter" enthaelt nodes/n8n-nodes-zollpilot/test/ZollPilotExtraktion.test.mjs "gehört nicht in den Node"
+pruefe "n8n lädt das Erweiterungsverzeichnis" enthaelt compose.yml "N8N_CUSTOM_EXTENSIONS"
+pruefe "CI baut den Node aus den Quellen nach" enthaelt .github/workflows/ci.yml "n8n-nodes-zollpilot"
 
 echo
 echo "Monitoring — abgeholt, nicht nur angeboten"
