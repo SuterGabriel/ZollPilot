@@ -15,6 +15,7 @@ Neun Container aus `compose.yml`, fünf für die Akte und vier fürs Hinsehen:
 | `n8n` | Orchestrierung: vier Workflows (Prüfung, Fehler, Wiederholung, Alarm), ein eigener Node für die Extraktion aus `nodes/n8n-nodes-zollpilot/`, der n8n-Editor | 5678, nur localhost | `GET /healthz` antwortet `ok` |
 | `extraktion` | Belege (PDF) → Assertions: Textlayer oder Tesseract, Klassifikation, Felder. Entscheidet nichts (ADR-005) | 8765 auf dem Host (nur localhost), 8080 im Compose-Netz | `GET /healthz` antwortet `ok` und sagt, ob OCR verfügbar ist |
 | `oberflaeche` | nginx: liefert die Angular-Anwendung aus und reicht `/webhook/` an n8n weiter. Der Einstieg für Menschen (ADR-006) | 8088, nur localhost | `GET /` liefert die Anwendung |
+| `greenmail` | das Testpostfach (ADR-009): SMTP für den Versand der Nachforderungen, IMAP für den Eingang, eine Schnittstelle zum Nachsehen | 8025 (Schnittstelle), 3025 (SMTP), 3143 (IMAP), alle nur localhost | `GET /api/service/readiness` |
 | `prometheus` | holt alle 15 s die Metriken von n8n, Extraktion und SQL-Exporter ab und wertet die Alarmregeln aus (`deploy/prometheus/`) | 9090, nur localhost | `GET /-/healthy` |
 | `alertmanager` | nimmt die Alarme von Prometheus entgegen und liefert sie an n8n, `POST /webhook/alarm` (`deploy/alertmanager/`) | 9093, nur localhost | `GET /-/healthy` |
 | `sql-exporter` | macht aus der Prüftabelle die fachlichen Zähler: Freigaben, Befunde je Regel, Fehler, offene Wiedervorlagen (`deploy/sql-exporter/`) | 9399, nur im Compose-Netz | Prometheus meldet `up{job="sql-exporter"}`; kein Healthcheck, das Image hat keine Shell |
@@ -212,6 +213,9 @@ je Schweregrad im Alertmanager eintragen (`route` in `alertmanager.yml`).
 | Antwort 422 | Kein Fehler. Die Akte ist nicht freigabereif; das Ergebnis im Body sagt, warum und wer nachliefern muss |
 | Antwort 500 | Zeile in `workflow_fehler` lesen, Ausführung in n8n öffnen. Sagt der Rumpf `wiederholbar: true`: Ursache beheben, dann `POST /webhook/wiederholen` mit der Ausführungs-ID |
 | Ein Alarm feuert | Tabelle oben: Alarmname, Prüfen, Handgriff. Der Alarm steht auch in `alarm` und im Dashboard |
+| Nachforderungen sofort versenden statt morgen früh | `curl -X POST -H 'Content-Type: application/json' -d '{"akte_id":"ZP-2026-0002"}' localhost:5678/webhook/nachforderungen`; ohne `akte_id` für alle Akten. Was versandt wurde: `select * from request_versand order by versandt_am desc` |
+| Nachsehen, was im Testpostfach liegt | `curl localhost:8025/api/user/lieferant@zollpilot.test/messages`; die Postfächer stehen in `compose.yml` unter `greenmail` |
+| Eine Nachforderung schließt sich nicht, obwohl der Beleg da ist | Erledigt wird beim nächsten Lauf des Nachforderungs-Workflows (ADR-009). Sofort: den Webhook oben aufrufen. Bleibt sie offen, vermisst die letzte Prüfung den Wert noch: `select ergebnis->'nachforderungen' from pruefung where akte_id = '…' order by geprueft_am desc limit 1` |
 | Dashboard zeigt keine Zahlen | `docker compose ps sql-exporter prometheus`; unter `http://localhost:9090/targets` muss jedes Ziel `UP` sein |
 | Schema in `deploy/postgres/init.sql` geändert | Läuft nur beim ersten Start: `docker compose down -v && docker compose up -d --wait`. Löscht beide Datenbanken |
 | Postgres-Node rot, Antwort trotzdem da | Absicht: `onError: continueRegularOutput`. Die Antwort an den Aufrufer ist wichtiger als die Ablage. Fehler steht in `workflow_fehler` |
@@ -264,8 +268,11 @@ Ehrlich aufgeschrieben, damit die Übergabe keine Überraschung wird:
   Akten am Tag, nicht für Tausende.
 - **Kein Kubernetes.** Compose ist Entwicklung und Demo. Ein Chart wäre Stufe 4
   und nur dann ehrlich, wenn er in der CI ausgerollt wird.
-- **Kein Mail-Intake, kein Versand.** Der E-Mail-Node ist deaktiviert; der
-  Zielprozess beginnt beim Postfach, der Prototyp am Webhook.
+- **Der Versand geht an ein Testpostfach.** GreenMail nimmt an, was der
+  Nachforderungs-Workflow schickt, und vergisst es beim Neustart. Nötig:
+  die SMTP-Credential des Kunden in `deploy/n8n/credentials.json` und der
+  echte Verteiler in `zustaendigkeiten.yaml`. Der Eingang (Antworten mit
+  Anhang) ist noch nicht angebunden.
 - **Keine Rollen in n8n.** Ein Owner, keine Trennung zwischen Betrieb und
   Fachseite.
 - **Extraktionsdienst ohne Authentifizierung und ohne Begrenzung.** Er

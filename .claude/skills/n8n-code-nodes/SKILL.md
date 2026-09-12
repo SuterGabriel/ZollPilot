@@ -95,6 +95,26 @@ Das Muster steht im Node „Wiedervorlage vorbereiten“ des Prüf-Workflows:
 eine Funktion `ausgabe(name)`, die Ausgang 0 und 1 versucht und sonst `null`
 liefert.
 
+## Der zweite Bündel: Nachforderungen
+
+`zollpilot-nachforderung.json` (ADR-009) trägt zwei Code-Nodes mit
+demselben Bundle aus `src/nachforderung/`: „Nachforderungen entscheiden“
+(Abgleich: eröffnen, behalten, erledigen) und „Versand planen“ (welche
+Stufe ist fällig, an welche Postfächer, mit welchem Betreff). Dazwischen
+liest und schreibt der Workflow; ein schreibendes CTE sieht seine eigenen
+Zeilen nicht, deshalb der zweite Lesezugriff. Regeln:
+
+- **Der Zeitpunkt kommt ins Item**, aus dem Webhook (`jetzt`, für den
+  Rauchtest) oder aus dem Node „Lauf vorbereiten“. In `src/` gibt es keine
+  Uhr; der Beleg-Check prüft `stufe.mjs` darauf.
+- **Postgres-Parameter als Array**: `={{ [ a, b ] }}` statt der
+  kommagetrennten Liste, sonst zerlegt der Node JSON-Werte an ihren Kommas.
+- **Erst senden, dann festhalten.** Die Zeile in `request_versand` und die
+  Stufe am Fall entstehen nach dem Mail-Node; scheitert der Versand, gilt
+  die Stufe nicht als versandt.
+- Ein neues Modul unter `src/nachforderung/` gehört in `MODULE_NACHFORDERUNG`
+  im Bündler, nicht in die Regelwerk-Liste.
+
 ## Wiedervorlage und Alarm
 
 Der Fehlerzweig legt neben `workflow_fehler` eine Zeile in `wiedervorlage`
@@ -116,7 +136,9 @@ nichts; `compose.yml` aktiviert sie beim Import.
   deaktiviert ist, warum `onError: continueRegularOutput`.
 - **Eine Sticky Note je Workflow**, die sagt, wo die Entscheidung liegt.
 - **Deaktivieren statt löschen**, wenn ein Node im Zielsystem gebraucht wird,
-  im Demo aber nicht laufen kann (E-Mail ohne SMTP). Mit `notes`, warum.
+  im Demo aber nicht laufen kann (die Alarm-Mail ohne Empfänger). Mit
+  `notes`, warum. Der Versand der Nachforderungen läuft dagegen wirklich,
+  gegen GreenMail (ADR-009).
 - **Antwortcodes:** 200 freigabereif, 422 alles andere — in beiden Fällen
   das vollständige Ergebnis im Body. Der Aufrufer soll nicht raten.
 

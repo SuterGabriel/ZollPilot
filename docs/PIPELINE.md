@@ -79,8 +79,10 @@ Testsuite mit Fixtures für die Fälle, die stumm bleiben könnten: eine nackte
 Schwelle, Zahlen nur in Literalen, die erlaubten 0/1/2. Ein leerer Katalog ist
 ein Fehler, kein Erfolg.
 
-**`scripts/n8n-bundle.mjs`** erzeugt den Code-Node aus `src/` und dem Katalog
-(ADR-004). `--check` vergleicht, ohne zu schreiben.
+**`scripts/n8n-bundle.mjs`** erzeugt die Code-Nodes aus `src/` und dem Katalog
+(ADR-004): „Akte prüfen“ im Prüf-Workflow und die zwei Nodes des
+Nachforderungs-Workflows aus `src/nachforderung/` (ADR-009). `--check`
+vergleicht alle drei, ohne zu schreiben.
 
 **`scripts/workflow-check.mjs`** prüft, was sich ohne n8n prüfen lässt:
 JSON, Pflichtfelder je Node, eindeutige Namen, Verbindungen auf existierende

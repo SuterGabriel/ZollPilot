@@ -426,6 +426,7 @@ def erzeuge(akte_datei: Path) -> None:
         "akte_id": akte["akte_id"],
         "beschreibung": akte["beschreibung"],
         "stichtag": akte["stichtag"],
+        "fristen": akte.get("fristen"),
         "sachverhalt": akte["sachverhalt"],
         "anmeldung": akte["anmeldung"],
         "erwartung": erwartung,

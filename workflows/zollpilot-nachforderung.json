@@ -1,0 +1,363 @@
+{
+  "id": "zollpilot-nachforderung",
+  "name": "ZollPilot – Nachforderungen",
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "errorWorkflow": "zollpilot-fehler"
+  },
+  "meta": {
+    "beschreibung": "Die Nachforderung als Vorgang (ADR-009). Täglich oder über POST /webhook/nachforderungen: Für jede Akte die letzte Prüfung und die offenen Fälle lesen, in src/ entscheiden, was eröffnet, erledigt und welche Stufe fällig ist, schreiben, versenden, festhalten. Entscheidet nichts selbst; beide Code-Nodes sind Bundles aus src/nachforderung/."
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 7,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "taeglich",
+      "name": "Täglich",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        200
+      ],
+      "notes": "Ein Lauf am Tag, morgens. Zwischen zwei Stufen an denselben Fall liegen mindestens 24 Stunden (zustaendigkeiten.yaml, versand.mindestabstand_stunden); ein Lauf je Tag passt dazu."
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nachforderungen",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "versand-angefordert",
+      "name": "Versand angefordert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        420
+      ],
+      "webhookId": "zollpilot-nachforderungen",
+      "notes": "Derselbe Lauf auf Zuruf. Rumpf optional: {\"akte_id\": \"...\", \"jetzt\": \"ISO-Zeitpunkt\"}. jetzt ist fuer den Rauchtest da, der Stufen an einem Tag durchspielen muss, den es noch nicht gibt; im Betrieb bleibt es leer. Antwortet sofort mit 200; was passiert ist, steht in request_case und request_versand."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Transport: Der Zeitplan liefert nur einen Zeitstempel, der Webhook einen\n// Rumpf. Beides wird auf dasselbe Item gebracht: welche Akte (leer = alle)\n// und welcher Zeitpunkt gilt. Die Uhr steht hier, nicht in src/.\nconst b = $input.first().json.body ?? {};\nreturn [{ json: { akte_filter: b.akte_id ?? '', jetzt: b.jetzt ?? new Date().toISOString() } }];"
+      },
+      "id": "lauf-vorbereiten",
+      "name": "Lauf vorbereiten",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT ON (p.akte_id)\n  p.akte_id,\n  p.id AS pruefung_id,\n  COALESCE(p.ergebnis->'nachforderungen', '[]'::jsonb) AS nachforderungen,\n  COALESCE(p.ergebnis->'fristen', '{}'::jsonb) AS fristen,\n  COALESCE((SELECT jsonb_agg(to_jsonb(r)) FROM request_case r WHERE r.akte_id = p.akte_id AND r.status = 'offen'), '[]'::jsonb) AS offene,\n  $2::text AS jetzt\nFROM pruefung p\nWHERE ($1::text = '' OR p.akte_id = $1::text)\nORDER BY p.akte_id, p.geprueft_am DESC",
+        "options": {
+          "queryReplacement": "={{ [ $json.akte_filter, $json.jetzt ] }}"
+        }
+      },
+      "id": "lesen",
+      "name": "Letzte Prüfung und offene Fälle lesen",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        520,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "notes": "Ein Item je Akte: die Nachforderungen und Fristen der letzten Pruefung und die offenen Faelle aus request_case. Nur Lesen und Zusammenstellen; was damit geschieht, entscheidet der naechste Node."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// GENERIERT von scripts/n8n-bundle.mjs — nicht von Hand ändern.\n// Quelle: 2 Module aus src/ und zustaendigkeiten.yaml.\n// Katalogversion 0.1.0, gültig ab 2026-09-12.\n\nconst KATALOG = {\"zustaendigkeiten\":{\"version\":\"0.1.0\",\"owners\":{\"rechnung\":{\"primaer\":\"Lieferant/Verkäufer\",\"sekundaer\":\"Einkauf\",\"ausloeser\":\"Bestellung bestätigt\"},\"packliste\":{\"primaer\":\"Lieferant/Packbetrieb\",\"sekundaer\":\"Spediteur/Lager\",\"ausloeser\":\"Ware gepackt\"},\"bill_of_lading\":{\"primaer\":\"Seefrachtspediteur/Carrier\",\"sekundaer\":\"Shipper\",\"ausloeser\":\"SI-Cut-off / On-board\"},\"praeferenznachweis\":{\"primaer\":\"Exporteur/Lieferant\",\"sekundaer\":\"Ursprungsstelle\",\"ausloeser\":\"vor Ausfuhr\"},\"anmeldung\":{\"primaer\":\"Zollvertreter/Spediteur\",\"sekundaer\":\"interne Zollabteilung\",\"ausloeser\":\"nach Überlassung\"},\"abd\":{\"primaer\":\"Zollvertreter/Spediteur\",\"sekundaer\":\"interne Zollabteilung\",\"ausloeser\":\"nach Überlassung\"},\"sachverhalt\":{\"primaer\":\"Sachbearbeitung Export\",\"sekundaer\":\"Vertrieb\",\"ausloeser\":\"Auftragsanlage\"},\"dokumente\":{\"primaer\":\"Sachbearbeitung Export\",\"sekundaer\":\"Spediteur\",\"ausloeser\":\"Eingang der finalen Fassung\"}},\"escalation\":[{\"stufe\":\"erinnerung_0\",\"zeitpunkt\":\"sofort nach Feststellung\",\"bezug\":null,\"vorlauf_stunden\":0,\"adressat\":\"primaer\"},{\"stufe\":\"erinnerung_1\",\"zeitpunkt\":\"vor internem Customs Cut-off\",\"bezug\":\"customs_cutoff\",\"vorlauf_stunden\":48,\"adressat\":\"primaer + operativer Sachbearbeiter\"},{\"stufe\":\"eskalation_1\",\"zeitpunkt\":\"vor Carrier-/Terminal-Cut-off\",\"bezug\":\"carrier_cutoff\",\"vorlauf_stunden\":48,\"adressat\":\"Teamleitung\"},{\"stufe\":\"eskalation_2\",\"zeitpunkt\":\"vor ETA/Abholung\",\"bezug\":\"eta\",\"vorlauf_stunden\":72,\"adressat\":\"Einkauf, Logistikleitung, Zollverantwortlicher\"},{\"stufe\":\"stop\",\"zeitpunkt\":\"Cut-off erreicht\",\"bezug\":\"carrier_cutoff\",\"vorlauf_stunden\":0,\"adressat\":\"Anmeldung, Verladung oder Freigabe blockieren\"}],\"versand\":{\"mindestabstand_stunden\":24,\"verteiler\":{\"standard\":\"sachbearbeitung@zollpilot.test\",\"Lieferant/Verkäufer\":\"lieferant@zollpilot.test\",\"Lieferant/Packbetrieb\":\"lieferant@zollpilot.test\",\"Exporteur/Lieferant\":\"lieferant@zollpilot.test\",\"Seefrachtspediteur/Carrier\":\"spediteur@zollpilot.test\",\"Zollvertreter/Spediteur\":\"spediteur@zollpilot.test\",\"Sachbearbeitung Export\":\"sachbearbeitung@zollpilot.test\",\"Teamleitung\":\"teamleitung@zollpilot.test\",\"Extraktion (Nachlesen)\":\"sachbearbeitung@zollpilot.test\"}}}};\n\n// ---- src/nachforderung/abgleich.mjs ----\n// Abgleich der Nachforderungen mit ihrem Zustand (ADR-009).\n//\n// Eingang: die offenen Fälle aus `request_case` und die Nachforderungen der\n// letzten Prüfung. Ausgang: was eröffnet wird, was bestehen bleibt, was\n// erledigt ist. Der Schlüssel eines Falls ist Grund und Feld; derselbe\n// fehlende Wert bleibt derselbe Fall, auch wenn die Akte dreimal geprüft\n// wird. Das ist die Idempotenz: Ein erneuter Eingang eröffnet keinen zweiten\n// Fall und setzt keine Stufe zurück.\n//\n// Reine Funktion. Der Zeitpunkt kommt als Parameter, wie überall in src/.\n\nconst STATUS_OFFEN = 'offen';\nconst STATUS_ERLEDIGT = 'erledigt';\n\nfunction fallSchluessel(fall) {\n  return `${fall.grund}|${fall.feld}`;\n}\n\n/**\n * @param {Array} offene   Zeilen aus request_case mit status offen\n * @param {Array} neue     ergebnis.nachforderungen der letzten Prüfung\n * @param {string} zeitpunkt ISO-Zeitpunkt des Abgleichs\n */\nfunction gleicheAb(offene, neue, zeitpunkt) {\n  const offenNach = new Map((offene ?? []).map((f) => [fallSchluessel(f), f]));\n  const neuNach = new Map((neue ?? []).map((n) => [fallSchluessel(n), n]));\n\n  const eroeffnen = [];\n  const behalten = [];\n  for (const [schluessel, n] of neuNach) {\n    const bestehend = offenNach.get(schluessel);\n    if (bestehend) {\n      // Der Text darf sich ändern (neue Begründung nach erneuter Prüfung),\n      // die Stufe und das Versanddatum bleiben: Es ist derselbe Fall.\n      behalten.push({ ...bestehend, betreff: n.betreff, text: n.text, adressat: n.adressat.primaer, adressat_kopie: n.adressat.sekundaer ?? null });\n    } else {\n      eroeffnen.push({\n        grund: n.grund,\n        feld: n.feld,\n        adressat: n.adressat.primaer,\n        adressat_kopie: n.adressat.sekundaer ?? null,\n        betreff: n.betreff,\n        text: n.text,\n        stufe: null,\n        status: STATUS_OFFEN,\n        eroeffnet_am: zeitpunkt,\n      });\n    }\n  }\n\n  const schliessen = [];\n  for (const [schluessel, f] of offenNach) {\n    if (!neuNach.has(schluessel)) schliessen.push({ ...f, status: STATUS_ERLEDIGT, geschlossen_am: zeitpunkt });\n  }\n\n  return { eroeffnen, behalten, schliessen };\n}\n\n// ---- src/nachforderung/stufe.mjs ----\n// Welche Eskalationsstufe ist für einen offenen Fall fällig (ADR-009).\n//\n// Die Stufen stehen in `zustaendigkeiten.yaml`, jede mit `bezug` (welcher\n// Cut-off der Akte) und `vorlauf_stunden`. Die Cut-offs stehen in der Akte\n// unter `fristen`. Fehlt ein Cut-off, ist die Stufe nicht erreichbar, und\n// das Ergebnis sagt warum; ein Datum wird nie erfunden.\n//\n// Eine Stufe je Lauf, und zwischen zwei Versendungen an denselben Fall\n// mindestens `versand.mindestabstand_stunden`. Reine Funktion, der\n// Zeitpunkt kommt herein.\n\nconst STUFE_STOP = 'stop';\n\nconst MILLISEKUNDEN_JE_STUNDE = 3_600_000;\n\nfunction stunden(h) {\n  return Number(h ?? 0) * MILLISEKUNDEN_JE_STUNDE;\n}\n\nfunction zeit(iso) {\n  const t = Date.parse(iso ?? '');\n  return Number.isNaN(t) ? null : t;\n}\n\n/**\n * @param {object} fall   { stufe: zuletzt versandte Stufe oder null, letzter_versand_am }\n * @param {object} fristen { customs_cutoff, carrier_cutoff, eta }, alle optional, ISO\n * @param {object} `zustaendigkeiten` Katalog mit `escalation[]` und `versand`\n * @param {string} jetzt  ISO-Zeitpunkt\n * @returns `{ faellig, stufe, grund, adressat? }`\n */\nfunction faelligeStufe(fall, fristen, zustaendigkeiten, jetzt) {\n  const stufen = zustaendigkeiten.escalation ?? [];\n  const t = zeit(jetzt);\n  if (t === null) return { faellig: false, stufe: null, grund: 'Zeitpunkt fehlt oder ist kein Datum' };\n\n  const index = fall?.stufe ? stufen.findIndex((s) => s.stufe === fall.stufe) : -1;\n  if (fall?.stufe && index < 0) return { faellig: false, stufe: null, grund: `Stufe ${fall.stufe} steht nicht im Katalog` };\n  const naechste = stufen[index + 1];\n  if (!naechste) return { faellig: false, stufe: null, grund: `Letzte Stufe ${fall.stufe} ist erreicht` };\n\n  const abstand = stunden(zustaendigkeiten.versand?.mindestabstand_stunden);\n  const zuletzt = zeit(fall?.letzter_versand_am);\n  if (zuletzt !== null && t - zuletzt < abstand) {\n    return { faellig: false, stufe: naechste.stufe, grund: `Mindestabstand von ${zustaendigkeiten.versand?.mindestabstand_stunden ?? 0} Stunden seit dem letzten Versand nicht erreicht` };\n  }\n\n  if (!naechste.bezug) {\n    return { faellig: true, stufe: naechste.stufe, grund: naechste.zeitpunkt, adressat: naechste.adressat };\n  }\n\n  const cutoff = zeit(fristen?.[naechste.bezug]);\n  if (cutoff === null) {\n    return { faellig: false, stufe: naechste.stufe, grund: `Frist ${naechste.bezug} nicht in der Akte; Stufe ${naechste.stufe} ist ohne sie nicht erreichbar` };\n  }\n  const faelligAb = cutoff - stunden(naechste.vorlauf_stunden);\n  if (t >= faelligAb) {\n    return { faellig: true, stufe: naechste.stufe, grund: `${naechste.zeitpunkt}: ${naechste.bezug} ${fristen[naechste.bezug]}, Vorlauf ${naechste.vorlauf_stunden} h`, adressat: naechste.adressat };\n  }\n  return { faellig: false, stufe: naechste.stufe, grund: `${naechste.stufe} wird fällig ab ${new Date(faelligAb).toISOString()}` };\n}\n\n/**\n * Rolle zu Postfach, aus `versand.verteiler`. Unbekannte Rollen gehen an den\n * Standard, damit keine Nachforderung im Nichts endet; welche Rolle das\n * war, steht daneben.\n */\nfunction postfach(rolle, zustaendigkeiten) {\n  const verteiler = zustaendigkeiten.versand?.verteiler ?? {};\n  return verteiler[rolle] ?? verteiler.standard ?? null;\n}\n\n/**\n * Der ganze Lauf für eine Akte: Abgleich ist Sache von abgleich.mjs, hier\n * bekommt jeder offene oder neu eröffnete Fall seine fällige Stufe und die\n * Postfächer, an die sie geht: Adressat des Falls, Kopie, und ab der\n * zweiten Stufe zusätzlich der Adressat der Stufe.\n */\nfunction planeVersand(faelle, fristen, zustaendigkeiten, jetzt) {\n  return faelle.map((fall) => {\n    const entscheidung = faelligeStufe(fall, fristen, zustaendigkeiten, jetzt);\n    if (!entscheidung.faellig) return { ...fall, versand: entscheidung };\n    const rollen = [fall.adressat, fall.adressat_kopie, entscheidung.adressat === 'primaer' ? null : entscheidung.adressat]\n      .filter(Boolean);\n    const an = [...new Set(rollen.map((r) => postfach(r, zustaendigkeiten)).filter(Boolean))];\n    // Betreff und Text der Stufe entstehen hier, nicht im Workflow: Was in\n    // der Mail steht, ist eine Aussage des Regelwerks über die Akte.\n    const betreff = `[${entscheidung.stufe}] ${fall.betreff ?? `Nachforderung ${fall.grund}`}`;\n    const text = `${fall.text ?? ''}\\n\\nStufe: ${entscheidung.stufe} (${entscheidung.grund})`;\n    return { ...fall, versand: { ...entscheidung, rollen, an, betreff, text } };\n  });\n}\n\n\n// ---- n8n-Einstieg ----\n// Ein Item je Akte, zwei Phasen desselben Codes (ADR-009):\n//   phase \"abgleichen\": { akte_id, nachforderungen, offene, jetzt? }\n//     → was eröffnet, behalten, erledigt wird\n//   phase \"planen\":     { akte_id, fristen, faelle, jetzt? }\n//     → je Fall die fällige Stufe mit Adresse oder der Grund, warum nicht\n// Der Zeitpunkt kommt aus dem Item (Rauchtest, Betrieb) oder aus dem\n// Transport; in src/ gibt es keine Uhr.\nreturn $input.all().map((item) => {\n  const e = item.json;\n  const jetzt = e.jetzt ?? new Date().toISOString();\n  if (e.phase === 'planen') {\n    const geplant = planeVersand(e.faelle ?? [], e.fristen ?? {}, KATALOG.zustaendigkeiten, jetzt);\n    return { json: { akte_id: e.akte_id, jetzt, phase: 'planen', versenden: geplant.filter((f) => f.versand.faellig), wartend: geplant.filter((f) => !f.versand.faellig) } };\n  }\n  const { eroeffnen, behalten, schliessen } = gleicheAb(e.offene ?? [], e.nachforderungen ?? [], jetzt);\n  return { json: { akte_id: e.akte_id, pruefung_id: e.pruefung_id ?? null, fristen: e.fristen ?? {}, jetzt, phase: 'abgleichen', eroeffnen, behalten, schliessen } };\n});\n"
+      },
+      "id": "entscheiden",
+      "name": "Nachforderungen entscheiden",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        780,
+        300
+      ],
+      "notes": "GENERIERT von scripts/n8n-bundle.mjs aus src/nachforderung/ (Abgleich: eroeffnen, behalten, erledigen). Nicht von Hand aendern."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH e AS (SELECT $1::jsonb AS d),\nneu AS (\n  INSERT INTO request_case (akte_id, grund, feld, adressat, adressat_kopie, betreff, text, eroeffnet_am, pruefung_id)\n  SELECT (SELECT d->>'akte_id' FROM e), x.grund, x.feld, x.adressat, x.adressat_kopie, x.betreff, x.text,\n         (SELECT (d->>'jetzt')::timestamptz FROM e), (SELECT NULLIF(d->>'pruefung_id', '')::bigint FROM e)\n  FROM jsonb_to_recordset((SELECT d->'eroeffnen' FROM e)) AS x(grund text, feld text, adressat text, adressat_kopie text, betreff text, text text)\n  RETURNING id),\nzu AS (\n  UPDATE request_case r SET status = 'erledigt', geschlossen_am = (SELECT (d->>'jetzt')::timestamptz FROM e)\n  FROM jsonb_to_recordset((SELECT d->'schliessen' FROM e)) AS y(id bigint)\n  WHERE r.id = y.id RETURNING r.id),\nbleibt AS (\n  UPDATE request_case r SET betreff = z.betreff, text = z.text, adressat = z.adressat, adressat_kopie = z.adressat_kopie\n  FROM jsonb_to_recordset((SELECT d->'behalten' FROM e)) AS z(id bigint, betreff text, text text, adressat text, adressat_kopie text)\n  WHERE r.id = z.id RETURNING r.id)\nSELECT (SELECT d->>'akte_id' FROM e) AS akte_id,\n       (SELECT d->>'jetzt' FROM e) AS jetzt,\n       (SELECT d->'fristen' FROM e) AS fristen,\n       (SELECT count(*) FROM neu) AS eroeffnet,\n       (SELECT count(*) FROM zu) AS erledigt,\n       (SELECT count(*) FROM bleibt) AS behalten",
+        "options": {
+          "queryReplacement": "={{ [ JSON.stringify($json) ] }}"
+        }
+      },
+      "id": "schreiben",
+      "name": "Abgleich schreiben",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1040,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "notes": "Fuehrt aus, was der Code-Node entschieden hat: neue Faelle anlegen, erledigte schliessen, bestehende mit dem aktuellen Text versehen. Eine Anweisung, ein Parameter (das ganze Ergebnis als JSON)."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT $1::text AS akte_id, $2::text AS jetzt, $3::jsonb AS fristen, 'planen' AS phase,\n  COALESCE((SELECT jsonb_agg(to_jsonb(r)) FROM request_case r WHERE r.akte_id = $1::text AND r.status = 'offen'), '[]'::jsonb) AS faelle",
+        "options": {
+          "queryReplacement": "={{ [ $json.akte_id, $json.jetzt, JSON.stringify($json.fristen ?? {}) ] }}"
+        }
+      },
+      "id": "faelle-lesen",
+      "name": "Offene Fälle lesen",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1300,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "notes": "Noch einmal lesen, jetzt mit den Kennungen der eben angelegten Faelle: Ein schreibendes CTE sieht seine eigenen Zeilen nicht."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// GENERIERT von scripts/n8n-bundle.mjs — nicht von Hand ändern.\n// Quelle: 2 Module aus src/ und zustaendigkeiten.yaml.\n// Katalogversion 0.1.0, gültig ab 2026-09-12.\n\nconst KATALOG = {\"zustaendigkeiten\":{\"version\":\"0.1.0\",\"owners\":{\"rechnung\":{\"primaer\":\"Lieferant/Verkäufer\",\"sekundaer\":\"Einkauf\",\"ausloeser\":\"Bestellung bestätigt\"},\"packliste\":{\"primaer\":\"Lieferant/Packbetrieb\",\"sekundaer\":\"Spediteur/Lager\",\"ausloeser\":\"Ware gepackt\"},\"bill_of_lading\":{\"primaer\":\"Seefrachtspediteur/Carrier\",\"sekundaer\":\"Shipper\",\"ausloeser\":\"SI-Cut-off / On-board\"},\"praeferenznachweis\":{\"primaer\":\"Exporteur/Lieferant\",\"sekundaer\":\"Ursprungsstelle\",\"ausloeser\":\"vor Ausfuhr\"},\"anmeldung\":{\"primaer\":\"Zollvertreter/Spediteur\",\"sekundaer\":\"interne Zollabteilung\",\"ausloeser\":\"nach Überlassung\"},\"abd\":{\"primaer\":\"Zollvertreter/Spediteur\",\"sekundaer\":\"interne Zollabteilung\",\"ausloeser\":\"nach Überlassung\"},\"sachverhalt\":{\"primaer\":\"Sachbearbeitung Export\",\"sekundaer\":\"Vertrieb\",\"ausloeser\":\"Auftragsanlage\"},\"dokumente\":{\"primaer\":\"Sachbearbeitung Export\",\"sekundaer\":\"Spediteur\",\"ausloeser\":\"Eingang der finalen Fassung\"}},\"escalation\":[{\"stufe\":\"erinnerung_0\",\"zeitpunkt\":\"sofort nach Feststellung\",\"bezug\":null,\"vorlauf_stunden\":0,\"adressat\":\"primaer\"},{\"stufe\":\"erinnerung_1\",\"zeitpunkt\":\"vor internem Customs Cut-off\",\"bezug\":\"customs_cutoff\",\"vorlauf_stunden\":48,\"adressat\":\"primaer + operativer Sachbearbeiter\"},{\"stufe\":\"eskalation_1\",\"zeitpunkt\":\"vor Carrier-/Terminal-Cut-off\",\"bezug\":\"carrier_cutoff\",\"vorlauf_stunden\":48,\"adressat\":\"Teamleitung\"},{\"stufe\":\"eskalation_2\",\"zeitpunkt\":\"vor ETA/Abholung\",\"bezug\":\"eta\",\"vorlauf_stunden\":72,\"adressat\":\"Einkauf, Logistikleitung, Zollverantwortlicher\"},{\"stufe\":\"stop\",\"zeitpunkt\":\"Cut-off erreicht\",\"bezug\":\"carrier_cutoff\",\"vorlauf_stunden\":0,\"adressat\":\"Anmeldung, Verladung oder Freigabe blockieren\"}],\"versand\":{\"mindestabstand_stunden\":24,\"verteiler\":{\"standard\":\"sachbearbeitung@zollpilot.test\",\"Lieferant/Verkäufer\":\"lieferant@zollpilot.test\",\"Lieferant/Packbetrieb\":\"lieferant@zollpilot.test\",\"Exporteur/Lieferant\":\"lieferant@zollpilot.test\",\"Seefrachtspediteur/Carrier\":\"spediteur@zollpilot.test\",\"Zollvertreter/Spediteur\":\"spediteur@zollpilot.test\",\"Sachbearbeitung Export\":\"sachbearbeitung@zollpilot.test\",\"Teamleitung\":\"teamleitung@zollpilot.test\",\"Extraktion (Nachlesen)\":\"sachbearbeitung@zollpilot.test\"}}}};\n\n// ---- src/nachforderung/abgleich.mjs ----\n// Abgleich der Nachforderungen mit ihrem Zustand (ADR-009).\n//\n// Eingang: die offenen Fälle aus `request_case` und die Nachforderungen der\n// letzten Prüfung. Ausgang: was eröffnet wird, was bestehen bleibt, was\n// erledigt ist. Der Schlüssel eines Falls ist Grund und Feld; derselbe\n// fehlende Wert bleibt derselbe Fall, auch wenn die Akte dreimal geprüft\n// wird. Das ist die Idempotenz: Ein erneuter Eingang eröffnet keinen zweiten\n// Fall und setzt keine Stufe zurück.\n//\n// Reine Funktion. Der Zeitpunkt kommt als Parameter, wie überall in src/.\n\nconst STATUS_OFFEN = 'offen';\nconst STATUS_ERLEDIGT = 'erledigt';\n\nfunction fallSchluessel(fall) {\n  return `${fall.grund}|${fall.feld}`;\n}\n\n/**\n * @param {Array} offene   Zeilen aus request_case mit status offen\n * @param {Array} neue     ergebnis.nachforderungen der letzten Prüfung\n * @param {string} zeitpunkt ISO-Zeitpunkt des Abgleichs\n */\nfunction gleicheAb(offene, neue, zeitpunkt) {\n  const offenNach = new Map((offene ?? []).map((f) => [fallSchluessel(f), f]));\n  const neuNach = new Map((neue ?? []).map((n) => [fallSchluessel(n), n]));\n\n  const eroeffnen = [];\n  const behalten = [];\n  for (const [schluessel, n] of neuNach) {\n    const bestehend = offenNach.get(schluessel);\n    if (bestehend) {\n      // Der Text darf sich ändern (neue Begründung nach erneuter Prüfung),\n      // die Stufe und das Versanddatum bleiben: Es ist derselbe Fall.\n      behalten.push({ ...bestehend, betreff: n.betreff, text: n.text, adressat: n.adressat.primaer, adressat_kopie: n.adressat.sekundaer ?? null });\n    } else {\n      eroeffnen.push({\n        grund: n.grund,\n        feld: n.feld,\n        adressat: n.adressat.primaer,\n        adressat_kopie: n.adressat.sekundaer ?? null,\n        betreff: n.betreff,\n        text: n.text,\n        stufe: null,\n        status: STATUS_OFFEN,\n        eroeffnet_am: zeitpunkt,\n      });\n    }\n  }\n\n  const schliessen = [];\n  for (const [schluessel, f] of offenNach) {\n    if (!neuNach.has(schluessel)) schliessen.push({ ...f, status: STATUS_ERLEDIGT, geschlossen_am: zeitpunkt });\n  }\n\n  return { eroeffnen, behalten, schliessen };\n}\n\n// ---- src/nachforderung/stufe.mjs ----\n// Welche Eskalationsstufe ist für einen offenen Fall fällig (ADR-009).\n//\n// Die Stufen stehen in `zustaendigkeiten.yaml`, jede mit `bezug` (welcher\n// Cut-off der Akte) und `vorlauf_stunden`. Die Cut-offs stehen in der Akte\n// unter `fristen`. Fehlt ein Cut-off, ist die Stufe nicht erreichbar, und\n// das Ergebnis sagt warum; ein Datum wird nie erfunden.\n//\n// Eine Stufe je Lauf, und zwischen zwei Versendungen an denselben Fall\n// mindestens `versand.mindestabstand_stunden`. Reine Funktion, der\n// Zeitpunkt kommt herein.\n\nconst STUFE_STOP = 'stop';\n\nconst MILLISEKUNDEN_JE_STUNDE = 3_600_000;\n\nfunction stunden(h) {\n  return Number(h ?? 0) * MILLISEKUNDEN_JE_STUNDE;\n}\n\nfunction zeit(iso) {\n  const t = Date.parse(iso ?? '');\n  return Number.isNaN(t) ? null : t;\n}\n\n/**\n * @param {object} fall   { stufe: zuletzt versandte Stufe oder null, letzter_versand_am }\n * @param {object} fristen { customs_cutoff, carrier_cutoff, eta }, alle optional, ISO\n * @param {object} `zustaendigkeiten` Katalog mit `escalation[]` und `versand`\n * @param {string} jetzt  ISO-Zeitpunkt\n * @returns `{ faellig, stufe, grund, adressat? }`\n */\nfunction faelligeStufe(fall, fristen, zustaendigkeiten, jetzt) {\n  const stufen = zustaendigkeiten.escalation ?? [];\n  const t = zeit(jetzt);\n  if (t === null) return { faellig: false, stufe: null, grund: 'Zeitpunkt fehlt oder ist kein Datum' };\n\n  const index = fall?.stufe ? stufen.findIndex((s) => s.stufe === fall.stufe) : -1;\n  if (fall?.stufe && index < 0) return { faellig: false, stufe: null, grund: `Stufe ${fall.stufe} steht nicht im Katalog` };\n  const naechste = stufen[index + 1];\n  if (!naechste) return { faellig: false, stufe: null, grund: `Letzte Stufe ${fall.stufe} ist erreicht` };\n\n  const abstand = stunden(zustaendigkeiten.versand?.mindestabstand_stunden);\n  const zuletzt = zeit(fall?.letzter_versand_am);\n  if (zuletzt !== null && t - zuletzt < abstand) {\n    return { faellig: false, stufe: naechste.stufe, grund: `Mindestabstand von ${zustaendigkeiten.versand?.mindestabstand_stunden ?? 0} Stunden seit dem letzten Versand nicht erreicht` };\n  }\n\n  if (!naechste.bezug) {\n    return { faellig: true, stufe: naechste.stufe, grund: naechste.zeitpunkt, adressat: naechste.adressat };\n  }\n\n  const cutoff = zeit(fristen?.[naechste.bezug]);\n  if (cutoff === null) {\n    return { faellig: false, stufe: naechste.stufe, grund: `Frist ${naechste.bezug} nicht in der Akte; Stufe ${naechste.stufe} ist ohne sie nicht erreichbar` };\n  }\n  const faelligAb = cutoff - stunden(naechste.vorlauf_stunden);\n  if (t >= faelligAb) {\n    return { faellig: true, stufe: naechste.stufe, grund: `${naechste.zeitpunkt}: ${naechste.bezug} ${fristen[naechste.bezug]}, Vorlauf ${naechste.vorlauf_stunden} h`, adressat: naechste.adressat };\n  }\n  return { faellig: false, stufe: naechste.stufe, grund: `${naechste.stufe} wird fällig ab ${new Date(faelligAb).toISOString()}` };\n}\n\n/**\n * Rolle zu Postfach, aus `versand.verteiler`. Unbekannte Rollen gehen an den\n * Standard, damit keine Nachforderung im Nichts endet; welche Rolle das\n * war, steht daneben.\n */\nfunction postfach(rolle, zustaendigkeiten) {\n  const verteiler = zustaendigkeiten.versand?.verteiler ?? {};\n  return verteiler[rolle] ?? verteiler.standard ?? null;\n}\n\n/**\n * Der ganze Lauf für eine Akte: Abgleich ist Sache von abgleich.mjs, hier\n * bekommt jeder offene oder neu eröffnete Fall seine fällige Stufe und die\n * Postfächer, an die sie geht: Adressat des Falls, Kopie, und ab der\n * zweiten Stufe zusätzlich der Adressat der Stufe.\n */\nfunction planeVersand(faelle, fristen, zustaendigkeiten, jetzt) {\n  return faelle.map((fall) => {\n    const entscheidung = faelligeStufe(fall, fristen, zustaendigkeiten, jetzt);\n    if (!entscheidung.faellig) return { ...fall, versand: entscheidung };\n    const rollen = [fall.adressat, fall.adressat_kopie, entscheidung.adressat === 'primaer' ? null : entscheidung.adressat]\n      .filter(Boolean);\n    const an = [...new Set(rollen.map((r) => postfach(r, zustaendigkeiten)).filter(Boolean))];\n    // Betreff und Text der Stufe entstehen hier, nicht im Workflow: Was in\n    // der Mail steht, ist eine Aussage des Regelwerks über die Akte.\n    const betreff = `[${entscheidung.stufe}] ${fall.betreff ?? `Nachforderung ${fall.grund}`}`;\n    const text = `${fall.text ?? ''}\\n\\nStufe: ${entscheidung.stufe} (${entscheidung.grund})`;\n    return { ...fall, versand: { ...entscheidung, rollen, an, betreff, text } };\n  });\n}\n\n\n// ---- n8n-Einstieg ----\n// Ein Item je Akte, zwei Phasen desselben Codes (ADR-009):\n//   phase \"abgleichen\": { akte_id, nachforderungen, offene, jetzt? }\n//     → was eröffnet, behalten, erledigt wird\n//   phase \"planen\":     { akte_id, fristen, faelle, jetzt? }\n//     → je Fall die fällige Stufe mit Adresse oder der Grund, warum nicht\n// Der Zeitpunkt kommt aus dem Item (Rauchtest, Betrieb) oder aus dem\n// Transport; in src/ gibt es keine Uhr.\nreturn $input.all().map((item) => {\n  const e = item.json;\n  const jetzt = e.jetzt ?? new Date().toISOString();\n  if (e.phase === 'planen') {\n    const geplant = planeVersand(e.faelle ?? [], e.fristen ?? {}, KATALOG.zustaendigkeiten, jetzt);\n    return { json: { akte_id: e.akte_id, jetzt, phase: 'planen', versenden: geplant.filter((f) => f.versand.faellig), wartend: geplant.filter((f) => !f.versand.faellig) } };\n  }\n  const { eroeffnen, behalten, schliessen } = gleicheAb(e.offene ?? [], e.nachforderungen ?? [], jetzt);\n  return { json: { akte_id: e.akte_id, pruefung_id: e.pruefung_id ?? null, fristen: e.fristen ?? {}, jetzt, phase: 'abgleichen', eroeffnen, behalten, schliessen } };\n});\n"
+      },
+      "id": "planen",
+      "name": "Versand planen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        300
+      ],
+      "notes": "GENERIERT von scripts/n8n-bundle.mjs, derselbe Code wie \"Nachforderungen entscheiden\", Phase planen: je Fall die faellige Stufe mit Postfaechern, Betreff und Text, oder der Grund, warum nichts faellig ist."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Transport: je fälligem Versand ein Item für den Mail-Node. Text, Betreff\n// und Empfänger kommen fertig aus src/ (Versand planen); hier wird nur\n// aufgeteilt. Nichts fällig, keine Items, kein Versand.\nconst aus = [];\nfor (const item of $input.all()) {\n  const e = item.json;\n  for (const f of e.versenden ?? []) {\n    aus.push({ json: {\n      akte_id: e.akte_id, jetzt: e.jetzt, request_case_id: f.id, grund: f.grund, feld: f.feld,\n      stufe: f.versand.stufe, an: (f.versand.an ?? []).join(','), rollen: (f.versand.rollen ?? []).join(', '),\n      betreff: f.versand.betreff, text: f.versand.text,\n    } });\n  }\n}\nreturn aus;"
+      },
+      "id": "aufteilen",
+      "name": "Versand aufteilen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1820,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "zollpilot@zollpilot.test",
+        "toEmail": "={{ $json.an }}",
+        "subject": "={{ $json.betreff }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {}
+      },
+      "id": "senden",
+      "name": "Nachforderung senden",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2080,
+        300
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "zollpilot-greenmail-smtp",
+          "name": "ZollPilot GreenMail SMTP"
+        }
+      },
+      "notes": "SMTP an GreenMail (compose.yml). Im Zielsystem: die echte SMTP-Credential, sonst nichts. Scheitert der Versand, scheitert der Lauf sichtbar (Fehler-Workflow), und die Stufe gilt nicht als versandt, weil erst der naechste Node sie festhaelt."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH v AS (\n  INSERT INTO request_versand (request_case_id, stufe, an, betreff, versandt_am)\n  VALUES ($1::bigint, $2::text, $3::text, $4::text, $5::timestamptz) RETURNING id)\nUPDATE request_case SET stufe = $2::text, letzter_versand_am = $5::timestamptz\nWHERE id = $1::bigint RETURNING id, akte_id, grund, feld, stufe, letzter_versand_am",
+        "options": {
+          "queryReplacement": "={{ [ $('Versand aufteilen').item.json.request_case_id, $('Versand aufteilen').item.json.stufe, $('Versand aufteilen').item.json.an, $('Versand aufteilen').item.json.betreff, $('Versand aufteilen').item.json.jetzt ] }}"
+        }
+      },
+      "id": "festhalten",
+      "name": "Versand festhalten",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2340,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "notes": "Erst nach erfolgreichem Versand: Zeile in request_versand (wer, wann, welche Stufe) und die Stufe am Fall. Das ist die Zeile, die eine Zollpruefung nach drei Jahren sehen will."
+    },
+    {
+      "parameters": {
+        "content": "## Nachforderungen\n\nTäglich oder auf Zuruf. Liest je Akte die letzte Prüfung und die offenen Fälle, entscheidet in zwei Bundle-Nodes aus `src/nachforderung/`, schreibt nach `request_case`, versendet über GreenMail, hält den Versand in `request_versand` fest.\n\nEntscheidung: nur in den generierten Nodes. Stufen, Vorlauf und Verteiler stehen in `zustaendigkeiten.yaml` (ADR-009).",
+        "height": 220,
+        "width": 420
+      },
+      "id": "notiz",
+      "name": "Notiz",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -60
+      ]
+    }
+  ],
+  "connections": {
+    "Täglich": {
+      "main": [
+        [
+          {
+            "node": "Lauf vorbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Versand angefordert": {
+      "main": [
+        [
+          {
+            "node": "Lauf vorbereiten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lauf vorbereiten": {
+      "main": [
+        [
+          {
+            "node": "Letzte Prüfung und offene Fälle lesen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Letzte Prüfung und offene Fälle lesen": {
+      "main": [
+        [
+          {
+            "node": "Nachforderungen entscheiden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nachforderungen entscheiden": {
+      "main": [
+        [
+          {
+            "node": "Abgleich schreiben",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Abgleich schreiben": {
+      "main": [
+        [
+          {
+            "node": "Offene Fälle lesen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Offene Fälle lesen": {
+      "main": [
+        [
+          {
+            "node": "Versand planen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Versand planen": {
+      "main": [
+        [
+          {
+            "node": "Versand aufteilen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Versand aufteilen": {
+      "main": [
+        [
+          {
+            "node": "Nachforderung senden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nachforderung senden": {
+      "main": [
+        [
+          {
+            "node": "Versand festhalten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

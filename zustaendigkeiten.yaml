@@ -39,19 +39,55 @@ owners:
     ausloeser: Eingang der finalen Fassung
 
 # Eskalation als relative Ereignisse, nicht als Kalendertage (docs/05).
+#
+# `bezug` nennt den Cut-off der Akte (fristen.customs_cutoff,
+# fristen.carrier_cutoff, fristen.eta), `vorlauf_stunden`, wie lange davor
+# die Stufe fällig wird. Fehlt der Cut-off in der Akte, ist die Stufe nicht
+# erreichbar; das System sagt das, statt ein Datum zu erfinden (ADR-009).
+# Die Stundenwerte sind Praxisannahme (docs/05: 24 bis 72 Stunden vor dem
+# Cut-off, Rhythmus sofort, 24 h, 48 h, 72 h), nicht kodifiziert.
 escalation:
   - stufe: erinnerung_0
     zeitpunkt: sofort nach Feststellung
+    bezug: null
+    vorlauf_stunden: 0
     adressat: primaer
   - stufe: erinnerung_1
     zeitpunkt: vor internem Customs Cut-off
+    bezug: customs_cutoff
+    vorlauf_stunden: 48
     adressat: primaer + operativer Sachbearbeiter
   - stufe: eskalation_1
     zeitpunkt: vor Carrier-/Terminal-Cut-off
+    bezug: carrier_cutoff
+    vorlauf_stunden: 48
     adressat: Teamleitung
   - stufe: eskalation_2
     zeitpunkt: vor ETA/Abholung
+    bezug: eta
+    vorlauf_stunden: 72
     adressat: Einkauf, Logistikleitung, Zollverantwortlicher
   - stufe: stop
     zeitpunkt: Cut-off erreicht
+    bezug: carrier_cutoff
+    vorlauf_stunden: 0
     adressat: Anmeldung, Verladung oder Freigabe blockieren
+
+# Versand: zwischen zwei Stufen an denselben Fall liegen mindestens so viele
+# Stunden, auch wenn mehrere Stufen zugleich fällig wären. Eine Stufe je
+# Lauf; der Zeitplan-Workflow läuft täglich.
+versand:
+  mindestabstand_stunden: 24
+  # Rolle zu Postfach. Das ist Stammdatenpflege, die es nicht gibt
+  # (docs/OFFENE-PUNKTE.md); die Adressen hier sind das Demo-Postfach in
+  # GreenMail (compose.yml) und im Zielsystem durch den Verteiler zu ersetzen.
+  verteiler:
+    standard: sachbearbeitung@zollpilot.test
+    Lieferant/Verkäufer: lieferant@zollpilot.test
+    Lieferant/Packbetrieb: lieferant@zollpilot.test
+    Exporteur/Lieferant: lieferant@zollpilot.test
+    Seefrachtspediteur/Carrier: spediteur@zollpilot.test
+    Zollvertreter/Spediteur: spediteur@zollpilot.test
+    Sachbearbeitung Export: sachbearbeitung@zollpilot.test
+    Teamleitung: teamleitung@zollpilot.test
+    Extraktion (Nachlesen): sachbearbeitung@zollpilot.test

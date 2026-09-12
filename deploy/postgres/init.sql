@@ -92,16 +92,37 @@ SELECT p.id AS pruefung_id, p.akte_id, p.geprueft_am,
        b->>'regelversion' AS regelversion, b->>'begruendung' AS begruendung
 FROM pruefung p, jsonb_array_elements(p.ergebnis->'befunde') b;
 
+-- Eine Nachforderung als Vorgang (ADR-009): eröffnet von einer Prüfung,
+-- versandt in Stufen, erledigt, sobald eine Prüfung den Wert nicht mehr
+-- vermisst. Schlüssel eines Falls ist (akte_id, grund, feld); je Akte ist
+-- ein Fall höchstens einmal offen. Der Text ist der tatsächlich versandte.
 CREATE TABLE request_case (
   id                bigserial PRIMARY KEY,
   akte_id           text NOT NULL,
   grund             text NOT NULL,          -- Regel- oder Pflichtmatrix-ID
   feld              text NOT NULL,
-  adressat          text NOT NULL,
-  stufe             text NOT NULL DEFAULT 'erinnerung_0',
-  gesendet_am       timestamptz,
-  beantwortet_am    timestamptz,
-  status            text NOT NULL DEFAULT 'offen'
+  adressat          text NOT NULL,          -- Rolle laut zustaendigkeiten.yaml
+  adressat_kopie    text,
+  betreff           text,
+  text              text,
+  stufe             text,                   -- zuletzt versandte Stufe; NULL: noch nichts versandt
+  letzter_versand_am timestamptz,
+  eroeffnet_am      timestamptz NOT NULL DEFAULT now(),
+  geschlossen_am    timestamptz,
+  pruefung_id       bigint REFERENCES pruefung(id),
+  status            text NOT NULL DEFAULT 'offen'   -- offen | erledigt
+);
+CREATE UNIQUE INDEX request_case_offen_idx ON request_case (akte_id, grund, feld) WHERE status = 'offen';
+
+-- Jeder Versand einer Stufe, mit Empfänger und Zeitpunkt. Das ist die Zeile,
+-- die eine Zollprüfung sehen will: wer wann woran erinnert wurde.
+CREATE TABLE request_versand (
+  id                bigserial PRIMARY KEY,
+  request_case_id   bigint NOT NULL REFERENCES request_case(id),
+  stufe             text NOT NULL,
+  an                text NOT NULL,
+  betreff           text,
+  versandt_am       timestamptz NOT NULL DEFAULT now()
 );
 
 -- Fehler aus dem Error-Workflow. Keine Nutzdaten der Akte.

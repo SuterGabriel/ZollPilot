@@ -2,6 +2,11 @@
   "akte_id": "ZP-2026-0001",
   "beschreibung": "Happy Path: vollständige, widerspruchsfreie Akte. Gewichtsabweichung 6 kg liegt innerhalb der Toleranz.",
   "stichtag": "2026-09-12",
+  "fristen": {
+    "customs_cutoff": "2026-09-15T16:00:00+02:00",
+    "carrier_cutoff": "2026-09-17T12:00:00+02:00",
+    "eta": "2026-10-20T08:00:00+08:00"
+  },
   "sachverhalt": {
     "richtung": "export_third_country",
     "verkehrstraeger": "sea",

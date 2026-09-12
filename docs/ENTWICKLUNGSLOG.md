@@ -619,3 +619,51 @@ fand die Fehler. Deshalb liegen die Aufzeichnungen jetzt im Repo und
 Aufzeichnen und Korrektur etwa eine Stunde Agentenzeit. Von Hand geschätzt:
 ein halber Tag, davon der größte Teil für das Nachvollziehen, warum eine
 Tabelle auf einem schiefen Scan auseinanderfällt. Schätzung, keine Messung.
+
+## 2026-09-12: Stufe 6, erster Teil: die Nachforderung wird ein Vorgang
+
+**Was delegiert wurde.** „Mach mir den Rest“, ohne Nennung eines
+Modellanbieters. Daraus die Entscheidung, mit der asynchronen Akte zu
+beginnen, weil sie sich ohne Zugänge beweisen lässt: ADR-009, Fristen als
+Stammdaten je Akte, Stufen mit Bezug und Vorlauf in den Zuständigkeiten,
+zwei reine Funktionen für Abgleich und fällige Stufe, das Schema für Fälle
+und Versand, ein Nachforderungs-Workflow mit zwei gebündelten Code-Nodes,
+GreenMail als Postfach in beide Richtungen, Runde 8 im Rauchtest.
+
+**Die Entscheidung, an der alles hängt.** Der Abgleich läuft nicht im
+Prüf-Workflow, sondern in einem eigenen. Der Prüfpfad bleibt, was er war,
+und der Zustand hat genau einen Schreiber. Der Preis ist bekannt und steht
+in der ADR: Ein Eingang schließt seinen Fall erst beim nächsten Lauf. Die
+zweite Entscheidung: kein erfundenes Datum. Eine Stufe, deren Cut-off die
+Akte nicht kennt, ist nicht erreichbar, und das Ergebnis sagt das.
+
+**Was gut lief.** Die reinen Funktionen waren nach fünfzehn Tests fertig,
+bevor ein Workflow existierte, und der Workflow hat sie beim ersten Lauf
+korrekt aufgerufen: zwei Fälle eröffnet, Stufe leer. Der Bündler hat das
+zweite Ziel ohne Umbau der Regelwerkseite gelernt; derselbe Code steht in
+zwei Nodes, weil der Workflow dazwischen liest und schreibt und ein
+schreibendes CTE seine eigenen Zeilen nicht sieht.
+
+**Was nicht funktionierte.** Zweimal GreenMail, beides Betriebswissen,
+nicht Konzept. Erstens hat das Image weder `wget` noch `curl`; der
+Healthcheck blieb ewig auf „starting“, `--wait` mit ihm. Es hat `bash`,
+und ein Verbindungstest über `/dev/tcp` tut es. Zweitens: Bei abgeschalteter
+Authentifizierung legt GreenMail jeden unbekannten Anmeldenamen neu an. Die
+Credential trug die Adresse als Anmeldename, der vorangelegte Benutzer
+hieß `zollpilot` mit derselben Adresse, der Server warf eine Ausnahme und
+schloss die Verbindung. n8n sah nur „Connection closed unexpectedly“; das
+GreenMail-Log sagte den Grund. Anmeldename statt Adresse, und der Versand
+lief.
+
+**Was die Testsuite abgefangen hat.** Die Handprobe vor dem Rauchtest: Sie
+zeigte die eröffneten Fälle und den gescheiterten Versand in
+`workflow_fehler`, mit dem Node-Namen. Ohne die Zeile hätte die Suche beim
+Mail-Node begonnen statt beim Postfach. Der Beleg-Check verlangt jetzt,
+dass `stufe.mjs` keine Uhr enthält; das ist die Zusage aus der ADR als
+Gate.
+
+**Zeitschätzung.** Delegiert: knapp zwei Stunden Agentenzeit, davon ein
+Drittel an den zwei GreenMail-Eigenheiten. Von Hand geschätzt: drei bis
+vier Tage, der größte Teil für das Zustandsmodell und den Beweis über
+Zeit. Schätzung, keine Messung. Der Rückweg (Antwort mit Anhang in die
+Akte), die Identität am Proxy und der Übersichtsbildschirm stehen noch aus.
