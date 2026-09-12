@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Die Pipeline prüft, sie veröffentlicht nichts. Mehr Rechte braucht sie nicht.
+# Jede Action ist auf einen Commit gepinnt; die Hauptversion steht als
+# Kommentar dahinter. Ein Tag kann verschoben werden, ein Commit nicht.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Zwei Zwecke: Qualität sichern und als Geländer für agentische Änderungen
+# dienen. Ein Agent, der gegen eine Projektregel verstößt, bekommt hier ein
+# rotes Ergebnis statt eines Review-Kommentars, den niemand schreibt.
+
+jobs:
+  belege:
+    name: Beleg-Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Belege prüfen
+        run: bash scripts/beleg-check.sh
+
+  dokumente:
+    name: Prosa und Verweise
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+      # Der Git-Hook prüft nur vorgemerkte Dateien und ist umgehbar. Hier
+      # läuft dieselbe Prüfung über den ganzen Baum.
+      - name: Prosa prüfen
+        run: node scripts/prosa-check.mjs
+      - name: Verweise prüfen
+        run: node scripts/link-check.mjs
+
+  regeln:
+    name: Regeln sind Daten
+    runs-on: ubuntu-latest
+    # Katalog vollständig, docs/03 deckungsgleich, jede Regel mit Code und
+    # Test, keine nackte Zahl in src/regeln/ (ADR-002). Falscher Code fällt
+    # im Test auf, falsche Fachlogik nicht — das ist der Job, der das abfängt.
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Regel-Check
+        run: node scripts/regel-check.mjs
+      # Das Gate wird selbst getestet, mit den Fixtures für die Fälle, die
+      # stumm bleiben könnten.
+      - name: Regel-Check testen
+        run: node --test scripts/regel-check.test.mjs
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Validatoren, Regeln, Akte, Testakten
+        run: npm test
+      # Die Testakten im Repo müssen die sein, die der Generator erzeugt.
+      - name: Testakten sind reproduzierbar
+        run: node testdaten/erzeuge-akten.mjs && git diff --exit-code -- testdaten/akten
+
+  workflows:
+    name: Workflow ist Artefakt
+    runs-on: ubuntu-latest
+    # Der Code-Node muss aus dem aktuellen src/ stammen (ADR-004), und die
+    # Workflow-Dateien müssen strukturell gültig und frei von Geheimnissen sein.
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Bundle ist aktuell
+        run: node scripts/n8n-bundle.mjs --check
+      - name: Workflow-Struktur
+        run: node scripts/workflow-check.mjs
+
+  betrieb:
+    name: Stack läuft und entscheidet
+    runs-on: ubuntu-latest
+    needs: [tests, workflows]
+    # Der teuerste Job und der einzige, der beweist, dass Compose, Import,
+    # gebündelter Code-Node, Schema und Webhook zusammen funktionieren:
+    # Stack hochfahren, sieben Akten über den echten Webhook, Entscheidungen
+    # gegen die Erwartung, Prüfungen in Postgres.
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+      - name: Umgebung
+        run: cp .env.example .env
+      - name: Stack hochfahren
+        run: docker compose up -d --wait
+      - name: Rauchtest
+        run: bash scripts/rauchtest.sh
+      - name: Logs bei Fehler
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Stack abbauen
+        if: always()
+        run: docker compose down -v

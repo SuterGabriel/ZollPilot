@@ -1,0 +1,79 @@
+# Pflichtmatrix des MVP-Sachverhalts: Ausfuhr Drittland, Seefracht FCL,
+# Präferenz beansprucht. Instanziiert aus docs/02-pflichtmatrix.md.
+#
+# Modellierungsregel (CLAUDE.md, Prinzip 1): geprüft wird nicht "liegt Beleg X
+# vor", sondern "ist Datum Y nachgewiesen". Deshalb drei Ebenen je Eintrag:
+#   required_data          welcher Aktenwert belegt sein muss (Pfad in den Fakten)
+#   required_evidence      welche Belegtypen diesen Wert tragen dürfen
+#   required_document_form ob eine bestimmte Form vorgeschrieben ist (meist nicht)
+#
+# Ein Eintrag ist erfüllt, wenn der Fakt aus einem finalen Dokument eines
+# zugelassenen Typs stammt. Fehlt er, entsteht ein Befund PFL-nn und daraus eine
+# Nachforderung an den Dateninhaber (`zustaendigkeiten.yaml`).
+
+version: "0.1.0"
+valid_from: "2026-09-12"
+scope:
+  direction: export_third_country
+  mode: sea
+  preference_claimed: true
+
+entries:
+
+  - id: PFL-01
+    required_data: rechnung.gesamt
+    label: Rechnungsbetrag als Bewertungsgrundlage
+    required_evidence: [handelsrechnung, proformarechnung]
+    required_document_form: none
+    hardness: hard
+    legal_basis: "Art. 163 UZK, Art. 145 UZK-IA (Unterlagen zur Anmeldung)"
+    legal_source: secondary
+
+  - id: PFL-02
+    required_data: rechnung.positionen.0.hs6
+    label: Warennummer mindestens auf HS-6 je Position
+    required_evidence: [handelsrechnung, anmeldung]
+    required_document_form: none
+    hardness: hard
+    legal_basis: "Art. 263 UZK; Anhang B UZK-DA (Datenelemente der Ausfuhranmeldung)"
+    legal_source: secondary
+
+  - id: PFL-03
+    required_data: packliste.brutto_gesamt_kg
+    label: Rohmasse der Sendung
+    required_evidence: [packliste, bill_of_lading]
+    required_document_form: none
+    hardness: hard
+    legal_basis: "Anhang B UZK-DA (Rohmasse als Datenelement); keine Papierpflicht für die Packliste"
+    legal_source: secondary
+
+  - id: PFL-04
+    required_data: bill_of_lading.container_id
+    label: Container der Sendung
+    required_evidence: [bill_of_lading, sea_waybill]
+    required_document_form: none
+    hardness: hard
+    legal_basis: "Gestellung; Seefrachtrecht §§ 513 ff. HGB"
+    legal_source: secondary
+
+  - id: PFL-05
+    required_data: praeferenznachweis.ursprung
+    label: Präferenzursprung, weil Präferenz beansprucht wird
+    required_evidence: [eur1, eur_med, origin_declaration]
+    required_document_form: none
+    condition: sachverhalt.praeferenz_beansprucht == true
+    hardness: hard
+    legal_basis: "Ursprungsprotokoll des jeweiligen Abkommens; Art. 64 UZK"
+    legal_source: secondary
+    note: >
+      EUR.1 und Ursprungserklärung auf der Rechnung erfüllen dieselbe Anforderung.
+      A.TR erfüllt sie nicht (ORG-03).
+
+  - id: PFL-06
+    required_data: sachverhalt.incoterm.code
+    label: Incoterm mit benanntem Ort
+    required_evidence: [handelsrechnung, kaufvertrag]
+    required_document_form: none
+    hardness: soft
+    legal_basis: "Incoterms 2020 (ICC); Zollwertfolgen Art. 71/72 UZK"
+    legal_source: secondary

@@ -1,0 +1,53 @@
+# Wer liefert welchen fehlenden Wert nach. Aus docs/05-prozess-nachforderung.md.
+# Schlüssel ist das Präfix des Faktenpfads. Die Nachforderung nennt den
+# konkreten Wert und die Position, nie "bitte alle Zollunterlagen".
+
+version: "0.1.0"
+
+owners:
+  rechnung:
+    primaer: Lieferant/Verkäufer
+    sekundaer: Einkauf
+    ausloeser: Bestellung bestätigt
+  packliste:
+    primaer: Lieferant/Packbetrieb
+    sekundaer: Spediteur/Lager
+    ausloeser: Ware gepackt
+  bill_of_lading:
+    primaer: Seefrachtspediteur/Carrier
+    sekundaer: Shipper
+    ausloeser: SI-Cut-off / On-board
+  praeferenznachweis:
+    primaer: Exporteur/Lieferant
+    sekundaer: Ursprungsstelle
+    ausloeser: vor Ausfuhr
+  anmeldung:
+    primaer: Zollvertreter/Spediteur
+    sekundaer: interne Zollabteilung
+    ausloeser: nach Überlassung
+  sachverhalt:
+    primaer: Sachbearbeitung Export
+    sekundaer: Vertrieb
+    ausloeser: Auftragsanlage
+  dokumente:
+    primaer: Sachbearbeitung Export
+    sekundaer: Spediteur
+    ausloeser: Eingang der finalen Fassung
+
+# Eskalation als relative Ereignisse, nicht als Kalendertage (docs/05).
+escalation:
+  - stufe: erinnerung_0
+    zeitpunkt: sofort nach Feststellung
+    adressat: primaer
+  - stufe: erinnerung_1
+    zeitpunkt: vor internem Customs Cut-off
+    adressat: primaer + operativer Sachbearbeiter
+  - stufe: eskalation_1
+    zeitpunkt: vor Carrier-/Terminal-Cut-off
+    adressat: Teamleitung
+  - stufe: eskalation_2
+    zeitpunkt: vor ETA/Abholung
+    adressat: Einkauf, Logistikleitung, Zollverantwortlicher
+  - stufe: stop
+    zeitpunkt: Cut-off erreicht
+    adressat: Anmeldung, Verladung oder Freigabe blockieren

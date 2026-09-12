@@ -1,0 +1,22 @@
+# Hält die gepinnten Actions und die npm-Abhängigkeit aktuell — wöchentlich,
+# gebündelt. Die CI prüft jeden Vorschlag wie jeden anderen Commit.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ['*']
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      npm:
+        patterns: ['*']
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
