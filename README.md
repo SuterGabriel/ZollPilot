@@ -23,11 +23,11 @@ Stand 12. September 2026, Stufen 0 bis 4 des Plans in
 | Regeln | 14 ausführbar in [rules.yaml](rules.yaml), über 40 im Katalog [docs/03](docs/03-regelwerk-vollstaendig.md) |
 | Pflichtmatrix | 7 Einträge in [pflichtmatrix.yaml](pflichtmatrix.yaml): Nachweis statt Dokument, darunter die MRN aus dem Ausfuhrbegleitdokument |
 | Extraktion (IDP/OCR) | Python-Dienst in [extraktion/](extraktion/): Textlayer mit Koordinaten oder Tesseract mit Wortkonfidenzen, Klassifikation, Felder je Belegtyp (Handelsrechnung, Packliste, B/L, Ursprungserklärung, Ausfuhrbegleitdokument), jede Assertion mit Fundstelle (ADR-005). Eine Rechnung als UN/CEFACT-CII-XML läuft als Beleg ohne Leseunsicherheit durch dieselbe Kette, in beide Richtungen gegen das Schema validiert (ADR-008). Ein zweites Lesemodul für Azure Document Intelligence liest dieselben 32 Belege aus aufgezeichneten Antworten: 570 von 570 Feldern, 8 von 8 Entscheidungen, gleichauf mit Tesseract. **Eine Layoutfamilie, synthetische Belege.** Was das heißt: [docs/EXTRAKTION.md](docs/EXTRAKTION.md) |
-| Oberfläche | Angular 22 mit ngrx in [oberflaeche/](oberflaeche/): Belege einreichen, Entscheidung mit Begründung je Regel lesen (ADR-006). Kontrast nachgerechnet, axe über jede Ansicht: [docs/OBERFLAECHE.md](docs/OBERFLAECHE.md) |
-| Tests | 125 in JavaScript (Prüfziffern gegen Referenzwerte, Grenzfälle je Regel, Konfidenzpfad), 134 in Python (Normalisierung, Klassifikation, Tabellen, CII gegen Schema, Anbieterleser, Ende zu Ende auf den PDFs), 79 + 19 in TypeScript (Zustand, Dienst, Darstellung; axe, Tastatur, kein Rollbalken), 12 für den eigenen n8n-Node |
+| Oberfläche | Angular 22 mit ngrx in [oberflaeche/](oberflaeche/): Belege einreichen, Entscheidung mit Begründung je Regel lesen, übersteuern (ADR-006, ADR-007); hinter der Anmeldung des Proxys, mit dem geprüften Namen (ADR-009); dazu die Übersicht aller Akten mit offenen Nachforderungen und unzugeordneter Post ([`docs/entwurf/04-uebersicht.md`](docs/entwurf/04-uebersicht.md)). Kontrast nachgerechnet, axe über jede Ansicht: [docs/OBERFLAECHE.md](docs/OBERFLAECHE.md) |
+| Tests | 125 in JavaScript (Prüfziffern gegen Referenzwerte, Grenzfälle je Regel, Konfidenzpfad), 134 in Python (Normalisierung, Klassifikation, Tabellen, CII gegen Schema, Anbieterleser, Ende zu Ende auf den PDFs), 92 + 23 in TypeScript (Zustand, Dienst, Darstellung; axe, Tastatur, kein Rollbalken), 12 für den eigenen n8n-Node |
 | Testdaten | 8 synthetische Akten als JSON, dieselben 8 als Belegsätze (PDF, je mit Ausfuhrbegleitdokument) in [testdaten/belege/](testdaten/belege/), erzeugt und byteidentisch reproduzierbar; der schlechte Scan ist ein echtes Bild für Tesseract |
 | Messung | Field Exact Match je Belegtyp und Entscheidung je Akte gegen das Golden Set, Basislinie in [extraktion/basislinie.json](extraktion/basislinie.json), als CI-Job |
-| n8n | 6 Workflows als Export (Prüfung mit zwei Eingängen, Fehler, Wiederholung, Alarm, Nachforderungen, Posteingang); die Code-Nodes sind aus `src/` gebündelt (ADR-004); ein eigener Node in TypeScript mit Credential-Typ in [nodes/](nodes/n8n-nodes-zollpilot/) ruft die Extraktion, 12 Tests ohne n8n |
+| n8n | 7 Workflows als Export (Prüfung mit zwei Eingängen, Fehler, Wiederholung, Alarm, Nachforderungen, Posteingang, Übersicht lesen); die Code-Nodes sind aus `src/` gebündelt (ADR-004); ein eigener Node in TypeScript mit Credential-Typ in [nodes/](nodes/n8n-nodes-zollpilot/) ruft die Extraktion, 12 Tests ohne n8n |
 | Posteingang | Eine Antwort mit Anhang findet ihre Akte über die Aktennummer (ADR-010): IMAP-Trigger, Extraktion nur der neuen Belege, Zusammenführung mit der abgelegten Akte, erneute Prüfung. Ohne Nummer steht die Mail als unzugeordnet in Postgres. Rauchtest Runde 9 |
 | Abgelegte Akte | Jede Prüfung legt Stammdaten, Belege und Assertions in Postgres ab, nur anhängend, je Beleg eindeutig über Kennung und Hash (ADR-010). Die Originale nicht |
 | Nachforderung | Ein Vorgang, kein Text (ADR-009): je fehlendem Wert ein Fall mit Stufe und Versanddatum, täglich oder auf Zuruf abgeglichen, Stufen relativ zu den Cut-offs der Akte aus [`zustaendigkeiten.yaml`](zustaendigkeiten.yaml), Versand per SMTP an ein Testpostfach, jeder Versand festgehalten. Rauchtest Runde 8 spielt drei Tage durch |
@@ -65,8 +65,8 @@ Oberfläche (Angular 22, ngrx):
 
 ```bash
 cd oberflaeche && npm ci
-npm test                                      # 79 Tests
-npm run e2e:install && npm run e2e            # 19 Tests, darunter axe über jede Ansicht
+npm test                                      # 92 Tests
+npm run e2e:install && npm run e2e            # 23 Tests, darunter axe über jede Ansicht
 node ../scripts/kontrast-check.mjs            # 11 Farbpaare nachgerechnet
 ```
 

@@ -1,0 +1,21 @@
+<main class="ansicht">
+  <div class="seitenkopf">
+    <h1>Prüfakte</h1>
+    <p class="untertitel">
+      Belege einer Sendung einreichen. Die Extraktion liest sie, das Regelwerk entscheidet
+      deterministisch, und Sie sehen je Befund Begründung und Adressat.
+    </p>
+  </div>
+
+  <!-- Zwei Spalten (Entwurf, Struktur 1a): Die Akte ist Kontext und bleibt
+       links stehen, das Ergebnis bekommt die Restbreite. Unter 1024 px
+       stapeln sie. -->
+  <div class="flaeche">
+    <div class="akte">
+      <app-einreichung />
+    </div>
+    <div class="ergebnis-spalte" id="ergebnis">
+      <app-ergebnis />
+    </div>
+  </div>
+</main>

@@ -1,0 +1,112 @@
+{
+  "id": "zollpilot-lesen",
+  "name": "ZollPilot – Übersicht lesen",
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": false,
+    "saveExecutionProgress": false,
+    "errorWorkflow": "zollpilot-fehler"
+  },
+  "meta": {
+    "beschreibung": "GET /webhook/akten: die Übersicht für die Oberfläche (docs/entwurf/04-uebersicht.md). Eine Abfrage, die zählt und sortiert; bewertet wird nichts. Die Entscheidung je Akte ist das Wort, das der Prüf-Workflow in shipment.status abgelegt hat."
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "akten",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "uebersicht-angefordert",
+      "name": "Übersicht angefordert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "zollpilot-akten",
+      "notes": "Wird von der Oberflaeche ueber den nginx-Proxy aufgerufen, hinter der Anmeldung. Keine Parameter; die Uebersicht ist immer die ganze."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  COALESCE((SELECT jsonb_agg(z.zeile ORDER BY z.sortierung DESC NULLS LAST) FROM (\n    SELECT s.zuletzt_geprueft_am AS sortierung, jsonb_build_object(\n      'akte_id', s.akte_id,\n      'status', s.status,\n      'zuletzt_geprueft_am', s.zuletzt_geprueft_am,\n      'richtung', s.richtung,\n      'verkehrstraeger', s.verkehrstraeger,\n      'belege', (SELECT count(*) FROM document d WHERE d.akte_id = s.akte_id),\n      'nachforderungen_offen', (SELECT count(*) FROM request_case r WHERE r.akte_id = s.akte_id AND r.status = 'offen'),\n      'letzte_stufe', (SELECT r.stufe FROM request_case r WHERE r.akte_id = s.akte_id AND r.status = 'offen' AND r.stufe IS NOT NULL ORDER BY r.letzter_versand_am DESC NULLS LAST LIMIT 1),\n      'letzter_versand_am', (SELECT max(r.letzter_versand_am) FROM request_case r WHERE r.akte_id = s.akte_id),\n      'customs_cutoff', s.stammdaten->'fristen'->>'customs_cutoff'\n    ) AS zeile FROM shipment s) z), '[]'::jsonb) AS akten,\n  COALESCE((SELECT jsonb_agg(to_jsonb(m) ORDER BY m.empfangen_am DESC) FROM (\n    SELECT id, von, betreff, grund, anhaenge, empfangen_am FROM mail_eingang WHERE NOT zugeordnet ORDER BY empfangen_am DESC LIMIT 50) m), '[]'::jsonb) AS unzugeordnet,\n  jsonb_build_object(\n    'akten', (SELECT count(*) FROM shipment),\n    'blockiert', (SELECT count(*) FROM shipment WHERE status = 'blockiert'),\n    'freigabereif', (SELECT count(*) FROM shipment WHERE status = 'freigabereif'),\n    'nachforderungen_offen', (SELECT count(*) FROM request_case WHERE status = 'offen'),\n    'unzugeordnet', (SELECT count(*) FROM mail_eingang WHERE NOT zugeordnet)\n  ) AS zusammenfassung",
+        "options": {}
+      },
+      "id": "uebersicht-lesen",
+      "name": "Übersicht lesen",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        260,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "zollpilot-postgres",
+          "name": "ZollPilot Postgres"
+        }
+      },
+      "notes": "Eine Zeile mit drei JSON-Spalten: akten, unzugeordnet, zusammenfassung. Zaehlen und Sortieren, kein Bewerten."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "antwort",
+      "name": "Antwort: Übersicht",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Übersicht lesen\n\n`GET /webhook/akten` für den zweiten Bildschirm: Akten mit Entscheidung und offenen Nachforderungen, unzugeordnete Post, eine Bilanz. Eine Abfrage, kein Urteil.",
+        "height": 160,
+        "width": 380
+      },
+      "id": "notiz",
+      "name": "Notiz",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        80
+      ]
+    }
+  ],
+  "connections": {
+    "Übersicht angefordert": {
+      "main": [
+        [
+          {
+            "node": "Übersicht lesen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Übersicht lesen": {
+      "main": [
+        [
+          {
+            "node": "Antwort: Übersicht",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

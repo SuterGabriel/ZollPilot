@@ -1,24 +1,22 @@
 /* Der Bildschirm ist eine Werkbank, kein Dokument.
  *
  * Ab 1024 px füllt die Anwendung genau das Fenster: Kopf und Fuß stehen
- * fest, und was länger wird, bewegt sich innerhalb seiner Spalte. Die Seite
- * selbst scrollt nie. Der Grund ist fachlich, nicht ästhetisch: Wer einen
- * Befund liest, braucht gleichzeitig die Akte daneben: ob ein Beleg fehlt
- * oder nur schlecht gelesen wurde, steht links. Eine mitscrollende Seite
- * nimmt einem genau diese zweite Hälfte weg.
+ * fest, und was länger wird, bewegt sich innerhalb seiner Ansicht. Die
+ * Seite selbst scrollt nie. Der Grund ist fachlich, nicht ästhetisch: Wer
+ * einen Befund liest, braucht gleichzeitig die Akte daneben; ob ein Beleg
+ * fehlt oder nur schlecht gelesen wurde, steht links. Eine mitscrollende
+ * Seite nimmt einem genau diese zweite Hälfte weg.
  *
  * Darunter stapeln die Spalten, und die Seite scrollt wie eine Seite. Ein
  * festgenageltes Fenster ohne Platz macht Inhalt unerreichbar; das wäre
- * schlimmer als ein Rollbalken. */
+ * schlimmer als ein Rollbalken.
+ *
+ * Die Ansichten selbst (Prüfakte, Übersicht) sind Bausteine unter dem
+ * Router; ihre Spalten und Maße stehen bei ihnen. Hier steht nur der Rahmen. */
 :host {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-}
-
-main.flaeche {
-  flex: 1 1 auto;
-  min-height: 0;
 }
 
 @media (min-width: 1024px) {
@@ -26,46 +24,6 @@ main.flaeche {
     height: 100dvh;
     overflow: hidden;
   }
-
-  /* `min-height: 0` ist die Bedingung dafür, dass ein Rasterkind überhaupt
-   * kleiner werden darf als sein Inhalt. Ohne das wächst die Spalte und
-   * schiebt den Fuß aus dem Bild.
-   *
-   * Das Innenmaß fängt den Fokusring auf (2 px Strich, 2 px Abstand): Eine
-   * scrollende Spalte würde ihn sonst abschneiden. Der negative Außenabstand
-   * nimmt es optisch wieder zurück, damit die Spaltenbreite dieselbe bleibt. */
-  .akte,
-  .ergebnis-spalte {
-    overflow: auto;
-    min-height: 0;
-    /* `relative` ist hier keine Kosmetik, sondern die Bedingung dafür, dass
-     * der Zuschnitt überhaupt greift: Die `.nur-vorlesen`-Elemente sind
-     * absolut positioniert, und ohne positionierten Vorfahren ist ihr
-     * umschließender Block die Seite. Sie entkommen dann dem Überlauf der
-     * Spalte und ziehen die Seite auf, unsichtbar, aber mit Rollbalken. */
-    position: relative;
-    scrollbar-gutter: stable;
-    padding-inline: var(--mass-1);
-    margin-inline: calc(var(--mass-1) * -1);
-  }
-}
-
-/* Die Sprungmarke liegt außerhalb des Bildes, bis sie den Fokus bekommt.
- * Der erste Tabulatorsprung führt an Kopfzeile und Formular vorbei dorthin,
- * wo nach dem Absenden das Ergebnis steht. */
-.sprungmarke {
-  position: absolute;
-  inset-inline-start: var(--mass-4);
-  inset-block-start: -60px;
-  z-index: 1;
-  padding: var(--mass-2) var(--mass-4);
-  background: var(--ton-grund);
-  color: var(--ton-aktion);
-  border: 1px solid var(--ton-aktion);
-}
-
-.sprungmarke:focus-visible {
-  inset-block-start: var(--mass-4);
 }
 
 /* Kopf und Fuß sind Rahmen, nicht Inhalt. Sie stehen fest im Bild und
@@ -85,15 +43,23 @@ header {
 }
 
 .kopf,
-.flaeche,
 .flaeche-schmal {
   max-width: 1400px;
   margin-inline: auto;
   padding-inline: var(--mass-8);
 }
 
+/* Eine Zeile: Marke links, Bereiche daneben, der Name rechts. Nichts davon
+ * darf die Kopfzeile höher machen als eine Zeile mit Luft. */
+.kopf {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mass-6);
+  flex-wrap: wrap;
+}
+
 .marke {
-  margin: 0 0 var(--mass-1);
+  margin: 0;
   font-family: var(--schrift-fest);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -101,40 +67,44 @@ header {
   color: var(--ton-text-leise);
 }
 
-h1 {
-  margin: 0 0 var(--mass-2);
-  font-size: 28px;
+nav ul {
+  display: flex;
+  gap: var(--mass-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.untertitel {
-  margin: 0;
-  max-width: var(--zeilenmass);
+nav a {
+  display: inline-block;
+  min-height: var(--hitflaeche-min);
+  line-height: var(--hitflaeche-min);
+  padding-inline: var(--mass-2);
+  color: var(--ton-aktion);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+}
+
+/* Der aktive Bereich trägt die Markierung als Strich und als aria-current,
+ * nicht nur als Farbe. */
+nav a.aktiv {
+  color: var(--ton-text);
+  border-bottom-color: var(--ton-aktion);
+  font-weight: 600;
+}
+
+.angemeldet {
+  margin: 0 0 0 auto;
+  font-size: var(--groesse-wert);
   color: var(--ton-text-mittel);
 }
 
-.flaeche {
-  display: grid;
-  grid-template-columns: var(--aktenspalte) minmax(0, 1fr);
-  gap: var(--mass-8);
-  /* `stretch`, damit beide Spalten die Höhe der Fläche bekommen; erst das
-   * macht ihr eigenes Scrollen möglich. Gestapelt wäre es sinnlos. */
-  align-items: stretch;
-  padding-block: var(--mass-4) var(--mass-3);
+.fest {
+  font-family: var(--schrift-fest);
 }
 
-/* Unter 1024 px stapeln die Spalten; die Akte steht dann oben und scrollt
- * mit, weil zwei gleichzeitig sichtbare Spalten dort nicht passen. */
-@media (max-width: 1023px) {
-  .flaeche {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--mass-5);
-  }
-
-  .kopf,
-  .flaeche,
-  .flaeche-schmal {
-    padding-inline: var(--mass-4);
-  }
+.leise {
+  color: var(--ton-text-leise);
 }
 
 footer {
@@ -150,4 +120,29 @@ footer {
 footer p {
   margin: 0;
   max-width: var(--zeilenmass);
+}
+
+@media (max-width: 1023px) {
+  .kopf,
+  .flaeche-schmal {
+    padding-inline: var(--mass-4);
+  }
+}
+
+/* Die Sprungmarke liegt außerhalb des Bildes, bis sie den Fokus bekommt.
+ * Der erste Tabulatorsprung führt an Kopfzeile und Formular vorbei dorthin,
+ * wo nach dem Absenden das Ergebnis steht. */
+.sprungmarke {
+  position: absolute;
+  inset-inline-start: var(--mass-4);
+  inset-block-start: -60px;
+  z-index: 1;
+  padding: var(--mass-2) var(--mass-4);
+  background: var(--ton-grund);
+  color: var(--ton-aktion);
+  border: 1px solid var(--ton-aktion);
+}
+
+.sprungmarke:focus-visible {
+  inset-block-start: var(--mass-4);
 }

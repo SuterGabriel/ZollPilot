@@ -26,10 +26,17 @@
   </button>
 } @else if (offen()) {
   <div class="formular">
-    <p class="warnung">
-      Das Namensfeld ist keine Anmeldung. Es prüft nichts und beweist nichts. Es hält
-      fest, wer die Freigabe verantwortet.
-    </p>
+    @if (angemeldet(); as wer) {
+      <p class="warnung">
+        Sie sind als <span class="fest">{{ wer }}</span> angemeldet. Der Proxy setzt diesen
+        Namen an die Übersteuerung, gleich, was hier steht.
+      </p>
+    } @else {
+      <p class="warnung">
+        Das Namensfeld ist keine Anmeldung. Es prüft nichts und beweist nichts. Es hält
+        fest, wer die Freigabe verantwortet.
+      </p>
+    }
 
     <label [for]="'benutzer-' + kennung()">Ihr Name</label>
     <input

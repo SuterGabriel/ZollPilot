@@ -133,8 +133,12 @@ bash scripts/rauchtest.sh     # Runde 3 schickt eine Akte durch den Proxy
   und der Befund sagt es (`uebersteuert_identitaet`). Den Namen aus `/wer`
   anzuzeigen statt ihn abzufragen, ist der nächste Schritt an der
   Oberfläche.
-- **Keine Übersicht.** Es gibt keine Liste früherer Prüfungen; die liegen in
-  Postgres (`pruefung`, Sicht `rule_result`) und werden dort abgefragt.
+- **Die Übersicht öffnet keine Akte.** Der zweite Bildschirm
+  (`docs/entwurf/04-uebersicht.md`) zeigt alle geprüften Akten mit
+  Entscheidung, offenen Nachforderungen und die unzugeordnete Post, aus
+  `GET /webhook/akten`. Von einer Zeile zur Akte führt kein Weg, weil der
+  erste Bildschirm keine abgelegte Akte laden kann; und zuordnen lässt sich
+  eine Mail dort auch nicht.
 - **Ein Sachverhalt.** Richtung und Verkehrsträger lassen sich umstellen,
   aber der Katalog deckt nur Ausfuhr/Seefracht. Wer etwas anderes wählt,
   bekommt die ehrliche Antwort des Regelwerks: Die Pflichtmatrix deckt

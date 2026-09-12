@@ -1,27 +1,39 @@
-<a class="sprungmarke" href="#ergebnis">Zum Ergebnis springen</a>
+<!-- Die Sprungmarke ist der erste Halt auf der Seite, vor Kopfzeile und
+     Navigation. Sie führt zum Ergebnis der Prüfakte; auf der Übersicht gibt
+     es das Ziel nicht, deshalb steht sie dort nicht. -->
+@if (aufPruefakte()) {
+  <a class="sprungmarke" href="#ergebnis">Zum Ergebnis springen</a>
+}
 
+<!-- Die Kopfzeile ist Rahmen: Marke, die zwei Bereiche, und wer angemeldet
+     ist. Der Titel der Ansicht steht in der Ansicht, nicht hier, damit die
+     Kopfzeile so niedrig bleibt, wie sie zum Lesen braucht. -->
 <header>
   <div class="kopf">
     <p class="marke">ZollPilot</p>
-    <h1>Prüfakte</h1>
-    <p class="untertitel">
-      Belege einer Sendung einreichen. Die Extraktion liest sie, das Regelwerk entscheidet
-      deterministisch, und Sie sehen je Befund Begründung und Adressat.
+    <nav aria-label="Bereiche">
+      <ul>
+        <li>
+          <a routerLink="/" routerLinkActive="aktiv" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page">
+            Prüfakte
+          </a>
+        </li>
+        <li>
+          <a routerLink="/uebersicht" routerLinkActive="aktiv" ariaCurrentWhenActive="page">Übersicht</a>
+        </li>
+      </ul>
+    </nav>
+    <p class="angemeldet">
+      @if (anmeldung.benutzer(); as wer) {
+        Angemeldet als <span class="fest">{{ wer }}</span>
+      } @else if (anmeldung.geprueft()) {
+        <span class="leise">Nicht angemeldet: ein Name beim Übersteuern gilt als Angabe.</span>
+      }
     </p>
   </div>
 </header>
 
-<!-- Zwei Spalten (Entwurf, Struktur 1a): Die Akte ist Kontext und bleibt
-     links stehen, das Ergebnis bekommt die Restbreite. Unter 1024 px
-     stapeln sie. -->
-<main class="flaeche">
-  <div class="akte">
-    <app-einreichung />
-  </div>
-  <div class="ergebnis-spalte" id="ergebnis">
-    <app-ergebnis />
-  </div>
-</main>
+<router-outlet />
 
 <footer class="flaeche-schmal">
   <p>
