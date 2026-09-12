@@ -3,7 +3,7 @@
 
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 
-import type { Beleg, Pruefergebnis, Stammdaten } from './akte.modell';
+import type { Beleg, Pruefergebnis, Stammdaten, Uebersteuerung } from './akte.modell';
 
 export const AkteAktionen = createActionGroup({
   source: 'Akte',
@@ -16,6 +16,11 @@ export const AkteAktionen = createActionGroup({
     // braucht und ohne Vorkehrung prüfbar bleibt.
     'Einreichung beantwortet': props<{ ergebnis: Pruefergebnis; zeitpunkt: string }>(),
     'Einreichung fehlgeschlagen': props<{ meldung: string }>(),
+    // Ein Mensch verantwortet einen Befund (ADR-007). Die Akte wird danach
+    // erneut geprüft — die Übersteuerung ist eine Eingabe des Regelwerks,
+    // kein Eingriff in ein vorhandenes Ergebnis.
+    'Befund uebersteuert': props<{ uebersteuerung: Uebersteuerung }>(),
+    'Uebersteuerung zurueckgenommen': props<{ regel: string }>(),
     'Neu begonnen': emptyProps(),
   },
 });

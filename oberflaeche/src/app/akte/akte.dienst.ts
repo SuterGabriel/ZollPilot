@@ -8,7 +8,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { type Observable, catchError, of, throwError } from 'rxjs';
 
-import type { Pruefergebnis, Stammdaten } from './akte.modell';
+import type { Pruefergebnis, Stammdaten, Uebersteuerung } from './akte.modell';
 
 export const WEBHOOK_BELEGE = '/webhook/belege';
 
@@ -22,9 +22,19 @@ const FELD_DATEIEN = 'dateien';
 export class AkteDienst {
   readonly #http = inject(HttpClient);
 
-  einreichen(stammdaten: Stammdaten, dateien: readonly File[]): Observable<Pruefergebnis> {
+  /**
+   * Die Übersteuerungen reisen im Formularfeld `akte` mit, nicht in einem
+   * eigenen.
+   * Der Extraktionsdienst reicht alles durch, was er nicht selbst setzt, und
+   * das Regelwerk liest sie als Eingabe (ADR-007).
+   */
+  einreichen(
+    stammdaten: Stammdaten,
+    dateien: readonly File[],
+    uebersteuerungen: readonly Uebersteuerung[] = [],
+  ): Observable<Pruefergebnis> {
     const formular = new FormData();
-    formular.append(FELD_AKTE, JSON.stringify(stammdaten));
+    formular.append(FELD_AKTE, JSON.stringify({ ...stammdaten, overrides: uebersteuerungen }));
     for (const datei of dateien) formular.append(FELD_DATEIEN, datei, datei.name);
 
     return this.#http.post<Pruefergebnis>(WEBHOOK_BELEGE, formular).pipe(

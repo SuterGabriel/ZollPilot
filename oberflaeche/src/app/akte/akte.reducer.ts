@@ -16,7 +16,7 @@
 import { createFeature, createReducer, createSelector, on } from '@ngrx/store';
 
 import { AkteAktionen } from './akte.aktionen';
-import type { Beleg, Befund, Nachforderung, Pflichtbefund, Pruefergebnis } from './akte.modell';
+import type { Beleg, Befund, Nachforderung, Pflichtbefund, Pruefergebnis, Stammdaten, Uebersteuerung } from './akte.modell';
 
 export type Stand = 'bereit' | 'laeuft' | 'fertig' | 'fehler';
 
@@ -29,6 +29,16 @@ export interface AkteZustand {
   gepruefetAm: string | null;
   /** Die Belege haben sich seit dem Ergebnis geändert; es gilt nicht mehr. */
   veraltet: boolean;
+  /**
+   * Die menschlichen Entscheidungen zu dieser Akte (ADR-007). Sie gehen als
+   * Eingabe in die nächste Prüfung; die Oberfläche rechnet mit ihnen nicht.
+   */
+  uebersteuerungen: Uebersteuerung[];
+  /**
+   * Die zuletzt eingereichten Stammdaten. Ohne sie könnte eine Übersteuerung
+   * keine neue Prüfung auslösen — sie wären in der Komponente gefangen.
+   */
+  stammdaten: Stammdaten | null;
   fehler: string | null;
 }
 
@@ -39,6 +49,8 @@ export const anfangszustand: AkteZustand = {
   ergebnis: null,
   gepruefetAm: null,
   veraltet: false,
+  uebersteuerungen: [],
+  stammdaten: null,
   fehler: null,
 };
 
@@ -63,7 +75,29 @@ export const akteFeature = createFeature({
       ...entwerte(zustand),
       belege: zustand.belege.filter((beleg) => beleg.id !== id),
     })),
-    on(AkteAktionen.eingereicht, (zustand) => ({ ...zustand, stand: 'laeuft' as const, fehler: null })),
+    on(AkteAktionen.eingereicht, (zustand, { stammdaten }) => ({
+      ...zustand,
+      stand: 'laeuft' as const,
+      stammdaten,
+      fehler: null,
+    })),
+    // Eine Übersteuerung ersetzt die vorherige zur selben Kennung: Wer seine
+    // Begründung ändert, hat eine Entscheidung, nicht zwei.
+    on(AkteAktionen.befundUebersteuert, (zustand, { uebersteuerung }) => ({
+      ...zustand,
+      stand: 'laeuft' as const,
+      uebersteuerungen: [
+        ...zustand.uebersteuerungen.filter((u) => u.regel !== uebersteuerung.regel),
+        uebersteuerung,
+      ],
+      fehler: null,
+    })),
+    on(AkteAktionen.uebersteuerungZurueckgenommen, (zustand, { regel }) => ({
+      ...zustand,
+      stand: 'laeuft' as const,
+      uebersteuerungen: zustand.uebersteuerungen.filter((u) => u.regel !== regel),
+      fehler: null,
+    })),
     on(AkteAktionen.einreichungBeantwortet, (zustand, { ergebnis, zeitpunkt }) => ({
       ...zustand,
       stand: 'fertig' as const,
@@ -95,6 +129,8 @@ export const {
   selectErgebnis,
   selectGepruefetAm,
   selectVeraltet,
+  selectUebersteuerungen,
+  selectStammdaten,
   selectFehler,
 } = akteFeature;
 
@@ -189,6 +225,47 @@ export const waehleNachforderungenNachAdressat = createSelector(
 export const waehleMehrereAdressaten = createSelector(
   waehleNachforderungenNachAdressat,
   (gruppen) => gruppen.length > 1,
+);
+
+/**
+ * Die beiden Entscheidungen, wenn sie auseinandergehen (ADR-007).
+ *
+ * Liefert `null`, solange niemand übersteuert hat — dann gibt es nichts zu
+ * erklären. Geht es auseinander, muss die Oberfläche beides zeigen: Ein
+ * roter Befund, der nicht blockiert, sieht sonst wie ein Fehler aus.
+ */
+export const waehleFreigabeUnterschied = createSelector(waehleGueltigesErgebnis, (ergebnis) =>
+  ergebnis && ergebnis.freigabe !== ergebnis.freigabe_nach_override
+    ? { ohne: ergebnis.freigabe, mit: ergebnis.freigabe_nach_override }
+    : null,
+);
+
+/**
+ * Der Name aus der zuletzt eingetragenen Übersteuerung, zur Vorbelegung.
+ *
+ * Das ist eine Bequemlichkeit, keine Anmeldung: Wer hier steht, hat es
+ * selbst getippt. ADR-007 sagt das ausdrücklich — ein Override mit
+ * erfundenem Namen ist im Audit wertlos, und nichts hindert daran.
+ */
+export const waehleLetzterBenutzer = createSelector(
+  selectUebersteuerungen,
+  (uebersteuerungen) => uebersteuerungen.at(-1)?.benutzer ?? '',
+);
+
+/** Die Befunde, die ein Mensch verantwortet hat. Ihr Status bleibt `verletzt`. */
+export const waehleUebersteuerteBefunde = createSelector(
+  waehleGueltigesErgebnis,
+  (ergebnis): Befund[] => (ergebnis?.befunde ?? []).filter((befund) => befund.uebersteuert_von),
+);
+
+/**
+ * Übersteuerungen, die durch eine Katalogänderung hinfällig wurden. Sie
+ * verschwinden nicht: Sie sind der Nachweis, dass einmal jemand entschieden
+ * hat — und die Aufforderung, erneut zu entscheiden.
+ */
+export const waehleVerbrauchteUebersteuerungen = createSelector(
+  waehleGueltigesErgebnis,
+  (ergebnis) => ergebnis?.uebersteuerungen.verbraucht ?? [],
 );
 
 export const waehleDokumente = createSelector(waehleGueltigesErgebnis, (ergebnis) => ergebnis?.dokumente ?? []);

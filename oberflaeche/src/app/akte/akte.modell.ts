@@ -64,7 +64,34 @@ export interface Adressat {
   ausloeser: string | null;
 }
 
-export interface Befund {
+/**
+ * Eine menschliche Entscheidung neben einem Befund (ADR-007).
+ *
+ * `regel` hält eine Regel- oder eine Pflichtmatrix-Kennung, `fassung` die
+ * Version, gegen die entschieden wurde. Ändert sich der Katalog, ist die
+ * Übersteuerung verbraucht — dann hat die Person eine andere Regel
+ * verantwortet als die, die jetzt gilt.
+ */
+export interface Uebersteuerung {
+  regel: string;
+  fassung: string;
+  benutzer: string;
+  begruendung: string;
+  erzeugt_am: string;
+}
+
+/** Was `src/override.mjs` an einen übersteuerten Befund hängt. */
+export interface Uebersteuert {
+  uebersteuert_von?: string;
+  uebersteuert_am?: string | null;
+  uebersteuerungsgrund?: string;
+  uebersteuerung_verbraucht?: { benutzer: string; fassung: string; erzeugt_am: string | null }[];
+}
+
+/** Die kürzeste Begründung, die noch eine ist — wie `MINDESTLAENGE_BEGRUENDUNG` in `src/override.mjs`. */
+export const MINDESTLAENGE_BEGRUENDUNG = 11;
+
+export interface Befund extends Uebersteuert {
   regel: string;
   name: string;
   status: Befundstatus;
@@ -81,7 +108,7 @@ export interface Befund {
   nachzulesende_pfade?: string[];
 }
 
-export interface Pflichtbefund {
+export interface Pflichtbefund extends Uebersteuert {
   id: string;
   required_data: string;
   label: string;
@@ -90,6 +117,8 @@ export interface Pflichtbefund {
   begruendung: string;
   akzeptierte_nachweise: string[];
   rechtsgrundlage: string;
+  /** Die Fassung der Pflichtmatrix, an die eine Übersteuerung haftet. */
+  fassung: string;
   quelle?: string;
 }
 
@@ -134,6 +163,16 @@ export interface Pruefergebnis {
   stichtag: string;
   katalog_version: string;
   freigabe: Freigabe;
+  /**
+   * Dieselbe Entscheidung, gelesen mit den Übersteuerungen als verantwortet
+   * (ADR-007). Ohne Übersteuerung ist sie gleich `freigabe`. Der Statuscode
+   * des Webhooks folgt dieser, nicht jener.
+   */
+  freigabe_nach_override: Freigabe;
+  uebersteuerungen: {
+    angewandt: { kennung: string; benutzer: string; begruendung: string }[];
+    verbraucht: { kennung: string; benutzer: string; fassung: string; erzeugt_am: string | null }[];
+  };
   pflichtmatrix: { anwendbar: boolean; befunde: Pflichtbefund[]; grund?: string };
   befunde: Befund[];
   regeln_ohne_implementierung: string[];

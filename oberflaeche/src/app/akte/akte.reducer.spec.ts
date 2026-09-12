@@ -19,8 +19,11 @@ import {
   waehleOffeneBefunde,
   waehlePflichtBilanz,
   waehleRegelBilanz,
+  waehleFreigabeUnterschied,
+  waehleLetzterBenutzer,
+  waehleUebersteuerteBefunde,
 } from './akte.reducer';
-import { ERGEBNIS_BLOCKIERT, ERGEBNIS_FREI } from './testhilfen';
+import { ERGEBNIS_BLOCKIERT, ERGEBNIS_FREI, ERGEBNIS_UEBERSTEUERT, STAMMDATEN } from './testhilfen';
 
 const beleg = (id: string): Beleg => ({ id, name: `${id}.pdf`, groesse: 1024 });
 const ZEIT = '2026-09-12T14:22:00.000Z';
@@ -165,12 +168,77 @@ describe('Selektoren', () => {
       pflichtmatrix: {
         anwendbar: true,
         befunde: [
-          { id: 'PFL-01', required_data: 'rechnung.gesamt', label: 'Rechnungsbetrag', haerte: 'hard' as const, status: 'ok' as const, begruendung: 'nachgewiesen', akzeptierte_nachweise: ['handelsrechnung'], rechtsgrundlage: 'Art. 163 UZK', quelle: 'INV-1' },
+          { id: 'PFL-01', required_data: 'rechnung.gesamt', label: 'Rechnungsbetrag', haerte: 'hard' as const, status: 'ok' as const, begruendung: 'nachgewiesen', akzeptierte_nachweise: ['handelsrechnung'], rechtsgrundlage: 'Art. 163 UZK', fassung: '0.1.0@2026-09-12', quelle: 'INV-1' },
         ],
       },
     };
     const erfuellt = waehleErfuelltePflicht.projector(ergebnis);
     expect(erfuellt).toHaveLength(1);
     expect(erfuellt[0].quelle).toBe('INV-1');
+  });
+});
+
+describe('Übersteuerungen', () => {
+  const uebersteuerung = (regel: string, begruendung = 'Reederei hat bestätigt') => ({
+    regel,
+    fassung: '0.1.0@2026-09-12',
+    benutzer: 'G. Suter',
+    begruendung,
+    erzeugt_am: ZEIT,
+  });
+
+  it('nimmt eine Übersteuerung auf und setzt den Stand auf laeuft', () => {
+    const zustand = akteReducer(
+      anfangszustand,
+      AkteAktionen.befundUebersteuert({ uebersteuerung: uebersteuerung('TRN-01') }),
+    );
+    expect(zustand.uebersteuerungen).toEqual([uebersteuerung('TRN-01')]);
+    expect(zustand.stand).toBe('laeuft');
+  });
+
+  it('ersetzt die vorherige Entscheidung zur selben Kennung, statt sie zu verdoppeln', () => {
+    const erste = akteReducer(
+      anfangszustand,
+      AkteAktionen.befundUebersteuert({ uebersteuerung: uebersteuerung('TRN-01', 'erster Grund hier') }),
+    );
+    const zweite = akteReducer(
+      erste,
+      AkteAktionen.befundUebersteuert({ uebersteuerung: uebersteuerung('TRN-01', 'zweiter Grund hier') }),
+    );
+    expect(zweite.uebersteuerungen).toHaveLength(1);
+    expect(zweite.uebersteuerungen[0].begruendung).toBe('zweiter Grund hier');
+  });
+
+  it('lässt Entscheidungen zu anderen Kennungen unberührt', () => {
+    const erste = akteReducer(anfangszustand, AkteAktionen.befundUebersteuert({ uebersteuerung: uebersteuerung('TRN-01') }));
+    const zweite = akteReducer(erste, AkteAktionen.befundUebersteuert({ uebersteuerung: uebersteuerung('PFL-02') }));
+    const zurueck = akteReducer(zweite, AkteAktionen.uebersteuerungZurueckgenommen({ regel: 'TRN-01' }));
+    expect(zurueck.uebersteuerungen.map((u) => u.regel)).toEqual(['PFL-02']);
+  });
+
+  it('merkt sich die Stammdaten der Einreichung, damit erneut geprüft werden kann', () => {
+    const zustand = akteReducer(anfangszustand, AkteAktionen.eingereicht({ stammdaten: STAMMDATEN }));
+    expect(zustand.stammdaten).toBe(STAMMDATEN);
+  });
+
+  it('meldet den Unterschied der beiden Entscheidungen nur, wenn es einen gibt', () => {
+    expect(waehleFreigabeUnterschied.projector(ERGEBNIS_BLOCKIERT)).toBeNull();
+    expect(waehleFreigabeUnterschied.projector(ERGEBNIS_UEBERSTEUERT)).toEqual({
+      ohne: 'blockiert',
+      mit: 'freigabereif',
+    });
+  });
+
+  it('führt übersteuerte Befunde weiterhin als offen — sie verschwinden nicht', () => {
+    expect(waehleUebersteuerteBefunde.projector(ERGEBNIS_UEBERSTEUERT).map((b) => b.regel)).toEqual(['TRN-01']);
+    // Und derselbe Befund steht unverändert in der Liste der offenen.
+    const offen = waehleOffeneBefunde.projector(ERGEBNIS_UEBERSTEUERT);
+    expect(offen.map((b) => b.regel)).toEqual(['TRN-01']);
+    expect(offen[0].status).toBe('verletzt');
+  });
+
+  it('belegt den Namen aus der zuletzt getroffenen Entscheidung vor', () => {
+    expect(waehleLetzterBenutzer.projector([])).toBe('');
+    expect(waehleLetzterBenutzer.projector([uebersteuerung('TRN-01')])).toBe('G. Suter');
   });
 });

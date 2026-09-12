@@ -9,7 +9,7 @@ import { type Page, expect, test } from '@playwright/test';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-import { ERGEBNIS_BLOCKIERT, ERGEBNIS_FREI } from '../src/app/akte/testhilfen';
+import { ERGEBNIS_BLOCKIERT, ERGEBNIS_FREI, ERGEBNIS_UEBERSTEUERT } from '../src/app/akte/testhilfen';
 
 const DATEINAMEN = ['handelsrechnung.pdf', 'packliste.pdf', 'bill-of-lading.pdf'];
 const MAX_EBENEN = 6;
@@ -169,4 +169,47 @@ test('ein entwertetes Ergebnis wird als entwertet gezeigt, nicht gelöscht', asy
   await expect(page.getByRole('heading', { name: 'Vorheriges Ergebnis gilt nicht mehr' })).toBeVisible();
   await expect(page.locator('section.block')).toHaveCount(0);
   await keineVerstoesse(page, 'entwertetes Ergebnis');
+});
+
+test('ein Befund lässt sich übersteuern, ohne dass er verschwindet', async ({ page }) => {
+  // Erst blockiert, nach der Übersteuerung antwortet der Workflow mit dem
+  // zweiten Prüfstück — genau so, wie er es im Betrieb täte.
+  await antworteMit(page, ERGEBNIS_BLOCKIERT, 422);
+  await belegeAblegen(page);
+  await page.getByRole('button', { name: 'Akte einreichen' }).click();
+  await expect(page.locator('.band.blockiert .wort')).toHaveText('Blockiert');
+
+  await page.getByRole('button', { name: /^Übersteuern: TRN-01/ }).click();
+  await keineVerstoesse(page, 'Übersteuerungsformular');
+
+  await page.getByLabel('Ihr Name').fill('G. Suter');
+  await page.getByLabel(/Begründung/).fill('Reederei hat den Umlad schriftlich bestätigt');
+
+  await antworteMit(page, ERGEBNIS_UEBERSTEUERT, 200);
+  await page.getByRole('button', { name: 'Übersteuern und erneut prüfen' }).click();
+
+  // Die Entscheidung dreht, der Befund bleibt stehen (ADR-007).
+  await expect(page.locator('.band.freigabereif .wort')).toHaveText('Freigabereif');
+  await expect(page.locator('.unterschied')).toContainText('Das Regelwerk allein sagt');
+  await expect(page.locator('.befunde .status').first()).toHaveText('verletzt');
+  await expect(page.getByText('Verantwortet von G. Suter')).toBeVisible();
+  await keineVerstoesse(page, 'übersteuerter Befund');
+});
+
+test('ohne Namen oder Begründung ist das Übersteuern gesperrt und der Grund steht daneben', async ({ page }) => {
+  await antworteMit(page, ERGEBNIS_BLOCKIERT, 422);
+  await belegeAblegen(page);
+  await page.getByRole('button', { name: 'Akte einreichen' }).click();
+  await page.getByRole('button', { name: /^Übersteuern: TRN-01/ }).click();
+
+  const absenden = page.getByRole('button', { name: 'Übersteuern und erneut prüfen' });
+  await expect(absenden).toBeDisabled();
+  await expect(page.locator('.sperre')).toHaveText('Ohne Namen keine Übersteuerung.');
+
+  await page.getByLabel('Ihr Name').fill('G. Suter');
+  await expect(page.locator('.sperre')).toContainText('mindestens 11 Zeichen');
+  await expect(absenden).toBeDisabled();
+
+  await page.getByLabel(/Begründung/).fill('Reederei hat bestätigt');
+  await expect(absenden).toBeEnabled();
 });

@@ -25,6 +25,8 @@ export const ERGEBNIS_BLOCKIERT: Pruefergebnis = {
   stichtag: '2026-09-12',
   katalog_version: '0.1.0',
   freigabe: 'blockiert',
+  freigabe_nach_override: 'blockiert',
+  uebersteuerungen: { angewandt: [], verbraucht: [] },
   pflichtmatrix: { anwendbar: true, befunde: [] },
   befunde: [
     {
@@ -86,10 +88,39 @@ export const ERGEBNIS_BLOCKIERT: Pruefergebnis = {
   ],
 };
 
+/**
+ * Dieselbe Akte, nachdem ein Mensch TRN-01 verantwortet hat (ADR-007).
+ *
+ * Ebenfalls abgeschrieben, nicht gebaut: Der Befund ist unverändert
+ * `verletzt`, `freigabe` bleibt `blockiert`, und nur
+ * `freigabe_nach_override` dreht. Genau das soll die Oberfläche zeigen.
+ */
+export const ERGEBNIS_UEBERSTEUERT: Pruefergebnis = {
+  ...ERGEBNIS_BLOCKIERT,
+  freigabe_nach_override: 'freigabereif',
+  uebersteuerungen: {
+    angewandt: [
+      {
+        kennung: 'TRN-01',
+        benutzer: 'G. Suter',
+        begruendung: 'Reederei hat den Umlad schriftlich bestaetigt, Beleg folgt',
+      },
+    ],
+    verbraucht: [],
+  },
+  befunde: ERGEBNIS_BLOCKIERT.befunde.map((befund) => ({
+    ...befund,
+    uebersteuert_von: 'G. Suter',
+    uebersteuert_am: '2026-09-12T10:00:00Z',
+    uebersteuerungsgrund: 'Reederei hat den Umlad schriftlich bestaetigt, Beleg folgt',
+  })),
+};
+
 export const ERGEBNIS_FREI: Pruefergebnis = {
   ...ERGEBNIS_BLOCKIERT,
   akte_id: 'ZP-2026-0001',
   freigabe: 'freigabereif',
+  freigabe_nach_override: 'freigabereif',
   befunde: [],
   nachforderungen: [],
   nicht_klassifiziert: [],
