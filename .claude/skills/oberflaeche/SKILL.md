@@ -41,11 +41,26 @@ Compiler:
   nutzt bewusst Reactive Forms (ADR-006); wer das ändert, ändert eine
   Entscheidung und braucht eine ADR.
 
+## Die Gestalt folgt dem Entwurf
+
+`docs/entwurf/` hält Wireframe und Mockup; `03-abgleich.md` sagt, was
+übernommen wurde und was der Entwurf zeigt, das es nicht gibt. Wer das
+Aussehen ändert, ändert entweder den Entwurf mit oder begründet die
+Abweichung. Drei Festlegungen daraus, die nicht aus Geschmack entstanden:
+
+- **Zwei Spalten.** Die Akte ist Kontext und bleibt links stehen, das
+  Ergebnis bekommt die Restbreite. Unter 1024 px stapeln sie.
+- **Ergebnisblöcke nach Handlungsnähe:** Nachforderungen, Regeln,
+  Nachweispflichten, erkannte Belege. Nicht nach Erzeugungsreihenfolge.
+- **Ein leerer Block ist eine Zeile mit Zahl**, nie ein Kasten in
+  Fehlerform: „12 von 13 ohne Befund", nicht „nichts gefunden". Die Zahl der
+  geprüften Regeln steht im Ergebnis und darf nicht verlorengehen.
+
 ## Zustand
 
 | Wo | Was |
 |---|---|
-| ngrx Store (`src/app/akte/`) | Belege (nur Angaben), Stand, Ergebnis, Fehler |
+| ngrx Store (`src/app/akte/`) | Belege (nur Angaben), Stand, Ergebnis, Zeitpunkt, Entwertung, Fehler |
 | Reactive Form (`einreichung.ts`) | die Stammdaten. Ein Formular ist schon eine Zustandsverwaltung; zwei übereinander bringen nur Abgleich |
 | `BelegSpeicher` | die `File`-Objekte, verbunden über dieselbe Kennung |
 | Signals | reine Sichtsachen (ist gerade etwas über der Ablage?) |
@@ -59,6 +74,14 @@ Browser prüfbar.
 
 **Aktionen sind Ereignisse, keine Befehle:** `Belege hinzugefuegt`, nicht
 `Belege hinzufuegen`.
+
+**Keine Uhr im Reducer.** Der Zeitpunkt der Prüfung kommt mit der Aktion
+herein. Ein Reducer, der `new Date()` ruft, ist nicht ohne Vorkehrung
+prüfbar — und die offizielle Angular-Empfehlung sagt dasselbe.
+
+**Ein Ergebnis wird entwertet, nicht gelöscht.** Ändern sich die Belege,
+bleibt es im Zustand und `veraltet` wird gesetzt; die Oberfläche zeigt, dass
+es eine frühere Entscheidung gab und wann.
 
 ## Die 422-Falle
 

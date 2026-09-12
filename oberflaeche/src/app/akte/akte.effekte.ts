@@ -31,7 +31,8 @@ export const einreichen = createEffect(
       switchMap(([{ stammdaten }, ids]) =>
         dienst.einreichen(stammdaten, speicher.dateien(ids)).pipe(
           mapResponse({
-            next: (ergebnis) => AkteAktionen.einreichungBeantwortet({ ergebnis }),
+            next: (ergebnis) =>
+              AkteAktionen.einreichungBeantwortet({ ergebnis, zeitpunkt: new Date().toISOString() }),
             error: (fehler: unknown) => AkteAktionen.einreichungFehlgeschlagen({ meldung: fehlermeldung(fehler) }),
           }),
         ),

@@ -1,154 +1,302 @@
+@if (stand() === 'bereit' && !entwertet()) {
+  <section class="platzhalter" aria-labelledby="platzhalter-titel">
+    <h2 id="platzhalter-titel">Noch keine Prüfung</h2>
+    <p class="leise">
+      Belege beilegen, dann die Akte einreichen. Das Ergebnis erscheint hier — an dieser
+      Stelle, in dieser Breite.
+    </p>
+    <p class="rubrik">Was geprüft wird</p>
+    <ul class="bilanz">
+      <li><span class="bezeichnung">Nachweispflichten</span> <span class="leise">aus dem Katalog, je Pflicht der Beleg, der sie erfüllt</span></li>
+      <li><span class="bezeichnung">Regelwerk</span> <span class="leise">harte und weiche Regeln, mit Konsequenz und Rechtsgrundlage</span></li>
+      <li><span class="bezeichnung">Nachforderungen</span> <span class="leise">mit Adressat, Kopie und fertigem Anschreiben</span></li>
+    </ul>
+  </section>
+}
+
+@if (entwertet(); as alt) {
+  <section class="platzhalter entwertet" aria-labelledby="entwertet-titel">
+    <h2 id="entwertet-titel">Vorheriges Ergebnis gilt nicht mehr</h2>
+    <p role="status">
+      Die Belege haben sich geändert. Das Ergebnis vom {{ zeitText(alt.zeitpunkt) }}
+      ({{ freigabeText(alt.freigabe) }}) gehörte zu einer anderen Zusammenstellung und wird
+      deshalb nicht mehr angezeigt.
+    </p>
+    <p class="leise">Akte erneut einreichen, um eine gültige Entscheidung zu bekommen.</p>
+  </section>
+}
+
+@if (stand() === 'laeuft') {
+  <section class="platzhalter" aria-labelledby="laeuft-titel">
+    <h2 id="laeuft-titel">Prüfung läuft</h2>
+    <p role="status">
+      Die Belege werden gelesen und gegen den Katalog geprüft. Bei gescannten Belegen dauert
+      das bis zu einer Minute.
+    </p>
+    <p class="rubrik">Ergebnisblöcke — Platzhalter, spätere Anordnung</p>
+    <ul class="bilanz">
+      <li><span class="bezeichnung">Nachforderungen</span> <span class="leise">was zu tun ist</span></li>
+      <li><span class="bezeichnung">Regeln</span> <span class="leise">Befund, Konsequenz, Rechtsgrundlage</span></li>
+      <li><span class="bezeichnung">Nachweispflichten</span> <span class="leise">offen und erfüllt</span></li>
+      <li><span class="bezeichnung">Erkannte Belege</span> <span class="leise">Kennung, Typ, Status, gelesen</span></li>
+    </ul>
+    <p class="leise">
+      Die Platzhalter stehen an den Stellen der späteren Blöcke, damit nach dem Laden nichts
+      wandert.
+    </p>
+  </section>
+}
+
 @if (stand() === 'fehler') {
-  <section class="ergebnis">
-    <h2 #ueberschrift tabindex="-1">Einreichung gescheitert</h2>
-    <p class="meldung blockiert" role="alert">{{ fehler() }}</p>
+  <section class="ergebnis kein-ergebnis">
+    <h2 #ueberschrift tabindex="-1">Prüfung nicht durchgeführt</h2>
+    <p class="meldung" role="alert">{{ fehler() }}</p>
+    <p>
+      Dies ist <strong>kein Prüfergebnis</strong>: Die Akte ist weder freigabereif noch
+      blockiert. Es liegt keine Entscheidung vor.
+    </p>
+    <p class="leise">
+      Kein Ergebnisblock wird angezeigt — auch keine leeren. Ein leerer Block hieße „nichts
+      offen", und das ist hier nicht bekannt. Die Belege bleiben beigelegt und erhalten.
+    </p>
     <button type="button" class="zweitrangig" (click)="neuBeginnen()">Von vorn beginnen</button>
   </section>
 }
 
-@if (stand() === 'fertig' && ergebnis(); as gepruefteAkte) {
+@if (ergebnis(); as gepruefteAkte) {
   <section class="ergebnis">
-    <h2 #ueberschrift tabindex="-1">Ergebnis der Prüfung</h2>
+    <h2 #ueberschrift tabindex="-1" class="nur-vorlesen">Ergebnis der Prüfung</h2>
 
-    <p class="entscheidung" [class]="gepruefteAkte.freigabe" role="status">
-      <span class="marke">{{ freigabeText(gepruefteAkte.freigabe) }}</span>
-      <span class="leise">
+    <div class="band" [class]="gepruefteAkte.freigabe">
+      <p class="entscheidung">
+        <span class="marke" aria-hidden="true"></span>
+        <span class="wort">{{ freigabeText(gepruefteAkte.freigabe) }}</span>
+      </p>
+      <p class="leise">
         Akte {{ gepruefteAkte.akte_id }} · Katalog {{ gepruefteAkte.katalog_version }} ·
         Stichtag {{ gepruefteAkte.stichtag }}
-      </span>
-    </p>
+        @if (gepruefetAm()) {
+          · geprüft {{ zeitText(gepruefetAm()) }}
+        }
+      </p>
+      <p class="zaehlung">
+        {{ regelBilanz().offen }} {{ regelBilanz().offen === 1 ? 'Regelbefund' : 'Regelbefunde' }} offen ·
+        {{ pflichtBilanz().offen }} {{ pflichtBilanz().offen === 1 ? 'Nachweispflicht' : 'Nachweispflichten' }} offen ·
+        {{ nachforderungen().length }} {{ nachforderungen().length === 1 ? 'Nachforderung' : 'Nachforderungen' }} zu versenden
+      </p>
+      <nav class="sprungmarken" aria-label="Zu den Ergebnisblöcken">
+        <a href="#block-nachforderungen">Nachforderungen</a>
+        <a href="#block-regeln">Regeln</a>
+        <a href="#block-pflichten">Nachweispflichten</a>
+        <a href="#block-belege">Belege</a>
+      </nav>
+    </div>
 
     @if (!gepruefteAkte.pflichtmatrix.anwendbar) {
-      <p class="meldung warnung">
+      <p class="meldung hinweis">
         {{ gepruefteAkte.pflichtmatrix.grund }} — es wurden nur die Regeln geprüft, keine
         Nachweispflichten.
       </p>
     }
 
-    <h3>Belege in der Akte</h3>
-    @if (dokumente().length === 0) {
-      <p class="leise">Kein Beleg in der Akte.</p>
-    } @else {
-      <div class="tabellenrahmen">
-        <table>
-          <caption class="nur-vorlesen">
-            Belege der Akte mit Typ, Status und Art der Lesung
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">Kennung</th>
-              <th scope="col">Typ</th>
-              <th scope="col">Status</th>
-              <th scope="col">Datei</th>
-              <th scope="col">Gelesen</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (dokument of dokumente(); track dokument.id) {
-              <tr>
-                <th scope="row">{{ dokument.id }}</th>
-                <td>
-                  {{ dokument.typ }}
-                  @if (dokument.traeger) {
-                    <span class="leise">auf {{ dokument.traeger }}</span>
-                  }
-                </td>
-                <td>{{ dokument.status === 'final' ? 'final' : 'Entwurf' }}</td>
-                <td class="fest">{{ dokument.datei ?? '—' }}</td>
-                <td>
-                  {{ methodenText(dokument) }}
-                  @if (dokument.seiten) {
-                    <span class="leise">{{ dokument.seiten }} S.</span>
-                  }
-                  @if (dokument.hinweis) {
-                    <span class="hinweis">{{ dokument.hinweis }}</span>
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
+    <!-- 1 — Nachforderungen: was zu tun ist. Steht oben, weil es die einzige
+         Handlung auf diesem Bildschirm ist. -->
+    <section class="block" id="block-nachforderungen" aria-labelledby="titel-nachforderungen">
+      <h3 id="titel-nachforderungen">
+        Nachforderungen
+        <span class="zahl">{{ nachforderungen().length }}</span>
+        <span class="leise">was zu tun ist</span>
+      </h3>
 
-    @if (extraktionshinweise().length > 0) {
-      <h3>Hinweise der Extraktion</h3>
-      <ul class="hinweisliste">
-        @for (hinweis of extraktionshinweise(); track hinweis) {
-          <li>{{ hinweis }}</li>
-        }
-      </ul>
-    }
-
-    <h3>Nachweispflichten</h3>
-    @if (offenePflicht().length === 0) {
-      <p class="leise">Alle Pflichteinträge sind nachgewiesen.</p>
-    } @else {
-      <ul class="befunde">
-        @for (befund of offenePflicht(); track befund.id) {
-          <li>
-            <p class="kopf">
-              <span class="kennung">{{ befund.id }}</span>
-              <span class="status" [class.hart]="befund.haerte === 'hard'">{{ pflichtText(befund.status) }}</span>
-              <span>{{ befund.label }}</span>
-            </p>
-            <p class="begruendung">{{ befund.begruendung }}</p>
-            <p class="leise">
-              Akzeptiert wird: {{ befund.akzeptierte_nachweise.join(' oder ') }} ·
-              {{ befund.rechtsgrundlage }}
-            </p>
-          </li>
-        }
-      </ul>
-    }
-
-    <h3>Regeln</h3>
-    @if (offeneBefunde().length === 0) {
-      <p class="leise">Keine Regel ist verletzt.</p>
-    } @else {
-      <ul class="befunde">
-        @for (befund of offeneBefunde(); track befund.regel) {
-          <li>
-            <p class="kopf">
-              <span class="kennung">{{ befund.regel }}</span>
-              <span class="status" [class.hart]="befund.haerte_effektiv === 'hard'">{{ befundText(befund.status) }}</span>
-              <span>{{ befund.name }}</span>
-            </p>
-            <p class="begruendung">{{ befund.begruendung }}</p>
-            <p class="leise">
-              {{ befund.konsequenz }} · {{ befund.rechtsgrundlage }}
-              <span class="quelle">({{ rechtsquelleText(befund.rechtsquelle_status) }})</span> ·
-              Regelversion {{ befund.regelversion }}
-            </p>
-          </li>
-        }
-      </ul>
-    }
-
-    <h3>Nachforderungen</h3>
-    @if (nachforderungen().length === 0) {
-      <p class="leise">Nichts nachzufordern.</p>
-    } @else {
-      <ul class="befunde">
-        @for (fall of nachforderungen(); track fall.grund + fall.feld) {
-          <li>
-            <p class="kopf">
-              <span class="kennung">{{ fall.grund }}</span>
-              <span>an {{ fall.adressat.primaer }}</span>
-              @if (fall.adressat.sekundaer) {
-                <span class="leise">Kopie: {{ fall.adressat.sekundaer }}</span>
+      @if (nachforderungen().length === 0) {
+        <p class="bilanzzeile">Nichts nachzufordern.</p>
+      } @else {
+        @for (gruppe of gruppen(); track gruppe.primaer) {
+          @if (mehrereAdressaten()) {
+            <p class="adressat-kopf">
+              {{ gruppe.primaer }}
+              @if (gruppe.sekundaer) {
+                <span class="leise">Kopie: {{ gruppe.sekundaer }}</span>
               }
+              <span class="leise">{{ gruppe.faelle.length }} {{ gruppe.faelle.length === 1 ? 'Fall' : 'Fälle' }}</span>
             </p>
-            <p class="begruendung"><span class="fest">{{ fall.feld }}</span> — {{ fall.widerspruch }}</p>
-            <p class="leise">{{ fall.folge }}</p>
-            <details>
-              <summary>Anschreiben anzeigen</summary>
-              <pre>{{ fall.text }}</pre>
-            </details>
-          </li>
+          }
+          <ul class="befunde">
+            @for (fall of gruppe.faelle; track kennung(fall)) {
+              <li>
+                <p class="kopf">
+                  <span class="kennung fest">{{ fall.grund }}</span>
+                  <span>an {{ fall.adressat.primaer }}</span>
+                  @if (fall.adressat.sekundaer) {
+                    <span class="leise">Kopie: {{ fall.adressat.sekundaer }}</span>
+                  }
+                </p>
+                <p class="begruendung"><span class="fest">{{ fall.feld }}</span> — {{ fall.widerspruch }}</p>
+                <p class="leise">{{ fall.folge }}</p>
+                <details>
+                  <summary>Anschreiben</summary>
+                  <pre>{{ fall.text }}</pre>
+                  <p class="werkzeuge">
+                    <button type="button" class="zweitrangig" (click)="kopieren(fall)">
+                      Kopieren<span class="nur-vorlesen">: Anschreiben zu {{ fall.grund }}</span>
+                    </button>
+                    <a class="knopf-artig" [href]="mailto(fall)">
+                      Als E-Mail öffnen<span class="nur-vorlesen">: Anschreiben zu {{ fall.grund }}</span>
+                    </a>
+                    <span class="leise" role="status">
+                      @if (kopiert() === kennung(fall)) {
+                        In die Zwischenablage kopiert.
+                      }
+                    </span>
+                  </p>
+                </details>
+              </li>
+            }
+          </ul>
         }
-      </ul>
-    }
+      }
+    </section>
+
+    <!-- 2 — Regeln -->
+    <section class="block" id="block-regeln" aria-labelledby="titel-regeln">
+      <h3 id="titel-regeln">
+        Regeln
+        <span class="zahl">{{ regelBilanz().offen }} offen</span>
+        <span class="leise">{{ regelBilanz().ohneBefund }} von {{ regelBilanz().gesamt }} ohne Befund</span>
+      </h3>
+
+      @if (offeneBefunde().length === 0) {
+        <p class="bilanzzeile">
+          Keine Regel ist verletzt. {{ regelBilanz().gesamt }} Regeln geprüft.
+        </p>
+      } @else {
+        <ul class="befunde">
+          @for (befund of offeneBefunde(); track befund.regel) {
+            <li [class.hart]="befund.haerte_effektiv === 'hard'">
+              <p class="kopf">
+                <span class="kennung fest">{{ befund.regel }}</span>
+                <span class="status" [class.hart]="befund.haerte_effektiv === 'hard'">{{ befundText(befund.status) }}</span>
+                <span>{{ befund.name }}</span>
+              </p>
+              <p class="begruendung">{{ befund.begruendung }}</p>
+              <p class="leise">Konsequenz: {{ befund.konsequenz }}</p>
+              <p class="verweis">
+                {{ befund.rechtsgrundlage }}
+                <span class="quelle">({{ rechtsquelleText(befund.rechtsquelle_status) }})</span> ·
+                Regelversion <span class="fest">{{ befund.regelversion }}</span>
+              </p>
+            </li>
+          }
+        </ul>
+      }
+      <p class="vorbehalt">
+        Keine Regel ist bisher gegen die Primärquelle geprüft. Alle Rechtsgrundlagen:
+        Sekundärrecherche oder Praxisannahme.
+      </p>
+    </section>
+
+    <!-- 3 — Nachweispflichten -->
+    <section class="block" id="block-pflichten" aria-labelledby="titel-pflichten">
+      <h3 id="titel-pflichten">
+        Nachweispflichten
+        <span class="zahl">{{ pflichtBilanz().offen }} offen</span>
+        <span class="leise">{{ pflichtBilanz().erfuellt }} von {{ pflichtBilanz().gesamt }} erfüllt</span>
+      </h3>
+
+      @if (offenePflicht().length === 0) {
+        <p class="bilanzzeile">Alle {{ pflichtBilanz().gesamt }} Pflichteinträge sind nachgewiesen.</p>
+      } @else {
+        <ul class="befunde">
+          @for (befund of offenePflicht(); track befund.id) {
+            <li [class.hart]="befund.haerte === 'hard'">
+              <p class="kopf">
+                <span class="kennung fest">{{ befund.id }}</span>
+                <span class="status" [class.hart]="befund.haerte === 'hard'">{{ pflichtText(befund.status) }}</span>
+                <span>{{ befund.label }}</span>
+              </p>
+              <p class="begruendung">{{ befund.begruendung }}</p>
+              <p class="leise">Akzeptiert wird: {{ befund.akzeptierte_nachweise.join(' oder ') }}</p>
+              <p class="verweis">{{ befund.rechtsgrundlage }}</p>
+            </li>
+          }
+        </ul>
+      }
+
+      @if (erfuelltePflicht().length > 0) {
+        <details class="erfuellt">
+          <summary>{{ erfuelltePflicht().length }} erfüllt — je mit dem Beleg, der sie erfüllt</summary>
+          <ul class="erfuellt-liste">
+            @for (befund of erfuelltePflicht(); track befund.id) {
+              <li>
+                <span class="kennung fest">{{ befund.id }}</span>
+                <span>{{ befund.label }}</span>
+                <span class="leise">Nachweis: <span class="fest">{{ befund.quelle }}</span></span>
+              </li>
+            }
+          </ul>
+        </details>
+      }
+    </section>
+
+    <!-- 4 — Erkannte Belege. Zuletzt: Beleg für das Ergebnis, keine Handlung. -->
+    <section class="block" id="block-belege" aria-labelledby="titel-belege">
+      <h3 id="titel-belege">
+        Erkannte Belege
+        <span class="zahl">{{ dokumente().length }}</span>
+      </h3>
+
+      @if (dokumente().length === 0) {
+        <p class="bilanzzeile">Kein Beleg in der Akte.</p>
+      } @else {
+        <div class="tabellenrahmen">
+          <table>
+            <caption class="nur-vorlesen">Belege der Akte mit Typ, Status und Art der Lesung</caption>
+            <thead>
+              <tr>
+                <th scope="col">Kennung</th>
+                <th scope="col">Belegtyp</th>
+                <th scope="col">Status</th>
+                <th scope="col">Datei</th>
+                <th scope="col">Gelesen</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (dokument of dokumente(); track dokument.id) {
+                <tr>
+                  <th scope="row" class="fest">{{ dokument.id }}</th>
+                  <td>
+                    {{ dokument.typ }}
+                    @if (dokument.traeger) {
+                      <span class="leise">auf {{ dokument.traeger }}</span>
+                    }
+                  </td>
+                  <td>{{ dokument.status === 'final' ? 'final' : 'Entwurf' }}</td>
+                  <td class="fest">{{ dokument.datei ?? '—' }}</td>
+                  <td>
+                    {{ methodenText(dokument) }}
+                    @if (dokument.seiten) {
+                      <span class="leise">{{ dokument.seiten }} S.</span>
+                    }
+                    @if (dokument.hinweis) {
+                      <span class="hinweis-zelle">{{ dokument.hinweis }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @if (extraktionshinweise().length > 0) {
+        <p class="rubrik">Hinweise der Extraktion</p>
+        <ul class="hinweisliste">
+          @for (hinweis of extraktionshinweise(); track hinweis) {
+            <li>{{ hinweis }}</li>
+          }
+        </ul>
+      }
+    </section>
 
     <button type="button" class="zweitrangig" (click)="neuBeginnen()">Nächste Akte einreichen</button>
   </section>

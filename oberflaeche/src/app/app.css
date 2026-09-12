@@ -1,32 +1,33 @@
 /* Die Sprungmarke liegt außerhalb des Bildes, bis sie den Fokus bekommt —
- * der erste Tabulatorsprung führt an der Kopfzeile vorbei zum Inhalt. */
+ * der erste Tabulatorsprung führt an Kopfzeile und Formular vorbei dorthin,
+ * wo nach dem Absenden das Ergebnis steht. */
 .sprungmarke {
   position: absolute;
   inset-inline-start: var(--mass-4);
-  inset-block-start: calc(-1 * var(--mass-8) - var(--mass-4));
+  inset-block-start: -60px;
   z-index: 1;
   padding: var(--mass-2) var(--mass-4);
   background: var(--ton-grund);
   color: var(--ton-aktion);
   border: 1px solid var(--ton-aktion);
-  border-radius: var(--radius);
 }
 
 .sprungmarke:focus-visible {
   inset-block-start: var(--mass-4);
 }
 
-.mitte {
-  max-width: 60rem;
-  margin-inline: auto;
-  padding-inline: var(--mass-4);
-}
-
 header {
   background: var(--ton-grund);
-  border-bottom: 1px solid var(--ton-rand);
+  border-bottom: 1px solid var(--ton-haarlinie);
   padding-block: var(--mass-6);
-  margin-bottom: var(--mass-6);
+}
+
+.kopf,
+.flaeche,
+.flaeche-schmal {
+  max-width: 1400px;
+  margin-inline: auto;
+  padding-inline: var(--mass-8);
 }
 
 .marke {
@@ -34,33 +35,67 @@ header {
   font-family: var(--schrift-fest);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-size: 0.8125rem;
+  font-size: var(--groesse-rubrik);
   color: var(--ton-text-leise);
 }
 
 h1 {
   margin: 0 0 var(--mass-2);
+  font-size: 28px;
 }
 
 .untertitel {
   margin: 0;
-  max-width: 46rem;
-  color: var(--ton-text-leise);
+  max-width: var(--zeilenmass);
+  color: var(--ton-text-mittel);
 }
 
-main {
+.flaeche {
   display: grid;
-  gap: var(--mass-6);
-  padding-bottom: var(--mass-8);
+  grid-template-columns: var(--aktenspalte) minmax(0, 1fr);
+  gap: var(--mass-8);
+  align-items: start;
+  padding-block: var(--mass-6) var(--mass-8);
+}
+
+/* Die Aktenspalte bleibt beim Lesen der Befunde stehen — beim blockierten
+ * Fall braucht man beides gleichzeitig: den Befund und die Frage, ob ein
+ * Beleg fehlt oder nur schlecht gelesen wurde. */
+.akte {
+  position: sticky;
+  top: var(--mass-4);
+}
+
+/* Unter 1024 px stapeln die Spalten; die Akte steht dann oben und scrollt
+ * mit, weil zwei gleichzeitig sichtbare Spalten dort nicht passen. */
+@media (max-width: 1023px) {
+  .flaeche {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--mass-5);
+  }
+
+  .akte {
+    position: static;
+  }
+
+  .kopf,
+  .flaeche,
+  .flaeche-schmal {
+    padding-inline: var(--mass-4);
+  }
 }
 
 footer {
-  padding-block: var(--mass-6);
-  border-top: 1px solid var(--ton-rand);
+  border-top: 1px solid var(--ton-haarlinie);
   color: var(--ton-text-leise);
-  font-size: 0.875rem;
+  font-size: var(--groesse-wert);
+}
+
+.flaeche-schmal {
+  padding-block: var(--mass-6);
 }
 
 footer p {
   margin: 0;
+  max-width: var(--zeilenmass);
 }

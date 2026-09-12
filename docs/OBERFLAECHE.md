@@ -5,6 +5,11 @@ die Entscheidung liest. Angular 22 mit ngrx, ausgeliefert von nginx, das
 `/webhook/` an n8n weiterreicht (ADR-006). Dieses Dokument sagt, was sie
 tut, wie sie geprüft wird, und was sie nicht kann.
 
+**Die Gestalt folgt dem Entwurf** in [entwurf/](entwurf/): zwei Spalten
+(Struktur 1a), Ergebnisblöcke nach Handlungsnähe, Gestaltungstoken aus dem
+Mockup. Was davon übernommen wurde und was nicht gebaut werden konnte, steht
+in [entwurf/03-abgleich.md](entwurf/03-abgleich.md).
+
 ## Der Ablauf
 
 ```
@@ -40,14 +45,19 @@ darf — Pflichtfeldlogik, keine Fachregel.
 
 | Wo | Was | Warum dort |
 |---|---|---|
-| ngrx Store | Belege (nur Angaben), Stand, Ergebnis, Fehler | Sammlung mit Hinzufügen und Entfernen, ein asynchroner Vorgang mit drei Ausgängen |
+| ngrx Store | Belege (nur Angaben), Stand, Ergebnis, Zeitpunkt, Entwertung, Fehler | Sammlung mit Hinzufügen und Entfernen, ein asynchroner Vorgang mit drei Ausgängen |
 | Reactive Form | die Stammdaten | Ein Formular ist schon eine Zustandsverwaltung; zwei übereinander bringen nur Abgleich |
 | `BelegSpeicher` | die `File`-Objekte | `File` ist nicht serialisierbar und gehört nicht in den Store |
 | Signals | reine Sichtsachen | Kein Fachzustand |
 
 Die Stände sind eine Zustandsmaschine: `bereit` → `laeuft` → `fertig` oder
-`fehler`. Ein neuer Beleg verwirft ein altes Ergebnis, weil es zu einer
-anderen Zusammenstellung gehörte.
+`fehler`. Ein neuer Beleg **entwertet** ein altes Ergebnis, statt es zu
+löschen: Es bleibt im Zustand, wird aber nicht mehr angezeigt, und die
+Oberfläche sagt, dass es eine frühere Entscheidung gab und wann. Wer nur
+`null` setzt, nimmt dem Menschen diese Information.
+
+Der Zeitpunkt kommt **mit der Aktion** herein, nicht aus `new Date()` im
+Reducer — sonst wäre er nicht ohne Vorkehrung prüfbar.
 
 `app.config.ts` schaltet `strictStateSerializability` und die drei anderen
 Laufzeitprüfungen von ngrx ein. Legt jemand ein `File` in den Store, bricht
@@ -69,8 +79,9 @@ verliert genau die Befunde, um die es geht — geprüft in
 
 | Zusage | Prüfung | Stand |
 |---|---|---|
-| Kontrast der Gestaltungstoken | `scripts/kontrast-check.mjs` rechnet jede `@kontrast`-Anweisung in `styles.css` nach WCAG 2.1 nach | 11 Farbpaare, alle halten |
-| Keine axe-Verstöße | `oberflaeche/e2e/` über leeres Formular, Formular mit Belegen, Ergebnis freigabereif, Ergebnis blockiert, Fehlerfall | 5 Durchläufe, 0 Verstöße |
+| Kontrast der Gestaltungstoken | `scripts/kontrast-check.mjs` rechnet jede `@kontrast`-Anweisung in `styles.css` nach WCAG 2.1 nach | 13 Farbpaare, alle halten. Die Werte stammen aus dem Mockup und wurden unabhängig nachgerechnet — alle vierzehn stimmten |
+| Keine axe-Verstöße | `oberflaeche/e2e/` über leeres Formular, Formular mit Belegen, Ergebnis freigabereif, Ergebnis blockiert, entwertetes Ergebnis, Fehlerfall | 6 Durchläufe, 0 Verstöße |
+| Vier Unterscheidungen vor der Farbe | Wort, Markenform (Scheibe, Raute, offener Ring, Quadrat), Balkenstärke (4 px, 4 px gestrichelt, 6 px), dann Farbe | im Zustandsband |
 | Tastaturbedienung | Sprungmarke als erster Halt, Belege ohne Zeigegerät wählen und entfernen | im selben Lauf |
 | Fokusverwaltung | nach dem Absenden auf die Überschrift des Ergebnisses | im selben Lauf |
 | Beschriftungen | ein Test geht alle Eingaben durch und verlangt `label[for]` | `einreichung.spec.ts` |
@@ -86,9 +97,9 @@ Farbpaare, und eine Zusage, die niemand prüft, ist schlechter als keine.
 ```bash
 cd oberflaeche && npm ci
 npm start                 # Entwicklung auf 4200; /webhook/ ist dabei nicht erreichbar
-npm test                  # 43 Tests: Zustand, Dienst, Komponenten
+npm test                  # 54 Tests: Zustand, Dienst, Komponenten
 npm run e2e:install       # einmalig: Chromium für Playwright
-npm run e2e               # 10 Tests, davon 5 axe-Durchläufe
+npm run e2e               # 12 Tests, davon 6 axe-Durchläufe
 npm run build
 node ../scripts/kontrast-check.mjs
 ```
@@ -123,5 +134,12 @@ bash scripts/rauchtest.sh     # Runde 3 schickt eine Akte durch den Proxy
   bekommt die ehrliche Antwort des Regelwerks: Die Pflichtmatrix deckt
   diesen Sachverhalt nicht — geprüft werden dann nur die Regeln.
 - **Nur Deutsch.** Keine Übersetzung, kein `i18n`.
+- **Keine eigenen Schriften.** Der Entwurf wählt Atkinson Hyperlegible und
+  Source Code Pro mit guter Begründung (1/l/I und 0/O bei 12 px, geschlitzte
+  Null, gleiche Laufweite für Containernummern). Sie stehen in der
+  Schriftkette an erster Stelle, sind aber **nicht mitgeliefert** — offene
+  Frage 6 in `entwurf/03-abgleich.md`. Ohne sie greift die Systemschrift.
+- **Kein Fortschritt und kein Abbrechen** während der Prüfung. Der Webhook
+  ist synchron; mehr braucht eine eigene Entscheidung.
 - **Drei Kopien jeder Datei** auf dem Weg: Browser, nginx, n8n als Base64.
   Für Dutzende Akten am Tag trägt das, für Stapel mit hundert Seiten nicht.

@@ -54,10 +54,14 @@ describe('einreichen', () => {
     const aktionen$ = of(AkteAktionen.eingereicht({ stammdaten: STAMMDATEN }));
     baueUmgebung(aktionen$, of(ERGEBNIS_BLOCKIERT));
 
-    const aktion = await new Promise<unknown>((loesen) =>
+    const aktion = (await new Promise<unknown>((loesen) =>
       TestBed.runInInjectionContext(() => einreichen()).subscribe(loesen),
-    );
-    expect(aktion).toEqual(AkteAktionen.einreichungBeantwortet({ ergebnis: ERGEBNIS_BLOCKIERT }));
+    )) as ReturnType<typeof AkteAktionen.einreichungBeantwortet>;
+    expect(aktion.type).toBe(AkteAktionen.einreichungBeantwortet.type);
+    expect(aktion.ergebnis).toBe(ERGEBNIS_BLOCKIERT);
+    // Der Zeitpunkt entsteht im Effect, nicht im Reducer — geprüft wird die
+    // Form, nicht der Wert.
+    expect(new Date(aktion.zeitpunkt).getTime()).not.toBeNaN();
   });
 
   it('macht aus einem Transportfehler eine Aktion, nicht einen Absturz', async () => {

@@ -1,94 +1,109 @@
 <form [formGroup]="formular" (ngSubmit)="absenden()" novalidate>
-  <fieldset>
-    <legend>Sendung</legend>
+  <section class="karte" aria-labelledby="titel-stammdaten">
+    <h2 id="titel-stammdaten">
+      Stammdaten
+      <span class="leise">vorbelegt</span>
+    </h2>
 
-    <div class="raster">
-      <p class="feld">
-        <label for="akte-id">Akten-Nummer</label>
-        <input id="akte-id" type="text" formControlName="akte_id" required
-               [attr.aria-invalid]="fehlerhaft('akte_id') || null"
-               aria-describedby="akte-id-hilfe" />
-        <span id="akte-id-hilfe" class="hilfe">Ihre Referenz für diese Sendung.</span>
-        @if (fehlerhaft('akte_id')) {
-          <span class="fehler" role="alert">Die Akten-Nummer wird gebraucht.</span>
-        }
-      </p>
+    <dl class="zusammenfassung">
+      @for (eintrag of zusammenfassung(); track eintrag.name) {
+        <div class="zeile">
+          <dt>{{ eintrag.name }}</dt>
+          <dd [class.fest]="eintrag.fest">{{ eintrag.wert }}</dd>
+        </div>
+      }
+    </dl>
 
-      <p class="feld">
-        <label for="stichtag">Stichtag</label>
-        <input id="stichtag" type="date" formControlName="stichtag" required
-               aria-describedby="stichtag-hilfe" />
-        <span id="stichtag-hilfe" class="hilfe">Zu diesem Tag gilt der Regelkatalog.</span>
-      </p>
+    <details class="aendern">
+      <summary>Ändern</summary>
 
-      <p class="feld">
-        <label for="richtung">Richtung</label>
-        <select id="richtung" formControlName="richtung">
-          @for (eintrag of richtungen; track eintrag.wert) {
-            <option [value]="eintrag.wert">{{ eintrag.text }}</option>
+      <fieldset>
+        <legend class="nur-vorlesen">Sendung</legend>
+        <p class="feld">
+          <label for="akte-id">Akten-Nummer</label>
+          <input id="akte-id" type="text" formControlName="akte_id" required
+                 [attr.aria-invalid]="fehlerhaft('akte_id') || null"
+                 aria-describedby="akte-id-hilfe" />
+          <span id="akte-id-hilfe" class="hilfe">Ihre Referenz für diese Sendung.</span>
+          @if (fehlerhaft('akte_id')) {
+            <span class="fehler" role="alert">Die Akten-Nummer wird gebraucht.</span>
           }
-        </select>
-      </p>
+        </p>
 
-      <p class="feld">
-        <label for="verkehrstraeger">Verkehrsträger</label>
-        <select id="verkehrstraeger" formControlName="verkehrstraeger">
-          @for (eintrag of verkehrstraeger; track eintrag.wert) {
-            <option [value]="eintrag.wert">{{ eintrag.text }}</option>
+        <p class="feld">
+          <label for="stichtag">Stichtag</label>
+          <input id="stichtag" type="date" formControlName="stichtag" required
+                 aria-describedby="stichtag-hilfe" />
+          <span id="stichtag-hilfe" class="hilfe">Zu diesem Tag gilt der Regelkatalog.</span>
+        </p>
+
+        <p class="feld">
+          <label for="richtung">Richtung</label>
+          <select id="richtung" formControlName="richtung">
+            @for (eintrag of richtungen; track eintrag.wert) {
+              <option [value]="eintrag.wert">{{ eintrag.text }}</option>
+            }
+          </select>
+        </p>
+
+        <p class="feld">
+          <label for="verkehrstraeger">Verkehrsträger</label>
+          <select id="verkehrstraeger" formControlName="verkehrstraeger">
+            @for (eintrag of verkehrstraeger; track eintrag.wert) {
+              <option [value]="eintrag.wert">{{ eintrag.text }}</option>
+            }
+          </select>
+        </p>
+
+        <p class="feld kasten">
+          <input id="praeferenz" type="checkbox" formControlName="praeferenz_beansprucht" />
+          <label for="praeferenz">Präferenz wird beansprucht</label>
+          <span class="hilfe">Dann verlangt die Pflichtmatrix einen Präferenznachweis (PFL-05).</span>
+        </p>
+      </fieldset>
+
+      <fieldset>
+        <legend class="nur-vorlesen">Incoterm und Route</legend>
+        <p class="feld">
+          <label for="incoterm">Klausel</label>
+          <select id="incoterm" formControlName="incoterm_code">
+            @for (code of incoterms; track code) {
+              <option [value]="code">{{ code }}</option>
+            }
+          </select>
+          <span class="hilfe">Incoterms 2020.</span>
+        </p>
+        <p class="feld">
+          <label for="incoterm-ort">Benannter Ort</label>
+          <input id="incoterm-ort" type="text" formControlName="incoterm_ort" required
+                 [attr.aria-invalid]="fehlerhaft('incoterm_ort') || null" />
+          @if (fehlerhaft('incoterm_ort')) {
+            <span class="fehler" role="alert">Eine Klausel ohne benannten Ort ist unvollständig.</span>
           }
-        </select>
-      </p>
-    </div>
-
-    <p class="feld kasten">
-      <input id="praeferenz" type="checkbox" formControlName="praeferenz_beansprucht" />
-      <label for="praeferenz">Präferenz wird beansprucht</label>
-      <span class="hilfe">Dann verlangt die Pflichtmatrix einen Präferenznachweis (PFL-05).</span>
-    </p>
-  </fieldset>
-
-  <fieldset>
-    <legend>Incoterm und Route</legend>
-    <div class="raster">
-      <p class="feld">
-        <label for="incoterm">Klausel</label>
-        <select id="incoterm" formControlName="incoterm_code">
-          @for (code of incoterms; track code) {
-            <option [value]="code">{{ code }}</option>
-          }
-        </select>
-        <span class="hilfe">Incoterms 2020.</span>
-      </p>
-      <p class="feld">
-        <label for="incoterm-ort">Benannter Ort</label>
-        <input id="incoterm-ort" type="text" formControlName="incoterm_ort" required
-               [attr.aria-invalid]="fehlerhaft('incoterm_ort') || null" />
-        @if (fehlerhaft('incoterm_ort')) {
-          <span class="fehler" role="alert">Eine Klausel ohne benannten Ort ist unvollständig.</span>
-        }
-      </p>
-      <p class="feld">
-        <label for="incoterm-locode">UN/LOCODE des Ortes</label>
-        <input id="incoterm-locode" type="text" formControlName="incoterm_unlocode"
-               autocapitalize="characters" aria-describedby="locode-hilfe" />
-        <span id="locode-hilfe" class="hilfe">Fünf Zeichen, etwa DEHAM. Darf leer bleiben.</span>
-      </p>
-      <p class="feld">
-        <label for="pol">Verladehafen</label>
-        <input id="pol" type="text" formControlName="pol" autocapitalize="characters" />
-      </p>
-      <p class="feld">
-        <label for="pod">Löschhafen</label>
-        <input id="pod" type="text" formControlName="pod" autocapitalize="characters" />
-      </p>
-      <p class="feld">
-        <label for="warennummern">Warennummern der Anmeldung</label>
-        <input id="warennummern" type="text" formControlName="warennummern"
-               aria-describedby="warennummern-hilfe" />
-        <span id="warennummern-hilfe" class="hilfe">Mit Komma getrennt. Ausfuhr: acht Stellen (CLS-02).</span>
-      </p>
-    </div>
-  </fieldset>
+        </p>
+        <p class="feld">
+          <label for="incoterm-locode">UN/LOCODE des Ortes</label>
+          <input id="incoterm-locode" type="text" formControlName="incoterm_unlocode"
+                 autocapitalize="characters" aria-describedby="locode-hilfe" />
+          <span id="locode-hilfe" class="hilfe">Fünf Zeichen, etwa DEHAM. Darf leer bleiben.</span>
+        </p>
+        <p class="feld">
+          <label for="pol">Verladehafen</label>
+          <input id="pol" type="text" formControlName="pol" autocapitalize="characters" />
+        </p>
+        <p class="feld">
+          <label for="pod">Löschhafen</label>
+          <input id="pod" type="text" formControlName="pod" autocapitalize="characters" />
+        </p>
+        <p class="feld">
+          <label for="warennummern">Warennummern der Anmeldung</label>
+          <input id="warennummern" type="text" formControlName="warennummern"
+                 aria-describedby="warennummern-hilfe" />
+          <span id="warennummern-hilfe" class="hilfe">Mit Komma getrennt. Ausfuhr: acht Stellen (CLS-02).</span>
+        </p>
+      </fieldset>
+    </details>
+  </section>
 
   <app-beleg-ablage />
 
@@ -100,6 +115,10 @@
         Akte einreichen
       }
     </button>
-    <span id="sperrgrund" class="hilfe" aria-live="polite">{{ sperrgrund() ?? '' }}</span>
+    <span id="sperrgrund" class="hilfe" aria-live="polite">
+      @if (sperrgrund(); as grund) {
+        Gesperrt: {{ grund }}
+      }
+    </span>
   </div>
 </form>

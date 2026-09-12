@@ -5,11 +5,16 @@
 // davon übereinander bringen nur Abgleichaufwand. In den Store geht erst,
 // was die Einreichung ausmacht (ADR-006).
 //
+// Die Felder sind fast immer vorbelegt und werden selten angefasst. Deshalb
+// steht sichtbar nur eine Zusammenfassung; die Eingabefelder liegen hinter
+// „Ändern" (Entwurf, Struktur 1a: die Akte ist Kontext, nicht Aufgabe).
+//
 // Die Vorbelegung ist die Testakte aus testdaten/belege/happy-path, damit
 // eine Vorführung ohne Abtippen möglich ist. Sie ist erfunden
 // (docs/DATENSCHUTZ.md).
 
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
@@ -64,6 +69,30 @@ export class Einreichung {
     pol: ['DEHAM'],
     pod: ['SGSIN'],
     warennummern: ['84133080, 84842000'],
+  });
+
+  /** Die Formularwerte als Signal, damit die Zusammenfassung mitläuft. */
+  readonly werte = toSignal(this.formular.valueChanges, { initialValue: this.formular.getRawValue() });
+
+  /** Was in der eingeklappten Ansicht steht — Bezeichnung und Wert. */
+  readonly zusammenfassung = computed(() => {
+    const w = this.formular.getRawValue();
+    // Auf `werte()` zugreifen, damit das Signal die Neuberechnung auslöst;
+    // gelesen wird der Rohwert, weil `valueChanges` gesperrte Felder auslässt.
+    this.werte();
+    const richtung = RICHTUNGEN.find((r) => r.wert === w.richtung)?.text ?? w.richtung;
+    const traeger = VERKEHRSTRAEGER.find((v) => v.wert === w.verkehrstraeger)?.text ?? w.verkehrstraeger;
+    return [
+      { name: 'Akten-Nummer', wert: w.akte_id, fest: true },
+      { name: 'Stichtag', wert: w.stichtag, fest: false },
+      { name: 'Richtung', wert: richtung, fest: false },
+      { name: 'Verkehrsträger', wert: traeger, fest: false },
+      { name: 'Präferenz', wert: w.praeferenz_beansprucht ? 'wird beansprucht' : 'nicht beansprucht', fest: false },
+      { name: 'Klausel', wert: `${w.incoterm_code} · ${w.incoterm_ort}`, fest: false },
+      { name: 'UN/LOCODE', wert: w.incoterm_unlocode || '—', fest: true },
+      { name: 'Häfen', wert: `${w.pol || '—'} → ${w.pod || '—'}`, fest: true },
+      { name: 'Warennummern', wert: w.warennummern || '—', fest: true },
+    ];
   });
 
   /** Baut aus dem Formular den Datensatz, den der Webhook erwartet. */

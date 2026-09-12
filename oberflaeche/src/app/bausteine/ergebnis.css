@@ -1,76 +1,263 @@
-.ergebnis {
+.ergebnis,
+.platzhalter {
   background: var(--ton-grund);
-  border: 1px solid var(--ton-rand);
-  border-radius: var(--radius);
+  border: 1px solid var(--ton-haarlinie);
   padding: var(--mass-6);
   display: grid;
+  gap: var(--mass-5);
+  align-content: start;
+}
+
+.platzhalter {
   gap: var(--mass-3);
 }
 
 h2 {
   margin: 0;
+  font-size: var(--groesse-titel);
 }
 
 h3 {
-  margin: var(--mass-4) 0 0;
-  font-size: 1rem;
+  margin: 0 0 var(--mass-3);
+  font-size: var(--groesse-rubrik);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ton-text-mittel);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--mass-2);
+  padding-bottom: var(--mass-2);
+  border-bottom: 1px solid var(--ton-haarlinie);
 }
 
-/* Die Entscheidung. Farbe trägt hier nichts allein: Der Name steht als Text
- * daneben, und der linke Balken gibt eine zweite, nicht farbige Spur. */
+h3 .zahl {
+  color: var(--ton-text);
+  font-size: var(--groesse-wert);
+}
+
+/* Das Entscheidungsband. Vier Unterscheidungen stehen vor der Farbe: das
+ * Wort, die Form der Marke, die Stärke des Balkens und — bei der
+ * Nachextraktion — ein gestrichelter statt durchgezogener Balken. */
+.band {
+  border-left: 4px solid currentColor;
+  background: var(--ton-arbeitsflaeche);
+  padding: var(--mass-4) var(--mass-5);
+  display: grid;
+  gap: var(--mass-2);
+}
+
 .entscheidung {
   margin: 0;
-  padding: var(--mass-3) var(--mass-4);
-  border-left: 6px solid currentColor;
-  background: var(--ton-flaeche);
-  display: grid;
-  gap: var(--mass-1);
+  display: flex;
+  align-items: center;
+  gap: var(--mass-3);
 }
 
-.entscheidung .marke {
-  font-size: 1.25rem;
+.entscheidung .wort {
+  font-size: var(--groesse-entscheidung);
   font-weight: 700;
+  line-height: 1.1;
 }
 
-.entscheidung.freigabereif {
+/* Die Marke: Scheibe, Raute, Ring, Quadrat. Sie trägt dieselbe Aussage wie
+ * das Wort daneben und ist deshalb aria-hidden. */
+.marke {
+  inline-size: 15px;
+  block-size: 15px;
+  background: currentColor;
+  flex: none;
+}
+
+.band.freigabereif {
   color: var(--ton-frei);
+  background: var(--ton-frei-flaeche);
+  border-left-color: var(--ton-frei);
 }
 
-.entscheidung.freigabe_mit_warnungen {
+.band.freigabereif .marke {
+  border-radius: 50%;
+}
+
+.band.freigabe_mit_warnungen {
   color: var(--ton-warnung);
+  background: var(--ton-warnung-flaeche);
+  border-left-color: var(--ton-warnung);
 }
 
-.entscheidung.nachextraktion_erforderlich {
+.band.freigabe_mit_warnungen .marke {
+  transform: rotate(45deg);
+}
+
+/* Nachextraktion: offener Ring und gestrichelter Balken — unfertig, nicht
+ * falsch. Das ist kein Fehlerzustand (docs/entwurf/03-abgleich.md). */
+.band.nachextraktion_erforderlich {
   color: var(--ton-nachlese);
+  background: var(--ton-nachlese-flaeche);
+  border-left-style: dashed;
+  border-left-color: var(--ton-nachlese);
 }
 
-.entscheidung.blockiert {
+.band.nachextraktion_erforderlich .marke {
+  border-radius: 50%;
+  background: transparent;
+  border: 3px solid currentColor;
+}
+
+.band.blockiert {
   color: var(--ton-blockiert);
+  background: var(--ton-blockiert-flaeche);
+  border-left-width: 6px;
+  border-left-color: var(--ton-blockiert);
 }
 
-.leise {
+.zaehlung {
+  margin: 0;
+  color: var(--ton-text);
+  font-size: var(--groesse-wert);
+}
+
+.sprungmarken {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mass-4);
+  margin-top: var(--mass-1);
+}
+
+.sprungmarken a {
+  color: var(--ton-aktion);
+  font-size: var(--groesse-wert);
+  min-height: var(--hitflaeche-min);
+  display: inline-flex;
+  align-items: center;
+}
+
+.bilanz {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--mass-2);
+}
+
+.bilanz .bezeichnung {
+  font-weight: 700;
+  margin-right: var(--mass-2);
+}
+
+/* Ein leerer Block ist eine Zeile mit Zahl, nie ein Kasten in Fehlerform. */
+.bilanzzeile {
+  margin: 0;
   color: var(--ton-text-leise);
-  font-size: 0.875rem;
-  font-weight: 400;
-}
-
-.fest {
-  font-family: var(--schrift-fest);
+  font-size: var(--groesse-wert);
 }
 
 .meldung {
   margin: 0;
   padding: var(--mass-3);
-  border-radius: var(--radius);
-  background: var(--ton-flaeche);
+  background: var(--ton-arbeitsflaeche);
 }
 
-.meldung.blockiert {
+.meldung.hinweis {
+  color: var(--ton-warnung);
+  background: var(--ton-warnung-flaeche);
+}
+
+/* Der Transportfehler bekommt eine eigene Form, keine Zustandsfarbe: Es
+ * liegt kein Zustand vor. Gestrichelter Rahmen statt Balken. */
+.kein-ergebnis {
+  border: 2px dashed var(--ton-rand);
+}
+
+.kein-ergebnis .meldung {
   color: var(--ton-blockiert);
 }
 
-.meldung.warnung {
+.entwertet {
+  border-left: 4px dashed var(--ton-rand);
+}
+
+.block {
+  display: grid;
+  gap: var(--mass-3);
+}
+
+.befunde,
+.hinweisliste,
+.erfuellt-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--mass-3);
+}
+
+.befunde li {
+  border: 1px solid var(--ton-haarlinie);
+  border-left: 4px solid var(--ton-warnung);
+  padding: var(--mass-3);
+  display: grid;
+  gap: var(--mass-1);
+}
+
+.befunde li.hart {
+  border-left-width: 6px;
+  border-left-color: var(--ton-blockiert);
+}
+
+.kopf {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--mass-2);
+  font-size: var(--groesse-titel);
+  font-weight: 700;
+}
+
+.status {
   color: var(--ton-warnung);
+  font-size: var(--groesse-wert);
+}
+
+.status.hart {
+  color: var(--ton-blockiert);
+}
+
+.begruendung {
+  margin: 0;
+  font-size: var(--groesse-prosa);
+  max-width: var(--zeilenmass);
+}
+
+/* Rechtsverweis und Regelversion stehen unter einer gepunkteten Linie: Der
+ * Vorbehalt verschwindet nicht und drängt sich nicht vor. */
+.verweis {
+  margin: var(--mass-1) 0 0;
+  padding-top: var(--mass-1);
+  border-top: 1px dotted var(--ton-haarlinie);
+  font-size: var(--groesse-verweis);
+  color: var(--ton-text-mittel);
+}
+
+.quelle {
+  font-style: italic;
+}
+
+.vorbehalt {
+  margin: 0;
+  font-size: var(--groesse-verweis);
+  color: var(--ton-text-mittel);
+}
+
+.adressat-kopf {
+  margin: var(--mass-2) 0 0;
+  font-weight: 700;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mass-2);
+  align-items: baseline;
 }
 
 .tabellenrahmen {
@@ -81,88 +268,52 @@ table {
   border-collapse: collapse;
   width: 100%;
   min-width: 34rem;
+  font-size: var(--groesse-wert);
 }
 
 th,
 td {
   text-align: left;
-  padding: var(--mass-2);
-  border-bottom: 1px solid var(--ton-rand);
+  padding: 10px var(--mass-2);
+  border-bottom: 1px solid var(--ton-zeilentrennung);
   vertical-align: top;
 }
 
 thead th {
-  border-bottom-width: 2px;
+  border-bottom: 1px solid var(--ton-haarlinie);
+  font-size: var(--groesse-rubrik);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ton-text-mittel);
 }
 
 td .leise,
-td .hinweis {
+td .hinweis-zelle {
   display: block;
 }
 
-.hinweis {
+.hinweis-zelle {
   color: var(--ton-warnung);
-  font-size: 0.875rem;
+  font-size: var(--groesse-verweis);
 }
 
-.befunde,
-.hinweisliste {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--mass-3);
-}
-
-.befunde li {
-  border: 1px solid var(--ton-rand);
-  border-radius: var(--radius);
-  padding: var(--mass-3);
-  display: grid;
-  gap: var(--mass-1);
-}
-
-.kopf {
-  margin: 0;
+.erfuellt-liste li {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
   gap: var(--mass-2);
-  font-weight: 600;
-}
-
-.kennung {
-  font-family: var(--schrift-fest);
-  background: var(--ton-flaeche);
-  padding: 0 var(--mass-2);
-  border-radius: var(--radius);
-}
-
-.status {
-  color: var(--ton-warnung);
-}
-
-.status.hart {
-  color: var(--ton-blockiert);
-}
-
-.begruendung {
-  margin: 0;
-}
-
-.quelle {
-  font-style: italic;
+  padding: var(--mass-1) 0;
+  border-bottom: 1px solid var(--ton-zeilentrennung);
 }
 
 details pre {
-  background: var(--ton-flaeche);
+  background: var(--ton-arbeitsflaeche);
   padding: var(--mass-3);
-  border-radius: var(--radius);
   overflow-x: auto;
   white-space: pre-wrap;
   font-family: var(--schrift-fest);
-  font-size: 0.875rem;
+  font-size: var(--groesse-verweis);
   margin: var(--mass-2) 0 0;
+  max-width: var(--zeilenmass);
 }
 
 summary {
@@ -170,4 +321,27 @@ summary {
   min-height: var(--hitflaeche-min);
   display: flex;
   align-items: center;
+  color: var(--ton-aktion);
+  font-size: var(--groesse-wert);
+}
+
+.werkzeuge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mass-3);
+  margin: var(--mass-2) 0 0;
+}
+
+/* Ein Verweis, der wie eine Schaltfläche aussieht — aber ein Verweis bleibt,
+ * weil er den Mailclient öffnet und nicht die Anwendung bedient. */
+.knopf-artig {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--hitflaeche-min);
+  padding: var(--mass-2) var(--mass-4);
+  border: 1px solid var(--ton-aktion);
+  color: var(--ton-aktion);
+  background: var(--ton-grund);
+  text-decoration: none;
 }

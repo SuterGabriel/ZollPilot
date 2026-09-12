@@ -1,23 +1,30 @@
-<a class="sprungmarke" href="#inhalt">Zum Inhalt springen</a>
+<a class="sprungmarke" href="#ergebnis">Zum Ergebnis springen</a>
 
 <header>
-  <div class="mitte">
+  <div class="kopf">
     <p class="marke">ZollPilot</p>
-    <h1>Akte einreichen</h1>
+    <h1>Prüfakte</h1>
     <p class="untertitel">
-      Belege einer Sendung hochladen. Die Extraktion liest sie, das Regelwerk entscheidet
-      deterministisch, und Sie sehen je Befund die Begründung und den Adressaten der
+      Belege einer Sendung einreichen. Die Extraktion liest sie, das Regelwerk entscheidet
+      deterministisch — und Sie sehen je Befund die Begründung und den Adressaten der
       Nachforderung.
     </p>
   </div>
 </header>
 
-<main id="inhalt" class="mitte">
-  <app-einreichung />
-  <app-ergebnis />
+<!-- Zwei Spalten (Entwurf, Struktur 1a): Die Akte ist Kontext und bleibt
+     links stehen, das Ergebnis bekommt die Restbreite. Unter 1024 px
+     stapeln sie. -->
+<main class="flaeche">
+  <div class="akte">
+    <app-einreichung />
+  </div>
+  <div class="ergebnis-spalte" id="ergebnis">
+    <app-ergebnis />
+  </div>
 </main>
 
-<footer class="mitte">
+<footer class="flaeche-schmal">
   <p>
     Prototyp mit synthetischen Testdaten. Alle Rechtsverweise stammen aus Sekundärrecherche
     und sind vor produktivem Einsatz zu verifizieren.
