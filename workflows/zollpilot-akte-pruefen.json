@@ -9,7 +9,7 @@
     "errorWorkflow": "zollpilot-fehler"
   },
   "meta": {
-    "beschreibung": "Nimmt eine Akte (Assertions aus der Extraktion) entgegen, prüft sie deterministisch gegen rules.yaml und pflichtmatrix.yaml, speichert das Ergebnis und formuliert Nachforderungen. Der Code-Node 'Akte prüfen' wird von scripts/n8n-bundle.mjs erzeugt."
+    "beschreibung": "Zwei Eingänge, eine Entscheidung. /webhook/akte nimmt eine fertige Akte (Assertions) entgegen; /webhook/belege nimmt PDFs entgegen, lässt sie vom Extraktionsdienst (Python, ADR-005) zu Assertions machen und leitet die Akte in denselben Node 'Akte prüfen'. Der wird von scripts/n8n-bundle.mjs erzeugt; alles andere ist Transport."
   },
   "nodes": [
     {
@@ -241,8 +241,61 @@
     },
     {
       "parameters": {
-        "content": "## ZollPilot – Akte prüfen\n\n**Entscheidung nur im Node „Akte prüfen“.** Sein Code ist ein Build-Artefakt aus `src/` und `rules.yaml` (`npm run bundle`). Alles andere hier ist Transport: annehmen, ablegen, verzweigen, antworten.\n\nAntwort 200 = freigabereif, 422 = blockiert, Warnung oder Nachextraktion — der Aufrufer bekommt in beiden Fällen das vollständige Ergebnis mit Befunden und Nachforderungen.\n\nFehler landen im Workflow „ZollPilot – Fehler“ (Error Trigger), der sie nach `workflow_fehler` schreibt.",
-        "height": 300,
+        "httpMethod": "POST",
+        "path": "belege",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0010-4000-8000-000000000010",
+      "name": "Belege eingegangen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        640
+      ],
+      "webhookId": "zollpilot-belege",
+      "notes": "Multipart: Formularfeld `akte` (JSON mit akte_id, stichtag, sachverhalt, anmeldung — Stammdaten, keine Belegaussagen) und beliebig viele PDF-Dateien. Beispiel: scripts/rauchtest.sh."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Transport, keine Entscheidung: Das Formularfeld `akte` (Stammdaten als JSON)\n// und die hochgeladenen Dateien werden in das JSON verpackt, das der\n// Extraktionsdienst erwartet. Welche Datei welcher Beleg ist, entscheidet der\n// Dienst (Klassifikation), nicht dieser Node.\nconst item = $input.first();\nconst roh = item.json.body?.akte;\nconst akte = typeof roh === 'string' ? JSON.parse(roh) : (roh ?? {});\nconst dateien = [];\nfor (const [schluessel, binaer] of Object.entries(item.binary ?? {})) {\n  const puffer = await this.helpers.getBinaryDataBuffer(0, schluessel);\n  dateien.push({ name: binaer.fileName ?? `${schluessel}.pdf`, inhalt_base64: puffer.toString('base64') });\n}\nreturn [{ json: { akte, dateien } }];"
+      },
+      "id": "a1b2c3d4-0011-4000-8000-000000000011",
+      "name": "Belege verpacken",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://extraktion:8080/extraktion/akte",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "a1b2c3d4-0012-4000-8000-000000000012",
+      "name": "Belege extrahieren",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        520,
+        640
+      ],
+      "notes": "Der Extraktionsdienst aus compose.yml (Python, Textlayer und Tesseract, ADR-005). Antwort ist die Akte mit dokumente[] und assertions[] — dieselbe Form wie am Eingang /webhook/akte. Die Adresse ist der Dienstname im Compose-Netz; außerhalb von Compose über EXTRAKTION_URL anpassen (docs/BETRIEB.md). Fällt der Dienst aus, scheitert der Lauf sichtbar und landet in workflow_fehler."
+    },
+    {
+      "parameters": {
+        "content": "## ZollPilot – Akte prüfen\n\n**Entscheidung nur im Node „Akte prüfen“.** Sein Code ist ein Build-Artefakt aus `src/` und `rules.yaml` (`npm run bundle`). Alles andere hier ist Transport: annehmen, extrahieren lassen, ablegen, verzweigen, antworten.\n\n**Zwei Eingänge:** `POST /webhook/akte` mit einer fertigen Akte (Assertions), `POST /webhook/belege` mit PDFs — die gehen an den Extraktionsdienst (Python, ADR-005) und kommen als Akte zurück. Ab „Akte prüfen“ ist der Weg derselbe.\n\nAntwort 200 = freigabereif, 422 = blockiert, Warnung oder Nachextraktion — der Aufrufer bekommt in beiden Fällen das vollständige Ergebnis mit Befunden und Nachforderungen.\n\nFehler landen im Workflow „ZollPilot – Fehler“ (Error Trigger), der sie nach `workflow_fehler` schreibt.",
+        "height": 360,
         "width": 420
       },
       "id": "a1b2c3d4-0009-4000-8000-000000000009",
@@ -323,6 +376,39 @@
         [
           {
             "node": "Antwort: nicht freigegeben",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Belege eingegangen": {
+      "main": [
+        [
+          {
+            "node": "Belege verpacken",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Belege verpacken": {
+      "main": [
+        [
+          {
+            "node": "Belege extrahieren",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Belege extrahieren": {
+      "main": [
+        [
+          {
+            "node": "Akte prüfen",
             "type": "main",
             "index": 0
           }

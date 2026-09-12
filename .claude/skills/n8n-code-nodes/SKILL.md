@@ -45,6 +45,25 @@ Der Einstieg im Node: `$input.first().json.body ?? $input.first().json` —
 der Webhook liefert `{headers, params, query, body}`, ein anderer Vorgänger
 liefert die Akte direkt.
 
+## Der zweite Eingang: Belege
+
+`POST /webhook/belege` (Multipart: Formularfeld `akte` mit den Stammdaten
+als JSON, dazu PDFs) → Code-Node „Belege verpacken“ → HTTP Request „Belege
+extrahieren“ (`http://extraktion:8080/extraktion/akte`, Dienst aus
+`compose.yml`, ADR-005) → derselbe Node „Akte prüfen“. Regeln dafür:
+
+- **Der Code-Node vor dem Dienst ist Transport.** Er wandelt Binärdaten in
+  das JSON des Dienstes (`{akte, dateien: [{name, inhalt_base64}]}`). Welche
+  Datei welcher Beleg ist, entscheidet der Dienst, nicht der Node.
+- **HTTP-Request-Nodes nur für Dienste, die etwas *liefern*** — Extraktion,
+  Lookups (Stufe 2). Nie für eine Entscheidung: Die kommt aus dem Bundle.
+- **`await` ist im Code-Node erlaubt** (n8n führt ihn als async-Funktion
+  aus); `scripts/workflow-check.mjs` parst entsprechend. Binärdaten über
+  `this.helpers.getBinaryDataBuffer(index, schluessel)` lesen, nicht über
+  `.data` — das ist im Task-Runner-Modus nicht garantiert Base64.
+- **Ein Ausfall des Dienstes ist ein sichtbarer Fehler** (500,
+  `workflow_fehler`), keine leere Akte. Kein `continueOnFail` an diesem Node.
+
 ## Node-Konventionen
 
 - **Namen auf Deutsch, als Handlung oder Frage:** „Akte prüfen“, „Ergebnis

@@ -1,0 +1,12 @@
+{
+  "field_exact_match": {
+    "bill_of_lading": 1.0,
+    "gesamt": 1.0,
+    "handelsrechnung": 1.0,
+    "origin_declaration": 1.0,
+    "packliste": 1.0
+  },
+  "akten": 7,
+  "entscheidungen_geprueft": 7,
+  "entscheidungen_korrekt": 7
+}

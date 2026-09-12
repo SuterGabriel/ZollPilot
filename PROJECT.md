@@ -184,11 +184,13 @@ Anbieterangaben von 95 %+ stammen aus kuratierten Testsets und sind nicht
 
 ## 8. Testdaten
 
-Sechs bis acht synthetische PDFs, ausschließlich erfundene Firmen und Werte,
-Layout an echten Formularvorlagen orientiert. Bis die Extraktion gebaut ist
-(Stufe 3), liegen die Akten als bereits extrahierte Datensätze in
-`testdaten/akten/` — sieben Stück, erzeugt von `testdaten/erzeuge-akten.mjs`,
-jede mit ihrer erwarteten Entscheidung. Darunter zwingend:
+Sieben synthetische Akten, ausschließlich erfundene Firmen und Werte. Sie
+liegen zweimal vor: als bereits extrahierte Datensätze in `testdaten/akten/`
+(erzeugt von `testdaten/erzeuge-akten.mjs`, jede mit ihrer erwarteten
+Entscheidung — das Golden Set) und als Belege in `testdaten/belege/` (je
+Handelsrechnung, Packliste und B/L als PDF, erzeugt daraus von
+`testdaten/erzeuge-belege.py`, byteidentisch reproduzierbar). Der schlechte
+Scan ist dort ein echtes Bild für Tesseract. Darunter zwingend:
 
 - eine vollständige, widerspruchsfreie Akte (Happy Path)
 - eine Akte mit fehlendem Präferenznachweis

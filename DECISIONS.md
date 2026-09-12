@@ -12,11 +12,19 @@ rekonstruiert Begründungen, die er nie hatte — und das merkt man ihnen an.
 | [ADR-002](docs/adr/ADR-002-regeln-sind-daten.md) | Regeln sind Daten in `rules.yaml`; ein Gate lässt keine nackte Zahl in `src/regeln/` | angenommen | 2026-09-12 |
 | [ADR-003](docs/adr/ADR-003-kein-modell-in-der-entscheidung.md) | Kein Modell in der Entscheidungsschicht; Lesefehler vor Fachfehler | angenommen | 2026-09-12 |
 | [ADR-004](docs/adr/ADR-004-n8n-orchestriert-src-entscheidet.md) | n8n orchestriert, `src/` entscheidet; der Code-Node ist ein Build-Artefakt aus `src/` | angenommen | 2026-09-12 |
+| [ADR-005](docs/adr/ADR-005-extraktion-ocr-vor-modell.md) | Extraktion als eigener Python-Dienst: Textlayer und OCR mit Koordinaten zuerst, ein Vision-Modell nur dahinter und nur pseudonymisiert; Golden Set und Basislinie im Repo | angenommen | 2026-09-12 |
 
-Vorgesehen, noch nicht entschieden: Extraktionsarchitektur (Stufe 3, OCR vor
-Vision-Modell, Pseudonymisierung), Intake über Mail (Stufe 2), Betrieb jenseits
-von Compose (Stufe 4). Diese bekommen fortlaufend die nächste freie Nummer,
-wenn sie fällig sind.
+Vorgesehen, noch nicht entschieden: Intake über Mail (Stufe 2), sekundäre
+Extraktion mit Vision-Modell samt Pseudonymisierung (Stufe 3b),
+Review-Arbeitsplatz mit Override-Pfad (Stufe 4, Oberfläche), Betrieb jenseits
+von Compose. Diese bekommen fortlaufend die nächste freie Nummer, wenn sie
+fällig sind.
+
+Reihenfolge, am 2026-09-12 festgelegt: Die Extraktion (Python) kommt vor der
+Oberfläche (Angular), weil sie die einzige offene Must-have-Lücke der
+Ausschreibung schließt. Eine Oberfläche kommt nur als Review-Arbeitsplatz —
+Befund mit Fundstelle sehen, korrigieren, übersteuern mit Name und Begründung
+— nicht als Dashboard.
 
 ## Anforderungen
 

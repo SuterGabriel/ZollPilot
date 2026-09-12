@@ -42,6 +42,7 @@ ADRs entstehen im Moment der Entscheidung. Skill `adr`, Command `/adr`,
 |---|---|
 | `zoll-domain` | Fachregeln, Belegtypen, Fundstellen. **Vor jeder Regeländerung lesen.** |
 | `n8n-code-nodes` | Transport im Workflow, Entscheidung in `src/`, Bundle, Hausstil |
+| `extraktion` | Python-Dienst: PDF → Assertions mit Konfidenz. Behauptet, entscheidet nie |
 | `adr` | Format und Ablauf für Entscheidungen |
 
 ## Commands
@@ -51,5 +52,6 @@ ADRs entstehen im Moment der Entscheidung. Skill `adr`, Command `/adr`,
 ## Was jede Änderung erfüllen muss
 
 `npm test` grün · `npm run check` grün (Belege, Prosa, Verweise, Regeln) ·
-bei Änderung an `src/` oder Katalog `npm run bundle` · Commit erklärt die
-Entscheidung, nicht die Zeilen, deutsch, imperativ, eine Zeile.
+bei Änderung an `src/` oder Katalog `npm run bundle` · bei Änderung unter
+`extraktion/` `uv run pytest` und die Bewertung gegen die Basislinie ·
+Commit erklärt die Entscheidung, nicht die Zeilen, deutsch, imperativ, eine Zeile.

@@ -1,0 +1,16 @@
+# Der Build-Kontext ist die Repo-Wurzel, damit das Test-Stage die Testbelege
+# und das Regelwerk (für die Entscheidung je Akte) sieht. Alles andere bleibt
+# draußen; die Laufzeit (final) kopiert nur extraktion/.
+*
+!extraktion/
+!testdaten/
+!src/
+!package.json
+!package-lock.json
+!rules.yaml
+!pflichtmatrix.yaml
+!zustaendigkeiten.yaml
+extraktion/.venv
+extraktion/.pytest_cache
+extraktion/**/__pycache__
+testdaten/**/__pycache__

@@ -36,36 +36,45 @@ erweiterbar; der Sachverhalt wird nicht heimlich breiter.
 
 ## Der Ablauf
 
-1. **Eingang.** Eine Akte kommt als Datensatz an: Dokumente mit Status und
-   Hash, Assertions mit Wert, Konfidenz und Fundstelle. Heute über den
-   Webhook `POST /webhook/akte`; die Extraktion, die diesen Datensatz aus
-   PDFs erzeugt, ist Stufe 3.
+1. **Eingang.** Zwei Wege in denselben Ablauf. `POST /webhook/belege` nimmt
+   die PDFs einer Sendung entgegen, dazu die Stammdaten (Akten-ID,
+   Sachverhalt, Anmeldung). `POST /webhook/akte` nimmt eine fertige Akte
+   entgegen — Dokumente mit Status und Hash, Assertions mit Wert, Konfidenz
+   und Fundstelle — etwa aus einem anderen Extraktionssystem.
 
-2. **Akte aufbauen.** Nur finale Belege werden zu Fakten. Ein Draft-B/L trägt
+2. **Belege lesen.** Der Extraktionsdienst (Python, ADR-005) liest jede
+   Seite: Textlayer, wenn das PDF einen hat, sonst OCR mit Wortkonfidenzen.
+   Er erkennt den Belegtyp und ob es ein Entwurf ist, findet die Felder und
+   gibt Assertions zurück — jede mit Seite, Bounding Box, Rohtext, Konfidenz
+   und Methode. Er setzt keinen Fakt und trifft keine Entscheidung. Ein Beleg,
+   den er nicht kennt, bleibt als `unclassified` an der Akte und wird
+   gemeldet.
+
+3. **Akte aufbauen.** Nur finale Belege werden zu Fakten. Ein Draft-B/L trägt
    nichts bei — und die Akte sagt das. Unbekannte Belegtypen bleiben an der
    Akte und werden gemeldet, nie verworfen.
 
-3. **Pflichtmatrix.** Für den Sachverhalt: Welche Daten müssen nachgewiesen
+4. **Pflichtmatrix.** Für den Sachverhalt: Welche Daten müssen nachgewiesen
    sein, durch welche Belege? Ein fehlender Präferenznachweis ist ein Befund
    mit akzeptierten Alternativen (EUR.1 oder Ursprungserklärung), nicht ein
    fehlendes PDF.
 
-4. **Regeln, hart vor weich.** Dreizehn Regeln auf normalisierten Werten.
+5. **Regeln, hart vor weich.** Dreizehn Regeln auf normalisierten Werten.
    Jede liefert Status, Eingaben, Begründung, Regelversion und den
    Verifikationsstand ihrer Rechtsgrundlage. Prüfziffern- und Summenfehler
    bei niedriger Konfidenz sind zuerst Lesefehler.
 
-5. **Entscheidung.** `freigabereif`, `freigabe_mit_warnungen`,
+6. **Entscheidung.** `freigabereif`, `freigabe_mit_warnungen`,
    `nachextraktion_erforderlich` oder `blockiert`. Ein Override ist eine
    Entscheidung mit Namen und Begründung — nicht gebaut, aber als Tabelle
    vorgesehen.
 
-6. **Nachforderung.** Je Befund ein Fall: welches Feld, welche Position,
+7. **Nachforderung.** Je Befund ein Fall: welches Feld, welche Position,
    welcher Widerspruch, welche Nachweise akzeptiert, welche Folge bei
    Fristüberschreitung, an wen. Der Adressat kommt aus der
    Zuständigkeitstabelle, nicht aus dem Bauchgefühl.
 
-7. **Ablage.** Jede Prüfung liegt in Postgres mit vollständigem Ergebnis. Die
+8. **Ablage.** Jede Prüfung liegt in Postgres mit vollständigem Ergebnis. Die
    Sicht `rule_result` macht Befunde je Regel auswertbar: False-Positive-Rate,
    Alter offener Nachforderungen, Straight-through-Rate.
 
@@ -86,12 +95,27 @@ Grundfalls. Der Fehlerpfad ist der Demo-Inhalt:
 
 Aufruf: `node src/cli.mjs testdaten/akten/*.json`.
 
+Dieselben sieben Akten liegen als Belege in `testdaten/belege/` — je
+Handelsrechnung, Packliste und B/L als PDF, erzeugt aus den JSON-Akten. Dort
+ist der schlechte Scan ein echtes Bild, das Tesseract liest; was dabei
+herauskommt, misst die Bewertung (`docs/EXTRAKTION.md`), statt dass es in
+einer JSON-Datei behauptet wird. Aufruf: `bash scripts/rauchtest.sh` gegen
+den laufenden Stack, Runde 2.
+
 ## Was bewusst nicht gebaut wird
 
-- **Keine Oberfläche.** Die Akte ist ein Datensatz, das Ergebnis ist ein
-  Datensatz. Die n8n-Ausführungsliste und Postgres sind die Sicht des
-  Prototyps. Eine Oberfläche käme, wenn klar ist, wer die Akte führt (PO,
-  Rechnung, Container oder MRN — offene Frage 2 in `PROJECT.md`).
+- **Noch keine Oberfläche.** Die Akte ist ein Datensatz, das Ergebnis ist
+  ein Datensatz. Die n8n-Ausführungsliste und Postgres sind die Sicht des
+  Prototyps. Wenn eine Oberfläche kommt (Stufe 4, `DECISIONS.md`), dann als
+  **Review-Arbeitsplatz**: einen Befund mit Fundstelle und Belegausschnitt
+  sehen, den Wert korrigieren, mit Name und Begründung übersteuern, eine
+  Nachextraktion zurück in die Prüfung schicken. Kein Dashboard. Vorher ist
+  zu klären, wer die Akte führt (PO, Rechnung, Container oder MRN — offene
+  Frage 2 in `PROJECT.md`).
+- **Kein Vision-Modell in der Extraktion.** Textlayer und Tesseract liefern
+  Koordinaten und Konfidenzen; ein Modell liefert beides nicht und bekäme
+  die Belege unpseudonymisiert. Es käme nur als zweite Stufe für unklare
+  Felder, hinter einer Pseudonymisierung, mit eigener ADR (ADR-005).
 - **Keine Anmeldung.** Das System sagt, ob die Akte freigabereif ist; es
   erzeugt keine ATLAS-Nachricht. Offene Frage 1.
 - **Kein Import, keine Luft- und Straßenfracht, kein CBAM, kein Dual-Use.**

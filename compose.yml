@@ -1,12 +1,15 @@
 # Ein Befehl fährt alles hoch:  docker compose up -d --wait
 #
-# Drei Dienste:
+# Vier Dienste:
 #   postgres    eine Instanz, zwei Datenbanken: n8n (Workflows, Ausführungen)
 #               und zollpilot (Akte, Prüfungen, Fehler) — deploy/postgres/init.sql
 #   n8n-import  läuft einmal: importiert Credentials und die Workflows aus
 #               workflows/ und beendet sich. Damit ist der Stand im Repo der
 #               Stand im System, nicht umgekehrt.
 #   n8n         die Orchestrierung, mit Healthcheck und Metriken
+#   extraktion  der Extraktionsdienst (Python, Textlayer und Tesseract,
+#               ADR-005), gebaut aus extraktion/Dockerfile. n8n ruft ihn per
+#               HTTP unter http://extraktion:8080; er entscheidet nichts.
 #
 # Geheimnisse liegen in .env (Vorlage: .env.example). Die Werte dort sind
 # Entwicklungswerte; docs/BETRIEB.md sagt, was vor einem echten Betrieb fehlt.
@@ -97,6 +100,22 @@ services:
         condition: service_healthy
       n8n-import:
         condition: service_completed_successfully
+
+  extraktion:
+    build:
+      context: .
+      dockerfile: extraktion/Dockerfile
+    image: zollpilot-extraktion:dev
+    environment:
+      EXTRAKTION_OCR_SPRACHEN: deu+eng
+    # Auf dem Host unter 8765, weil 8080 auf Entwicklermaschinen selten frei
+    # ist; im Compose-Netz antwortet der Dienst auf 8080 (Workflow-Node).
+    ports:
+      - "127.0.0.1:${EXTRAKTION_PORT:-8765}:8080"
+    # Der Healthcheck steht im Dockerfile: GET /healthz antwortet ok und sagt,
+    # ob Tesseract da ist. n8n hängt nicht von diesem Dienst ab — der Eingang
+    # /webhook/akte funktioniert ohne ihn; /webhook/belege scheitert dann
+    # sichtbar (workflow_fehler), nicht still.
 
 volumes:
   postgres-daten:
