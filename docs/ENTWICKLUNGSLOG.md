@@ -778,3 +778,28 @@ Höhenverlust, den ein Umbau der Kopfzeile still gekostet hätte.
 **Zeitschätzung.** Delegiert: gut eine Stunde. Von Hand: zwei Tage, mit
 dem Router, dem zweiten Store-Feature und den Tests. Schätzung, keine
 Messung.
+
+## 2026-09-13: Stufe 6, Nachtrag: die Antwort schließt ihren Fall sofort
+
+**Was passierte.** Der erste Durchlauf von Hand, in PowerShell statt Git
+Bash. Drei Dinge fielen auf, die der Rauchtest nicht sehen konnte: Die
+Anleitung nutzte Zeilenumbrüche mit Backslash, die PowerShell als Operator
+liest; das Antwortskript brauchte `node`, das auf dem Pfad der Git Bash
+dort fehlte; und die Übersicht zeigte nach der Antwort per Mail eine
+freigabereife Akte mit zwei offenen Nachforderungen.
+
+**Die Entscheidung.** Das dritte war kein Fehler, sondern der in ADR-010
+notierte Preis: Der Fall schließt beim nächsten Lauf. Auf dem Bildschirm
+ist das trotzdem ein Widerspruch, den niemand erklären möchte. Der
+Posteingang ruft deshalb nach der erneuten Prüfung den
+Nachforderungs-Webhook für seine Akte auf. Der Abgleich bleibt, wo er war,
+und hat weiter einen Schreiber; er läuft nur einmal öfter.
+
+**Was nicht funktionierte.** Der Versuch, das Skript mit einem Python-Einzeiler
+umzuschreiben, hat die Escape-Sequenzen der MIME-Zeilenenden in echte
+Zeilenumbrüche verwandelt. Zurück auf den Stand im Repo, dann mit dem
+Werkzeug editiert, das Zeichen für Zeichen ersetzt.
+
+**Zeitschätzung.** Delegiert: eine halbe Stunde. Von Hand: ein Vormittag,
+weil man den Widerspruch erst einmal für einen Fehler im Abgleich hält.
+

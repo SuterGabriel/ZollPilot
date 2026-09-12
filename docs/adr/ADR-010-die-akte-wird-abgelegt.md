@@ -68,8 +68,11 @@ B. C bleibt vorgesehen. Erkennbar im Repo an:
 
 Positiv:
 
-- Der Rückweg ist ein Weg: Antwort mit Anhang, Zuordnung, Prüfung, und die
-  Nachforderung schließt beim nächsten Lauf.
+- Der Rückweg ist ein Weg: Antwort mit Anhang, Zuordnung, Prüfung, und der
+  Eingang stößt danach den Abgleich der Nachforderungen für diese Akte an,
+  über denselben Webhook wie der tägliche Lauf. Was die Antwort nachgewiesen
+  hat, schließt sofort; entschieden wird weiterhin nur im
+  Nachforderungs-Workflow (ADR-009).
 - Eine Mail ohne erkennbare Akte verschwindet nicht; sie steht in
   `mail_eingang` mit Grund, wie ein unklassifizierter Beleg an der Akte.
 - Ein Review-Arbeitsplatz hat jetzt, was er braucht: je Feld die Fundstelle

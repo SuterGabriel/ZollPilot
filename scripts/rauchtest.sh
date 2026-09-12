@@ -393,6 +393,13 @@ echo "Runde 9: eine Antwort mit Anhang findet ihre Akte (ADR-010)"
 # als unzugeordnet stehen.
 curl -sS -o /dev/null -X POST -H 'Content-Type: application/json' --data-binary @testdaten/akten/praeferenznachweis-fehlt.json "$basis/webhook/akte"
 runden=$((runden + 1))
+# Die Nachforderungen werden wieder eröffnet, damit die Antwort sie schließen
+# kann: Der Posteingang stößt den Abgleich für seine Akte selbst an.
+nachforderungslauf "2026-09-15T10:00:00+02:00" >/dev/null
+for _ in $(seq 1 40); do
+  [[ "$(sql "select count(*) from request_case where akte_id = '$akte' and status = 'offen'")" == "2" ]] && break
+  sleep 1
+done
 vorher=$(sql "select count(*) from pruefung where akte_id = '$akte'")
 eml=$(mktemp)
 node -e "
@@ -410,10 +417,16 @@ if curl -sS --url "$smtp" --mail-from lieferant@zollpilot.test --mail-rcpt einga
   done
   ergebnis=$(sql "select coalesce(freigabe_nach_override, freigabe) || ' ' || jsonb_array_length(ergebnis->'dokumente') from pruefung where akte_id = '$akte' order by geprueft_am desc limit 1")
   zugeordnet=$(sql "select count(*) from mail_eingang where akte_id = '$akte' and zugeordnet")
-  if [[ "$nachher" -gt "$vorher" && "$ergebnis" == freigabereif* && "$zugeordnet" -ge 1 ]]; then
-    printf '  ok    %-32s Akte erneut geprüft: %s Belege, freigabereif, Eingang festgehalten\n' "Antwort per Mail" "${ergebnis#freigabereif }"
+  offen=2
+  for _ in $(seq 1 40); do
+    offen=$(sql "select count(*) from request_case where akte_id = '$akte' and status = 'offen'")
+    [[ "$offen" == "0" ]] && break
+    sleep 1
+  done
+  if [[ "$nachher" -gt "$vorher" && "$ergebnis" == freigabereif* && "$zugeordnet" -ge 1 && "$offen" == "0" ]]; then
+    printf '  ok    %-32s Akte erneut geprüft: %s Belege, freigabereif, Nachforderungen geschlossen\n' "Antwort per Mail" "${ergebnis#freigabereif }"
   else
-    printf '  ROT   %-32s Prüfungen %s→%s, Ergebnis "%s", zugeordnet %s\n' "Antwort per Mail" "$vorher" "$nachher" "$ergebnis" "$zugeordnet"
+    printf '  ROT   %-32s Prüfungen %s→%s, Ergebnis "%s", zugeordnet %s, offen %s\n' "Antwort per Mail" "$vorher" "$nachher" "$ergebnis" "$zugeordnet" "$offen"
     fehler=$((fehler + 1))
   fi
 else

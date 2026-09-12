@@ -266,7 +266,7 @@
         2080,
         100
       ],
-      "notes": "Derselbe Eingang wie jede Einreichung. Der Pruef-Workflow legt die ergaenzte Akte ab; die Nachforderung schliesst beim naechsten Lauf des Nachforderungs-Workflows (ADR-009)."
+      "notes": "Derselbe Eingang wie jede Einreichung. Der Pruef-Workflow legt die ergaenzte Akte ab; danach stoesst der Eingang den Abgleich der Nachforderungen an (ADR-009)."
     },
     {
       "parameters": {
@@ -291,6 +291,35 @@
         }
       },
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:5678/webhook/nachforderungen",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ akte_id: $('Akte zusammenführen').item.json.akte_id }) }}",
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "nachforderungen-abgleichen",
+      "name": "Nachforderungen abgleichen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2600,
+        100
+      ],
+      "notes": "Derselbe Webhook wie der taegliche Lauf, nur fuer diese Akte: Was die Antwort nachgewiesen hat, schliesst jetzt und nicht erst morgen frueh. Entscheidung: keine, die trifft der Nachforderungs-Workflow (ADR-009)."
     },
     {
       "parameters": {
@@ -416,6 +445,17 @@
         [
           {
             "node": "Eingang festhalten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eingang festhalten": {
+      "main": [
+        [
+          {
+            "node": "Nachforderungen abgleichen",
             "type": "main",
             "index": 0
           }

@@ -112,10 +112,11 @@ bis dahin ist der Katalog ehrlich markiert.
   klettert höchstens eine Eskalationsstufe pro Tag. Wer nach einem
   Wochenende zwei Stufen versäumt hat, holt sie an zwei Tagen nach, nicht
   an einem. Das ist Absicht (Mindestabstand), aber nicht jedermanns.
-- **Erledigt erst beim nächsten Lauf.** Ein Eingang schließt seine
-  Nachforderung nicht im selben Augenblick, sondern wenn der
-  Nachforderungs-Workflow das nächste Mal läuft (ADR-009, Option A wäre
-  die andere Wahl).
+- **Erledigt nur nach Mail oder um 07:00.** Eine Antwort per Mail stößt
+  den Abgleich ihrer Akte sofort an; eine Einreichung über die Oberfläche
+  oder den Webhook nicht. Wer dort einen Beleg nachreicht, sieht die
+  Nachforderung bis zum nächsten Lauf offen (ADR-009, Option A wäre die
+  andere Wahl).
 - **Der Override kennt jetzt einen geprüften Namen, aber nur hinter dem
   Proxy.** nginx meldet an und reicht den Benutzernamen weiter; der Befund
   trägt `uebersteuert_identitaet: proxy` (ADR-009). Wer den Webhook direkt
