@@ -390,3 +390,48 @@ Namensfeld ist keine Anmeldung und sagt das auch auf dem Bildschirm — vor
 jedem Betrieb außerhalb der eigenen Maschine ist das ein Blocker. Und wer
 erfährt, dass eine Katalogänderung Overrides verbraucht hat, ist niemand:
 Es fällt erst bei der nächsten Prüfung derselben Akte auf.
+
+## 2026-09-12 — Extraktion, zweiter Chat: Vergleichslauf, ABD, CII
+
+**Was delegiert wurde.** Drei Aufgaben im Worktree `extraktion`, parallel
+zum Chat `betrieb`: ein zweites Lesemodul für einen IDP-Anbieter mit
+Aufzeichnungen statt Zugang, das Ausfuhrbegleitdokument als Belegtyp mit
+Regel und Pflichteintrag, und die Rechnung als UN/CEFACT-CII-Datensatz in
+beide Richtungen, gegen das Schema validiert. Ein Commit je Aufgabe, nicht
+pushen, nicht mergen.
+
+**Was gut lief.** Die Nahtstelle aus ADR-005 hat gehalten: Der Anbieterleser
+ersetzt genau `lesen.py`, alles dahinter blieb unberührt, und `akte.py`
+brauchte nur einen Parameter. Das ABD traf beim ersten Bewertungslauf mit
+OCR 91 von 91 Feldern, die acht Akten 8 von 8. Das CII-Schreibmodul bestand
+die Schemavalidierung beim ersten Lauf, obwohl die Elementreihenfolge in
+D16B aus dem Gedächtnis kam; die Rundreise über `extrahiere_akte` gegen
+`erwartet.json` derselben Akte war dann eine einzige Zeile Vergleichscode,
+weil `bewertung.vergleiche` schon da war.
+
+**Was nicht funktionierte.** Es gibt keinen Anbieterzugang: keine
+Umgebungsvariable, kein `gcloud`, kein `az`. Der Vergleichslauf ist gebaut
+und geprüft, aber die zweite Zeile der Tabelle in `docs/EXTRAKTION.md` ist
+leer, 0 von 32 Belegen aufgezeichnet. Ich habe keine Antworten erfunden;
+das wäre genau der Mock, vor dem ADR-005 warnt. Zweitens: `DECISIONS.md`
+war dem anderen Chat vorbehalten, aber `beleg-check` verlangt, dass jede
+ADR dort verlinkt ist, und derselbe Auftrag verlangte `npm run check` grün.
+Ich habe genau eine Tabellenzeile eingetragen. Drittens: Die Git-Bash
+schreibt `/repo/...` in `docker run` zu einem Windows-Pfad um; die Probe im
+Image scheiterte daran, nicht das Image. `MSYS_NO_PATHCONV=1` behebt es.
+
+**Was die Testsuite abgefangen hat.** `tests/testdaten.test.mjs` wurde rot,
+sobald das ABD in jeder Akte lag: Beim schlechten Scan trägt die Packliste
+den falsch gelesenen Container mit Konfidenz 0,55, und CUS-05 vergleicht ihn
+jetzt mit dem ABD. Die Regel sagte richtig `re_extraction_required`, aber
+die Erwartung der Akte nannte nur TRN-01 und TRN-02. Das ist der Fall, für
+den der Konfidenzpfad gebaut ist, an einer Stelle, an die ich beim Schreiben
+der Regel nicht gedacht hatte; der Test hat ihn gefunden, nicht ich. Dazu
+zwei eigene Tests, die beim ersten Lauf fielen: ein Gleitkommavergleich von
+Seitenmaßen und ein `relative_to` auf einen Temp-Ordner außerhalb des Repos.
+
+**Zeitschätzung.** Delegiert: eine Sitzung, etwa zwei Stunden Agentenzeit,
+davon ein spürbarer Teil für das Einlesen der vier Schichten und des
+Katalogs vor der ersten Zeile. Von Hand geschätzt: drei bis vier Tage, vor
+allem für die CII-Struktur und das Golden Set mit neuer Basislinie.
+Schätzung, keine Messung.
