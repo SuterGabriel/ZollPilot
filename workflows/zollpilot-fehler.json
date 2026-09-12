@@ -1,0 +1,58 @@
+{
+  "id": "zollpilot-fehler",
+  "name": "ZollPilot – Fehler",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "meta": {
+    "beschreibung": "Fehler-Workflow: Jeder gescheiterte Lauf eines ZollPilot-Workflows landet als Zeile in workflow_fehler. Damit hat der Betrieb eine Tabelle statt einer Ausführungsliste, die niemand liest (docs/BETRIEB.md)."
+  },
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "f1e2d3c4-0001-4000-8000-000000000001",
+      "name": "Fehler aufgetreten",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Reduziert das Fehlerobjekt von n8n auf das, was der Betrieb braucht: welcher\n// Workflow, welche Ausführung, welcher Node, welche Meldung. Keine Nutzdaten der\n// Akte — die stehen in der Ausführung selbst und gehören nicht in ein Protokoll,\n// das breiter gelesen wird (docs/DATENSCHUTZ.md).\nconst e = $input.first().json;\nreturn [{\n  json: {\n    workflow_name: e.workflow?.name ?? null,\n    workflow_id: e.workflow?.id ?? null,\n    execution_id: e.execution?.id ?? null,\n    node_name: e.execution?.lastNodeExecuted ?? null,\n    meldung: e.execution?.error?.message ?? String(e.execution?.error ?? 'unbekannt'),\n    aufgetreten_am: new Date().toISOString(),\n    ausfuehrung_url: e.execution?.url ?? null,\n  },\n}];"
+      },
+      "id": "f1e2d3c4-0002-4000-8000-000000000002",
+      "name": "Fehler reduzieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": { "__rl": true, "mode": "list", "value": "public" },
+        "table": { "__rl": true, "mode": "list", "value": "workflow_fehler" },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "f1e2d3c4-0003-4000-8000-000000000003",
+      "name": "Fehler ablegen",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [520, 300],
+      "credentials": {
+        "postgres": { "id": "zollpilot-postgres", "name": "ZollPilot Postgres" }
+      }
+    }
+  ],
+  "connections": {
+    "Fehler aufgetreten": { "main": [[{ "node": "Fehler reduzieren", "type": "main", "index": 0 }]] },
+    "Fehler reduzieren": { "main": [[{ "node": "Fehler ablegen", "type": "main", "index": 0 }]] }
+  },
+  "pinData": {},
+  "tags": []
+}
