@@ -7,9 +7,13 @@
 // einen existierenden Node, kein Node trägt ein Geheimnis, und der gebündelte
 // Code-Node lässt sich zumindest parsen.
 //
+// Dazu eine Frage an die Dokumentation: Zu jedem Workflow muss ein Bild in
+// docs/bilder/ liegen (`node scripts/bilder-ziehen.mjs`). Sonst kommt ein
+// achter Workflow dazu, die Doku zeigt weiter sieben, und niemand merkt es.
+//
 // Aufruf: node scripts/workflow-check.mjs
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -74,6 +78,9 @@ for (const datei of dateien) {
         }
       }
     }
+  }
+  if (workflow.id && !existsSync(join(wurzel, 'docs', 'bilder', `workflow-${workflow.id}.png`))) {
+    melde(datei, `kein Bild docs/bilder/workflow-${workflow.id}.png (node scripts/bilder-ziehen.mjs)`);
   }
   console.log(`  ok     ${datei}: ${workflow.nodes.length} Nodes, ${Object.keys(workflow.connections ?? {}).length} Verbindungsquellen`);
 }
