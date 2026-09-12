@@ -25,8 +25,13 @@ catalog:
 defaults:
   comparison: normalized_only
   on_low_confidence: re_extraction_required
-  # Unterhalb dieser Extraktionskonfidenz gilt ein Prüfziffern- oder
-  # Summenfehler zuerst als Lesefehler (OCR-01 in docs/03).
+  # Unterhalb dieser Extraktionskonfidenz gilt ein Befund zuerst als
+  # Lesefehler, nicht als Dokumentfehler (OCR-01 in docs/03). Das gilt für
+  # jede Regel, deren Vergleich auf extrahierten Werten beruht — zehn von
+  # dreizehn. Die drei anderen tragen den Pfad bewusst nicht: CLS-02 liest
+  # Stammdaten der Anmeldung, REF-03 und ORG-03 lesen den Dokumentstatus
+  # beziehungsweise den Belegtyp, keine extrahierten Feldwerte.
+  # tests/regeln/konfidenzpfad.test.mjs hält beides fest.
   low_confidence_below: 0.80
 
 rules:

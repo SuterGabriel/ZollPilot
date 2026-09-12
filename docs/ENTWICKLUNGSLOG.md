@@ -185,6 +185,47 @@ Messung.
 
 ---
 
+## 2026-09-12 — Der Konfidenzpfad trägt jetzt zehn Regeln
+
+**Was delegiert wurde.** Die offenen Punkte abarbeiten, angefangen mit dem
+Riss, den das Repo selbst protokolliert hatte: Nur TRN-01, TRN-02 und VAL-01
+fragten die Extraktionskonfidenz. Eine falsch gelesene Menge blockierte die
+Akte über QTY-01 fachlich — genau das, was CLAUDE.md als harte Grenze 3
+verbietet.
+
+**Was gut lief.** Der Riss ließ sich mit einem Helfer schließen statt mit
+siebenfachem Kopieren: `verletztWennSicher(akte, pfade, defaults, ...)` in
+`src/regeln/befund.mjs`. Jede Regel übergibt die Pfade, auf denen **ihr**
+Befund beruht — nicht alle ihre Eingaben. Das ist der Unterschied, der
+zählt: Sonst könnte ein einziges schlecht gelesenes Feld jede Ablehnung der
+Akte entwerten. Ein eigener Test hält genau das fest.
+
+**Was nicht funktionierte.** Zwei Textersetzungen griffen nicht, weil die
+Vorlage im Skript nicht Zeichen für Zeichen mit der Datei übereinstimmte —
+und weil das Skript beim ersten Fehlschlag abbrach, blieben auch die
+nachfolgenden Dateien unangetastet. Dritter Fall derselben Art an einem Tag.
+Die Lehre steht schon im vorigen Eintrag und wurde wieder nicht befolgt:
+Für Änderungen an bestehenden Zeilen das Werkzeug nehmen, das die Datei
+liest, statt eine Vorlage aus dem Gedächtnis zu tippen.
+
+**Was die Testsuite abgefangen hat.** Vier Regeltests brachen sofort, weil
+die Regeln jetzt `defaults` brauchen und die Tests es nicht übergaben —
+`Cannot read properties of undefined`. Genau das soll passieren: Eine
+geänderte Signatur, die niemand bemerkt, ist ein stiller Fehler. Ein
+fünfter Test brach später aus demselben Grund an einer Stelle, die die
+Massenanpassung nicht getroffen hatte.
+
+**Der Umfang.** Sieben Regeln umgestellt (QTY-01, QTY-02, QTY-03, CLS-01,
+ORG-02, ORG-06, VAL-03), zehn neue Tests, 101 statt 91 insgesamt. Drei
+Regeln tragen den Pfad bewusst nicht, und auch das steht jetzt als Test da,
+nicht als Auslassung.
+
+**Zeitschätzung.** Delegiert: etwa vierzig Minuten. Von Hand: ein halber
+Tag, der Großteil davon die Frage, welche Pfade je Regel am Befund beteiligt
+sind — nicht das Schreiben.
+
+---
+
 ## 2026-09-12 — Stufe 4: die Eingabe bekommt eine Oberfläche
 
 **Was delegiert wurde.** Die Frage „können wir die Eingabe mit Angular

@@ -22,12 +22,12 @@ Testbeleg hat das. Der schlechte Scan ist eine kontrollierte
 Verschlechterung, und Tesseract liest ihn richtig — der Konfidenzpfad wird
 auf den PDFs nicht ausgelöst, nur in der JSON-Akte (`docs/EXTRAKTION.md`).
 
-**Der Konfidenzpfad deckt nur Prüfziffern und Summen.** TRN-01, TRN-02 und
-VAL-01 fragen die Konfidenz. QTY-01 (Mengen), QTY-03 (Gewichte), CLS-01
-(HS-Codes) und ORG-02 (Ursprung) sagen bei einem Lesefehler `verletzt`. Ein
-schlechter Scan mit einer falsch gelesenen Menge blockiert die Akte
-fachlich, statt Nachextraktion zu verlangen. Das ist eine Lücke in ADR-003,
-nicht in der Extraktion — und der nächste Regelkatalog-Eintrag.
+**Die Konfidenzschwelle ist eine einzige Zahl.** Der Pfad selbst trägt
+inzwischen zehn von dreizehn Regeln (`tests/regeln/konfidenzpfad.test.mjs`);
+die drei anderen lesen keine extrahierten Werte. Offen bleibt die
+Kalibrierung: 0,80 für eine Containernummer und für einen Betrag ist eine
+Vereinfachung, und Tesseract-Konfidenzen sind nicht kalibriert. Je
+Feldklasse gegen einen echten Korpus zu bestimmen wäre richtig.
 
 **Kein Kubernetes.** N1 nennt es. Es gibt Compose mit fünf Diensten,
 Healthchecks und einen CI-Job, der den Stack baut und hochfährt. Ein Chart
@@ -54,8 +54,10 @@ bis dahin ist der Katalog ehrlich markiert.
 - **Wortlaut der Ursprungserklärung (ORG-07)** je Abkommen. Die Extraktion
   erkennt das gemeinsame Gerüst („exporter of the products covered by this
   document“, „preferential origin“), nicht den abkommensgenauen Wortlaut.
-- **Konfidenzschwelle je Feldklasse.** Eine Zahl (0,80) für alle Felder ist
-  eine Vereinfachung, und Tesseract-Konfidenzen sind nicht kalibriert.
+- **Der Konfidenzpfad schützt nicht vor einer plausiblen Fehllesung.** Wird
+  eine Menge mit hoher Konfidenz falsch gelesen, bleibt der Befund
+  `verletzt` — zu Recht, denn das System kann es nicht besser wissen. Der
+  Pfad fängt unsichere Lesungen, nicht sichere Irrtümer.
 - **Nachextraktion als Prozess.** Der Status existiert, der Weg
   (zweite Engine, Human Review, Rückkehr in die Prüfung) nicht. Das ist der
   Review-Arbeitsplatz aus Stufe 5 (`DECISIONS.md`).
@@ -116,14 +118,13 @@ bis dahin ist der Katalog ehrlich markiert.
 
 ## Braucht Zugänge
 
-- **Fünf Commits sind nicht gepusht.** Das Remote existiert
-  (`github.com/SuterGabriel/ZollPilot`), aber `origin/main` steht auf
-  `1938b3b` — dem Stand vor der Extraktion. Stufe 3 und Stufe 4 liegen nur
-  auf der Maschine des Autors, und damit ist die **CI für sie nie
-  gelaufen**: Die Jobs `extraktion`, `oberflaeche` und der erweiterte
-  `betrieb` sind lokal nachgestellt, aber auf keinem Runner belegt. Kein
-  Gate kann das finden — der Beleg-Check liest das Dateisystem, nicht den
-  Git-Zustand. Bis zum Push ist „acht CI-Jobs" eine Zusage, kein Nachweis.
+- **Das Ergebnis der CI ist noch nicht gesehen.** Stufe 3 und 4 wurden am
+  12.09.2026 gepusht (`1938b3b..bc9639f`, neun Commits); davor war die CI
+  für sie nie gelaufen. Ob die Jobs `extraktion`, `oberflaeche` und der
+  erweiterte `betrieb` auf einem Runner grün sind, steht unter *Actions* im
+  Repo — lokal sind sie nachgestellt, das ist nicht dasselbe. Kein Gate kann
+  das prüfen: Der Beleg-Check liest das Dateisystem, nicht den Zustand der
+  CI.
 - **Docker in der CI.** Der Job `betrieb` baut Extraktion und Oberfläche und
   zieht das n8n-Image; auf GitHub-Runnern ist Docker vorhanden, die Laufzeit
   liegt bei fünf bis acht Minuten.
