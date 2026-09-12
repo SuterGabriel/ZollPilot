@@ -36,8 +36,19 @@ Minuten für Tesseract und die Python-Abhängigkeiten). Der Rauchtest ist der
 Beweis, dass Import, Bundle, Schema, Extraktionsdienst und beide Webhooks
 zusammen funktionieren: Runde 1 schickt Akten, Runde 2 schickt PDFs.
 
-Oberfläche: `http://localhost:5678`. Beim ersten Start legt n8n einen
-Owner an; die Workflows sind bereits importiert und aktiv.
+Oberfläche: `http://localhost:5678`. Beim ersten Aufruf verlangt n8n die
+Anlage eines Owner-Kontos — das lässt sich in 1.114.0 nicht abschalten, der
+frühere Schalter `N8N_USER_MANAGEMENT_DISABLED` wirkt nicht mehr. Das Konto
+ist rein lokal: Es liegt in der Datenbank `n8n` dieses Stacks, die
+E-Mail-Adresse ist ein Anmeldename (kein SMTP, keine Telemetrie —
+`N8N_DIAGNOSTICS_ENABLED=false`), und `docker compose down -v` löscht es
+wieder. Beliebige Adresse, Passwort mit mindestens acht Zeichen, einer Ziffer
+und einem Großbuchstaben.
+
+**Für den Betrieb ist das Konto nicht nötig.** Webhooks, Rauchtest und CI
+laufen ohne Anmeldung; die Workflows sind nach dem Start importiert und
+aktiv. Das Konto braucht nur, wer die Ausführungen in der Oberfläche ansehen
+will.
 
 ## Wo etwas steht
 
