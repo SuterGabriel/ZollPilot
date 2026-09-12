@@ -1,0 +1,198 @@
+# Regelkatalog des MVP. Regeln sind Daten: Schwellen, Toleranzen und
+# Rechtsverweise stehen hier, nie als Konstante im Code. scripts/regel-check.mjs
+# prüft, dass jede Regel die Pflichtfelder trägt, dass zu jeder Regel eine
+# Implementierung und ein Test existieren und dass src/regeln/ keine nackte
+# Zahl enthält. Jede fachliche Zahl kommt aus `parameters` oder `tolerance`.
+#
+# hardness: hard = blockiert die Freigabe | soft = Warnung
+# risk: financial | compliance | criminal | operational | data_quality
+# legal_source: verified | secondary | practice — Stand der Verifikation
+#   (docs/08-known-unknowns.md). Vor produktivem Einsatz gegen EUR-Lex und
+#   zoll.de prüfen; nie eine Artikelnummer raten, im Zweifel TODO-verify.
+
+catalog:
+  version: "0.1.0"
+  valid_from: "2026-09-12"
+  scope:
+    direction: export_third_country
+    mode: sea
+    preference_claimed: true
+  disclaimer: >
+    Rechtsverweise aus Sekundärrecherche, vor produktivem Einsatz gegen
+    konsolidierte EUR-Lex-Fassungen und zoll.de zu verifizieren.
+    Toleranzwerte sind Praxisannahmen, keine gesetzlichen Toleranzen.
+
+defaults:
+  comparison: normalized_only
+  on_low_confidence: re_extraction_required
+  # Unterhalb dieser Extraktionskonfidenz gilt ein Prüfziffern- oder
+  # Summenfehler zuerst als Lesefehler (OCR-01 in docs/03).
+  low_confidence_below: 0.80
+
+rules:
+
+  - id: VAL-01
+    name: Rechnungssumme schlüssig
+    hardness: hard
+    risk: financial
+    inputs: ["rechnung.positionen[].netto", rechnung.zuschlaege, rechnung.rabatte, rechnung.gesamt]
+    assertion: sum(positionen.netto) + zuschlaege - rabatte == gesamt
+    tolerance: {amount: 0.01, per: rounding_level}
+    legal_basis: "Art. 70 UZK (Transaktionswert)"
+    legal_source: secondary
+    consequence: Zollwertbasis unzuverlässig, Rückfrage Zoll, Zollwertschätzung
+    valid_from: "2026-09-12"
+
+  - id: VAL-03
+    name: Kostenlose Position hat Zollwert
+    hardness: hard
+    risk: financial
+    inputs: ["rechnung.positionen[].einzelpreis", "rechnung.positionen[].zollwert", "rechnung.positionen[].bewertungsmethode"]
+    assertion: einzelpreis == 0 implies (zollwert > 0 or bewertungsmethode is set)
+    legal_basis: "Art. 74 UZK (Folgemethoden)"
+    legal_source: secondary
+    consequence: "'No charge' bedeutet nicht 'kein Zollwert'. Keine Freigabe ohne Bewertung."
+    valid_from: "2026-09-12"
+
+  - id: ORG-02
+    name: Präferenzursprung deckt Ware
+    hardness: hard
+    risk: financial
+    inputs: ["rechnung.positionen[].ursprung", praeferenznachweis.ursprung, praeferenznachweis.warenkreis, "rechnung.positionen[].hs6"]
+    assertion: origin matches and line is covered by goods_scope
+    legal_basis: "Ursprungsprotokoll des jeweiligen Abkommens; Art. 64 UZK"
+    legal_source: secondary
+    consequence: Präferenzverlust, Nacherhebung bis 3 Jahre (Art. 103 UZK)
+    open_question: Wortlaut und Wertgrenze je Abkommen zu parametrisieren
+    valid_from: "2026-09-12"
+
+  - id: ORG-03
+    name: A.TR ist kein Ursprungsnachweis
+    hardness: hard
+    risk: compliance
+    inputs: ["dokumente[].typ", praeferenznachweis.typ, sachverhalt.praeferenz_beansprucht]
+    assertion: atr_present must not set preferential_origin
+    legal_basis: "Beschluss 1/2006 EU-Türkei (Freiverkehrsnachweis)"
+    legal_source: secondary
+    consequence: Unberechtigte Präferenz, Nacherhebung
+    note: Häufigster fachlicher Denkfehler bei Nicht-Zöllnern
+    valid_from: "2026-09-12"
+
+  - id: ORG-06
+    name: Wertgrenze Ursprungserklärung
+    hardness: hard
+    risk: financial
+    inputs: [praeferenznachweis.typ, praeferenznachweis.rex_nummer, praeferenznachweis.ursprungswert]
+    assertion: >
+      typ == origin_declaration and ursprungswert > threshold
+      implies rex_nummer is present and structurally valid
+    parameters:
+      threshold: {value: 6000, currency: EUR, basis: value_of_originating_goods}
+    legal_basis: "Art. 61-66 UZK-IA"
+    legal_source: secondary
+    consequence: Nachweis formell unwirksam, Präferenzverlust
+    note: Schwelle bezieht sich auf Ursprungswaren, nicht auf den Rechnungsgesamtwert
+    valid_from: "2026-09-12"
+
+  - id: CLS-01
+    name: HS-6 konsistent über alle Belege
+    hardness: hard
+    risk: financial
+    inputs: ["rechnung.positionen[].hs6", "packliste.positionen[].hs6", "praeferenznachweis.warenkreis[].hs6"]
+    assertion: first `digits` digits identical across all documents referencing the line
+    parameters:
+      digits: 6
+    legal_basis: "Tarifierung; Ursprungsregeln sind HS-basiert"
+    legal_source: secondary
+    consequence: Nacherhebung, Präferenzverlust, Tarifierungsstreit
+    valid_from: "2026-09-12"
+
+  - id: CLS-02
+    name: Stellenzahl Warennummer
+    hardness: hard
+    risk: data_quality
+    inputs: [anmeldung.warennummern, anmeldung.richtung]
+    assertion: richtung == export implies length == length_by_direction.export
+    parameters:
+      length_by_direction: {export: 8, import_de: 11}
+    legal_basis: "KN 8-stellig Ausfuhr, EZT-Codenummer 11-stellig Einfuhr (zoll.de)"
+    legal_source: secondary
+    consequence: Maßnahmen- und Zollsatzermittlung nicht möglich
+    valid_from: "2026-09-12"
+
+  - id: QTY-01
+    name: Menge Rechnung gegen Packliste
+    hardness: hard
+    risk: operational
+    inputs: ["rechnung.positionen[].menge", "packliste.positionen[].menge", packliste.backorders]
+    assertion: rechnung.menge == packliste.menge - dokumentierte backorders
+    legal_basis: Keine eigenständige Norm, Konsistenz der Anmeldedaten
+    legal_source: practice
+    consequence: Mengenabweichung beeinflusst Wert, Ursprung und Beschau
+    valid_from: "2026-09-12"
+
+  - id: QTY-03
+    name: Gewichtslogik
+    hardness: hard
+    risk: data_quality
+    inputs: ["packliste.packstuecke[].brutto_kg", "packliste.packstuecke[].netto_kg"]
+    assertion: brutto_kg >= netto_kg > 0
+    legal_basis: Logische Konsistenz
+    legal_source: practice
+    consequence: Datenfehler, Rohmasse in Anmeldung unbrauchbar
+    valid_from: "2026-09-12"
+
+  - id: TRN-01
+    name: Containernummer konsistent
+    hardness: hard
+    risk: operational
+    inputs: [bill_of_lading.container_id, packliste.container_id]
+    assertion: normalized container ids identical
+    legal_basis: Gestellung, Verschlusssicherheit
+    legal_source: practice
+    consequence: Bezeichnet ggf. eine andere physische Sendung, Beschau
+    valid_from: "2026-09-12"
+
+  - id: TRN-02
+    name: Container-Prüfziffer ISO 6346
+    hardness: hard
+    risk: data_quality
+    inputs: [bill_of_lading.container_id, packliste.container_id]
+    assertion: modulo 11 check digit valid
+    algorithm:
+      letters: "A=10, Vielfache von 11 übersprungen, bis Z=38"
+      weights: "2^0 bis 2^9 von links"
+      modulus: 11
+      remainder_10_maps_to: 0
+    legal_basis: "ISO 6346; Owner-Register bei BIC"
+    legal_source: secondary
+    consequence: OCR-Nachprüfung auslösen, nicht fachlich ablehnen
+    on_fail: re_extraction_required
+    valid_from: "2026-09-12"
+
+  - id: REF-03
+    name: Nur finale Dokumentversionen
+    hardness: hard
+    risk: compliance
+    inputs: ["dokumente[].status", "dokumente[].version", herkunft]
+    assertion: only documents with status == final may feed canonical facts
+    legal_basis: "Art. 15 UZK (Richtigkeit der Angaben)"
+    legal_source: secondary
+    consequence: Draft-B/L oder Verify Copy als Anmeldegrundlage, Korrekturpflicht
+    valid_from: "2026-09-12"
+
+  # Weiche Regel als Gegenbeispiel: bewusst keine gesetzliche Toleranz
+  - id: QTY-02
+    name: Bruttogewicht Packliste gegen B/L
+    hardness: soft
+    escalate_to_hard_at: {relative: 0.10}
+    risk: operational
+    inputs: [packliste.brutto_gesamt_kg, bill_of_lading.brutto_kg]
+    assertion: absolute difference within tolerance
+    tolerance: {relative: 0.01, absolute_kg: 2, apply: greater_of}
+    legal_basis: >
+      Keine gesetzliche EU-Zolltoleranz. VGM-Pflicht nach SOLAS Kap. VI Regel 2
+      erzwingt verlässliche Verladerangabe; Toleranzen sind vertraglich.
+    legal_source: practice
+    consequence: Warnung, Rückfrage beim Verlader
+    valid_from: "2026-09-12"

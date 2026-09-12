@@ -1,0 +1,20 @@
+{
+  "name": "zollpilot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sendungsakte: automatisierte Vollständigkeits- und Konsistenzprüfung von Zoll- und Versanddokumenten. n8n orchestriert, deterministischer Code entscheidet.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "check": "bash scripts/beleg-check.sh && node scripts/prosa-check.mjs && node scripts/link-check.mjs && node scripts/regel-check.mjs && node --test scripts/regel-check.test.mjs",
+    "bundle": "node scripts/n8n-bundle.mjs",
+    "bundle:check": "node scripts/n8n-bundle.mjs --check",
+    "akte": "node src/cli.mjs"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1"
+  }
+}

@@ -1,0 +1,50 @@
+# Build
+build/
+target/
+out/
+dist/
+*.class
+*.jar
+
+# Maven (ADR-008)
+!.mvn/wrapper/maven-wrapper.jar
+
+# Node
+node_modules/
+.angular/
+*.tsbuildinfo
+
+# Python (Evals)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Tests und Reports
+playwright-report/
+test-results/
+coverage/
+
+# Geheimnisse - hier landet nie ein Schlüssel
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# Betriebssystem
+.DS_Store
+Thumbs.db
+desktop.ini

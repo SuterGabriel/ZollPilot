@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Stufe 1: die Prüfung auf dieser Maschine, vor dem Commit.
+#
+# Sechs Gates, zusammen unter zwei Sekunden. Der Hook ist mit --no-verify
+# umgehbar, und das ist Absicht: Ein Hook, der eine halbe Minute braucht, wird
+# umgangen, und ein Hook, der routinemäßig umgangen wird, erzwingt nichts.
+# Dieselben Gates laufen in der CI noch einmal, dort sind sie nicht umgehbar.
+#
+# Der Zuschnitt ist bewusst ungleich (docs/PIPELINE.md):
+#
+#   Prosa-Check     nur vorgemerkte Dateien
+#   Verweis-Check   ganzer Baum
+#   Beleg-Check     ganzer Baum
+#   Regel-Check     ganzer Baum
+#   Bundle-Check    nur wenn src/, Katalog oder Workflow vorgemerkt sind
+#   Workflow-Check  nur wenn workflows/ vorgemerkt ist
+#
+# Einrichten: bash scripts/hooks-installieren.sh
+
+set -uo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+fehler=0
+
+vorgemerkt=$(git diff --cached --name-only --diff-filter=ACM)
+[ -n "$vorgemerkt" ] || exit 0
+
+lauf() {
+  local name="$1"; shift
+  local ausgabe
+  if ausgabe=$("$@" 2>&1); then
+    printf '  ok    %s\n' "$name"
+  else
+    printf '  ROT   %s\n' "$name"
+    printf '%s\n' "$ausgabe" | sed 's/^/        /'
+    fehler=$((fehler + 1))
+  fi
+}
+
+echo "ZollPilot, Prüfung vor dem Commit"
+echo "================================="
+
+prosa_dateien=$(printf '%s\n' "$vorgemerkt" \
+  | grep -E '\.(md|sh|mjs|js|cjs|css|yml|yaml|sql)$|(^|/)\.gitignore$|(^|/)\.gitattributes$' \
+  || true)
+if [ -n "$prosa_dateien" ]; then
+  # shellcheck disable=SC2086
+  lauf "Prosa" node scripts/prosa-check.mjs $prosa_dateien
+fi
+
+lauf "Verweise" node scripts/link-check.mjs
+lauf "Belege" bash scripts/beleg-check.sh
+lauf "Regeln" node scripts/regel-check.mjs
+
+if printf '%s\n' "$vorgemerkt" | grep -qE '^scripts/regel-check|^scripts/fixtures/regel-check'; then
+  lauf "Regel-Check-Tests" node --test scripts/regel-check.test.mjs
+fi
+
+# Der Code-Node ist ein Build-Artefakt aus src/ und dem Katalog (ADR-004).
+# Wer src/ ändert und den Workflow nicht neu bündelt, committet einen
+# Workflow, der etwas anderes tut als die Tests prüfen.
+if printf '%s\n' "$vorgemerkt" | grep -qE '^src/|^rules\.yaml$|^pflichtmatrix\.yaml$|^zustaendigkeiten\.yaml$|^workflows/|^scripts/n8n-bundle'; then
+  lauf "Bundle aktuell" node scripts/n8n-bundle.mjs --check
+fi
+
+if printf '%s\n' "$vorgemerkt" | grep -qE '^workflows/'; then
+  lauf "Workflows" node scripts/workflow-check.mjs
+fi
+
+if [ "$fehler" -gt 0 ]; then
+  cat <<'HINWEIS'
+
+Der Commit ist gestoppt. Diese Gates prüfen Zusagen, die dieses Repo an
+mehreren Stellen über sich selbst macht — sie sollen kaputtgehen, wenn die
+Zusage nicht mehr stimmt.
+
+Entweder die Stelle richtigstellen — oder die Behauptung streichen.
+
+Wenn der Commit trotzdem sein muss: git commit --no-verify. Die CI prüft
+dieselben Gates noch einmal, dort ist es keine Option.
+HINWEIS
+  exit 1
+fi
+
+echo "Alle Gates grün."
