@@ -79,7 +79,7 @@ export function fehlermeldung(fehler: unknown): string {
   }
   if (fehler.status >= 500) {
     // Der Fehlerzweig des Workflows nennt die Ausführung. Mit ihr findet der
-    // Betrieb den Lauf in n8n und die Zeile in `workflow_fehler` — ohne sie
+    // Betrieb den Lauf in n8n und die Zeile in `workflow_fehler`. Ohne sie
     // bleibt „gescheitert" eine Auskunft, mit der niemand etwas anfangen kann.
     const ausfuehrung = ausfuehrungAus(fehler.error);
     const fundstelle = ausfuehrung ? ` Ausführung ${ausfuehrung}.` : '';

@@ -15,7 +15,7 @@ export const appConfig: ApplicationConfig = {
       {
         // Die Regeln, die ADR-006 über den Store aufstellt, werden hier
         // durchgesetzt statt behauptet. `strictStateSerializability` bricht,
-        // sobald jemand ein `File` in den Store legt — genau deshalb gibt es
+        // sobald jemand ein `File` in den Store legt. Genau deshalb gibt es
         // den BelegSpeicher.
         runtimeChecks: {
           strictStateImmutability: true,

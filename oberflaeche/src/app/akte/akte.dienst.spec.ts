@@ -1,6 +1,6 @@
 // Der Transport, mit dem Fall, der niemandem auffällt, bis er wehtut:
 // Der Workflow antwortet 422, wenn die Akte nicht freigabereif ist. Für den
-// HttpClient ist das ein Fehler — fachlich ist es das Ergebnis. Wer das
+// HttpClient ist das ein Fehler, fachlich ist es das Ergebnis. Wer das
 // verwechselt, verliert genau die Befunde, um die es geht.
 
 import { HttpErrorResponse } from '@angular/common/http';
@@ -104,7 +104,7 @@ describe('fehlermeldung', () => {
   });
 
   it('kommt ohne Ausführungs-ID aus, statt "undefined" zu zeigen', () => {
-    // Der Satz nennt weiterhin die Ausführung in n8n als Fundstelle — aber
+    // Der Satz nennt weiterhin die Ausführung in n8n als Fundstelle, aber
     // keine Nummer, die es nicht gibt.
     expect(fehlermeldung(antwort(502))).not.toMatch(/Ausführung \S+\./);
     expect(fehlermeldung(antwort(502))).toContain('workflow_fehler');

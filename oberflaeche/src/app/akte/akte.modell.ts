@@ -46,7 +46,7 @@ export interface Stammdaten {
 }
 
 /**
- * Ein eingereichter Beleg — nur die Angaben, nicht die Datei.
+ * Ein eingereichter Beleg, nur die Angaben, nicht die Datei.
  *
  * Die `File`-Objekte liegen im BelegSpeicher, nicht im Store: Der Store hält
  * ausschließlich Serialisierbares, und `strictStateSerializability` in
@@ -69,7 +69,7 @@ export interface Adressat {
  *
  * `regel` hält eine Regel- oder eine Pflichtmatrix-Kennung, `fassung` die
  * Version, gegen die entschieden wurde. Ändert sich der Katalog, ist die
- * Übersteuerung verbraucht — dann hat die Person eine andere Regel
+ * Übersteuerung verbraucht; dann hat die Person eine andere Regel
  * verantwortet als die, die jetzt gilt.
  */
 export interface Uebersteuerung {
@@ -88,7 +88,7 @@ export interface Uebersteuert {
   uebersteuerung_verbraucht?: { benutzer: string; fassung: string; erzeugt_am: string | null }[];
 }
 
-/** Die kürzeste Begründung, die noch eine ist — wie `MINDESTLAENGE_BEGRUENDUNG` in `src/override.mjs`. */
+/** Die kürzeste Begründung, die noch eine ist, wie `MINDESTLAENGE_BEGRUENDUNG` in `src/override.mjs`. */
 export const MINDESTLAENGE_BEGRUENDUNG = 11;
 
 export interface Befund extends Uebersteuert {

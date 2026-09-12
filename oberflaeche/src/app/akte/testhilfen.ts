@@ -1,7 +1,7 @@
 // Testhilfen: ein Prüfergebnis und ein Beleg, wie sie wirklich aussehen.
 //
 // Die Werte sind aus einer echten Antwort des Webhooks auf
-// testdaten/belege/container-abweichung abgeschrieben und gekürzt — nicht von
+// testdaten/belege/container-abweichung abgeschrieben und gekürzt, nicht von
 // dieser Oberfläche erzeugt. Ein Prüfstück, das der Prüfling selbst herstellt,
 // prüft nichts (docs/ENTWICKLUNGSLOG.md, 12.09.2026).
 

@@ -2,12 +2,12 @@
  *
  * Übernommen aus dem Mockup (docs/entwurf/mockup-mit-zustandsblatt.pdf,
  * Blatt 1g). Jeder dort angegebene Kontrastwert wurde mit
- * scripts/kontrast-check.mjs nachgerechnet — alle vierzehn stimmten auf die
+ * scripts/kontrast-check.mjs nachgerechnet; alle vierzehn stimmten auf die
  * zweite Nachkommastelle. Die `@kontrast`-Anweisungen unten sind keine
  * Kommentare, sondern Zusagen: Das Gate liest sie, rechnet nach WCAG 2.1
  * nach und ist rot, wenn eine nicht hält. In Hook und CI.
  *
- * Ein Thema, hell. Kein dunkles Gegenstück — das wären doppelt so viele
+ * Ein Thema, hell. Kein dunkles Gegenstück, denn das wären doppelt so viele
  * Paare, und eine Zusage, die niemand prüft, ist schlechter als keine.
  */
 
@@ -40,7 +40,7 @@
   --ton-aktion: #1a4fb4;
 
   /* Gesperrt: nicht über Deckkraft ausgrauen, sondern eine eigene, geprüfte
-   * Paarung. Der Rahmen darf schwächer sein — WCAG 1.4.11 nimmt gesperrte
+   * Paarung. Der Rahmen darf schwächer sein: WCAG 1.4.11 nimmt gesperrte
    * Bedienelemente aus, und der Grund der Sperre steht ohnehin als Satz
    * darunter, nie nur in der Farbe.
    * @kontrast --ton-text-leise auf --ton-gesperrt mindestens 4.5 */

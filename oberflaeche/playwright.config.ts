@@ -1,7 +1,7 @@
 // Ende-zu-Ende gegen die laufende Oberfläche.
 //
 // `docs/ARBEITSWEISE.md`, Stufe 2, macht axe zur Bedingung für jede Änderung
-// an der Oberfläche — nicht zur Absichtserklärung. Diese Läufe brauchen n8n
+// an der Oberfläche, nicht zur Absichtserklärung. Diese Läufe brauchen n8n
 // nicht: Der Webhook wird im Browser abgefangen und mit einem Prüfstück
 // beantwortet. Damit prüfen sie die Oberfläche, nicht den Stack; dafür gibt
 // es scripts/rauchtest.sh.

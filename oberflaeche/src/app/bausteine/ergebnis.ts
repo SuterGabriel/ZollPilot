@@ -3,7 +3,7 @@
 // Diese Komponente bewertet nichts. Jeder Satz, den sie zeigt, steht so im
 // Ergebnis: die Entscheidung, die Begründung je Regel, die Rechtsgrundlage
 // mit ihrem Verifikationsstand, der Adressat jeder Nachforderung. Was hier
-// fehlt, fehlt im Regelwerk — nicht in der Darstellung (ADR-006).
+// fehlt, fehlt im Regelwerk, nicht in der Darstellung (ADR-006).
 //
 // Die Anordnung folgt dem Entwurf (docs/entwurf/, Struktur 1a): nach
 // Handlungsnähe, nicht nach Erzeugungsreihenfolge. Zuerst, was zu tun ist.
@@ -119,9 +119,9 @@ export class Ergebnis {
     return RECHTSQUELLE_TEXT[status];
   }
 
-  /** Wie der Beleg gelesen wurde. Ein Gedankenstrich, wenn gar nicht. */
+  /** Wie der Beleg gelesen wurde, oder dass er es nicht wurde. */
   methodenText(dokument: Dokument): string {
-    return dokument.methoden?.length ? dokument.methoden.join(', ') : '—';
+    return dokument.methoden?.length ? dokument.methoden.join(', ') : 'nicht gelesen';
   }
 
   zeitText(iso: string | null): string {
@@ -129,7 +129,7 @@ export class Ergebnis {
     return new Date(iso).toLocaleString('de-DE', ZEITFORM);
   }
 
-  /** Eine stabile Kennung je Nachforderung — Anlass und Feld zusammen. */
+  /** Eine stabile Kennung je Nachforderung: Anlass und Feld zusammen. */
   kennung(fall: Nachforderung): string {
     return `${fall.grund}:${fall.feld}`;
   }
@@ -142,7 +142,7 @@ export class Ergebnis {
     } catch {
       // Kein Zugriff auf die Zwischenablage (kein sicherer Kontext, keine
       // Erlaubnis). Der Text steht ohnehin sichtbar da und lässt sich von
-      // Hand markieren — deshalb kein Fehlerzustand, nur keine Rückmeldung.
+      // Hand markieren; deshalb kein Fehlerzustand, nur keine Rückmeldung.
       this.kopiert.set(null);
     }
   }
@@ -152,7 +152,7 @@ export class Ergebnis {
    *
    * Ohne Empfänger: Der Adressat ist eine Rolle („Exporteur/Lieferant"),
    * kein Postfach. Rolle zu Verteiler ist Stammdatenpflege, die es nicht
-   * gibt (docs/BETRIEB.md) — deshalb steht die Rolle im Text, und die
+   * gibt (docs/BETRIEB.md). Deshalb steht die Rolle im Text, und die
    * Adresse setzt ein Mensch.
    */
   mailto(fall: Nachforderung): string {

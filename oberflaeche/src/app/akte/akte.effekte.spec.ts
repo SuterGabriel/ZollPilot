@@ -1,5 +1,5 @@
 // Der Effect: Er liest die Belege aus dem Zustand, gibt sie dem Dienst und
-// macht aus der Antwort genau eine Aktion — nie eine Entscheidung.
+// macht aus der Antwort genau eine Aktion, nie eine Entscheidung.
 
 import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
@@ -61,7 +61,7 @@ describe('einreichen', () => {
     expect((dateien as File[]).map((d) => d.name)).toEqual(['rechnung.pdf', 'packliste.pdf']);
   });
 
-  it('macht aus der Antwort die Aktion "beantwortet" — auch bei blockiert', async () => {
+  it('macht aus der Antwort die Aktion "beantwortet", auch bei blockiert', async () => {
     const aktionen$ = of(AkteAktionen.eingereicht({ stammdaten: STAMMDATEN }));
     baueUmgebung(aktionen$, of(ERGEBNIS_BLOCKIERT));
 
@@ -70,7 +70,7 @@ describe('einreichen', () => {
     )) as ReturnType<typeof AkteAktionen.einreichungBeantwortet>;
     expect(aktion.type).toBe(AkteAktionen.einreichungBeantwortet.type);
     expect(aktion.ergebnis).toBe(ERGEBNIS_BLOCKIERT);
-    // Der Zeitpunkt entsteht im Effect, nicht im Reducer — geprüft wird die
+    // Der Zeitpunkt entsteht im Effect, nicht im Reducer; geprüft wird die
     // Form, nicht der Wert.
     expect(new Date(aktion.zeitpunkt).getTime()).not.toBeNaN();
   });
@@ -144,7 +144,7 @@ describe('nachUebersteuerungPruefen', () => {
     expect(uebersteuerungen).toEqual([UEBERSTEUERUNG]);
   });
 
-  it('prüft auch nach dem Zurücknehmen erneut — dann ohne die Übersteuerung', async () => {
+  it('prüft auch nach dem Zurücknehmen erneut, dann ohne die Übersteuerung', async () => {
     const aktionen$ = of(AkteAktionen.uebersteuerungZurueckgenommen({ regel: 'TRN-01' }));
     const { einreichenSpion } = baueUmgebung(aktionen$, of(ERGEBNIS_BLOCKIERT), {
       stammdaten: STAMMDATEN,

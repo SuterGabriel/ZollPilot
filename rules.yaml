@@ -6,7 +6,7 @@
 #
 # hardness: hard = blockiert die Freigabe | soft = Warnung
 # risk: financial | compliance | criminal | operational | data_quality
-# legal_source: verified | secondary | practice — Stand der Verifikation
+# legal_source: verified | secondary | practice, Stand der Verifikation
 #   (docs/08-known-unknowns.md). Vor produktivem Einsatz gegen EUR-Lex und
 #   zoll.de prüfen; nie eine Artikelnummer raten, im Zweifel TODO-verify.
 
@@ -27,7 +27,7 @@ defaults:
   on_low_confidence: re_extraction_required
   # Unterhalb dieser Extraktionskonfidenz gilt ein Befund zuerst als
   # Lesefehler, nicht als Dokumentfehler (OCR-01 in docs/03). Das gilt für
-  # jede Regel, deren Vergleich auf extrahierten Werten beruht — zehn von
+  # jede Regel, deren Vergleich auf extrahierten Werten beruht, zehn von
   # dreizehn. Die drei anderen tragen den Pfad bewusst nicht: CLS-02 liest
   # Stammdaten der Anmeldung, REF-03 und ORG-03 lesen den Dokumentstatus
   # beziehungsweise den Belegtyp, keine extrahierten Feldwerte.

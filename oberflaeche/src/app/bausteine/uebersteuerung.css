@@ -85,7 +85,7 @@ textarea {
   resize: vertical;
 }
 
-/* Der Grund der Sperre ist leer, wenn nichts sperrt — der Platz bleibt
+/* Der Grund der Sperre ist leer, wenn nichts sperrt; der Platz bleibt
    trotzdem stehen, sonst springt die Schaltfläche beim Tippen. */
 .sperre {
   margin: 0;

@@ -45,7 +45,7 @@ export const einreichen = createEffect(
  * Nach einer Übersteuerung wird erneut geprüft.
  *
  * Das ist der Kern von ADR-007: Die Oberfläche rechnet nicht selbst aus, was
- * die Übersteuerung bedeutet — sie gibt sie dem Regelwerk und zeigt, was
+ * die Übersteuerung bedeutet. Sie gibt sie dem Regelwerk und zeigt, was
  * zurückkommt. Ohne diesen Weg wäre das Ergebnis auf dem Schirm eine
  * Behauptung der Oberfläche statt einer Entscheidung des Regelwerks.
  */

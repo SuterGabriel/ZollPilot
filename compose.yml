@@ -2,7 +2,7 @@
 #
 # Fünf Dienste:
 #   postgres    eine Instanz, zwei Datenbanken: n8n (Workflows, Ausführungen)
-#               und zollpilot (Akte, Prüfungen, Fehler) — deploy/postgres/init.sql
+#               und zollpilot (Akte, Prüfungen, Fehler), deploy/postgres/init.sql
 #   n8n-import  läuft einmal: importiert Credentials und die Workflows aus
 #               workflows/ und beendet sich. Damit ist der Stand im Repo der
 #               Stand im System, nicht umgekehrt.
@@ -56,7 +56,7 @@ services:
       - ./deploy/n8n:/deploy:ro
     entrypoint: ["/bin/sh", "-c"]
     # Erst Credentials, dann Workflows. Der Import ersetzt Workflows mit
-    # gleicher id — ein zweiter Start ist idempotent. Der Import deaktiviert
+    # gleicher id; ein zweiter Start ist idempotent. Der Import deaktiviert
     # jeden Workflow ("Remember to activate later"); deshalb der dritte
     # Befehl, sonst antwortet der Webhook mit 404. Der Fehler-Workflow wird
     # nicht aktiviert: Ein Error Trigger startet über die Einstellung
@@ -83,7 +83,7 @@ services:
       WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5678/}
       # Ohne die Ereignisbus-Metriken liefert /metrics nur Prozess- und
       # Node-Werte: CPU, Heap, Eventloop. Das sagt, ob n8n lebt, nie ob eine
-      # Prüfung gelaufen oder gescheitert ist — und genau danach fragt ein
+      # Prüfung gelaufen oder gescheitert ist, und genau danach fragt ein
       # Alarm. Erst dieser Schalter erzeugt die Zähler je Ereignis
       # (`n8n_events_*`), die Labels machen sie je Workflow lesbar.
       N8N_METRICS: "true"
@@ -123,7 +123,7 @@ services:
     ports:
       - "127.0.0.1:${EXTRAKTION_PORT:-8765}:8080"
     # Der Healthcheck steht im Dockerfile: GET /healthz antwortet ok und sagt,
-    # ob Tesseract da ist. n8n hängt nicht von diesem Dienst ab — der Eingang
+    # ob Tesseract da ist. n8n hängt nicht von diesem Dienst ab; der Eingang
     # /webhook/akte funktioniert ohne ihn; /webhook/belege scheitert dann
     # sichtbar (workflow_fehler), nicht still.
 
