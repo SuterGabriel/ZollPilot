@@ -56,7 +56,11 @@ test('Nachforderungen adressieren den Dateninhaber des fehlenden Feldes', () => 
   const bl = ergebnis.nachforderungen.find((n) => n.feld === 'bill_of_lading.container_id');
   assert.ok(bl);
   assert.equal(bl.adressat.primaer, 'Seefrachtspediteur/Carrier');
-  assert.match(bl.text, /ACTION REQUIRED/);
+  // Der Betreff steht im eigenen Feld, nicht noch einmal im Text: Er ist die
+  // Kopfzeile der Mail, und zwei Fassungen derselben Angabe laufen auseinander.
+  assert.match(bl.betreff, /^ACTION REQUIRED/);
+  assert.doesNotMatch(bl.text, /ACTION REQUIRED/);
+  assert.match(bl.text, /^An: Seefrachtspediteur\/Carrier/);
   assert.match(bl.text, /Akzeptierte Nachweise: bill_of_lading, sea_waybill/);
 });
 

@@ -83,7 +83,7 @@ export const ERGEBNIS_BLOCKIERT: Pruefergebnis = {
       folge: 'Keine Freigabe: Bezeichnet ggf. eine andere physische Sendung, Beschau',
       stufe: 'erinnerung_0',
       betreff: 'ACTION REQUIRED – Containernummer konsistent – Shipment ZP-2026-0004',
-      text: 'Betreff: ACTION REQUIRED\n\nAn: Seefrachtspediteur/Carrier',
+      text: 'An: Seefrachtspediteur/Carrier\n\nBenötigt:\n- Dokument/Feld: bill_of_lading.container_id',
     },
   ],
 };
