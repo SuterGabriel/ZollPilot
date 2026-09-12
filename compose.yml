@@ -1,0 +1,103 @@
+# Ein Befehl fährt alles hoch:  docker compose up -d --wait
+#
+# Drei Dienste:
+#   postgres    eine Instanz, zwei Datenbanken: n8n (Workflows, Ausführungen)
+#               und zollpilot (Akte, Prüfungen, Fehler) — deploy/postgres/init.sql
+#   n8n-import  läuft einmal: importiert Credentials und die Workflows aus
+#               workflows/ und beendet sich. Damit ist der Stand im Repo der
+#               Stand im System, nicht umgekehrt.
+#   n8n         die Orchestrierung, mit Healthcheck und Metriken
+#
+# Geheimnisse liegen in .env (Vorlage: .env.example). Die Werte dort sind
+# Entwicklungswerte; docs/BETRIEB.md sagt, was vor einem echten Betrieb fehlt.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-zollpilot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-zollpilot-dev}
+      POSTGRES_DB: n8n
+    volumes:
+      - postgres-daten:/var/lib/postgresql/data
+      - ./deploy/postgres/init.sql:/docker-entrypoint-initdb.d/10-zollpilot.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-zollpilot} -d n8n"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+
+  n8n-import:
+    image: n8nio/n8n:${N8N_VERSION:-1.114.0}
+    environment: &n8n-umgebung
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_USER: ${POSTGRES_USER:-zollpilot}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:-zollpilot-dev}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-nur-fuer-lokale-entwicklung-ersetzen}
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_PERSONALIZATION_ENABLED: "false"
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+      GENERIC_TIMEZONE: Europe/Berlin
+      TZ: Europe/Berlin
+    volumes:
+      - ./workflows:/workflows:ro
+      - ./deploy/n8n:/deploy:ro
+    entrypoint: ["/bin/sh", "-c"]
+    # Erst Credentials, dann Workflows. Der Import ersetzt Workflows mit
+    # gleicher id — ein zweiter Start ist idempotent. Der Import deaktiviert
+    # jeden Workflow ("Remember to activate later"); deshalb der dritte
+    # Befehl, sonst antwortet der Webhook mit 404. Der Fehler-Workflow wird
+    # nicht aktiviert: Ein Error Trigger startet über die Einstellung
+    # errorWorkflow der anderen Workflows, und n8n verweigert die Aktivierung
+    # eines Workflows ohne Trigger-Node.
+    command:
+      - |
+        set -e
+        n8n import:credentials --input=/deploy/credentials.json
+        n8n import:workflow --separate --input=/workflows
+        n8n update:workflow --id=zollpilot-akte-pruefen --active=true
+        echo "Import abgeschlossen, Prüf-Workflow aktiv."
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  n8n:
+    image: n8nio/n8n:${N8N_VERSION:-1.114.0}
+    environment:
+      <<: *n8n-umgebung
+      N8N_PORT: 5678
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5678/}
+      N8N_METRICS: "true"
+      N8N_METRICS_INCLUDE_WORKFLOW_ID_LABEL: "true"
+      N8N_LOG_LEVEL: info
+      N8N_LOG_OUTPUT: console
+      EXECUTIONS_DATA_PRUNE: "true"
+      EXECUTIONS_DATA_MAX_AGE: 336
+      N8N_RUNNERS_ENABLED: "true"
+    volumes:
+      - n8n-daten:/home/node/.n8n
+    ports:
+      - "127.0.0.1:${N8N_PORT:-5678}:5678"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5678/healthz | grep -q ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      n8n-import:
+        condition: service_completed_successfully
+
+volumes:
+  postgres-daten:
+  n8n-daten:
