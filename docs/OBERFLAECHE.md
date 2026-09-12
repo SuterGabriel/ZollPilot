@@ -14,7 +14,7 @@ in [entwurf/03-abgleich.md](entwurf/03-abgleich.md).
 
 ```
 Stammdaten eintragen            akte_id, Stichtag, Sachverhalt, Incoterm, Route,
-                                Warennummern — vorbelegt mit der Testakte
+                                Warennummern, vorbelegt mit der Testakte
 PDFs ablegen oder auswählen     was kein PDF ist, wird abgelehnt und genannt
 "Akte einreichen"
    │  POST /webhook/belege (multipart) an nginx
@@ -39,7 +39,7 @@ Widerspruch, akzeptierte Nachweise und Folge.
 Das ist keine Absichtserklärung: `scripts/beleg-check.sh` prüft, dass unter
 `oberflaeche/src/` weder `rules.yaml` noch `low_confidence_below` vorkommt.
 Die einzige Bedingung im Browser ist, ob das Formular abgeschickt werden
-darf — Pflichtfeldlogik, keine Fachregel.
+darf: Pflichtfeldlogik, keine Fachregel.
 
 ## Zustand
 
@@ -57,11 +57,11 @@ Oberfläche sagt, dass es eine frühere Entscheidung gab und wann. Wer nur
 `null` setzt, nimmt dem Menschen diese Information.
 
 Der Zeitpunkt kommt **mit der Aktion** herein, nicht aus `new Date()` im
-Reducer — sonst wäre er nicht ohne Vorkehrung prüfbar.
+Reducer; sonst wäre er nicht ohne Vorkehrung prüfbar.
 
 `app.config.ts` schaltet `strictStateSerializability` und die drei anderen
 Laufzeitprüfungen von ngrx ein. Legt jemand ein `File` in den Store, bricht
-es sofort — statt dass die Regel im Kommentar verblasst.
+es sofort, statt dass die Regel im Kommentar verblasst.
 
 ## Die 422-Falle
 
@@ -70,16 +70,16 @@ anderen**, in beiden Fällen mit dem vollständigen Ergebnis
 (Node-Konventionen im Skill `n8n-code-nodes`). Für den Angular-HttpClient
 ist 422 ein Fehler. `akte.dienst.ts` trennt das: 422 mit verwertbarem Körper
 ist das Ergebnis, alles andere bleibt ein Fehler. Wer das verwechselt,
-verliert genau die Befunde, um die es geht — geprüft in
+verliert genau die Befunde, um die es geht. Geprüft in
 `akte.dienst.spec.ts`, in beide Richtungen.
 
-## Barrierefreiheit — geprüft, nicht behauptet
+## Barrierefreiheit: geprüft, nicht behauptet
 
 `docs/ARBEITSWEISE.md`, Stufe 2, macht axe zur Merge-Bedingung. Eingelöst:
 
 | Zusage | Prüfung | Stand |
 |---|---|---|
-| Kontrast der Gestaltungstoken | `scripts/kontrast-check.mjs` rechnet jede `@kontrast`-Anweisung in `styles.css` nach WCAG 2.1 nach | 13 Farbpaare, alle halten. Die Werte stammen aus dem Mockup und wurden unabhängig nachgerechnet — alle vierzehn stimmten |
+| Kontrast der Gestaltungstoken | `scripts/kontrast-check.mjs` rechnet jede `@kontrast`-Anweisung in `styles.css` nach WCAG 2.1 nach | 13 Farbpaare, alle halten. Die Werte stammen aus dem Mockup und wurden unabhängig nachgerechnet; alle vierzehn stimmten |
 | Keine axe-Verstöße | `oberflaeche/e2e/` über leeres Formular, Formular mit Belegen, Ergebnis freigabereif, Ergebnis blockiert, entwertetes Ergebnis, Fehlerfall | 6 Durchläufe, 0 Verstöße |
 | Vier Unterscheidungen vor der Farbe | Wort, Markenform (Scheibe, Raute, offener Ring, Quadrat), Balkenstärke (4 px, 4 px gestrichelt, 6 px), dann Farbe | im Zustandsband |
 | Tastaturbedienung | Sprungmarke als erster Halt, Belege ohne Zeigegerät wählen und entfernen | im selben Lauf |
@@ -89,7 +89,7 @@ verliert genau die Befunde, um die es geht — geprüft in
 Farbe trägt nie allein: Jede Entscheidung steht auch als Text da, und der
 farbige Balken hat eine zweite, nicht farbige Spur.
 
-Ein Thema, hell. Kein dunkles Gegenstück — das wären doppelt so viele
+Ein Thema, hell. Kein dunkles Gegenstück, denn das wären doppelt so viele
 Farbpaare, und eine Zusage, die niemand prüft, ist schlechter als keine.
 
 ## Laufen lassen
@@ -115,7 +115,7 @@ bash scripts/rauchtest.sh     # Runde 3 schickt eine Akte durch den Proxy
 
 - **Sie führt keine Akte, sondern einen Vorgang.** Nach dem Absenden steht
   das Ergebnis; ein zweiter Beleg zur selben Sendung beginnt einen neuen
-  Vorgang. Es gibt keine Aktenidentität über die Zeit — das ist offene
+  Vorgang. Es gibt keine Aktenidentität über die Zeit; das ist offene
   Frage 2 in `PROJECT.md`, umgangen und nicht gelöst.
 - **Kein Korrigieren.** Übersteuern geht seit Stufe 5: Jeder offene Befund
   und jeder Pflichteintrag lässt sich mit Name und Begründung verantworten,
@@ -134,12 +134,12 @@ bash scripts/rauchtest.sh     # Runde 3 schickt eine Akte durch den Proxy
 - **Ein Sachverhalt.** Richtung und Verkehrsträger lassen sich umstellen,
   aber der Katalog deckt nur Ausfuhr/Seefracht. Wer etwas anderes wählt,
   bekommt die ehrliche Antwort des Regelwerks: Die Pflichtmatrix deckt
-  diesen Sachverhalt nicht — geprüft werden dann nur die Regeln.
+  diesen Sachverhalt nicht; geprüft werden dann nur die Regeln.
 - **Nur Deutsch.** Keine Übersetzung, kein `i18n`.
 - **Keine eigenen Schriften.** Der Entwurf wählt Atkinson Hyperlegible und
   Source Code Pro mit guter Begründung (1/l/I und 0/O bei 12 px, geschlitzte
   Null, gleiche Laufweite für Containernummern). Sie stehen in der
-  Schriftkette an erster Stelle, sind aber **nicht mitgeliefert** — offene
+  Schriftkette an erster Stelle, sind aber **nicht mitgeliefert**, offene
   Frage 6 in `entwurf/03-abgleich.md`. Ohne sie greift die Systemschrift.
 - **Kein Fortschritt und kein Abbrechen** während der Prüfung. Der Webhook
   ist synchron; mehr braucht eine eigene Entscheidung.

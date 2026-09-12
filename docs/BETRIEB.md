@@ -1,7 +1,7 @@
 # Betrieb und Übergabe
 
 Für Betrieb und Support. Wer diesen Text liest, muss das Regelwerk nicht
-verstehen — nur wissen, wo etwas läuft, wo es steht, wenn es nicht läuft, und
+verstehen, sondern nur wissen, wo etwas läuft, wo es steht, wenn es nicht läuft, und
 was vor einem echten Betrieb noch fehlt.
 
 ## Was läuft
@@ -11,7 +11,7 @@ Fünf Container aus `compose.yml`:
 | Dienst | Aufgabe | Port | Gesund, wenn |
 |---|---|---|---|
 | `postgres` | zwei Datenbanken: `n8n` (Workflows, Ausführungen) und `zollpilot` (Akte, Prüfungen, Fehler) | 5432, nur localhost | `pg_isready` |
-| `n8n-import` | läuft einmal beim Start: importiert Credentials und Workflows aus dem Repo, beendet sich | — | Exit 0 |
+| `n8n-import` | läuft einmal beim Start: importiert Credentials und Workflows aus dem Repo, beendet sich | keiner | Exit 0 |
 | `n8n` | Orchestrierung, zwei Webhooks, der n8n-Editor | 5678, nur localhost | `GET /healthz` antwortet `ok` |
 | `extraktion` | Belege (PDF) → Assertions: Textlayer oder Tesseract, Klassifikation, Felder. Entscheidet nichts (ADR-005) | 8765 auf dem Host (nur localhost), 8080 im Compose-Netz | `GET /healthz` antwortet `ok` und sagt, ob OCR verfügbar ist |
 | `oberflaeche` | nginx: liefert die Angular-Anwendung aus und reicht `/webhook/` an n8n weiter. Der Einstieg für Menschen (ADR-006) | 8088, nur localhost | `GET /` liefert die Anwendung |
@@ -21,7 +21,7 @@ ihn, `POST /webhook/belege` scheitert ohne ihn sichtbar (500, Zeile in
 `workflow_fehler` mit Node „Belege extrahieren“).
 
 Der Stand im Repo ist der Stand im System. Wer einen Workflow ändert, ändert
-ihn im Repo und importiert neu — nicht umgekehrt.
+ihn im Repo und importiert neu, nicht umgekehrt.
 
 ## Ein Befehl
 
@@ -39,14 +39,14 @@ Beweis, dass Import, Bundle, Schema, Extraktionsdienst, beide Webhooks und
 der Proxy zusammen funktionieren: Runde 1 schickt Akten, Runde 2 schickt
 PDFs, Runde 3 eine Akte durch die Oberfläche.
 
-**Der Einstieg ist `http://localhost:8088`** — dort reicht die Oberfläche
+**Der Einstieg ist `http://localhost:8088`.** Dort reicht die Oberfläche
 für Einreichen und Lesen, ohne Konto (`docs/OBERFLAECHE.md`).
 
 n8n selbst: `http://localhost:5678`. Beim ersten Aufruf verlangt n8n die
-Anlage eines Owner-Kontos — das lässt sich in 1.114.0 nicht abschalten, der
+Anlage eines Owner-Kontos; das lässt sich in 1.114.0 nicht abschalten, der
 frühere Schalter `N8N_USER_MANAGEMENT_DISABLED` wirkt nicht mehr. Das Konto
 ist rein lokal: Es liegt in der Datenbank `n8n` dieses Stacks, die
-E-Mail-Adresse ist ein Anmeldename (kein SMTP, keine Telemetrie —
+E-Mail-Adresse ist ein Anmeldename (kein SMTP, keine Telemetrie,
 `N8N_DIAGNOSTICS_ENABLED=false`), und `docker compose down -v` löscht es
 wieder. Beliebige Adresse, Passwort mit mindestens acht Zeichen, einer Ziffer
 und einem Großbuchstaben.
@@ -75,7 +75,7 @@ select akte_id, freigabe, ergebnis->>'ausfuehrung' as ausfuehrung, geprueft_am
 from pruefung order by geprueft_am desc limit 20;
 ```
 
-Damit lässt sich die Ausführung in n8n unter *Executions* öffnen — mit
+Damit lässt sich die Ausführung in n8n unter *Executions* öffnen, mit
 Eingabe und Ausgabe je Node. Nach 14 Tagen ist sie gelöscht
 (`EXECUTIONS_DATA_MAX_AGE`); die Prüfung selbst bleibt.
 
@@ -87,7 +87,7 @@ select regel, status, count(*) from rule_result group by 1, 2 order by 1, 2;
 
 **Einen Fehler finden.** Schlägt ein Workflow fehl, schreibt der
 Fehler-Workflow eine Zeile nach `workflow_fehler` mit Workflow, Ausführung,
-Node und Meldung — ohne Aktendaten:
+Node und Meldung, ohne Aktendaten:
 
 ```sql
 select aufgetreten_am, workflow_name, node_name, meldung from workflow_fehler order by 1 desc limit 20;
@@ -102,11 +102,11 @@ Die Ausführung selbst, mit Eingabe und Ausgabe je Node, liegt in n8n unter
 ```bash
 docker compose logs -f n8n
 docker compose logs n8n-import     # wenn Workflows fehlen
-docker compose logs -f extraktion  # je Anfrage: Akten-ID, Dateien, Dauer — nie Belegtext
+docker compose logs -f extraktion  # je Anfrage: Akten-ID, Dateien, Dauer, nie Belegtext
 ```
 
 **Metriken.** `GET http://localhost:5678/metrics` liefert Prometheus-Format.
-Mit `N8N_METRICS=true` allein stehen dort nur Prozesswerte — CPU, Heap,
+Mit `N8N_METRICS=true` allein stehen dort nur Prozesswerte: CPU, Heap,
 Eventloop. Die sagen, ob n8n lebt, nie ob eine Prüfung gelaufen ist. Erst
 `N8N_METRICS_INCLUDE_MESSAGE_EVENT_BUS_METRICS=true` erzeugt die Zähler, auf
 die ein Alarm sich stützen kann; die beiden Label-Schalter machen sie je
@@ -122,7 +122,7 @@ n8n_workflow_failed_total{workflow_id="zollpilot-akte-pruefen",…}     4
 
 1. **Zuwachs in `workflow_fehler`.** Das ist das verlässliche Signal. Ein
    Fehler, den der Workflow selbst behandelt (Fehlerzweig, siehe unten),
-   zählt für n8n als erfolgreicher Lauf — `n8n_workflow_failed_total` bleibt
+   zählt für n8n als erfolgreicher Lauf, und `n8n_workflow_failed_total` bleibt
    dann stehen. Die Tabelle bekommt die Zeile trotzdem, auf beiden Wegen.
 2. **`n8n_workflow_failed_total` > 0.** Fängt, was kein Zweig abfängt.
 3. **Ausbleibende Prüfungen.** `n8n_workflow_started_total` wächst in einem
@@ -136,12 +136,12 @@ Aufrufer darf sich darauf verlassen:
 
 | Code | Bedeutung |
 |---|---|
-| 200 | geprüft und freigabereif — unter Berücksichtigung der Übersteuerungen (ADR-007) |
+| 200 | geprüft und freigabereif, unter Berücksichtigung der Übersteuerungen (ADR-007) |
 | 422 | geprüft, nicht freigabereif. Kein Fehler: Der Rumpf trägt das vollständige Ergebnis |
 | 500 | **nicht geprüft.** Der Lauf ist gescheitert. Der Rumpf nennt die Ausführungs-ID und sonst nichts |
 
 Der Fehlerzweig ist der Grund für den dritten Fall. Ohne ihn endet ein
-abgestürzter Lauf mit 200 und leerem Rumpf — der Aufrufer könnte „freigabereif"
+abgestürzter Lauf mit 200 und leerem Rumpf; der Aufrufer könnte „freigabereif"
 nicht von „abgestürzt" unterscheiden. `scripts/rauchtest.sh`, Runde 5, prüft
 das bei jedem Lauf.
 
@@ -158,7 +158,7 @@ das bei jedem Lauf.
 | Akte meldet `unclassified` mit Hinweis „OCR nicht verfügbar“ | `curl localhost:8765/healthz` zeigt `ocr.verfuegbar: false`: Image ohne Tesseract, neu bauen mit `docker compose build extraktion` |
 | Akte meldet `unclassified` mit „Belegtyp nicht erkannt“ | Kein Fehler des Betriebs. Der Beleg ist an der Akte, die Sachbearbeitung sieht ihn in `extraktion.hinweise`; die Extraktion kennt eine Layoutfamilie (`docs/EXTRAKTION.md`) |
 | Extraktion ändern | `extraktion/` ändern, `uv run pytest`, Bewertung gegen die Basislinie, dann `docker compose build extraktion && docker compose up -d extraktion` |
-| Extraktionsdienst läuft woanders | Die Adresse steht im HTTP-Request-Node „Belege extrahieren“ (`http://extraktion:8080`) — im Repo ändern, neu importieren |
+| Extraktionsdienst läuft woanders | Die Adresse steht im HTTP-Request-Node „Belege extrahieren“ (`http://extraktion:8080`): im Repo ändern, neu importieren |
 | Oberfläche zeigt 502 beim Einreichen | nginx erreicht n8n nicht: `docker compose ps n8n`, `docker compose logs oberflaeche` |
 | Oberfläche zeigt 413 | Die Belege überschreiten `client_max_body_size` (32 MB) in `deploy/nginx/zollpilot.conf` |
 | Oberfläche ändern | `oberflaeche/` ändern, `npm test`, `npm run e2e`, `node scripts/kontrast-check.mjs`, dann `docker compose build oberflaeche && docker compose up -d oberflaeche` |
@@ -178,13 +178,13 @@ mehr wechseln, sonst sind alle Credentials in n8n unlesbar.
 
 Ehrlich aufgeschrieben, damit die Übergabe keine Überraschung wird:
 
-- **Kein Alarm.** Die Metriken sagen jetzt, was zu überwachen wäre — Zähler
-  je Workflow, Erfolg und Fehler getrennt —, und oben steht, worauf ein Alarm
+- **Kein Alarm.** Die Metriken sagen jetzt, was zu überwachen wäre: Zähler
+  je Workflow, Erfolg und Fehler getrennt. Oben steht, worauf ein Alarm
   gehört. Niemand holt sie ab. Nötig: Prometheus oder gleichwertig, plus die
   drei Regeln von oben. Das ist Konfiguration, keine Entwicklung mehr.
 - **Keine Sicherung.** Postgres-Volume ohne Backup. Nötig: `pg_dump` nach Plan,
   Wiederherstellung einmal geprobt.
-- **Kein TLS, keine Authentifizierung — jetzt mit Oberfläche.** Ports sind
+- **Kein TLS, keine Authentifizierung, jetzt auch mit Oberfläche.** Ports sind
   auf localhost gebunden; mehr nicht. Wer 8088 erreicht, kann Akten
   einreichen. Das galt schon für den Webhook, aber eine Oberfläche macht es
   einladend: vor jedem Betrieb außerhalb der eigenen Maschine ein Blocker.
