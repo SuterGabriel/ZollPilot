@@ -57,8 +57,13 @@ kennt sie als Regeln:
 
 `dokumente[].typ` kennt: `handelsrechnung`, `proformarechnung`, `packliste`,
 `bill_of_lading`, `sea_waybill`, `origin_declaration`, `eur1`, `eur_med`,
-`atr`, `anmeldung`, `unclassified`. Neue Typen: erst in
+`atr`, `abd`, `anmeldung`, `unclassified`. Neue Typen: erst in
 `pflichtmatrix.yaml` als `required_evidence` einordnen, dann verwenden.
+
+Das ABD (Ausfuhrbegleitdokument, Pfade `abd.*`) ist die lesbare Fassung der
+überlassenen Ausfuhranmeldung mit der MRN. Es ist nicht der Ausgangsvermerk
+(CUS-02). Die MRN wird nur der Struktur nach normalisiert; ob sie da ist,
+prüft PFL-07, ob das ABD zur Sendung passt, CUS-05.
 
 Die Ursprungserklärung auf der Rechnung ist ein **eigener logischer Beleg**
 vom Typ `origin_declaration` mit `traeger: <Rechnungs-ID>` (ADR-001).

@@ -69,9 +69,9 @@ uv run python -m zollpilot_extraktion --ordner ../testdaten/belege/happy-path
 
 ## Das Golden Set und die Messung
 
-Die sieben Akten in `testdaten/akten/` sind die Referenz. Aus ihnen erzeugt
-`testdaten/erzeuge-belege.py` je Akte drei PDFs (Handelsrechnung mit
-Ursprungserklärung, Packliste, B/L) sowie `akte.json` (Stammdaten und
+Die acht Akten in `testdaten/akten/` sind die Referenz. Aus ihnen erzeugt
+`testdaten/erzeuge-belege.py` je Akte vier PDFs (Handelsrechnung mit
+Ursprungserklärung, Packliste, B/L, Ausfuhrbegleitdokument) sowie `akte.json` (Stammdaten und
 erwartete Entscheidung) und `erwartet.json` (welche Assertions die PDFs
 tragen). Der Lauf ist byteidentisch reproduzierbar, auf Windows wie auf
 Linux: reportlab mit `invariant`, Rauschen mit festem Startwert, Schrift
@@ -83,8 +83,8 @@ misst zwei Dinge (`docs/07-idp-ocr.md`, Kennzahlen):
 
 | Kennzahl | Definition | Stand 2026-09-12 |
 |---|---|---|
-| Field Exact Match je Belegtyp | erwartete Assertions mit gleichem Dokument, Pfad und normalisiertem Wert / alle erwarteten | Handelsrechnung 199/199, Packliste 122/122, B/L 49/49, Ursprungserklärung 50/50, zusammen **420/420** |
-| Entscheidung je Akte | `src/cli.mjs` auf der extrahierten Akte liefert die erwartete Freigabe, dieselben Regeln, dieselben Pflichtbefunde | **7/7** |
+| Field Exact Match je Belegtyp | erwartete Assertions mit gleichem Dokument, Pfad und normalisiertem Wert / alle erwarteten | Handelsrechnung 226/226, Packliste 139/139, B/L 56/56, Ursprungserklärung 58/58, ABD 91/91, zusammen **570/570** |
+| Entscheidung je Akte | `src/cli.mjs` auf der extrahierten Akte liefert die erwartete Freigabe, dieselben Regeln, dieselben Pflichtbefunde | **8/8** |
 
 Die Basislinie liegt in `extraktion/basislinie.json` und wird bewusst
 geschrieben (`--basislinie-schreiben`), nie nebenbei. Ein Lauf ohne
@@ -106,7 +106,7 @@ weil nichts falsch gelesen wird. Das ist das Ergebnis, nicht die Erwartung:
 
 ```bash
 cd extraktion && uv sync
-uv run pytest                                      # 98 Tests; ohne Tesseract wird der OCR-Test übersprungen, nicht grün
+uv run pytest                                      # 123 Tests; ohne Tesseract wird der OCR-Test übersprungen, nicht grün
 uv run python ../testdaten/erzeuge-belege.py       # PDFs neu erzeugen
 uv run python -m zollpilot_extraktion.bewertung --ohne-ocr   # digitale Belege; der Scan fällt sichtbar durch
 ```
@@ -175,8 +175,8 @@ uv run python -m zollpilot_extraktion.bewertung --leser azure   # dieselbe Tabel
 
 | Leser | Field Exact Match gesamt | Entscheidungen | Stand |
 |---|---|---|---|
-| `tesseract` (Textlayer, sonst Tesseract) | 100,0 % | 7/7 | Basislinie, `extraktion/basislinie.json` |
-| `azure` (`prebuilt-read`) | noch nicht gemessen | noch nicht gemessen | 0 von 21 Testbelegen aufgezeichnet |
+| `tesseract` (Textlayer, sonst Tesseract) | 100,0 % (570/570) | 8/8 | Basislinie, `extraktion/basislinie.json` |
+| `azure` (`prebuilt-read`) | noch nicht gemessen | noch nicht gemessen | 0 von 32 Testbelegen aufgezeichnet |
 
 Die zweite Zeile ist leer, weil am 2026-09-12 kein Azure-Zugang vorlag. Das
 steht hier als Ziel mit Stand, nicht als Behauptung (`docs/ARBEITSWEISE.md`).

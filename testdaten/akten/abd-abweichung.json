@@ -1,11 +1,9 @@
 {
-  "akte_id": "ZP-2026-0006",
-  "beschreibung": "Schlechter Scan: Containernummer der Packliste per OCR mit Konfidenz 0,55 gelesen, Prüfziffer falsch. Zuerst Lesefehler, nicht Fachfehler.",
+  "akte_id": "ZP-2026-0008",
+  "beschreibung": "ABD-Abweichung: Die Ausfuhranmeldung nennt einen anderen (gültigen) Container als Packliste und B/L. Angemeldet ist ein anderer Vorgang als verladen wird.",
   "erwartung": {
-    "freigabe": "nachextraktion_erforderlich",
+    "freigabe": "blockiert",
     "regeln": [
-      "TRN-01",
-      "TRN-02",
       "CUS-05"
     ]
   },
@@ -332,11 +330,11 @@
     {
       "dokument": "PL-1",
       "pfad": "packliste.container_id",
-      "wert": "MSKU1234568",
-      "roh": "MSKU1234568",
-      "konfidenz": 0.55,
+      "wert": "MSKU1234565",
+      "roh": "MSKU1234565",
+      "konfidenz": 0.99,
       "seite": 1,
-      "methode": "ocr"
+      "methode": "textlayer"
     },
     {
       "dokument": "PL-1",
@@ -647,8 +645,8 @@
     {
       "dokument": "ABD-1",
       "pfad": "abd.container_id",
-      "wert": "MSKU1234565",
-      "roh": "MSKU1234565",
+      "wert": "HLXU8765430",
+      "roh": "HLXU8765430",
       "konfidenz": 0.99,
       "seite": 1,
       "methode": "textlayer"

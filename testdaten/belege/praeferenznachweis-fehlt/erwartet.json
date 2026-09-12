@@ -304,5 +304,71 @@
     "typ": "bill_of_lading",
     "pfad": "bill_of_lading.on_board",
     "wert": "2026-09-11"
+  },
+  {
+    "dokument": "ABD-1",
+    "typ": "abd",
+    "pfad": "abd.mrn",
+    "wert": "26DE5100001234567A"
+  },
+  {
+    "dokument": "ABD-1",
+    "typ": "abd",
+    "pfad": "abd.ausfuehrer.name",
+    "wert": "Nordlicht Maschinenbau GmbH"
+  },
+  {
+    "dokument": "ABD-1",
+    "typ": "abd",
+    "pfad": "abd.ausfuehrer.eori",
+    "wert": "DE123456789012345"
+  },
+  {
+    "dokument": "ABD-1",
+    "typ": "abd",
+    "pfad": "abd.bestimmungsland",
+    "wert": "SG"
+  },
+  {
+    "dokument": "ABD-1",
+    "typ": "abd",
+    "pfad": "abd.container_id",
+    "wert": "MSKU1234565"
+  },
+  {
+    "dokument": "ABD-1",
+    "typ": "abd",
+    "pfad": "abd.positionen.0.nr",
+    "wert": 1
+  },
+  {
+    "dokument": "ABD-1",
+    "typ": "abd",
+    "pfad": "abd.positionen.0.warennummer",
+    "wert": "84133080"
+  },
+  {
+    "dokument": "ABD-1",
+    "typ": "abd",
+    "pfad": "abd.positionen.0.menge",
+    "wert": 12
+  },
+  {
+    "dokument": "ABD-1",
+    "typ": "abd",
+    "pfad": "abd.positionen.1.nr",
+    "wert": 2
+  },
+  {
+    "dokument": "ABD-1",
+    "typ": "abd",
+    "pfad": "abd.positionen.1.warennummer",
+    "wert": "84842000"
+  },
+  {
+    "dokument": "ABD-1",
+    "typ": "abd",
+    "pfad": "abd.positionen.1.menge",
+    "wert": 12
   }
 ]

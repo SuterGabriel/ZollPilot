@@ -37,6 +37,13 @@ MERKMALE: dict[str, list[tuple[str, float]]] = {
     "sea_waybill": [(r"sea\s+waybill", 3)],
     "eur1": [(r"\beur\.?\s*1\b", 2), (r"movement\s+certificate", 2), (r"warenverkehrsbescheinigung", 2)],
     "atr": [(r"\ba\.?\s?tr\b", 2)],
+    # Das Ausfuhrbegleitdokument: Überschrift deutsch oder englisch (EAD),
+    # dazu die Felder des ATLAS-Ausdrucks. "MRN" allein reicht nicht, weil
+    # auch eine Statusnachricht oder ein Anschreiben sie nennt.
+    "abd": [
+        (r"ausfuhrbegleitdokument", 3), (r"export\s+accompanying\s+document", 3),
+        (r"\bmrn\b", 1), (r"ausfuhrzollstelle", 1), (r"ausgangszollstelle", 1),
+    ],
 }
 
 # Unter dieser Punktzahl ist kein Typ sicher genug.
