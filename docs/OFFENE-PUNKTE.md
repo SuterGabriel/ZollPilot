@@ -144,13 +144,13 @@ bis dahin ist der Katalog ehrlich markiert.
 
 ## Braucht Zugänge
 
-- **Das Ergebnis der CI ist noch nicht gesehen.** Stufe 3 und 4 wurden am
-  12.09.2026 gepusht (`1938b3b..bc9639f`, neun Commits); davor war die CI
-  für sie nie gelaufen. Ob die Jobs `extraktion`, `oberflaeche` und der
-  erweiterte `betrieb` auf einem Runner grün sind, steht unter *Actions* im
-  Repo; lokal sind sie nachgestellt, und das ist nicht dasselbe. Kein Gate kann
-  das prüfen: Der Beleg-Check liest das Dateisystem, nicht den Zustand der
-  CI.
+- **Die CI ist seit Lauf 15 gesehen, und grün.** Am 12.09.2026 liefen alle
+  acht Jobs auf einem GitHub-Läufer durch, zuletzt für `1e4dc24`, darunter
+  der Stack-Job mit Monitoring, Wiedervorlage und eigenem Node in 153
+  Sekunden. Davor war die Oberfläche zweimal rot: Chromium auf Linux
+  rendert sieben Pixel höher als auf Windows, und die Aktenspalte bekam bei
+  900 px einen Rollbalken. Kein Gate im Repo kann den Zustand der CI
+  prüfen; wer das wissen will, sieht unter *Actions* nach.
 - **Docker in der CI.** Der Job `betrieb` baut Extraktion und Oberfläche und
   zieht das n8n-Image; auf GitHub-Runnern ist Docker vorhanden, die Laufzeit
   liegt bei fünf bis acht Minuten.
