@@ -29,7 +29,9 @@ from pathlib import Path
 from typing import Any
 
 from .__main__ import lade_ordner
-from .akte import extrahiere_akte
+from .akte import LESER_TESSERACT, extrahiere_akte
+from .anbieter import LESER as ANBIETER_LESER
+from .anbieter import stand as anbieter_stand
 from .lesen import ocr_version
 
 WURZEL = Path(__file__).resolve().parents[2]
@@ -105,17 +107,33 @@ def entscheidung(akte: dict) -> dict[str, Any] | None:
     }
 
 
-def bewerte(ocr: bool = True) -> dict[str, Any]:
+def bewerte(ocr: bool = True, leser_name: str = LESER_TESSERACT) -> dict[str, Any]:
     ordner = sorted(p for p in BELEGE.iterdir() if p.is_dir()) if BELEGE.exists() else []
     if not ordner:
         raise SystemExit(f"KEINE BELEGE unter {BELEGE}: erst testdaten/erzeuge-belege.py ausführen")
+
+    # Ein Anbieter läuft nur über Aufzeichnungen. Fehlt eine, ist der Lauf
+    # keine Messung, sondern eine Lücke; die wird vorher genannt, nicht in
+    # der Tabelle versteckt (docs/ARBEITSWEISE.md, Falle 3).
+    leser = None
+    if leser_name != LESER_TESSERACT:
+        if leser_name not in ANBIETER_LESER:
+            raise SystemExit(f"UNBEKANNTER LESER {leser_name}: bekannt sind {LESER_TESSERACT}, {', '.join(ANBIETER_LESER)}")
+        fehlend = [pdf for pdf, da in anbieter_stand() if not da]
+        if fehlend:
+            liste = "\n".join(f"  {p.relative_to(WURZEL)}" for p in fehlend)
+            raise SystemExit(
+                f"KEINE AUFZEICHNUNG für {len(fehlend)} Testbelege ({leser_name}):\n{liste}\n"
+                f"Aufzeichnen mit Schlüssel in der Umgebung: python -m zollpilot_extraktion.anbieter aufzeichnen"
+            )
+        leser = ANBIETER_LESER[leser_name]
 
     summen: dict[str, dict[str, int]] = {}
     akten: list[dict[str, Any]] = []
     for pfad in ordner:
         stammdaten, dateien = lade_ordner(pfad)
         erwartet = json.loads((pfad / "erwartet.json").read_text(encoding="utf-8"))
-        akte = extrahiere_akte(stammdaten, dateien, ocr=ocr)
+        akte = extrahiere_akte(stammdaten, dateien, ocr=ocr, leser=leser, leser_name=leser_name)
         felder = vergleiche(erwartet, akte)
         for typ, z in felder.items():
             s = summen.setdefault(typ, {"erwartet": 0, "exakt": 0})
@@ -134,6 +152,7 @@ def bewerte(ocr: bool = True) -> dict[str, Any]:
     quoten["gesamt"] = gesamt_exakt / gesamt_erwartet if gesamt_erwartet else 1.0
     mit_entscheidung = [a for a in akten if a["korrekt"] is not None]
     return {
+        "leser": leser_name,
         "field_exact_match": {k: round(v, 4) for k, v in sorted(quoten.items())},
         "akten": len(akten),
         "entscheidungen_geprueft": len(mit_entscheidung),
@@ -145,7 +164,7 @@ def bewerte(ocr: bool = True) -> dict[str, Any]:
 
 def drucke(bericht: dict[str, Any]) -> None:
     print()
-    print("Bewertung der Extraktion gegen das Golden Set")
+    print(f"Bewertung der Extraktion gegen das Golden Set (Leser: {bericht.get('leser', LESER_TESSERACT)})")
     print("=============================================")
     print()
     for typ, s in sorted(bericht["summen"].items()):
@@ -178,19 +197,38 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--basislinie-schreiben", action="store_true", help="aktuellen Stand als Basislinie speichern")
     parser.add_argument("--ohne-ocr", action="store_true")
     parser.add_argument("--json", action="store_true", help="Bericht als JSON")
+    parser.add_argument(
+        "--leser",
+        default=LESER_TESSERACT,
+        choices=[LESER_TESSERACT, *ANBIETER_LESER],
+        help="Schicht Lesen: Textlayer und Tesseract (Vorgabe) oder ein Anbieter über Aufzeichnungen (ADR-005, Vergleichslauf)",
+    )
     args = parser.parse_args(argv)
 
-    if not args.ohne_ocr and ocr_version() is None:
+    anbieter = args.leser != LESER_TESSERACT
+    if not anbieter and not args.ohne_ocr and ocr_version() is None:
         print("KEIN OCR: Tesseract fehlt. Die Bewertung braucht es für den schlechten Scan.")
         print("Entweder --ohne-ocr (nur die digitalen Belege, kein Vergleich mit der Basislinie)")
         print("oder das Test-Image aus extraktion/Dockerfile (docs/EXTRAKTION.md).")
         return 1
 
-    bericht = bewerte(ocr=not args.ohne_ocr)
+    bericht = bewerte(ocr=not args.ohne_ocr, leser_name=args.leser)
     if args.json:
         print(json.dumps({k: v for k, v in bericht.items() if k != "details"}, indent=2, ensure_ascii=False))
     else:
         drucke(bericht)
+
+    if anbieter:
+        # Der Vergleichslauf misst denselben Belegsatz mit einem anderen
+        # Leser. Die Basislinie gehört dem Leser aus lesen.py; ein Anbieter
+        # wird an ihr gemessen, überschreibt sie nie.
+        basis = json.loads(BASISLINIE.read_text(encoding="utf-8")) if BASISLINIE.exists() else None
+        if basis:
+            print(f"Zum Vergleich, Basislinie ({LESER_TESSERACT}): Field Exact Match gesamt {basis['field_exact_match']['gesamt'] * 100:.1f} %, "
+                  f"Entscheidungen {basis['entscheidungen_korrekt']}/{basis['entscheidungen_geprueft']}.")
+        print(f"Vergleichslauf {args.leser}: Field Exact Match gesamt {bericht['field_exact_match']['gesamt'] * 100:.1f} %, "
+              f"Entscheidungen {bericht['entscheidungen_korrekt']}/{bericht['entscheidungen_geprueft']}.")
+        return 0
 
     stand = {
         "field_exact_match": bericht["field_exact_match"],

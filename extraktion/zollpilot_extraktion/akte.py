@@ -21,7 +21,12 @@ from .felder.bill_of_lading import aussteller_bill_of_lading
 from .felder.handelsrechnung import extrahiere_handelsrechnung  # noqa: F401 - Register vollständig halten
 from .felder.packliste import aussteller_packliste
 from .klassifikation import STATUS_FINAL, TYP_UNCLASSIFIED, klassifiziere
-from .lesen import Beleg, KeinLesbaresPdf, OcrNichtVerfuegbar, lies_pdf, ocr_version
+from .lesen import Beleg, KeinLesbaresPdf, LesungNichtMoeglich, lies_pdf, ocr_version
+
+# Der Leser ist austauschbar (ADR-005): eine Funktion (daten, name) → Beleg.
+# Vorgabe ist lesen.py mit Textlayer und Tesseract; der Vergleichslauf setzt
+# anbieter.py ein. Alles hinter dem Leser bleibt gleich.
+LESER_TESSERACT = "tesseract"
 
 PRAEFIX = {
     "handelsrechnung": "INV",
@@ -61,19 +66,30 @@ class Zaehler:
         return f"{praefix}-{self.stand[praefix]}"
 
 
-def extrahiere_akte(stammdaten: dict[str, Any], dateien: list[tuple[str, bytes]], ocr: bool = True) -> dict[str, Any]:
+def extrahiere_akte(
+    stammdaten: dict[str, Any],
+    dateien: list[tuple[str, bytes]],
+    ocr: bool = True,
+    leser=None,
+    leser_name: str = LESER_TESSERACT,
+) -> dict[str, Any]:
     zaehler = Zaehler()
     dokumente: list[dict[str, Any]] = []
     assertions: list[dict[str, Any]] = []
     hinweise: list[str] = []
+    lies = leser or (lambda daten, name: lies_pdf(daten, name, ocr=ocr))
 
     for name, daten in dateien:
         try:
-            beleg = lies_pdf(daten, name, ocr=ocr)
-        except OcrNichtVerfuegbar as e:
+            beleg = lies(daten, name)
+        except LesungNichtMoeglich as e:
             dokument_id = zaehler.naechste(TYP_UNCLASSIFIED)
-            dokumente.append(_unclassified(dokument_id, name, daten, f"OCR nötig, aber nicht verfügbar: {e}"))
-            hinweise.append(f"{name}: OCR nicht verfügbar")
+            if leser_name == LESER_TESSERACT:
+                dokumente.append(_unclassified(dokument_id, name, daten, f"OCR nötig, aber nicht verfügbar: {e}"))
+                hinweise.append(f"{name}: OCR nicht verfügbar")
+            else:
+                dokumente.append(_unclassified(dokument_id, name, daten, f"Leser {leser_name} nicht verfügbar: {e}"))
+                hinweise.append(f"{name}: Leser {leser_name} nicht verfügbar")
             continue
         except KeinLesbaresPdf as e:
             dokument_id = zaehler.naechste(TYP_UNCLASSIFIED)
@@ -143,7 +159,8 @@ def extrahiere_akte(stammdaten: dict[str, Any], dateien: list[tuple[str, bytes]]
     akte["assertions"] = assertions
     akte["extraktion"] = {
         "version": VERSION,
-        "ocr": ocr_version() if ocr else None,
+        "leser": leser_name,
+        "ocr": ocr_version() if (ocr and leser_name == LESER_TESSERACT) else None,
         "belege": len(dateien),
         "hinweise": hinweise,
     }
