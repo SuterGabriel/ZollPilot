@@ -67,7 +67,8 @@ else
   echo "  ok    Extraktion /healthz ($ocr)"
 fi
 
-if curl -fsS "$oberflaeche/" 2>/dev/null | grep -q "<app-root>"; then
+startseite=$(curl -fsS "$oberflaeche/" 2>/dev/null)
+if printf '%s\n' "$startseite" | grep -q "<app-root>"; then
   echo "  ok    Oberfläche liefert die Anwendung aus"
 else
   echo "  FEHLER Oberfläche antwortet nicht auf $oberflaeche/"
@@ -255,7 +256,11 @@ else
   printf '  ROT   %-32s zollpilot_pruefungen_total = "%s", mindestens %s erwartet\n' "fachliche Zähler" "$gezaehlt" "$runden"
   fehler=$((fehler + 1))
 fi
-if curl -fsS "$extraktion/metrics" 2>/dev/null | grep -q '^zollpilot_extraktion_dokumente_total{'; then
+# Erst einfangen, dann suchen: `curl | grep -q` bricht mit pipefail, sobald
+# grep beim ersten Treffer den Kanal schließt und curl noch schreibt. Lokal
+# fiel das nie auf, auf dem CI-Läufer bei jedem zweiten Lauf.
+metriken=$(curl -fsS "$extraktion/metrics" 2>/dev/null)
+if printf '%s\n' "$metriken" | grep -q '^zollpilot_extraktion_dokumente_total{'; then
   printf '  ok    %-32s Belege je Typ und Lesemethode\n' "Extraktion /metrics"
 else
   printf '  ROT   %-32s zollpilot_extraktion_dokumente_total fehlt\n' "Extraktion /metrics"
