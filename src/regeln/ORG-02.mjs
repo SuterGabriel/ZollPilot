@@ -5,7 +5,7 @@
 
 import { fakt } from '../akte/aufbau.mjs';
 import { normalisiereLand, kuerzeWarencode } from '../normalisierung.mjs';
-import { ok, verletzt, nichtPruefbar, fehlend } from './befund.mjs';
+import { ok, nichtPruefbar, fehlend, verletztWennSicher } from './befund.mjs';
 
 export const REGEL_ORG_02 = 'ORG-02';
 
@@ -28,16 +28,22 @@ export function pruefeORG02(akte, regel, defaults, katalog) {
   const warenkreis = new Set(eingaben['praeferenznachweis.warenkreis'].map((w) => kuerzeWarencode(w.hs6, stellen)));
 
   const widersprueche = [];
+  // Ein falsch gelesenes Ursprungsland oder ein falsch gelesener HS-Code
+  // sieht aus wie ein Präferenzwiderspruch. Deshalb sammeln wir, worauf der
+  // Befund beruht (CLAUDE.md, harte Grenze 3).
+  const beteiligt = [];
   eingaben['rechnung.positionen'].forEach((p, i) => {
     const ursprung = normalisiereLand(p.ursprung);
     if (ursprung !== nachweisUrsprung) {
       widersprueche.push(`Position ${i + 1}: Ursprung ${ursprung ?? 'fehlt'} ≠ Nachweis ${nachweisUrsprung}`);
+      beteiligt.push(`rechnung.positionen.${i}.ursprung`, 'praeferenznachweis.ursprung');
     }
     if (!warenkreis.has(kuerzeWarencode(p.hs6, stellen))) {
       widersprueche.push(`Position ${i + 1}: HS ${p.hs6} nicht im Warenkreis des Nachweises`);
+      beteiligt.push(`rechnung.positionen.${i}.hs6`);
     }
   });
 
   if (widersprueche.length === 0) return ok(eingaben, `Nachweis deckt alle Positionen mit Ursprung ${nachweisUrsprung}`);
-  return verletzt(eingaben, widersprueche.join('; '));
+  return verletztWennSicher(akte, beteiligt, defaults, eingaben, widersprueche.join('; '));
 }

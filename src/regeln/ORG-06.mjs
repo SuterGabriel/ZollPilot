@@ -7,13 +7,13 @@
 
 import { fakt } from '../akte/aufbau.mjs';
 import { formatGueltig } from '../validatoren/formate.mjs';
-import { ok, verletzt, nichtPruefbar } from './befund.mjs';
+import { ok, nichtPruefbar, verletztWennSicher } from './befund.mjs';
 
 export const REGEL_ORG_06 = 'ORG-06';
 
 const TYP_URSPRUNGSERKLAERUNG = 'origin_declaration';
 
-export function pruefeORG06(akte, regel) {
+export function pruefeORG06(akte, regel, defaults) {
   const typ = fakt(akte, 'praeferenznachweis.typ');
   if (typ !== TYP_URSPRUNGSERKLAERUNG) {
     return ok({ 'praeferenznachweis.typ': typ }, 'Kein Ursprungserklärungs-Nachweis, Wertgrenze nicht einschlägig');
@@ -41,7 +41,16 @@ export function pruefeORG06(akte, regel) {
   const rex = eingaben['praeferenznachweis.rex_nummer'];
   if (rex && formatGueltig('rex', rex)) return ok(eingaben, `Über der Schwelle, REX ${rex} strukturell gültig`);
   if (eingaben['praeferenznachweis.ermaechtigter_ausfuehrer']) return ok(eingaben, 'Über der Schwelle, Ermächtigter Ausführer erfasst');
-  return verletzt(eingaben, rex
-    ? `REX-Nummer ${rex} entspricht nicht dem Format`
-    : `Ursprungswert über ${schwelle.value} ${schwelle.currency} ohne REX-Nummer oder Ermächtigten Ausführer`);
+  // Ein unscharf gelesener Ursprungswert kann die Schwelle scheinbar reißen,
+  // eine unscharf gelesene REX-Nummer scheinbar das Format brechen. Beides
+  // ist zuerst ein Lesefehler (CLAUDE.md, harte Grenze 3).
+  return verletztWennSicher(
+    akte,
+    ['praeferenznachweis.ursprungswert', 'praeferenznachweis.rex_nummer'],
+    defaults,
+    eingaben,
+    rex
+      ? `REX-Nummer ${rex} entspricht nicht dem Format`
+      : `Ursprungswert über ${schwelle.value} ${schwelle.currency} ohne REX-Nummer oder Ermächtigten Ausführer`,
+  );
 }

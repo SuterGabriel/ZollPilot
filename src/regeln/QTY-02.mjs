@@ -3,14 +3,17 @@
 // (max aus relativ und absolut, rules.yaml). Ab escalate_to_hard_at wird sie
 // hart. Es gibt keine gesetzliche EU-Zolltoleranz; die Werte sind
 // Praxisannahmen (source_type practice).
+//
+// Ein unscharf gelesenes Gewicht ist zuerst ein Lesefehler, nicht eine
+// Gewichtsabweichung (CLAUDE.md, harte Grenze 3).
 
 import { fakt } from '../akte/aufbau.mjs';
-import { ok, verletzt, nichtPruefbar, fehlend } from './befund.mjs';
+import { ok, nichtPruefbar, fehlend, verletztWennSicher } from './befund.mjs';
 import { prozent, gerundet } from '../normalisierung.mjs';
 
 export const REGEL_QTY_02 = 'QTY-02';
 
-export function pruefeQTY02(akte, regel) {
+export function pruefeQTY02(akte, regel, defaults) {
   const eingaben = {
     'packliste.brutto_gesamt_kg': fakt(akte, 'packliste.brutto_gesamt_kg'),
     'bill_of_lading.brutto_kg': fakt(akte, 'bill_of_lading.brutto_kg'),
@@ -30,7 +33,10 @@ export function pruefeQTY02(akte, regel) {
   if (differenz <= toleranz) return ok(eingaben, `Abweichung ${differenz} kg innerhalb ${toleranz} kg`);
 
   const eskaliert = relativ >= regel.escalate_to_hard_at.relative;
-  return verletzt(
+  return verletztWennSicher(
+    akte,
+    ['packliste.brutto_gesamt_kg', 'bill_of_lading.brutto_kg'],
+    defaults,
     eingaben,
     `Abweichung ${differenz} kg (${prozent(relativ)}) über Toleranz ${toleranz} kg${eskaliert ? ', über Eskalationsschwelle: hart' : ''}`,
     { haerte_effektiv: eskaliert ? 'hard' : 'soft' },

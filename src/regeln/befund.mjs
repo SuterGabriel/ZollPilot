@@ -9,6 +9,8 @@
 //   re_extraction_required  Prüfziffern- oder Summenfehler bei niedriger
 //                           Konfidenz: zuerst Lesefehler, nicht Fachfehler
 
+import { konfidenz } from '../akte/aufbau.mjs';
+
 export const STATUS = Object.freeze({
   OK: 'ok',
   VERLETZT: 'verletzt',
@@ -37,4 +39,32 @@ export function fehlend(eingaben) {
   return Object.entries(eingaben)
     .filter(([, wert]) => wert === undefined || wert === null)
     .map(([pfad]) => pfad);
+}
+
+/** Welche der beteiligten Werte unter der Konfidenzschwelle gelesen wurden. */
+export function unsicherGelesen(akte, pfade, defaults) {
+  return pfade.filter((pfad) => konfidenz(akte, pfad) < defaults.low_confidence_below);
+}
+
+/**
+ * Ein Verstoß — es sei denn, er beruht auf unsicher gelesenen Werten.
+ *
+ * CLAUDE.md, harte Grenze 3: Prüfziffern-, Summen- und Vergleichsfehler sind
+ * auf einem Scan meistens Lesefehler und selten Dokumentfehler. Liegt die
+ * Extraktionskonfidenz eines beteiligten Wertes unter
+ * `defaults.low_confidence_below`, ist das Ergebnis
+ * `re_extraction_required` statt `verletzt`: nachlesen vor ablehnen.
+ *
+ * `pfade` sind die Faktenpfade, auf denen der Vergleich beruht — nur sie,
+ * nicht alle Eingaben der Regel. Ein unsicher gelesenes Feld, das am Befund
+ * nicht beteiligt war, darf die Ablehnung nicht aufheben.
+ */
+export function verletztWennSicher(akte, pfade, defaults, eingaben, begruendung, extra = {}) {
+  const unsicher = unsicherGelesen(akte, pfade, defaults);
+  if (unsicher.length === 0) return verletzt(eingaben, begruendung, extra);
+  return reExtraction(
+    eingaben,
+    unsicher,
+    `${begruendung} — Konfidenz unter ${defaults.low_confidence_below}: zuerst nachlesen`,
+  );
 }
