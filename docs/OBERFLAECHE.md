@@ -97,9 +97,9 @@ Farbpaare, und eine Zusage, die niemand prüft, ist schlechter als keine.
 ```bash
 cd oberflaeche && npm ci
 npm start                 # Entwicklung auf 4200; /webhook/ ist dabei nicht erreichbar
-npm test                  # 54 Tests: Zustand, Dienst, Komponenten
+npm test                  # 92 Tests: Zustand, Dienst, Komponenten
 npm run e2e:install       # einmalig: Chromium für Playwright
-npm run e2e               # 12 Tests, davon 6 axe-Durchläufe
+npm run e2e               # 23 Tests, davon 6 mit einem axe-Durchlauf
 npm run build
 node ../scripts/kontrast-check.mjs
 ```

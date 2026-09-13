@@ -29,7 +29,7 @@ Kalibrierung: 0,80 für eine Containernummer und für einen Betrag ist eine
 Vereinfachung, und Tesseract-Konfidenzen sind nicht kalibriert. Je
 Feldklasse gegen einen echten Korpus zu bestimmen wäre richtig.
 
-**Kein Kubernetes.** N1 nennt es. Es gibt Compose mit fünf Diensten,
+**Kein Kubernetes.** N1 nennt es. Es gibt Compose mit zehn Diensten,
 Healthchecks und einen CI-Job, der den Stack baut und hochfährt. Ein Chart
 käme in einer eigenen Stufe, und nur, wenn er in der CI tatsächlich ausgerollt wird,
 nicht als Beispiel.

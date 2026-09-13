@@ -106,7 +106,7 @@ weil nichts falsch gelesen wird. Das ist das Ergebnis, nicht die Erwartung:
 
 ```bash
 cd extraktion && uv sync
-uv run pytest                                      # 123 Tests; ohne Tesseract wird der OCR-Test übersprungen, nicht grün
+uv run pytest                                      # 147 Tests; ohne Tesseract wird der OCR-Test übersprungen, nicht grün
 uv run python ../testdaten/erzeuge-belege.py       # PDFs neu erzeugen
 uv run python -m zollpilot_extraktion.bewertung --ohne-ocr   # digitale Belege; der Scan fällt sichtbar durch
 ```

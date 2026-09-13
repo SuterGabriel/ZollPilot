@@ -59,10 +59,10 @@ Nachlesen, nicht durch eine Prüfung.
 | `belege` | jede Behauptung über die eigene Arbeitsweise hat einen Beleg im Repo; Belegpfade in `ANFORDERUNGEN.md` existieren; jede ADR hat ihre Pflichtabschnitte; `CLAUDE.md` bleibt unter 60 Zeilen |
 | `dokumente` | ausgeschriebene Umlaute in Prosa; tote Verweise zwischen Markdown-Dateien |
 | `regeln` | Katalog vollständig ausgezeichnet, `[MVP]` in `docs/03` deckungsgleich mit `rules.yaml`, jede Regel hat Implementierung und Test, keine nackte Zahl in `src/regeln/`; dazu die Testsuite des Gates selbst |
-| `tests` | 89 Tests: Validatoren gegen Referenzwerte, Grenzfälle je Regel, Aktenaufbau, Pflichtmatrix, Regelwerk, alle Testakten gegen ihre Erwartung |
+| `tests` | 141 Tests: Validatoren gegen Referenzwerte, Grenzfälle je Regel, Aktenaufbau, Pflichtmatrix, Regelwerk, alle Testakten gegen ihre Erwartung |
 | `workflows` | der Code-Node ist aus dem aktuellen `src/` gebündelt; die Workflow-Dateien sind strukturell gültig, ohne Geheimnisse, der Code-Node parst |
-| `extraktion` | Tesseract installiert, `uv sync --frozen`, 98 Python-Tests inklusive OCR auf dem schlechten Scan und Entscheidung je Akte über `src/cli.mjs`; die Belege werden neu erzeugt und müssen byteidentisch sein; die Bewertung (Field Exact Match je Belegtyp, Entscheidung je Akte) muss die Basislinie in `extraktion/basislinie.json` halten; ohne Basislinie rot |
-| `oberflaeche` | Kontrast der Gestaltungstoken nachgerechnet, Bau ohne Warnung, 43 Tests für Zustand, Dienst und Darstellung, dann Playwright mit axe über jede Ansicht (leeres Formular, Formular mit Belegen, Ergebnis, Fehlerfall), dazu Tastaturbedienung und Fokusverwaltung |
+| `extraktion` | Tesseract installiert, `uv sync --frozen`, 147 Python-Tests inklusive OCR auf dem schlechten Scan und Entscheidung je Akte über `src/cli.mjs`; die Belege werden neu erzeugt und müssen byteidentisch sein; die Bewertung (Field Exact Match je Belegtyp, Entscheidung je Akte) muss die Basislinie in `extraktion/basislinie.json` halten; ohne Basislinie rot |
+| `oberflaeche` | Kontrast der Gestaltungstoken nachgerechnet, Bau ohne Warnung, 92 Tests für Zustand, Dienst und Darstellung, dann Playwright mit axe über jede Ansicht (leeres Formular, Formular mit Belegen, Ergebnis, Fehlerfall), dazu Tastaturbedienung und Fokusverwaltung |
 | `betrieb` | `docker compose up --build --wait` (baut Extraktion und Oberfläche), dann `scripts/rauchtest.sh`: sieben Akten über `/webhook/akte`, sieben Belegsätze (PDF) über `/webhook/belege`, eine Akte über den nginx-Proxy der Oberfläche, Entscheidungen gegen die Erwartung, fünfzehn Prüfungen in Postgres. Der teuerste Job, und der einzige, der beweist, dass die Teile zusammen laufen |
 
 ## Die Gates im Einzelnen

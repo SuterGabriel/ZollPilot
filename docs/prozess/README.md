@@ -5,6 +5,12 @@ Prozesslandschaft, ein Datenflussdiagramm, ein Betriebshandbuch. Die ersten
 beiden stehen hier, das dritte ist [BETRIEB.md](../BETRIEB.md) mit einem
 Runbook je Alarm.
 
+Daneben liegen zwei Seiten, die dasselbe von der technischen Seite zeigen:
+[systemlandschaft.md](systemlandschaft.md) mit Containern, Ports und
+Datenwegen, und [workflows.md](workflows.md) mit allen sieben Workflows als
+Bild aus dem laufenden Editor. Die Prozesssicht sagt, wer was tut; die
+beiden sagen, worauf es läuft.
+
 Die Diagramme zeigen den **Zielprozess** aus
 [05-prozess-nachforderung.md](../05-prozess-nachforderung.md) und markieren,
 was davon gebaut ist. Das ist die Regel dieses Repos: Was noch nicht

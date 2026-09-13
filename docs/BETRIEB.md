@@ -12,7 +12,7 @@ Neun Container aus `compose.yml`, fünf für die Akte und vier fürs Hinsehen:
 |---|---|---|---|
 | `postgres` | zwei Datenbanken: `n8n` (Workflows, Ausführungen) und `zollpilot` (Akte, Prüfungen, Fehler) | 5432, nur localhost | `pg_isready` |
 | `n8n-import` | läuft einmal beim Start: importiert Credentials und Workflows aus dem Repo, beendet sich | keiner | Exit 0 |
-| `n8n` | Orchestrierung: vier Workflows (Prüfung, Fehler, Wiederholung, Alarm), ein eigener Node für die Extraktion aus `nodes/n8n-nodes-zollpilot/`, der n8n-Editor | 5678, nur localhost | `GET /healthz` antwortet `ok` |
+| `n8n` | Orchestrierung: sieben Workflows (Prüfung, Nachforderung, Posteingang, Übersicht, Wiederholung, Fehler, Alarm; als Bild in `docs/prozess/workflows.md`), ein eigener Node für die Extraktion aus `nodes/n8n-nodes-zollpilot/`, der n8n-Editor | 5678, nur localhost | `GET /healthz` antwortet `ok` |
 | `extraktion` | Belege (PDF) → Assertions: Textlayer oder Tesseract, Klassifikation, Felder. Entscheidet nichts (ADR-005) | 8765 auf dem Host (nur localhost), 8080 im Compose-Netz | `GET /healthz` antwortet `ok` und sagt, ob OCR verfügbar ist |
 | `oberflaeche` | nginx: liefert die Angular-Anwendung aus und reicht `/webhook/` an n8n weiter. Der Einstieg für Menschen (ADR-006) | 8088, nur localhost | `GET /` liefert die Anwendung |
 | `greenmail` | das Testpostfach (ADR-009): SMTP für den Versand der Nachforderungen, IMAP für den Eingang, eine Schnittstelle zum Nachsehen | 8025 (Schnittstelle), 3025 (SMTP), 3143 (IMAP), alle nur localhost | `GET /api/service/readiness` |
