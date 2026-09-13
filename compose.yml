@@ -152,6 +152,12 @@ services:
     image: zollpilot-extraktion:dev
     environment:
       EXTRAKTION_OCR_SPRACHEN: deu+eng
+      # Klassifikationsfallback (ADR-011). Ohne Schlüssel liest die
+      # Extraktion nur die Aufzeichnungen im Repo und ruft nie hinaus; mit
+      # ZOLLPILOT_MODELL_AUFZEICHNEN=1 zeichnet sie neue Antworten auf.
+      ZOLLPILOT_ANTHROPIC_KEY: ${ZOLLPILOT_ANTHROPIC_KEY:-}
+      ZOLLPILOT_MODELL: ${ZOLLPILOT_MODELL:-}
+      ZOLLPILOT_MODELL_AUFZEICHNEN: ${ZOLLPILOT_MODELL_AUFZEICHNEN:-}
     # Auf dem Host unter 8765, weil 8080 auf Entwicklermaschinen selten frei
     # ist; im Compose-Netz antwortet der Dienst auf 8080 (Workflow-Node).
     ports:

@@ -73,9 +73,12 @@ dann `bash scripts/rauchtest.sh` (Runde 2 schickt die PDFs).
 
 ## Was die Extraktion nie tut
 
-- **Ein Modell rufen.** Kein OpenAI, kein Anthropic, kein Vision-Aufruf. Wenn
-  das kommt, dann als eigene Stufe hinter einer Pseudonymisierung, mit
-  eigener ADR (`docs/DATENSCHUTZ.md`).
+- **Ein Modell einen Wert lesen lassen.** Felder kommen aus `felder/`, nie
+  aus einem Modell. Die eine Ausnahme ist der Belegtyp, und auch der nur als
+  Vorschlag: `modell.py` fragt ein Modell, wenn die Regeln schweigen, hinter
+  `pseudonymisierung.py`, aus einer Aufzeichnung, und der Typ des Dokuments
+  bleibt `unclassified` (ADR-011). Ein vorgeschlagener Wert wäre eine neue
+  Entscheidung, weil er in eine Regel fließt.
 - **Belegtext protokollieren.** `dienst.py` loggt Akten-ID, Zahlen, Dauer.
 - **Stillschweigend verwerfen.** Unlesbar, unbekannt, OCR fehlt: alles hängt
   als `unclassified` mit `hinweis` an der Akte und steht in `extraktion.hinweise`.

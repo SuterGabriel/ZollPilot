@@ -15,6 +15,8 @@ PDF
 Seiten mit Wörtern (Text, x0, top, x1, bottom, Konfidenz), zu Zeilen gruppiert
  │  klassifikation.py   Belegtyp über Merkmale mit Gewicht, Draft-Marken,
  │                      unter der Mindestpunktzahl: unclassified
+ │  modell.py           schweigen die Regeln: ein Vorschlag vom Modell, hinter
+ │                      der Pseudonymisierung, nie ein Typ (ADR-011)
  ▼
  │  felder/<typ>.py     Label → Wert bis zur nächsten Lücke, Block unter Label,
  │                      Tabelle über die Spaltenpositionen der Kopfzeile
@@ -293,3 +295,51 @@ Bewertung ändern sich nicht; die Bewertung würde beide Wege gegeneinander
 messen. Das ist der Vergleichslauf, den ADR-005 unter „Wann wir anders
 entscheiden würden“ nennt; er braucht ein Projekt beim Anbieter und die
 Klärung aus `docs/DATENSCHUTZ.md`.
+
+## Der Klassifikationsfallback
+
+Die Merkmalsliste kennt neun Belegtypen. Was sie nicht kennt, bleibt
+`unclassified`, hängt an der Akte und wird gemeldet. Seit ADR-011 darf ein
+Modell dazu einen Vorschlag machen, und zwar unter drei Bedingungen.
+
+**Erstens: pseudonymisiert.** `pseudonymisierung.py` ersetzt Firmen,
+Anschriften, Ansprechpartner, E-Mail, Telefon, IBAN, EORI, USt-IdNr. und REX
+durch Platzhalter; die Zuordnung bleibt im Prozess. Hinaus geht die Gestalt
+des Belegs, nicht seine Beteiligten. Ein Test prüft beide Richtungen: keine
+Partei im Text, und die regelbasierte Klassifikation liefert danach dasselbe
+Ergebnis wie davor.
+
+**Zweitens: als Vorschlag.** Der Typ des Dokuments bleibt `unclassified`. Der
+Vorschlag steht daneben, unter `klassifikation.vorschlag`, mit Modellname,
+Konfidenz und einer Begründung in einem Satz:
+
+```json
+{"typ": "cmr", "konfidenz": 0.92, "begruendung": "…", "modell": "claude-haiku-4-5-20251001", "methode": "modell"}
+```
+
+Die Pflichtmatrix sieht ihn nie. Ein Mensch entscheidet, ob daraus ein Typ
+wird. Der Beleg-Check hält das fest: `akte.py` darf den Vorschlag nur unter
+`klassifikation` hängen, nicht als Typ setzen.
+
+**Drittens: aus einer Aufzeichnung.** Wie beim Vergleichslauf liegt jede
+Antwort unter `extraktion/tests/fixtures/modell/`, adressiert über den
+Aufruf, nicht über den Beleg: Ein anderer Auftrag, ein anderes Modell oder
+ein anderer Text ist eine andere Aufzeichnung. Ohne
+`ZOLLPILOT_MODELL_AUFZEICHNEN` ruft die Extraktion nie hinaus. Tests und
+Bewertung brauchen weder Netz noch Schlüssel.
+
+Eine Antwort aufzeichnen, einmalig und von Hand:
+
+```bash
+cd extraktion
+ZOLLPILOT_ANTHROPIC_KEY=… ZOLLPILOT_MODELL_AUFZEICHNEN=1   uv run python -m zollpilot_extraktion.modell tests/fixtures/cmr-frachtbrief.txt
+```
+
+Danach gilt der Vorschlag auf jeder Maschine, auch in der CI, und der
+übersprungene Test in `tests/test_modell.py` läuft mit.
+
+**Was der Fallback nicht kann.** Er greift nur, wenn die Regeln schweigen,
+nicht wenn sie sich irren. Ein CMR-Frachtbrief, der das Wort Handelsrechnung
+enthält, wird von den Regeln als Handelsrechnung klassifiziert und erreicht
+den Fallback nie. Das ist beim ersten Test aufgefallen und steht in ADR-011
+unter den Nachteilen.

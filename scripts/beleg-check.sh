@@ -173,7 +173,13 @@ pruefe "Schicht Lesen liefert Konfidenz je Wort" enthaelt extraktion/zollpilot_e
 pruefe "Schicht Klassifikation verwirft nichts" enthaelt extraktion/zollpilot_extraktion/klassifikation.py "TYP_UNCLASSIFIED"
 pruefe "Jede Assertion trägt Fundstelle und Methode" enthaelt extraktion/zollpilot_extraktion/assertion.py "bbox"
 pruefe "Die Extraktion entscheidet nichts: kein Katalog, keine Regel" enthaelt_nicht extraktion/zollpilot_extraktion/akte.py "rules.yaml\|freigabe"
-pruefe "Kein Modellaufruf in der Extraktion" enthaelt_nicht_rekursiv extraktion/zollpilot_extraktion "openai\|anthropic\|gemini\|vision_llm("
+# ADR-011 löst die alte Zusage "kein Modellaufruf" ab: Ein Modell darf
+# klassifizieren, aber nur hinter der Pseudonymisierung, nur auf Auftrag und
+# nur als Vorschlag. Diese vier Zeilen sind die neue Zusage.
+pruefe "Modellaufruf nur hinter der Pseudonymisierung" enthaelt extraktion/zollpilot_extraktion/modell.py "pseudonymisiere(text)"
+pruefe "Der Fallback ruft nur auf Auftrag" enthaelt extraktion/zollpilot_extraktion/modell.py "aufzeichnen: bool = False"
+pruefe "Der Modellvorschlag ist kein Belegtyp" enthaelt extraktion/zollpilot_extraktion/akte.py "\[.vorschlag.\] = vorschlag.als_dict()"
+pruefe "Kein weiterer Modellanbieter in der Extraktion" enthaelt_nicht_rekursiv extraktion/zollpilot_extraktion "openai\|gemini\|vision_llm("
 pruefe "Extraktion hat eine Testsuite" ordner_nicht_leer extraktion/tests
 pruefe "Belege werden erzeugt, nicht gesammelt" datei testdaten/erzeuge-belege.py
 pruefe "mindestens sechs Belegordner" mindestens_dateien testdaten/belege "*/akte.json" 6

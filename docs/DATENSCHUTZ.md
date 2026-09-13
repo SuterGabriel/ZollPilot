@@ -33,11 +33,20 @@ Fälle On-Premise-Verarbeitung als sicherere Wahl nennt.
 **Pseudonymisierung vor jedem Modellaufruf.** Bevor ein Beleg oder ein
 Ausschnitt an einen externen Extraktions- oder Sprachdienst geht, werden
 Parteien (Name, Adresse, Ansprechpartner, EORI, USt-IdNr., REX) durch
-Platzhalter ersetzt, die Zuordnung bleibt lokal. Stufe 3 braucht das noch
-nicht: Die Extraktion (ADR-005) liest Textlayer und Tesseract im eigenen
-Container, kein Beleg verlässt den Stack. Die Pseudonymisierung ist deshalb
-nicht gebaut, und sie entsteht mit dem ersten Modellaufruf, in derselben
-ADR, nicht danach (`docs/ARBEITSWEISE.md`, Stufe 3).
+Platzhalter ersetzt, die Zuordnung bleibt lokal. Sie ist gebaut, zusammen mit
+dem ersten Modellaufruf und in derselben Entscheidung, wie hier angekündigt:
+`extraktion/zollpilot_extraktion/pseudonymisierung.py`, eingesetzt vom
+Klassifikationsfallback (ADR-011). Das Lesen selbst verlässt den Stack
+weiterhin nicht (ADR-005): Textlayer und Tesseract laufen im eigenen
+Container. Hinaus geht nur der Text eines Belegs, den die Regeln nicht
+einordnen konnten, und nur ohne Parteien.
+
+Die Pseudonymisierung arbeitet mit Mustern und ist eine Minderung, keine
+Garantie: Firmen mit Rechtsform, Anschriften, Kennnummern und beschriftete
+Parteifelder fängt sie; ein ungewöhnlicher Name ohne Rechtsform und ohne
+Anschrift kann durchrutschen. Für echte Belege wäre das zu prüfen, bevor der
+Fallback eingeschaltet wird (`extraktion/tests/test_pseudonymisierung.py`
+zeigt, woran er heute gemessen wird).
 
 **Der Extraktionsdienst protokolliert keinen Belegtext.** Je Anfrage stehen
 im Log Akten-ID, Anzahl und Größe der Dateien, Anzahl der Dokumente und

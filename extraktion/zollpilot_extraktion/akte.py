@@ -13,6 +13,7 @@ Zwei Zusagen:
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from . import VERSION
@@ -28,6 +29,9 @@ from .lesen import Beleg, KeinLesbaresPdf, LesungNichtMoeglich, lies_pdf, ocr_ve
 # Vorgabe ist lesen.py mit Textlayer und Tesseract; der Vergleichslauf setzt
 # anbieter.py ein. Alles hinter dem Leser bleibt gleich.
 LESER_TESSERACT = "tesseract"
+
+# Nur gesetzt ruft der Klassifikationsfallback das Modell wirklich (ADR-011).
+UMGEBUNG_AUFZEICHNEN = "ZOLLPILOT_MODELL_AUFZEICHNEN"
 
 PRAEFIX = {
     "handelsrechnung": "INV",
@@ -74,12 +78,34 @@ class Zaehler:
         return f"{praefix}-{self.stand[praefix]}"
 
 
+def _vorschlag_zum_typ(text: str, erlaubt: bool):
+    """Ein Modellvorschlag, wenn er erlaubt und verfügbar ist; sonst nichts.
+
+    Der Fallback darf die Extraktion nie zum Scheitern bringen: Ohne
+    Aufzeichnung und ohne Zugang bleibt der Beleg `unclassified`, wie zuvor
+    (ADR-011). Gerufen wird das Modell nur, wenn `ZOLLPILOT_MODELL_AUFZEICHNEN`
+    gesetzt ist; sonst liest der Fallback ausschließlich Aufzeichnungen und
+    kostet weder Netz noch Geld.
+    """
+    if not erlaubt:
+        return None
+    from .modell import ModellAntwortUnbrauchbar, ModellNichtVerfuegbar, schlage_typ_vor
+
+    aufzeichnen = bool(os.environ.get(UMGEBUNG_AUFZEICHNEN, "").strip())
+    try:
+        vorschlag = schlage_typ_vor(text, aufzeichnen=aufzeichnen)
+    except (ModellNichtVerfuegbar, ModellAntwortUnbrauchbar):
+        return None
+    return vorschlag if vorschlag.typ != TYP_UNCLASSIFIED else None
+
+
 def extrahiere_akte(
     stammdaten: dict[str, Any],
     dateien: list[tuple[str, bytes]],
     ocr: bool = True,
     leser=None,
     leser_name: str = LESER_TESSERACT,
+    modell_fallback: bool = True,
 ) -> dict[str, Any]:
     zaehler = Zaehler()
     dokumente: list[dict[str, Any]] = []
@@ -158,6 +184,16 @@ def extrahiere_akte(
         if klasse.typ == TYP_UNCLASSIFIED:
             eigene_hinweise.append("Belegtyp nicht erkannt; bleibt an der Akte und wird gemeldet")
             hinweise.append(f"{name}: Belegtyp nicht erkannt")
+            # Schweigen die Regeln, darf ein Modell einen Vorschlag machen
+            # (ADR-011). Er hängt neben dem Beleg, er ersetzt ihn nicht: Der
+            # Typ bleibt `unclassified`, bis ein Mensch den Vorschlag annimmt.
+            vorschlag = _vorschlag_zum_typ(beleg.text, modell_fallback)
+            if vorschlag:
+                dokument["klassifikation"]["vorschlag"] = vorschlag.als_dict()
+                eigene_hinweise.append(
+                    f"Modellvorschlag: {vorschlag.typ} (Konfidenz {vorschlag.konfidenz}, {vorschlag.modell})"
+                )
+                hinweise.append(f"{name}: Modell schlägt {vorschlag.typ} vor")
         if eigene_hinweise:
             dokument["hinweis"] = "; ".join(eigene_hinweise)
         if klasse.typ == TYP_UNCLASSIFIED:
