@@ -175,6 +175,14 @@ jobs:
       - name: Barrierefreiheit und Bedienung
         working-directory: oberflaeche
         run: npm run e2e
+      # Die Diagramme unter docs/bilder/ sind aus docs/prozess/ gezeichnet
+      # (Graphviz für .dot, bpmn-js im selben Chromium für .bpmn). Hier, weil
+      # der Browser schon da ist; rot, wenn ein Bild nicht mehr zu seiner
+      # Quelle passt.
+      - name: Abhängigkeiten der Wurzel
+        run: npm ci
+      - name: Diagramme sind auf Stand
+        run: node scripts/diagramme-zeichnen.mjs --pruefen
       - name: Bericht bei Fehler
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

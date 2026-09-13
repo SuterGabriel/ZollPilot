@@ -1,0 +1,90 @@
+// Datenfluss: von der Datei zur Entscheidung, und von der Entscheidung zu
+// denen, die hinsehen. Quelle für docs/bilder/datenfluss.svg; zeichnen mit
+//   node scripts/diagramme-zeichnen.mjs
+// Zwei Zusagen stecken im Bild: Ein Modell steht nie zwischen Extraktion und
+// Entscheidung, und das Monitoring hat keinen Pfeil zurück in die Akte.
+// Von oben nach unten, damit die Entscheidungskette als Spalte lesbar bleibt.
+
+digraph datenfluss {
+  graph [rankdir=TB, newrank=true, nodesep=0.4, ranksep=0.55, pad=0.4,
+         fontname="Helvetica", fontsize=12, bgcolor="white"]
+  node  [shape=box, style="rounded,filled", fillcolor="white", color="#475569",
+         fontname="Helvetica", fontsize=10.5, fontcolor="#0f172a", margin="0.2,0.1", penwidth=1.2]
+  edge  [color="#64748b", fontname="Helvetica", fontsize=9, fontcolor="#334155", arrowsize=0.7, penwidth=1.1]
+
+  // Woher etwas kommt
+  browser [label="Browser\nüber oberflaeche/ und nginx", fillcolor="#eef2ff", color="#1d4ed8"]
+  pdf     [label="Belege als PDF\noder CII-XML", fillcolor="#eef2ff", color="#1d4ed8"]
+  vor     [label="Akte als JSON\naus einem Vorsystem", fillcolor="#eef2ff", color="#1d4ed8"]
+  post    [label="Antwort per E-Mail\nmit Anhang", fillcolor="#eef2ff", color="#1d4ed8"]
+  { rank=same; browser; pdf; vor; post }
+
+  subgraph cluster_n8n {
+    label="n8n: orchestriert, entscheidet nichts"; style="rounded,filled"; fillcolor="#fff7ed"; color="#f3c9a7"; fontcolor="#7c2d12"
+    w_belege [label="/webhook/belege", shape=parallelogram, fillcolor="white"]
+    w_akte   [label="/webhook/akte", shape=parallelogram, fillcolor="white"]
+    w_post   [label="IMAP-Abholung\nAkte über Aktenzeichen", shape=parallelogram, fillcolor="white"]
+    { rank=same; w_belege; w_akte; w_post }
+  }
+
+  subgraph cluster_ex {
+    label="extraktion/: liest und behauptet"; style="rounded,filled"; fillcolor="#f8fafc"; color="#cbd5e1"; fontcolor="#334155"
+    e1 [label="Lesen\nTextlayer mit Koordinaten,\nsonst Tesseract mit Wortkonfidenz\noder ein IDP-Anbieter"]
+    e2 [label="Klassifikation\nFelder je Belegtyp"]
+    e3 [label="Assertions\nWert, Rohwert, Seite, Box,\nKonfidenz, Methode"]
+  }
+
+  code [label="Code-Node „Akte prüfen“\nBundle aus src/ und Katalog,\nläuft in n8n", fillcolor="#fff7ed", color="#1d4ed8", penwidth=1.8]
+
+  subgraph cluster_src {
+    label="src/: entscheidet, deterministisch"; style="rounded,filled"; fillcolor="#eff6ff"; color="#bfdbfe"; fontcolor="#1e3a8a"
+    k1 [label="aufbau.mjs\nFakten nur aus finalen Belegen"]
+    k2 [label="pflichtmatrix.yaml\nNachweis statt Dokument"]
+    k3 [label="rules.yaml, 14 Regeln\nhart vor weich, Lesefehler vor Fachfehler"]
+    k4 [label="override.mjs\nverantworten, nicht umentscheiden"]
+    k5 [label="nachforderung.mjs\nFeld, Grund, Adressat, Frist"]
+  }
+
+  fehler [label="Fehlerzweig in n8n\nworkflow_fehler, wiedervorlage,\nAntwort 500", style="rounded,filled,dashed"]
+  ui     [label="oberflaeche/\nEntscheidung, Befunde,\nNachforderungen; 200 oder 422", fillcolor="#eef2ff", color="#1d4ed8"]
+  pg     [label="Postgres\nAkte, Prüfung, Übersteuerung,\nNachforderung, Post, Fehler", shape=cylinder, fillcolor="#f1f5f9", margin="0.25,0.15"]
+  nachf  [label="Workflow Nachforderungen\ntäglich oder auf Zuruf", fillcolor="#fff7ed", color="#c2410c"]
+  mail   [label="Postfach\nNachforderung, Erinnerung, Eskalation;\ndie Antwort kommt oben wieder herein"]
+
+  subgraph cluster_mon {
+    label="Monitoring: Zuschauer, holt /metrics bei n8n und Extraktion ab"; style="rounded,filled"; fillcolor="#fffbeb"; color="#d6b46a"; fontcolor="#7c5a10"
+    sq [label="SQL-Exporter\nFreigaben, Befunde je Regel,\nFehler, offene Fälle"]
+    pr [label="Prometheus\nelf Alarmregeln"]
+    am [label="Alertmanager\nAlarm als Zeile zurück\nüber /webhook/alarm"]
+    gr [label="Grafana"]
+  }
+
+  // Der Weg hinein
+  browser -> w_belege
+  pdf -> w_belege
+  vor -> w_akte
+  post -> w_post
+  w_belege -> e1 [label="Base64"]
+  w_post -> e1
+  e1 -> e2 -> e3
+  e3 -> code [label="Akte"]
+  w_akte -> code
+
+  // Die Entscheidung
+  code -> k1 -> k2 -> k3 -> k4 -> k5
+  k5 -> ui
+  k5 -> pg [label="Ergebnis"]
+  pg -> nachf [label="offene Fälle, Fristen"]
+  nachf -> mail [label="SMTP"]
+
+  // Der Fehlerweg
+  e1 -> fehler [style=dashed, label="Dienst weg"]
+  code -> fehler [style=dashed, label="Absturz"]
+  fehler -> pg
+
+  // Das Monitoring holt ab; kein Pfeil führt in die Akte zurück
+  pg -> sq [label="Zähler aus der Akte"]
+  sq -> pr
+  pr -> am
+  pr -> gr
+}

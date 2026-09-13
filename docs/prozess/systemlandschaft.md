@@ -13,49 +13,9 @@ Betrieb (`docs/BETRIEB.md`, „Was vor einem echten Betrieb fehlt").
 
 ## Die Karte
 
-```mermaid
-flowchart TB
-  classDef speicher fill:#f2f4f7,stroke:#545b64,color:#1f2933
-  classDef aussen fill:#fff,stroke:#1d4ed8,stroke-width:2px
-  classDef mess fill:#fdf6e3,stroke:#8a6d3b,color:#1f2933
+![Systemlandschaft: der Browser oben, darunter die Oberfläche, der Kern aus n8n und Extraktion, die Ablage aus Postgres und GreenMail, und unten die Messung, die nur abholt](../bilder/systemlandschaft.svg)
 
-  Browser["Sachbearbeitung<br/>Browser"]:::aussen
-
-  subgraph Eingang["Eingang"]
-    OB["oberflaeche<br/>nginx + Angular<br/>8088"]
-  end
-
-  subgraph Kern["Kern"]
-    N8N["n8n<br/>Orchestrierung, sieben Workflows<br/>5678"]
-    EX["extraktion<br/>FastAPI, PDF und CII<br/>8765 nach 8080"]
-  end
-
-  subgraph Ablage["Ablage"]
-    PG[("postgres 16<br/>Akte, Belege, Nachforderung<br/>5432")]:::speicher
-    GM["greenmail<br/>SMTP 3025, IMAP 3143, API 8025"]
-  end
-
-  subgraph Messung["Messung"]
-    SQL["sql-exporter<br/>9399"]:::mess
-    PROM["prometheus<br/>9090"]:::mess
-    AM["alertmanager<br/>9093"]:::mess
-    GRAF["grafana<br/>3000"]:::mess
-  end
-
-  Browser -->|"HTTP, Basic Auth"| OB
-  OB -->|"/webhook/ weiter, gleiche Herkunft"| N8N
-  N8N -->|"POST /extraktion/akte"| EX
-  N8N -->|"Akte, Prüfung, Übersteuerung, Fristen"| PG
-  N8N -->|"Nachforderung versenden"| GM
-  GM -->|"Antwort abholen, IMAP"| N8N
-
-  SQL --> PG
-  PROM --> N8N
-  PROM --> EX
-  PROM --> SQL
-  PROM --> AM
-  GRAF --> PROM
-```
+Gezeichnet aus [systemlandschaft.dot](systemlandschaft.dot) mit `node scripts/diagramme-zeichnen.mjs`; `npm run check` meldet, wenn Bild und Quelle auseinanderlaufen.
 
 Ein zehnter Container fehlt in der Karte, weil er nur einmal läuft:
 `n8n-import` schiebt beim Start die Workflows aus `workflows/` und die
