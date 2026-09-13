@@ -34,5 +34,7 @@ Begründung. Kein Dashboard.
 
 ## Anforderungen
 
-Der Auftraggeber dieses Projekts ist ein Anforderungsprofil. Es ist erfasst in [docs/ANFORDERUNGEN.md](docs/ANFORDERUNGEN.md), inklusive der
-Punkte, die ein Portfolio-Projekt grundsätzlich nicht belegen kann.
+Der Auftraggeber dieses Projekts ist ein Anforderungsprofil, wie es der
+Markt für n8n-Projekte in Logistik und Zoll ausschreibt. Es ist erfasst in
+[docs/ANFORDERUNGEN.md](docs/ANFORDERUNGEN.md), inklusive der Punkte, die ein
+Portfolio-Projekt grundsätzlich nicht belegen kann.

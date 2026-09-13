@@ -2,7 +2,7 @@
 /**
  * Zieht Bilder aus dem laufenden Stack: jeden Workflow als PNG aus dem n8n-Editor.
  *
- * Eine Anforderungsprofil verlangt Prozesslandschaften und Datenflussdiagramme.
+ * Das Anforderungsprofil verlangt Prozesslandschaften und Datenflussdiagramme.
  * Die liegen als Mermaid und BPMN im Repo (docs/prozess/). Was fehlt, ist das
  * Bild, das ein Leser zuerst sucht: der Workflow so, wie er im Editor
  * aussieht. Von Hand abfotografiert veraltet es beim nächsten Commit,

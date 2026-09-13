@@ -7,10 +7,10 @@ Zustand. Eine Extraktion in Python liest die Belege und behauptet; n8n
 orchestriert; ein deterministisches Regelwerk in JavaScript entscheidet; eine
 Oberfläche in Angular zeigt das Ergebnis und entscheidet nichts.
 
-Portfolio-Projekt zu einem Anforderungsprofil (n8n-Workflows für Dokumentenprozesse
-in Logistik und Zoll). Das Anforderungsprofil steht in
-[docs/ANFORDERUNGEN.md](docs/ANFORDERUNGEN.md), mit Belegspalte und mit den
-Punkten, die ein Repo nicht belegen kann.
+Portfolio-Projekt zu einem Anforderungsprofil, wie es der Markt für
+n8n-Projekte in Logistik und Zoll ausschreibt. Das Profil steht in
+[docs/ANFORDERUNGEN.md](docs/ANFORDERUNGEN.md), Punkt für Punkt mit Belegspalte
+und mit dem, was ein Repo nicht belegen kann.
 
 ## Stand
 

@@ -101,11 +101,6 @@ keine Engine, die Konfidenzen liefert. Das steht so in `ANFORDERUNGEN.md`
 und `OFFENE-PUNKTE.md`, nicht geschönt. Das GitHub-Remote fehlt, weil die
 CLI nicht angemeldet ist; das Repo ist lokal mit allen Commits.
 
-**Zeitschätzung.** Delegiert: eine Sitzung, etwa vier Stunden Agentenzeit
-inklusive Korrekturen. Von Hand geschätzt: drei bis vier Tage für denselben
-Stand — der Großteil davon Recherche-Konsolidierung, Testfälle und
-Dokumentation, nicht Code. Die Zahl ist eine Schätzung, keine Messung.
-
 ---
 
 ## 2026-09-12 — Stufe 3: die Extraktion
@@ -177,12 +172,6 @@ sagte beim ersten Lauf `KEINE BASISLINIE` und war rot, wie sie soll. Der
 Beleg-Check meldete `docs/EXTRAKTION.md` und `basislinie.json` als fehlend,
 bevor sie existierten; die Gates standen vor den Belegen.
 
-**Zeitschätzung.** Delegiert: eine Sitzung, etwa drei Stunden Agentenzeit,
-davon ein Drittel Docker-Läufe. Von Hand geschätzt: zwei bis drei Tage —
-der Tabellenleser, die Belegerzeugung und die Reproduzierbarkeit über zwei
-Betriebssysteme sind die Zeitfresser, nicht der Dienst. Schätzung, keine
-Messung.
-
 ---
 
 ## 2026-09-12 — Der Konfidenzpfad trägt jetzt zehn Regeln
@@ -219,10 +208,6 @@ Massenanpassung nicht getroffen hatte.
 ORG-02, ORG-06, VAL-03), zehn neue Tests, 101 statt 91 insgesamt. Drei
 Regeln tragen den Pfad bewusst nicht, und auch das steht jetzt als Test da,
 nicht als Auslassung.
-
-**Zeitschätzung.** Delegiert: etwa vierzig Minuten. Von Hand: ein halber
-Tag, der Großteil davon die Frage, welche Pfade je Regel am Befund beteiligt
-sind — nicht das Schreiben.
 
 ---
 
@@ -333,12 +318,6 @@ Korrigieren und die Fundstelle am Beleg fehlen; das ist Stufe 5. Und ngrx ist
 für diesen einen Bildschirm mehr Gerüst, als er braucht. Das steht als Wette
 in ADR-006 und nicht als Selbstverständlichkeit.
 
-**Zeitschätzung.** Delegiert: eine Sitzung, etwa zweieinhalb Stunden
-Agentenzeit, davon ein gutes Stück Docker- und Browser-Installation. Von
-Hand geschätzt: zwei bis drei Tage — der Zustand und die Komponenten sind
-schnell, die Barrierefreiheitsprüfung mit echten Läufen, die nginx-Kette und
-die Nachführung der elf Dokumente sind es nicht. Schätzung, keine Messung.
-
 ## 2026-09-12 — Stufe 5: übersteuern, ohne umzuentscheiden
 
 **Was delegiert wurde.** „Machen wir Stufe 5" — und daraus: ADR-007,
@@ -437,12 +416,6 @@ Umleitung auf `/metrics/` fand Runde 7. Neu im Beleg-Check: Jeder Alarmname
 aus `alarme.yml` muss in der Betriebsdoku stehen. Ein Alarm ohne Runbook
 ist ab jetzt ein roter Lauf, kein Vorsatz.
 
-**Zeitschätzung.** Delegiert: eine Sitzung, etwa drei Stunden Agentenzeit,
-davon ein Drittel im Stack (Bauen, Importieren, sieben Runden je Lauf).
-Von Hand geschätzt: zwei bis drei Tage, und die Nachforschung zu den drei
-n8n-Eigenheiten hätte davon den größten Teil gekostet. Schätzung, keine
-Messung.
-
 ## 2026-09-12: ein eigener Node, der nichts entscheidet
 
 **Was delegiert wurde.** Der Aufgabenblock „Node-Entwicklung“ aus dem
@@ -480,10 +453,6 @@ Credential gewandert. Das Gate war rot, bevor der Rauchtest lief, und die
 Prüfung sagt jetzt das Richtige: Adresse in der Credential, Typ im
 Workflow. Der Rauchtest hat den Node dann in Runde 2 und 6 bewiesen, ohne
 eine Zeile Änderung.
-
-**Zeitschätzung.** Delegiert: knapp eine Stunde Agentenzeit. Von Hand
-geschätzt: ein Tag, davon ein halber für die Frage, wie n8n das
-Verzeichnis lädt und was darin auflösbar ist. Schätzung, keine Messung.
 
 ## 2026-09-12: die drei Artefakte, die ein Anforderungsprofil beim Namen nennt
 
@@ -526,8 +495,6 @@ BPMN-Datei Layout trägt. Ein Diagramm, das nur beschreibt, wäre rot. Die
 Wohlgeformtheit prüft er nicht; das war ein einmaliger Lauf mit dem
 XML-Parser aus der Python-Standardbibliothek.
 
-**Zeitschätzung.** Delegiert: eine gute halbe Stunde. Von Hand geschätzt:
-ein Tag, davon der größte Teil im Modeler. Schätzung, keine Messung.
 ## 2026-09-12, Extraktion im zweiten Chat: Vergleichslauf, ABD, CII
 
 **Was delegiert wurde.** Drei Aufgaben im Worktree `extraktion`, parallel
@@ -566,12 +533,6 @@ den der Konfidenzpfad gebaut ist, an einer Stelle, an die ich beim Schreiben
 der Regel nicht gedacht hatte; der Test hat ihn gefunden, nicht ich. Dazu
 zwei eigene Tests, die beim ersten Lauf fielen: ein Gleitkommavergleich von
 Seitenmaßen und ein `relative_to` auf einen Temp-Ordner außerhalb des Repos.
-
-**Zeitschätzung.** Delegiert: eine Sitzung, etwa zwei Stunden Agentenzeit,
-davon ein spürbarer Teil für das Einlesen der vier Schichten und des
-Katalogs vor der ersten Zeile. Von Hand geschätzt: drei bis vier Tage, vor
-allem für die CII-Struktur und das Golden Set mit neuer Basislinie.
-Schätzung, keine Messung.
 
 ## 2026-09-12, Vergleichslauf gezogen: Azure liest das Golden Set vollständig
 
@@ -615,11 +576,6 @@ fand die Fehler. Deshalb liegen die Aufzeichnungen jetzt im Repo und
 `bewertung --leser azure` ist Teil dessen, was vor einem Commit an
 `anbieter.py` laufen muss.
 
-**Zeitschätzung.** Zugang anlegen mit Klickanleitung etwa dreißig Minuten,
-Aufzeichnen und Korrektur etwa eine Stunde Agentenzeit. Von Hand geschätzt:
-ein halber Tag, davon der größte Teil für das Nachvollziehen, warum eine
-Tabelle auf einem schiefen Scan auseinanderfällt. Schätzung, keine Messung.
-
 ## 2026-09-12: Stufe 6, erster Teil: die Nachforderung wird ein Vorgang
 
 **Was delegiert wurde.** „Mach mir den Rest“, ohne Nennung eines
@@ -662,12 +618,6 @@ Mail-Node begonnen statt beim Postfach. Der Beleg-Check verlangt jetzt,
 dass `stufe.mjs` keine Uhr enthält; das ist die Zusage aus der ADR als
 Gate.
 
-**Zeitschätzung.** Delegiert: knapp zwei Stunden Agentenzeit, davon ein
-Drittel an den zwei GreenMail-Eigenheiten. Von Hand geschätzt: drei bis
-vier Tage, der größte Teil für das Zustandsmodell und den Beweis über
-Zeit. Schätzung, keine Messung. Der Rückweg (Antwort mit Anhang in die
-Akte), die Identität am Proxy und der Übersichtsbildschirm stehen noch aus.
-
 ## 2026-09-12: Stufe 6, zweiter Teil: der Name am Override ist geprüft
 
 **Was delegiert wurde.** Die Identität aus ADR-009: Basic Auth in nginx,
@@ -697,10 +647,6 @@ ersten Lauf des Rauchtests nach dem Umbau. Die Lücke bei `/wer` hat kein
 Test gefunden; sie fiel beim Lesen des nginx-Logs auf, weil der Pfad ohne
 Passwortdatei hätte scheitern müssen und es nicht tat. Der Rauchtest prüft
 jetzt ausdrücklich, dass ein Aufruf ohne Zugangsdaten 401 bekommt.
-
-**Zeitschätzung.** Delegiert: eine gute halbe Stunde. Von Hand: ein halber
-Tag, und die `return`-Falle hätte vermutlich länger überlebt. Schätzung,
-keine Messung.
 
 ## 2026-09-12: Stufe 6, dritter Teil: eine Antwort findet ihre Akte
 
@@ -742,11 +688,6 @@ eine Mail ohne Aktennummer nicht verschwindet, sondern mit Grund in
 `mail_eingang` steht. Das ist die harte Grenze aus `CLAUDE.md`, nichts
 stillschweigend verwerfen, auf den Kommunikationskanal angewandt.
 
-**Zeitschätzung.** Delegiert: gut eine Stunde. Von Hand: zwei bis drei
-Tage, vor allem für das Ablegen der Akte und die Zusammenführung, die
-ohne den vorhandenen eigenen Node und den Wiedervorlage-Zugriff auf beide
-Ausgänge länger gedauert hätte. Schätzung, keine Messung.
-
 ## 2026-09-13: Stufe 6, vierter Teil: der zweite Bildschirm
 
 **Was delegiert wurde.** Die Übersicht aus ADR-009: ein Entwurf als
@@ -775,10 +716,6 @@ des Regelwerks heißt „Blockiert“, nicht „blockiert“.
 Ansichten auf einmal, bevor jemand ihn hätte sehen müssen; und den
 Höhenverlust, den ein Umbau der Kopfzeile still gekostet hätte.
 
-**Zeitschätzung.** Delegiert: gut eine Stunde. Von Hand: zwei Tage, mit
-dem Router, dem zweiten Store-Feature und den Tests. Schätzung, keine
-Messung.
-
 ## 2026-09-13: Stufe 6, Nachtrag: die Antwort schließt ihren Fall sofort
 
 **Was passierte.** Der erste Durchlauf von Hand, in PowerShell statt Git
@@ -799,10 +736,6 @@ und hat weiter einen Schreiber; er läuft nur einmal öfter.
 umzuschreiben, hat die Escape-Sequenzen der MIME-Zeilenenden in echte
 Zeilenumbrüche verwandelt. Zurück auf den Stand im Repo, dann mit dem
 Werkzeug editiert, das Zeichen für Zeichen ersetzt.
-
-**Zeitschätzung.** Delegiert: eine halbe Stunde. Von Hand: ein Vormittag,
-weil man den Widerspruch erst einmal für einen Fehler im Abgleich hält.
-
 
 ## 2026-09-13, Google Document AI als zweiter Anbieter: was zwei Anbieter zeigen, was einer nicht kann
 
@@ -869,11 +802,6 @@ Seitenbild bei, rund 260 KB Base64 je Beleg, eine Kopie des Belegs, den das
 Repo schon hat. Das wird vor dem Aufzeichnen entfernt und steht so in der
 Doku; alles andere bleibt, auch was die Übersetzung nicht liest.
 
-**Zeitschätzung.** Zugang anlegen mit Klickanleitung etwa dreißig Minuten,
-Anschluss und zwei Korrekturrunden etwa anderthalb Stunden Agentenzeit. Von
-Hand geschätzt: ein Tag, davon der größte Teil für das Nachvollziehen, warum
-eine Nummer mit Bindestrichen auseinanderfällt. Schätzung, keine Messung.
-
 ## 2026-09-13: Stufe 3b, der Klassifikationsfallback
 
 **Was entstand.** Ein Modell schlägt einen Belegtyp vor, wenn die Regeln
@@ -902,7 +830,22 @@ Modellantwort im Repo, und der eine Test, der sie prüfen würde, wird
 übersprungen statt grün behauptet. Die Mechanik ist bewiesen, die Antwort
 nicht.
 
-**Zeitschätzung.** Delegiert: gut eine Stunde. Von Hand: zwei Tage, das
-meiste davon für die Pseudonymisierung und die Frage, was ein Vorschlag
-eigentlich sein darf.
+## Aufwand, einmal in einer Summe
 
+Bis zum 13. September 2026 standen in jedem Eintrag oben eine Schätzung der
+Agentenzeit und eine Schätzung, wie lange dieselbe Arbeit von Hand gedauert
+hätte. Beides ist jetzt nur noch hier, aus zwei Gründen. Erstens war jede
+dieser Zahlen eine Schätzung ohne Messung, und sechzehn Schätzungen
+nebeneinander sehen präziser aus, als sie sind. Zweitens sagt ein Vergleich
+je Sitzung nichts darüber, was die Arbeit wert war: Die Stunden gingen in
+das Nachvollziehen, warum ein Vergleichslauf bei 26,8 Prozent liegt, warum
+ein Scan eine Tabelle auseinanderreißt, warum n8n einen abgefangenen Fehler
+als Erfolg zählt. Das ist Urteilsarbeit, und die wird nicht schneller, weil
+das Tippen schneller wird.
+
+In der Summe: rund 26 Stunden Agentenzeit über sechzehn Sitzungen an zwei
+Tagen, dazu die Stunden davor für Fachrecherche, Anforderungen und die vier
+Regeln, die nicht protokolliert sind. Von Hand geschätzt wären es einige
+Wochen gewesen, mit derselben Unsicherheit wie jede Schätzung hier.
+Schätzung, keine Messung. Was die Sitzungen gebracht haben, steht in den
+Einträgen, vor allem unter „Was nicht funktionierte“.

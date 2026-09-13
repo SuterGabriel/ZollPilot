@@ -97,7 +97,7 @@ Pseudonymisierung, die es heute nicht gibt, und deshalb heute nicht.
   ABBYY einsetzt, ersetzt `lesen.py` (Wörter mit Koordinaten und Konfidenz)
   oder `felder/` (Feldwerte) und liefert dieselbe Assertion. Regelwerk,
   Tests und Workflow ändern sich nicht.
-- Die zweite Sprache aus des Anforderungsprofils steht dort, wo sie hingehört —
+- Die zweite Sprache aus dem Anforderungsprofil steht dort, wo sie hingehört —
   nicht als Dekoration neben JavaScript, sondern im Teil, dessen Werkzeuge
   Python sind.
 - Die Messung ist im Repo. Field Exact Match je Belegtyp und die
