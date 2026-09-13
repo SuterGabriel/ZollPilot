@@ -39,8 +39,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        260,
-        300
+        780,
+        470
       ],
       "onError": "continueErrorOutput"
     },
@@ -136,8 +136,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.5,
       "position": [
-        520,
-        300
+        1040,
+        470
       ],
       "credentials": {
         "postgres": {
@@ -176,8 +176,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1040,
-        300
+        1820,
+        470
       ],
       "notes": "Der Statuscode folgt der Entscheidung unter Berücksichtigung menschlicher Verantwortung, nicht der reinen Regelentscheidung (ADR-007). Ohne Übersteuerung sind beide gleich. Die reine Regelentscheidung steht unverändert als freigabe im Rumpf — sie wird nie überschrieben, nur der Transport richtet sich nach dem, was der Aufrufer tun soll.",
       "notesInFlow": false
@@ -195,8 +195,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1300,
-        180
+        2080,
+        350
       ]
     },
     {
@@ -212,8 +212,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1300,
-        420
+        2080,
+        590
       ],
       "notes": "Das vollstaendige Ergebnis mit Befunden und Nachforderungen, HTTP 422. Der Versand der Nachforderungen ist kein Teil dieser Antwort: Er ist ein Vorgang mit Zustand und Stufen im Workflow zollpilot-nachforderung (ADR-009)."
     },
@@ -284,7 +284,7 @@
       "typeVersion": 1,
       "position": [
         0,
-        -40
+        -60
       ]
     },
     {
@@ -298,8 +298,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        1560,
-        900
+        1820,
+        1000
       ],
       "id": "a7f1c4e2-5b3d-4a6f-9c81-2e4d6b8a0f13",
       "name": "Antwort: Lauf gescheitert",
@@ -337,8 +337,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.5,
       "position": [
-        780,
-        900
+        1040,
+        1000
       ],
       "id": "c3b9d1f4-8e27-4a15-b6c0-9d5e2f7a1b48",
       "name": "Fehler festhalten",
@@ -362,8 +362,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1040,
-        900
+        1300,
+        1000
       ],
       "notes": "Was erneut hinein muesste, damit der gescheiterte Lauf wiederholt werden kann. Nur Umformen: Der Node entscheidet nichts, er merkt sich den Eingang und den Rumpf."
     },
@@ -435,8 +435,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.5,
       "position": [
-        1300,
-        900
+        1560,
+        1000
       ],
       "onError": "continueRegularOutput",
       "credentials": {
@@ -457,8 +457,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        640,
-        180
+        1300,
+        470
       ],
       "notes": "Sammelt Stammdaten, Belege und Assertions des Eingangs fuer die Ablage (ADR-010). Nur Umformen, keine Entscheidung."
     },
@@ -475,8 +475,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.5,
       "position": [
-        800,
-        180
+        1560,
+        470
       ],
       "onError": "continueRegularOutput",
       "credentials": {

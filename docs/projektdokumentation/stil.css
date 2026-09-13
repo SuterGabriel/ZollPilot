@@ -98,3 +98,14 @@ figcaption { font-size: 8.5pt; color: var(--grau); margin-top: 1.5mm; }
 
 .seitenumbruch { page-break-before: always; }
 .nicht-trennen { page-break-inside: avoid; }
+
+/* Seitenumbrüche: Eine Überschrift steht nie allein am Seitenende, eine
+   Tabelle nimmt ihren Kopf auf die nächste Seite mit, ein Bild wird nicht
+   geteilt, und ein Absatz lässt keine einzelne Zeile zurück. */
+h2, h3 { break-after: avoid-page; page-break-after: avoid; }
+section.abschnitt > h2 + p, h3 + p, h3 + table, h3 + ul, h3 + figure { break-before: avoid-page; page-break-before: avoid; }
+thead { display: table-header-group; }
+tr, li, .kasten, .problem, figure { break-inside: avoid-page; page-break-inside: avoid; }
+ul { break-inside: avoid-page; page-break-inside: avoid; }
+p { orphans: 3; widows: 3; }
+table.kurz { break-inside: avoid-page; page-break-inside: avoid; }
