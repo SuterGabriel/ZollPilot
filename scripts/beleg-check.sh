@@ -297,7 +297,12 @@ pruefe "Rauchtest ruft die Übersicht über den Proxy" enthaelt scripts/rauchtes
 echo
 echo "Prozessdokumentation — Landschaft, Datenfluss, Handbuch"
 pruefe "Prozesslandschaft und Datenfluss liegen im Repo" datei docs/prozess/README.md
-pruefe "Prozesslandschaft ist gerendert (Mermaid), nicht nur beschrieben" enthaelt docs/prozess/README.md '```mermaid'
+pruefe "Prozesslandschaft ist gezeichnet, nicht nur beschrieben" datei docs/bilder/prozesslandschaft.svg
+pruefe "Datenfluss ist gezeichnet, nicht nur beschrieben" datei docs/bilder/datenfluss.svg
+pruefe "Systemlandschaft ist gezeichnet, nicht nur beschrieben" datei docs/bilder/systemlandschaft.svg
+pruefe "Die Prozessseite bindet die Bilder ein" enthaelt docs/prozess/README.md "prozesslandschaft.svg"
+pruefe "Bilder entstehen aus Quellen, nicht von Hand" datei scripts/diagramme-zeichnen.mjs
+pruefe "Bild und Quelle werden verglichen" enthaelt package.json "diagramme-zeichnen.mjs --pruefen"
 pruefe "Prozesslandschaft sagt, was vorgesehen und nicht gebaut ist" enthaelt docs/prozess/README.md "vorgesehen"
 pruefe "Dieselbe Landschaft als BPMN 2.0" datei docs/prozess/sendungsakte.bpmn
 pruefe "BPMN trägt Lanes und Layout" enthaelt docs/prozess/sendungsakte.bpmn "BPNMShape\|BPMNShape"

@@ -12,74 +12,27 @@ Bild aus dem laufenden Editor. Die Prozesssicht sagt, wer was tut; die
 beiden sagen, worauf es läuft.
 
 Die Diagramme zeigen den **Zielprozess** aus
-[05-prozess-nachforderung.md](../05-prozess-nachforderung.md) und markieren,
-was davon gebaut ist. Das ist die Regel dieses Repos: Was noch nicht
-existiert, steht als Ziel mit Status da, nicht weggelassen und nicht
-behauptet. Gestrichelt ist vorgesehen, durchgezogen ist gebaut und im
-Rauchtest bewiesen.
+[05-prozess-nachforderung.md](../05-prozess-nachforderung.md). Die Regel
+dieses Repos gilt auch hier: Was noch nicht existiert, stünde als vorgesehen
+mit Status da, nicht weggelassen und nicht behauptet. Heute ist jede Linie
+der Landschaft gebaut und im Rauchtest bewiesen; die Tabelle unter dem Bild
+nennt je Linie die Runde. Einzig der Mailversand im Alarm-Workflow ist
+abgeschaltet, weil es in der Entwicklung niemanden zu wecken gibt.
 
-Dieselbe Prozesslandschaft liegt als BPMN 2.0 in
-[sendungsakte.bpmn](sendungsakte.bpmn), mit Pool, Rollen als Lanes und
-Layout, zum Öffnen in Camunda Modeler oder bpmn.io. Erzeugt aus einer
-Beschreibung des Prozesses, nicht gezeichnet; Änderungen gehören in die
-Beschreibung.
+Die Bilder auf dieser Seite sind aus Quelldateien gezeichnet, nicht von Hand:
+die Prozesslandschaft aus [sendungsakte.bpmn](sendungsakte.bpmn) (BPMN 2.0,
+zum Öffnen in Camunda Modeler oder bpmn.io), der Datenfluss aus
+[datenfluss.dot](datenfluss.dot) (Graphviz). `node scripts/diagramme-zeichnen.mjs`
+zeichnet sie nach `docs/bilder/`, und `npm run check` schlägt an, wenn ein Bild
+nicht mehr zu seiner Quelle passt. Wer etwas ändern will, ändert die Quelle.
 
 ## Prozesslandschaft
 
-Fünf Rollen, eine Akte. Die Sachbearbeitung Export ist heute der Einstieg;
-der Zielprozess beginnt beim Postfach.
+Fünf Rollen, eine Akte. Die Sachbearbeitung Export ist der Einstieg; eine
+Antwort per E-Mail findet ihre Akte über das Aktenzeichen und läuft denselben
+Weg noch einmal.
 
-```mermaid
-flowchart LR
-  classDef ziel stroke-dasharray: 6 4,fill:#f2f4f7,color:#545b64
-  classDef entscheidung fill:#fff,stroke:#1d4ed8,stroke-width:2px
-
-  subgraph Lieferant["Lieferant / Verkäufer"]
-    L1[Rechnung und Packliste ausstellen]
-    L2[Präferenznachweis beibringen]
-    L3[Fehlenden Wert nachliefern]
-  end
-
-  subgraph Spediteur["Spediteur / Carrier"]
-    S1[B/L ausstellen: Entwurf, dann final]
-  end
-
-  subgraph Sach["Sachbearbeitung Export"]
-    M1[E-Mail mit Anhängen]
-    A1[Stammdaten angeben, Belege einreichen]
-    A2{Ergebnis lesen}
-    A3[Übersteuern mit Name und Begründung]
-    A4[Nachforderung versenden]
-  end
-
-  subgraph ZP["ZollPilot"]
-    Z1[Lesen: Textlayer oder OCR, Klassifikation, Felder]
-    Z2[Akte bauen: nur finale Belege werden Fakten]
-    Z3[Pflichtmatrix und Regeln, hart vor weich]:::entscheidung
-    Z4[Nachforderung formulieren: Feld, Grund, Adressat]
-    Z5[Erinnerung und Eskalation vor Cut-off]
-    Z6[Antwort der Akte zuordnen]
-  end
-
-  subgraph Zoll["Zollvertreter / Zollverwaltung"]
-    C1[Ausfuhranmeldung, ABD mit MRN]
-  end
-
-  L1 --> A1
-  L2 --> A1
-  S1 --> A1
-  M1 --> Z6
-  A1 --> Z1 --> Z2 --> Z3 --> A2
-  A2 -->|freigabereif| C1
-  C1 -->|ABD zurück an die Akte| A1
-  A2 -->|nicht freigabereif| Z4
-  Z4 --> Z5 --> A4
-  A4 --> L3
-  L3 --> M1
-  Z6 --> Z1
-  L3 --> A1
-  A2 -->|Befund bleibt verletzt, Verantwortung daneben| A3 --> Z3
-```
+![Prozesslandschaft als BPMN: fünf Bahnen für Lieferant, Spediteur, Sachbearbeitung Export, ZollPilot und Zoll; von der angelegten Sendung über Lesen, Akte bauen und die Frage freigabereif zur Ausfuhranmeldung oder zur Nachforderung mit Erinnerung, Versand und Antwort](../bilder/prozesslandschaft.svg)
 
 Was die Linien bedeuten:
 
@@ -88,7 +41,7 @@ Was die Linien bedeuten:
 | Belege einreichen, lesen, Akte bauen, prüfen, Ergebnis lesen | gebaut | `scripts/rauchtest.sh`, Runden 1 bis 3 |
 | Übersteuern | gebaut | Runde 4, ADR-007 |
 | Nachforderung formulieren | gebaut | `src/nachforderung.mjs`; der Text steht im Ergebnis und in der Oberfläche |
-| ABD zurück an die Akte | gebaut auf dem Branch `extraktion` | Belegtyp ABD, Regel CUS-05, Pflicht PFL-07 |
+| ABD zurück an die Akte | gebaut | Belegtyp ABD, Regel CUS-05, Pflicht PFL-07 |
 | E-Mail als Eingang, Antwort der Akte zuordnen | gebaut | Runde 9, ADR-010: Aktennummer aus Betreff oder Text, Anhänge extrahiert, an die abgelegte Akte gehängt, erneut geprüft; ohne Nummer steht die Mail in `mail_eingang` |
 | Nachforderung versenden, Erinnerung, Eskalation | gebaut | Runde 8, ADR-009: Fälle in `request_case`, Stufen relativ zu den Cut-offs der Akte, Versand an das Postfach, festgehalten in `request_versand` |
 
@@ -98,68 +51,7 @@ Von der Datei zur Entscheidung, und von der Entscheidung zu denen, die
 hinsehen. Das Monitoring ist Zuschauer: Kein Pfeil führt von dort zurück
 in die Akte.
 
-```mermaid
-flowchart TB
-  classDef speicher fill:#f2f4f7,stroke:#545b64
-  classDef ziel stroke-dasharray: 6 4,fill:#f2f4f7,color:#545b64
-  classDef entscheidung fill:#fff,stroke:#1d4ed8,stroke-width:2px
-
-  PDF[Belege als PDF]
-  VOR[Akte als JSON von einem Vorsystem]
-  BR[Browser]
-
-  subgraph n8n["n8n: orchestriert, entscheidet nichts"]
-    W2[/webhook/belege/]
-    W1[/webhook/akte/]
-    EN[eigener Node: Belege extrahieren]
-    CN[Code-Node: Bundle aus src/ und Katalog]:::entscheidung
-    WF[Fehlerzweig: workflow_fehler, wiedervorlage]
-    WW[/webhook/wiederholen/]
-    WA[/webhook/alarm/]
-    MAIL[E-Mail-Node, deaktiviert]:::ziel
-  end
-
-  subgraph EX["extraktion/: liest und behauptet"]
-    E1[Textlayer mit Koordinaten, sonst Tesseract mit Wortkonfidenz]
-    E2[Klassifikation, Felder je Belegtyp]
-    E3[Assertions: Wert, Rohwert, Seite, Box, Konfidenz, Methode]
-  end
-
-  subgraph SRC["src/: entscheidet, deterministisch"]
-    K1[aufbau.mjs: Fakten nur aus finalen Belegen]
-    K2[pflichtmatrix.yaml: Nachweis statt Dokument]
-    K3[rules.yaml, 13 Regeln: hart vor weich, Lesefehler vor Fachfehler]
-    K4[override.mjs: verantworten, nicht umentscheiden]
-    K5[nachforderung.mjs: Feld, Grund, Adressat aus zustaendigkeiten.yaml]
-  end
-
-  PG[(Postgres zollpilot: pruefung, override, wiedervorlage, alarm)]:::speicher
-  UI[oberflaeche/ Angular hinter nginx, gleiche Herkunft]
-
-  subgraph MON["Monitoring: Zuschauer"]
-    SQ[SQL-Exporter: Freigaben, Befunde je Regel, Fehler, Wiedervorlagen]
-    PR[Prometheus: elf Alarmregeln]
-    AM[Alertmanager]
-    GR[Grafana: Dashboard aus dem Repo]
-  end
-
-  BR --> UI --> W2
-  PDF --> W2 --> EN --> E1 --> E2 --> E3 --> CN
-  VOR --> W1 --> CN
-  CN --> K1 --> K2 --> K3 --> K4 --> K5
-  K5 -->|Ergebnis: Entscheidung, Befunde, Nachforderungen| PG
-  K5 -->|200 / 422| UI
-  K5 -.-> MAIL
-  EN -.->|Dienst weg| WF
-  CN -.->|Absturz| WF
-  WF --> PG
-  WW -->|Rumpf erneut an denselben Eingang| W2
-  PG --> SQ --> PR
-  EX -->|/metrics| PR
-  n8n -->|/metrics| PR
-  PR --> AM --> WA --> PG
-  PR --> GR
-```
+![Datenfluss: vier Eingänge oben, n8n als Orchestrierung, die Extraktion als Spalte links, der Code-Node und darunter die Entscheidungskette aus src/, dann Postgres, Oberfläche, Nachforderung und Postfach; das Monitoring hängt unten an Postgres und hat keinen Pfeil zurück](../bilder/datenfluss.svg)
 
 Drei Zusagen, die das Bild zeigt:
 

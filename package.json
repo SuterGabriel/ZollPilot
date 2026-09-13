@@ -9,12 +9,18 @@
   },
   "scripts": {
     "test": "node --test \"tests/**/*.test.mjs\"",
-    "check": "bash scripts/beleg-check.sh && node scripts/prosa-check.mjs && node scripts/link-check.mjs && node scripts/regel-check.mjs && node scripts/kontrast-check.mjs && node --test scripts/regel-check.test.mjs scripts/kontrast-check.test.mjs",
+    "check": "bash scripts/beleg-check.sh && node scripts/prosa-check.mjs && node scripts/link-check.mjs && node scripts/regel-check.mjs && node scripts/diagramme-zeichnen.mjs --pruefen && node scripts/kontrast-check.mjs && node --test scripts/regel-check.test.mjs scripts/kontrast-check.test.mjs",
     "bundle": "node scripts/n8n-bundle.mjs",
     "bundle:check": "node scripts/n8n-bundle.mjs --check",
-    "akte": "node src/cli.mjs"
+    "akte": "node src/cli.mjs",
+    "diagramme": "node scripts/diagramme-zeichnen.mjs",
+    "bilder": "node scripts/bilder-ziehen.mjs"
   },
   "dependencies": {
     "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@viz-js/viz": "^3.30.0",
+    "bpmn-js": "^18.28.0"
   }
 }

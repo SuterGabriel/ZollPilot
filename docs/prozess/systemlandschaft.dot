@@ -1,0 +1,57 @@
+// Systemlandschaft: was läuft, wo, und womit es spricht.
+// Quelle für docs/bilder/systemlandschaft.svg; zeichnen mit
+//   node scripts/diagramme-zeichnen.mjs
+// Graphviz legt aus, damit Kanten nicht kreuzen, wo sie nicht müssen; die
+// Farben sind fest, damit das Bild in hellem und dunklem Modus dasselbe zeigt.
+
+digraph systemlandschaft {
+  graph [rankdir=TB, newrank=true, nodesep=0.55, ranksep=0.75, pad=0.4,
+         fontname="Helvetica", fontsize=12, bgcolor="white", labelloc=t]
+  node  [shape=box, style="rounded,filled", fillcolor="white", color="#475569",
+         fontname="Helvetica", fontsize=11, fontcolor="#0f172a", margin="0.22,0.12", penwidth=1.2]
+  edge  [color="#64748b", fontname="Helvetica", fontsize=9.5, fontcolor="#334155",
+         arrowsize=0.75, penwidth=1.1, labeldistance=1.4]
+
+  browser [label="Sachbearbeitung\nim Browser", fillcolor="#eef2ff", color="#1d4ed8", penwidth=1.8]
+
+  subgraph cluster_eingang {
+    label="Eingang"; style="rounded,filled"; fillcolor="#f8fafc"; color="#cbd5e1"; fontcolor="#334155"
+    ob [label="oberflaeche\nnginx mit Angular\nPort 8088"]
+  }
+
+  subgraph cluster_kern {
+    label="Kern"; style="rounded,filled"; fillcolor="#f8fafc"; color="#cbd5e1"; fontcolor="#334155"
+    n8n [label="n8n\nsieben Workflows\nPort 5678", fillcolor="#fff7ed", color="#c2410c", penwidth=1.6]
+    ex  [label="extraktion\nFastAPI: PDF, OCR, CII\nPort 8765, im Netz 8080"]
+  }
+
+  subgraph cluster_ablage {
+    label="Ablage"; style="rounded,filled"; fillcolor="#f8fafc"; color="#cbd5e1"; fontcolor="#334155"
+    pg [label="postgres 16\nAkte, Belege, Prüfung, Nachforderung\nPort 5432", shape=cylinder, fillcolor="#f1f5f9", margin="0.25,0.18"]
+    gm [label="greenmail\nSMTP 3025, IMAP 3143\nPostfach der Entwicklung"]
+  }
+
+  subgraph cluster_messung {
+    label="Messung: sieht zu, greift nie ein; holt /metrics bei n8n und extraktion ab"; style="rounded,filled"; fillcolor="#fffbeb"; color="#d6b46a"; fontcolor="#7c5a10"
+    sql  [label="sql-exporter\nPort 9399"]
+    prom [label="prometheus\nPort 9090"]
+    am   [label="alertmanager\nPort 9093\nAlarm geht als Zeile an /webhook/alarm"]
+    graf [label="grafana\nPort 3000"]
+  }
+
+  // Der Weg einer Sendung, von oben nach unten.
+  browser -> ob  [label="HTTP, Basic Auth"]
+  ob -> n8n      [label="/webhook/ weitergereicht,\ngleiche Herkunft"]
+  n8n -> ex      [label="POST /extraktion/akte"]
+  n8n -> pg      [label="Akte, Prüfung,\nÜbersteuerung, Fristen"]
+  n8n -> gm      [label="SMTP: Nachforderung raus\nIMAP: Antwort rein", dir=both]
+
+  // Die Messung hängt unten dran: Pfeile zeigen, wer bei wem abholt.
+  pg  -> sql  [dir=back, label="Zähler aus der Akte"]
+  sql -> prom [dir=back]
+  prom -> am  [label="Alarm"]
+  prom -> graf [dir=back]
+
+  { rank=same; ex; pg; gm }
+  { rank=same; sql; prom }
+}

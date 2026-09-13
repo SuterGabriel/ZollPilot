@@ -86,7 +86,17 @@ vergleicht alle drei, ohne zu schreiben.
 
 **`scripts/workflow-check.mjs`** prüft, was sich ohne n8n prüfen lässt:
 JSON, Pflichtfelder je Node, eindeutige Namen, Verbindungen auf existierende
-Nodes, keine Geheimnisse in Parametern, Code-Nodes parsen.
+Nodes, keine Geheimnisse in Parametern, Code-Nodes parsen. Und: Zu jedem
+Workflow liegt ein Bild unter `docs/bilder/`, gezogen mit
+`scripts/bilder-ziehen.mjs` aus dem laufenden Editor.
+
+**`scripts/diagramme-zeichnen.mjs`** zeichnet die Diagramme unter
+`docs/prozess/` nach `docs/bilder/`: Graphviz über eine WebAssembly-Bibliothek
+für die `.dot`-Quellen, bpmn-js in einem Chromium ohne Fenster für die
+BPMN-Datei. Mit `--pruefen` zeichnet es in den Speicher und vergleicht
+byteweise mit dem Stand im Repo; das läuft in `npm run check` und im
+CI-Job `oberflaeche`, weil dort der Browser schon installiert ist. Ein Bild,
+das nicht mehr zu seiner Quelle passt, ist rot.
 
 **Der eigene Node** (`nodes/n8n-nodes-zollpilot/`) hat dasselbe Muster wie
 der Code-Node: `dist/` liegt im Repo, weil `compose.yml` es direkt einhängt,
