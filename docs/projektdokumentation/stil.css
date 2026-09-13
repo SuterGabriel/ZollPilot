@@ -29,7 +29,9 @@ body {
   background: white;
 }
 h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; margin: 0; }
-code { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 0.88em; background: var(--hell); padding: 0.05em 0.35em; border-radius: 3px; }
+/* Ohne Ligaturen: JetBrains Mono macht aus zwei Bindestrichen sonst einen
+   langen Strich, und wer `--wait` aus dem PDF kopiert, bekommt einen Fehler. */
+code { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 0.88em; background: var(--hell); padding: 0.05em 0.35em; border-radius: 3px; font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
 p { margin: 0 0 0.75em; }
 strong { font-weight: 700; }
 

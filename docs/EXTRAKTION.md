@@ -126,7 +126,7 @@ docker run --rm -v "$PWD:/host" -e PYTHONPATH=/host/extraktion -w /host/extrakti
 
 - **Fremde Layouts.** Die Extraktoren kennen Labels wie „Invoice No“ und
   Tabellenköpfe wie „Pos | Description | HS code“. Die PDFs sind aus dem
-  Golden Set erzeugt; 420/420 beweist, dass Rendern, Lesen und Extrahieren
+  Golden Set erzeugt; 570/570 beweist, dass Rendern, Lesen und Extrahieren
   zusammenpassen, nicht, dass eine Rechnung eines anderen Ausstellers gelesen
   würde. Sie würde weniger Felder liefern, und die Regeln sagen
   `nicht_pruefbar`.
