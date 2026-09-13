@@ -182,7 +182,7 @@ bis dahin ist der Katalog ehrlich markiert.
 ## Braucht Zugänge
 
 - **Die CI ist seit Lauf 15 gesehen, und grün.** Am 12.09.2026 liefen alle
-  acht Jobs auf einem GitHub-Läufer durch, zuletzt für `1e4dc24`, darunter
+  acht Jobs auf einem GitHub-Läufer durch, zuletzt für `a9fc079`, darunter
   der Stack-Job mit Monitoring, Wiedervorlage und eigenem Node in 153
   Sekunden. Davor war die Oberfläche zweimal rot: Chromium auf Linux
   rendert sieben Pixel höher als auf Windows, und die Aktenspalte bekam bei
