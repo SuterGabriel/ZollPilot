@@ -7,6 +7,9 @@ Zustand. Eine Extraktion in Python liest die Belege und behauptet; n8n
 orchestriert; ein deterministisches Regelwerk in JavaScript entscheidet; eine
 Oberfläche in Angular zeigt das Ergebnis und entscheidet nichts.
 
+Ohne Fachbegriffe, in einer Seite:
+[docs/OHNE-FACHBEGRIFFE.md](docs/OHNE-FACHBEGRIFFE.md).
+
 Portfolio-Projekt zu einem Anforderungsprofil, wie es der Markt für
 n8n-Projekte in Logistik und Zoll ausschreibt. Das Profil steht in
 [docs/ANFORDERUNGEN.md](docs/ANFORDERUNGEN.md), Punkt für Punkt mit Belegspalte
