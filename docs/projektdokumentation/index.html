@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>ZollPilot · Projektdokumentation</title>
+<link rel="stylesheet" href="stil.css">
+</head>
+<body>
+<div class="inhalt">
+
+<section class="abschnitt">
+  <h2>Kurzfassung</h2>
+  <p>ZollPilot prüft vor einer Ausfuhr, ob die Belege einer Sendung vollständig sind und
+  zusammenpassen. Belege kommen als PDF, Scan oder XML-Datensatz herein, werden gelesen und
+  als Behauptungen an eine Akte gehängt. Ein Regelwerk entscheidet auf den daraus abgeleiteten
+  Fakten über Freigabe oder Blockade, fehlende Nachweise werden per Mail nachgefordert, und
+  eine Antwort mit Anhang findet ihre Akte über das Aktenzeichen wieder. Eine Sachbearbeitung
+  sieht jeden Befund mit Fundstelle und kann ihn übersteuern, mit Name und Begründung.</p>
+  <div class="kasten">
+    <div class="titelchen">Der Kern in einem Satz</div>
+    Belege sind Behauptungen, die Akte hält den geprüften Zustand: Modelle und OCR lesen,
+    deterministischer Code in <code>src/</code> entscheidet, und ein Mensch übersteuert, ohne
+    den Befund zu ändern.
+  </div>
+</section>
+
+<section class="abschnitt">
+  <h2>Ausgangslage und Ziel</h2>
+  <p>Der Auftraggeber dieses Projekts ist ein Anforderungsprofil: eine technische Projektsteuerung
+  für n8n-Workflows in Logistik und Zoll, mit IDP/OCR, Vollständigkeitsprüfung,
+  Nachforderungsprozess, Integrationen, Monitoring und Prozessdokumentation. Ziel war nicht
+  ein Demo-Workflow, sondern ein Repo, in dem jede Zeile des Anforderungsprofils einen Beleg hat
+  oder ehrlich als nicht belegbar dasteht. Das Anforderungsmapping steht wörtlich im Repo und
+  wird von einem Gate geprüft: Jeder Pfad in der Belegspalte muss existieren.</p>
+  <p>Aus der Fachrecherche zu Dokumententypen, Pflichtangaben und Zollprozess entstanden vier
+  Regeln, die jede Entscheidung im Projekt gebunden haben: Nachweis statt Dokument, Rohwert
+  und Aktenwert getrennt, Regeln sind Daten, kein Modell in der Entscheidung. Alles, was
+  diesen Regeln widerspricht, ist eine ADR wert oder nicht gebaut.</p>
+  <p>Gebaut wurde im September 2026, mit KI-Agenten als Werkzeug und einem
+  Entwicklungslog, das je Sitzung festhält, was gebaut wurde, was nicht funktionierte, was
+  die Tests gefunden haben und wie lange es von Hand gedauert hätte. Das Log ist Teil der
+  Abgabe, mit den Fehlern.</p>
+
+  <h3>Meine Rolle</h3>
+  <ul>
+    <li><strong>Fachrecherche:</strong> Dokumententypologie, Pflichtmatrix je Incoterm, Regelkatalog mit 52 Regeln und Rechtsverweisen, Prozess der Nachforderung, Regulatorik bis 2028; jede Rechtsangabe als Sekundärrecherche gekennzeichnet.</li>
+    <li><strong>Architektur:</strong> Akte statt Dokument, Assertions und Fakten getrennt, Regeln als Daten, n8n als Orchestrierung mit Code-Nodes als Build-Artefakt; elf ADRs im Moment der Entscheidung.</li>
+    <li><strong>Workflows:</strong> sieben n8n-Workflows, ein eigener n8n-Node in TypeScript, Fehlerpfad mit Wiedervorlage, Zeitplan und Mail in beide Richtungen.</li>
+    <li><strong>Extraktion:</strong> Python-Dienst mit Textlayer und OCR, labelgetriebene Feldextraktion für fünf Belegtypen, UN/CEFACT CII in beide Richtungen, zwei IDP-Anbieter hinter einer Nahtstelle, Modellvorschlag mit Pseudonymisierung.</li>
+    <li><strong>Regelwerk:</strong> 14 ausführbare Regeln in JavaScript, Konfidenzpfad, Übersteuerung, Nachforderung mit Fristen; ein Gate verbietet nackte Zahlen im Regelcode.</li>
+    <li><strong>Oberfläche:</strong> Angular mit ngrx hinter nginx, Kontrast nachgerechnet, axe über jede Ansicht, Übersicht aller Akten.</li>
+    <li><strong>Betrieb und Doku:</strong> Compose mit zehn Containern, Prometheus mit elf Alarmregeln und Runbook je Alarm, Rauchtest in neun Runden, Prozesslandschaft als BPMN, Systemlandschaft, Betriebshandbuch.</li>
+  </ul>
+</section>
+
+<section class="abschnitt">
+  <h2>Funktionsumfang</h2>
+  <ul>
+    <li><strong>Eingang:</strong> Akte als JSON aus einem Vorsystem, Belege als PDF über Formular oder Webhook, Rechnung als CII-XML, Antwort per E-Mail mit Anhang.</li>
+    <li><strong>Extraktion:</strong> Textlayer mit Koordinaten, sonst Tesseract mit Wortkonfidenz; Klassifikation in fünf Belegtypen plus Ursprungserklärung; jede Assertion mit Seite, Box, Konfidenz und Methode. Alternativ Google Document AI oder Azure Document Intelligence als Leser.</li>
+    <li><strong>Prüfung:</strong> Pflichtmatrix nach Incoterm, 14 Regeln zu Mengen, Werten, Warennummern, Container, Ursprung, Präferenz und Draft-Status; Ergebnis je Regel <code>erfuellt</code>, <code>verletzt</code> oder <code>nicht_pruefbar</code>; ein Prüfziffernfehler bei niedriger Konfidenz ist ein Lesefehler, keine Ablehnung.</li>
+    <li><strong>Übersteuern:</strong> Ein Mensch stellt seine Verantwortung neben einen Befund, mit Name aus der Anmeldung und Begründung; der Befund bleibt stehen, die Übersteuerung verfällt beim nächsten Regelstand.</li>
+    <li><strong>Nachforderung:</strong> Fehlende Nachweise werden zum Vorgang mit Frist relativ zum Zoll-Cut-off, versendet per Mail, erinnert und eskaliert; die Antwort landet über IMAP wieder in der Akte und stößt die Prüfung neu an.</li>
+    <li><strong>Oberfläche:</strong> Belege einreichen, Befund mit Fundstelle lesen, übersteuern; Übersicht mit Entscheidung, offenen Nachforderungen und unzugeordneter Post.</li>
+    <li><strong>Betrieb:</strong> Fehlerpfad mit Antwort 500 und Wiedervorlage, Wiederholung gescheiterter Läufe, Zähler je Workflow und Regel, elf Alarme mit Runbook, Grafana-Dashboard aus dem Repo.</li>
+  </ul>
+</section>
+
+<section class="abschnitt">
+  <h2>Architektur</h2>
+  <table>
+    <thead><tr><th>Bereich</th><th>Technologie</th></tr></thead>
+    <tbody>
+      <tr><td>Orchestrierung</td><td>n8n 1.114 in Docker, sieben Workflows als JSON-Export, Code-Nodes gebündelt aus <code>src/</code> und dem Regelkatalog, ein eigener Node <code>zollPilotExtraktion</code> in TypeScript, Import beim Start statt Klicks im Editor</td></tr>
+      <tr><td>Entscheidung</td><td>JavaScript ohne Framework in <code>src/</code>: Aktenaufbau, Pflichtmatrix, 14 Regeln, Übersteuerung, Nachforderung; Schwellen und Rechtsverweise in <code>rules.yaml</code> mit Gültigkeitsdatum</td></tr>
+      <tr><td>Extraktion</td><td>Python 3.12, FastAPI, pdfplumber, pypdfium2, Tesseract, lxml für CII gegen das D16B-Schema; Anbieterleser für Google Document AI und Azure über REST mit Aufzeichnungen im Repo</td></tr>
+      <tr><td>Oberfläche</td><td>Angular 22 mit ngrx, ausgeliefert von nginx, das <code>/webhook/</code> an n8n weiterreicht (gleiche Herkunft statt CORS) und den angemeldeten Namen als Kopfzeile anhängt</td></tr>
+      <tr><td>Ablage und Post</td><td>Postgres 16, nur anhängend, mit Views für Regelergebnis und Übersteuerungswirkung; GreenMail für SMTP und IMAP in der Entwicklung, ein echtes Postfach über <code>.env</code></td></tr>
+      <tr><td>Betrieb und Qualität</td><td>Docker Compose mit zehn Diensten und Healthchecks, Prometheus, Alertmanager, SQL-Exporter, Grafana; Git-Hook und GitHub Actions mit acht Jobs; Gates für Belege, Prosa, Verweise, Regeln, Kontrast, Workflows, Diagramme</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Schichten</h3>
+  <table>
+    <thead><tr><th>Schicht</th><th>Aufgabe</th></tr></thead>
+    <tbody>
+      <tr><td>Browser</td><td>Angular hinter Basic Auth am Proxy. Reicht Stammdaten und Belege ein, zeigt den Befund, schickt eine Übersteuerung. Entscheidet nichts.</td></tr>
+      <tr><td>n8n</td><td>Nimmt an, reicht weiter, legt ab, verzweigt, antwortet. Entschieden wird ausschließlich im Code-Node „Akte prüfen“ und in zwei Nodes der Nachforderung, alle aus <code>src/</code> gebündelt.</td></tr>
+      <tr><td>Extraktion</td><td>Liest und behauptet: Wörter mit Koordinaten, Belegtyp, Felder, Assertions mit Konfidenz. Setzt keinen Fakt, kennt keine Schwelle, ruft im Entscheidungsweg kein Modell.</td></tr>
+      <tr><td>src/</td><td>Entscheidet deterministisch: Fakten nur aus finalen Belegen, Nachweis statt Dokument, hart vor weich, Lesefehler vor Fachfehler, Übersteuerung verantwortet statt umentscheidet.</td></tr>
+      <tr><td>Postgres</td><td>Akte, Dokumente, Assertions je Prüfung, Prüfung, Übersteuerung, Nachforderung, Versand, Posteingang, Fehler, Wiedervorlage, Alarm. Nur anhängend.</td></tr>
+      <tr><td>Messung</td><td>Prometheus holt Zähler bei n8n, Extraktion und Datenbank; kein Pfeil führt zurück in die Akte.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Systembild</h3>
+  <figure>
+    <img src="../bilder/systemlandschaft.svg" alt="Systemlandschaft mit zehn Containern">
+    <figcaption>Jeder Port ist an localhost gebunden. Ein zehnter Container importiert beim Start die Workflows und endet; der Editor zeigt, was im Repo steht.</figcaption>
+  </figure>
+
+  <h3>Vier Grundsätze</h3>
+  <ul>
+    <li><strong>Nachweis statt Dokument.</strong> Geprüft wird „ist der Warenwert nachgewiesen“, nie „liegt eine Rechnung vor“. Deshalb läuft eine Rechnung als PDF, als Scan oder als CII-Datensatz durch dieselben Regeln.</li>
+    <li><strong>Rohwert und Aktenwert getrennt.</strong> Was ein Beleg sagt, wird nie überschrieben. Fakten sind Ableitungen aus finalen Belegen; ein Entwurf des B/L wird gelesen, aber setzt keinen Fakt.</li>
+    <li><strong>Regeln sind Daten.</strong> Schwellen, Toleranzen und Rechtsverweise stehen im Katalog mit Gültigkeitsdatum. Ein Gate lehnt jede nackte Zahl im Regelcode ab.</li>
+    <li><strong>Kein Modell in der Entscheidung.</strong> Modelle lesen, klassifizieren, schlagen vor. Freigabe oder Blockade fällt deterministisch auf normalisierten Werten. Ein Modellvorschlag zum Belegtyp hängt neben dem Dokument, der Typ bleibt <code>unclassified</code>.</li>
+  </ul>
+
+  <h3>Workflows</h3>
+  <table>
+    <thead><tr><th>Workflow</th><th>Aufgabe</th></tr></thead>
+    <tbody>
+      <tr><td>Akte prüfen</td><td>Zwei Eingänge, <code>/webhook/akte</code> mit Assertions und <code>/webhook/belege</code> mit PDFs; Extraktion, Prüfung, Ablage, Antwort 200 oder 422 mit allen Befunden. Fehlerzweig mit Wiedervorlage und Antwort 500.</td></tr>
+      <tr><td>Nachforderungen</td><td>Täglich oder auf Zuruf; entscheidet je Akte, was neu, erinnert oder eskaliert wird, versendet per SMTP, hält den Versand fest.</td></tr>
+      <tr><td>Posteingang</td><td>Holt Antworten per IMAP, ordnet sie über das Aktenzeichen zu, extrahiert Anhänge, prüft die Akte neu; Unzugeordnetes wird festgehalten, nicht verworfen.</td></tr>
+      <tr><td>Übersicht lesen</td><td><code>GET /webhook/akten</code> für den Übersichtsbildschirm. Eine Abfrage, kein Urteil.</td></tr>
+      <tr><td>Lauf wiederholen</td><td>Schickt einen gescheiterten Lauf aus der Wiedervorlage noch einmal an denselben Eingang.</td></tr>
+      <tr><td>Alarm</td><td>Nimmt Alarme vom Alertmanager an und legt sie als Zeile mit Beginn und Ende ab.</td></tr>
+      <tr><td>Fehler</td><td>Der Auffangworkflow von n8n: reduziert einen Abbruch auf das Aussagekräftige ohne Belegtext und legt ihn ab.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="abschnitt">
+  <h2>Technische Kernprobleme</h2>
+  <p>Sechs Stellen, an denen das Projekt über „Workflow ruft Dienst“ hinausging.</p>
+
+  <div class="problem">
+    <div class="art">Entscheidung</div>
+    <h3>Ein Lesefehler ist kein Fachfehler</h3>
+    <div class="feld">Problem</div>
+    <p>Eine falsch gelesene Containernummer fällt durch die Prüfziffer. Wer daraus eine fachliche Ablehnung macht, blockiert eine korrekte Sendung wegen eines schlechten Scans; wer sie durchwinkt, hat die Prüfziffer umsonst.</p>
+    <div class="feld">Lösung</div>
+    <p>Jede Assertion trägt eine Konfidenz, das Minimum über ihre Wörter. Fällt ein Prüfziffern- oder Summenvergleich durch und liegt die Konfidenz unter der Katalogschwelle, ist das Ergebnis <code>re_extraction_required</code>, nicht <code>verletzt</code>. Zehn von vierzehn Regeln kennen diesen Pfad; der Rauchtest führt ihn mit einem echten, absichtlich schlechten Scan vor.</p>
+    <div class="feld">Warum es zählt</div>
+    <p>Die Grenze zwischen Lesen und Entscheiden ist die wichtigste Linie im System. Die Extraktion kennt die Schwelle nicht, das Regelwerk kennt keine Bilder, und trotzdem greifen beide an derselben Stelle ineinander.</p>
+  </div>
+
+  <div class="problem">
+    <div class="art">Datenmodell</div>
+    <h3>Die Akte statt des Dokuments</h3>
+    <div class="feld">Problem</div>
+    <p>Zwei Belege widersprechen sich, ein B/L liegt erst als Entwurf vor, eine Rechnung kommt zweimal. Ein Dokumentenmodell muss dann entscheiden, welches gewinnt, und verliert dabei, was das andere sagte.</p>
+    <div class="feld">Lösung</div>
+    <p>Belege liefern Assertions mit Fundstelle und Konfidenz, die nie überschrieben werden. Fakten entstehen nur aus finalen Belegen; ein Entwurf bleibt sichtbar, setzt aber nichts. Die Pflichtmatrix fragt nach Nachweisen, nicht nach Dokumenten, und nennt je Nachweis, wer ihn liefern muss. Damit läuft eine Rechnung als XML-Datensatz mit Konfidenz 1 und ohne Fundstelle durch dieselben Regeln wie ein Scan.</p>
+    <div class="feld">Warum es zählt</div>
+    <p>Eine Nachforderung braucht Feld, Grund und Adressat. Das geht nur, wenn das System weiß, welcher Nachweis fehlt und wer ihn schuldet, und nicht bloß, dass ein PDF nicht da ist.</p>
+  </div>
+
+  <div class="problem">
+    <div class="art">Nahtstelle</div>
+    <h3>Zwei IDP-Anbieter, ein Feldextraktor</h3>
+    <div class="feld">Problem</div>
+    <p>Das Anforderungsprofil verlangt Erfahrung mit gängigen IDP-Werkzeugen. Ein Anbieter, der fertige Feldwerte liefert, würde die eigene Extraktion ersetzen und den Vergleich wertlos machen. Gebraucht wurde ein Anbieter genau an der Schicht „Lesen“, mit Wörtern, Koordinaten und Konfidenz.</p>
+    <div class="feld">Lösung</div>
+    <p>Google Document AI und Azure Document Intelligence liefern beide Wörter mit Umriss. Je Anbieter eine Übersetzungsfunktion in dieselbe Form wie der lokale Leser, Antworten einmal aufgezeichnet und im Repo, Tests und Bewertung ohne Zugang. Der erste Lauf lag bei Azure bei 26,8 Prozent, bei Google bei 86,3 Prozent. Beide Male steckte der Fehler in der Übersetzung: Zeilen sind bei den Anbietern Zellen, Satzzeichen und Bindestriche werden abgetrennt, und ein schiefer Scan lässt die Oberkante mit dem Abstand wandern. Korrigiert wurde je eine Stelle im Anbietermodul. Kein Feldextraktor, keine Regel, kein Pfad wurde angefasst. Ergebnis: alle drei Leser 570 von 570 Feldern, 8 von 8 Entscheidungen.</p>
+    <div class="feld">Warum es zählt</div>
+    <p>Ein Anbieter hinter einer Nahtstelle kann Zufall sein. Zwei Anbieter mit gegensätzlichen Eigenheiten, die beide nur eine Übersetzung brauchten, sind ein Beleg. Und der Weg dorthin zeigt eine Lehre, die zweimal gebraucht wurde: Ein Schemabeispiel aus dem Gedächtnis prüft die eigene Vorstellung, nicht die Wirklichkeit. Erst die echte Antwort gegen das Golden Set fand die Fehler.</p>
+  </div>
+
+  <div class="problem">
+    <div class="art">Verantwortung</div>
+    <h3>Übersteuern, ohne umzuentscheiden</h3>
+    <div class="feld">Problem</div>
+    <p>Ein Befund ist fachlich richtig, aber die Sendung muss trotzdem raus. Wer den Befund ändert, verliert die Spur. Wer nichts ändern kann, hat kein Werkzeug.</p>
+    <div class="feld">Lösung</div>
+    <p>Eine Übersteuerung ist ein eigener Datensatz mit Name aus der Anmeldung am Proxy, Begründung und der Fassung des Regelkatalogs. Das Regelergebnis bleibt stehen; daneben entsteht <code>freigabe_nach_override</code>, und der HTTP-Status folgt dieser zweiten Spalte. Ändert sich der Katalog, ist die Übersteuerung verbraucht und muss neu verantwortet werden.</p>
+    <div class="feld">Warum es zählt</div>
+    <p>Die Frage „wer hat das entschieden, und auf welcher Grundlage“ hat immer eine Antwort. Ein Audit sieht beides: was das System sagte und wer es überstimmt hat.</p>
+  </div>
+
+  <div class="problem">
+    <div class="art">Betrieb</div>
+    <h3>Ein gescheiterter Lauf ist keine Freigabe</h3>
+    <div class="feld">Problem</div>
+    <p>Fällt der Extraktionsdienst aus, bricht der Workflow ab. n8n zählt einen abgefangenen Fehler als erfolgreichen Lauf, und der Aufrufer bekommt entweder nichts oder eine leere Antwort, die wie ein Ergebnis aussieht.</p>
+    <div class="feld">Lösung</div>
+    <p>Jeder kritische Node hat einen Fehlerausgang, der den Fehler in eine eigene Tabelle schreibt, eine Wiedervorlage ablegt und mit 500 samt Ausführungsnummer antwortet. Ein eigener Webhook wiederholt den Lauf aus der Wiedervorlage. Die Alarmregel zählt nicht Erfolge, sondern das Wachstum der Fehlertabelle, weil die Erfolgszähler von n8n hier lügen würden.</p>
+    <div class="feld">Warum es zählt</div>
+    <p>Monitoring, das die falsche Zahl anschaut, ist schlimmer als keines. Der Rauchtest hat zwei eigene Runden dafür: Eine kaputte Akte muss 500 geben und in der Fehlertabelle stehen; dann wird der Extraktionsdienst angehalten, die Antwort muss 500 mit <code>wiederholbar</code> sein, und die Wiederholung nach dem Neustart muss dieselbe Entscheidung liefern wie ein normaler Lauf.</p>
+  </div>
+
+  <div class="problem">
+    <div class="art">Details</div>
+    <h3>Was man erst im Betrieb merkt</h3>
+    <div class="feld">Problem und Lösung</div>
+    <p>Fünf Punkte, die kein Lesen des Codes zeigt, je mit der Behebung:</p>
+    <ul>
+      <li><strong>n8n:</strong> <code>$input.first()</code> liefert in einer Verzweigung <code>undefined</code>, nicht ein leeres Objekt; der Fehlerausgang eines Nodes ist Ausgang 1, nicht 0. Beides steht jetzt als Hausstil im Repo.</li>
+      <li><strong>Ratenlimit:</strong> Die kostenlose Stufe von Azure erlaubt 20 Aufrufe pro Minute; die Aufzeichnung lief schneller. Lösung: Backoff nach <code>Retry-After</code>, kein Beleg geht verloren.</li>
+      <li><strong>Shell:</strong> <code>curl | grep -q</code> unter <code>pipefail</code> bricht auf dem CI-Läufer ab, lokal nie. Lösung: erst einfangen, dann suchen.</li>
+      <li><strong>Browser:</strong> Chromium auf Linux rendert sieben Pixel höher als auf Windows; die Aktenspalte bekam in der CI einen Rollbalken. Lösung: Kopf und Fuß je vier Pixel schmaler, Test bei 900 Pixel Höhe.</li>
+      <li><strong>Windows:</strong> Die Git-Bash schreibt <code>/repo/...</code> in Docker-Aufrufen zu einem Windows-Pfad um. Lösung: <code>MSYS_NO_PATHCONV=1</code>, im Betriebshandbuch notiert.</li>
+    </ul>
+    <div class="feld">Warum es zählt</div>
+    <p>Keiner dieser Punkte steht in einer Dokumentation der Werkzeuge. Man findet sie, indem man den Stack wirklich hochfährt, die CI wirklich rot werden lässt und den Fehler bis zur Ursache verfolgt. Das ist der Unterschied zwischen fertig gebaut und fertig geprüft.</p>
+  </div>
+</section>
+
+<section class="abschnitt">
+  <h2>Datenmodell</h2>
+  <p>Zwölf Tabellen, alle nur anhängend. Nichts wird überschrieben, eine neue Prüfung ist eine neue Zeile.</p>
+  <table>
+    <thead><tr><th>Tabelle</th><th>Zweck und Besonderheit</th></tr></thead>
+    <tbody>
+      <tr><td><code>shipment</code>, <code>document</code></td><td>Die Sendung mit Stammdaten und Fristen; jeder Beleg mit Hash, Typ, Status (Entwurf oder final) und Aussteller. Ein unbekannter Beleg hängt als <code>unclassified</code> mit Hinweis daran, wird nie verworfen.</td></tr>
+      <tr><td><code>document_field_assertion</code></td><td>Was ein Beleg sagt: Pfad, Wert, Rohwert, Konfidenz, Seite, Box, Methode. Nie überschrieben, je Prüfung neu angehängt.</td></tr>
+      <tr><td><code>canonical_fact</code></td><td>Der Aktenwert je Pfad, abgeleitet nur aus finalen Belegen, mit Herkunft.</td></tr>
+      <tr><td><code>pruefung</code></td><td>Entscheidung, Befunde je Regel, Pflichtbefunde, Nachforderungen, Freigabe und Freigabe nach Übersteuerung, Katalogfassung. Quelle der fachlichen Zähler im Monitoring.</td></tr>
+      <tr><td><code>override</code></td><td>Wer welchen Befund mit welcher Begründung übersteuert hat, gebunden an die Katalogfassung; die View <code>override_wirkung</code> zeigt, ob eine Übersteuerung noch gilt oder verbraucht ist.</td></tr>
+      <tr><td><code>request_case</code>, <code>request_versand</code></td><td>Die Nachforderung als Vorgang: Feld, Grund, Adressat, Frist, Stufe (neu, erinnert, eskaliert), und jeder Versand mit Zeitpunkt und Empfänger.</td></tr>
+      <tr><td><code>mail_eingang</code></td><td>Jede eingegangene Mail mit Zuordnung zur Akte oder dem Grund, warum keine möglich war.</td></tr>
+      <tr><td><code>workflow_fehler</code>, <code>wiedervorlage</code></td><td>Ein gescheiterter Lauf mit Node, Fehler und Ausführungsnummer, ohne Belegtext; daneben, was erneut hineinmüsste, damit er wiederholt werden kann.</td></tr>
+      <tr><td><code>alarm</code></td><td>Jeder Alarm vom Alertmanager als Zeile mit Beginn und Ende.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="abschnitt">
+  <h2>Qualität und offene Punkte</h2>
+  <table>
+    <thead><tr><th>Maßnahme</th><th>Was sie leistet</th></tr></thead>
+    <tbody>
+      <tr><td>Gates im Hook und in der CI</td><td>Beleg-Check: jede Behauptung über die Arbeitsweise hat einen Pfad im Repo, jede ADR ihre Pflichtabschnitte. Prosa-Check gegen ausgeschriebene Umlaute. Verweis-Check gegen tote Links. Regel-Check: keine nackte Zahl im Regelcode, jede Regel mit Test und Katalogeintrag. Workflow-Check: Struktur, keine Geheimnisse, Bild je Workflow. Diagramm-Check: Bild passt zur Quelle.</td></tr>
+      <tr><td>Tests in vier Sprachen</td><td>141 in JavaScript (Regeln, Validatoren, Akte, alle Testakten gegen ihre Erwartung), 147 in Python (Extraktion, OCR, CII, Anbieter, Modellvorschlag), 92 Unit- und 23 Ende-zu-Ende-Tests in Angular mit axe über jede Ansicht, 12 für den eigenen n8n-Node ohne n8n.</td></tr>
+      <tr><td>Golden Set und Basislinie</td><td>Acht synthetische Akten mit 32 Belegen, byteidentisch reproduzierbar; Field Exact Match je Belegtyp und Entscheidung je Akte gegen eine bewusst geschriebene Basislinie. Ein Lauf darunter ist rot.</td></tr>
+      <tr><td>Rauchtest gegen den Stack</td><td>Neun Runden: Akten, PDFs, Proxy, Übersteuerung, gescheiterter Lauf, Wiederholung, Monitoring, Nachforderung, Posteingang. Läuft im CI-Job <code>betrieb</code> nach <code>docker compose up</code>.</td></tr>
+      <tr><td>Datenschutz</td><td>Nur synthetische Belege; kein Belegtext im Log; jeder Modell- und Anbieteraufruf nur aus Aufzeichnungen, Zugänge nur aus der Umgebung; Pseudonymisierung vor jedem Modellaufruf.</td></tr>
+      <tr><td>Entwicklungslog</td><td>Je Sitzung: was gebaut wurde, was nicht funktionierte, was die Tests gefunden haben, Zeitschätzung. Mit den Fehlern, nicht ohne.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="kasten bernstein">
+    <div class="titelchen">Was die Vergleichsläufe gefunden haben</div>
+    Beide IDP-Anbieter lagen im ersten Lauf unter der Basislinie, Azure bei 26,8 Prozent, Google
+    bei 86,3 Prozent, und beide Male war die eigene Übersetzung schuld, nicht der Anbieter.
+    Alle Tests waren vorher grün, weil sie dieselbe Annahme trugen wie der Code. Dass es hier
+    steht, ist Absicht: Der Wert eines Vergleichslaufs liegt darin, dass er die eigene
+    Vorstellung gegen die Wirklichkeit hält.
+  </div>
+
+  <h3>Offen, und so benannt</h3>
+  <ul>
+    <li><strong>Jahre im Betrieb.</strong> Das Repo zeigt, wie n8n produktionstauglich eingesetzt wird; es kann nicht ersetzen, einen Betrieb über Monate getragen zu haben. Das steht so im Anforderungsmapping.</li>
+    <li><strong>Echte Belege.</strong> Alle Belege sind synthetisch, eine Layoutfamilie, ein Scan. Wie gut die Extraktion auf fremden Rechnungen liest, ist hier nicht messbar; die Regeln sagen dann <code>nicht_pruefbar</code>.</li>
+    <li><strong>DMS, ERP, Kubernetes.</strong> Die Ablage ist Postgres, der Betrieb ein Compose auf einer Maschine. Die Stellen dafür sind benannt, gebaut sind sie nicht.</li>
+    <li><strong>Rechtsverweise.</strong> Alle aus Sekundärrecherche; keine Regel trägt <code>verified</code>. Vor einem echten Einsatz prüft das ein Zollfachmensch.</li>
+  </ul>
+
+  <h3>Stand</h3>
+  <p>Der Stack läuft lokal mit einem Befehl, die CI ist grün, alle Anforderungen des Anforderungsprofils sind im Mapping mit Beleg oder mit dem ehrlichen Vermerk versehen, was ein Portfolio-Projekt nicht zeigen kann.</p>
+</section>
+
+<section class="abschnitt seitenumbruch">
+  <h2>Einblicke</h2>
+  <figure>
+    <img src="../bilder/workflow-zollpilot-akte-pruefen.png" alt="Der Workflow Akte prüfen im n8n-Editor">
+    <figcaption>Der Hauptworkflow im Editor: zwei Eingänge, ein Code-Node, der entscheidet, Ablage, Verzweigung, und darunter der Fehlerzweig mit Wiedervorlage.</figcaption>
+  </figure>
+  <figure>
+    <img src="../bilder/prozesslandschaft.svg" alt="Prozesslandschaft als BPMN mit fünf Bahnen">
+    <figcaption>Prozesslandschaft als BPMN 2.0, aus der Quelldatei gezeichnet: fünf Rollen, eine Akte, von der angelegten Sendung bis zur Antwort auf eine Nachforderung.</figcaption>
+  </figure>
+  <div class="bilder">
+    <figure>
+      <img src="../bilder/oberflaeche-einreichung.png" alt="Oberfläche: Akte einreichen">
+      <figcaption>Einreichen: Stammdaten und Belege, hinter der Anmeldung am Proxy.</figcaption>
+    </figure>
+    <figure>
+      <img src="../bilder/oberflaeche-uebersicht.png" alt="Oberfläche: Übersicht aller Akten">
+      <figcaption>Übersicht: Entscheidung je Akte, offene Nachforderungen, unzugeordnete Post. Die Zahlen kommen aus Postgres; entschieden wird hier nichts.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="abschnitt">
+  <h2>Was das Projekt zeigt</h2>
+  <table>
+    <thead><tr><th>Fähigkeit</th><th>Wo sie sichtbar wird</th></tr></thead>
+    <tbody>
+      <tr><td>n8n in Produktion gedacht</td><td>Entscheidung außerhalb des Workflows, Code-Node als Build-Artefakt, eigener Node, Fehlerpfad mit Wiedervorlage, Import beim Start, Betriebshandbuch mit Runbook je Alarm</td></tr>
+      <tr><td>IDP und OCR</td><td>Textlayer und Tesseract mit Koordinaten, fünf Belegtypen, CII in beide Richtungen, zwei Anbieter hinter einer Nahtstelle, Golden Set mit Basislinie</td></tr>
+      <tr><td>Zollfachlichkeit</td><td>Dokumententypologie, Pflichtmatrix je Incoterm, 52 Regeln im Katalog mit Rechtsgrundlage, Ausfuhrbegleitdokument mit MRN, Präferenznachweis, Grenzen des eigenen Wissens benannt</td></tr>
+      <tr><td>Architektur mit Begründung</td><td>Elf ADRs im Moment der Entscheidung, jede mit verworfenen Optionen, Nachteilen und dem Abschnitt, wann sie falsch wäre</td></tr>
+      <tr><td>Prüfen statt annehmen</td><td>Sieben Gates, 415 Tests, Rauchtest in neun Runden, Vergleichsläufe gegen echte Anbieter, ein Entwicklungslog mit den Fehlern</td></tr>
+      <tr><td>Prozessdokumentation</td><td>Prozesslandschaft als BPMN, Datenfluss und Systemlandschaft aus Quelldateien gezeichnet, sieben Workflows als Bild, alles mit Gate gegen Veralten</td></tr>
+      <tr><td>KI als Werkzeug, mit Grenze</td><td>Gebaut mit KI-Agenten, jede Sitzung protokolliert; ein Modell schlägt vor und entscheidet nie, hinter Pseudonymisierung und aus Aufzeichnungen</td></tr>
+      <tr><td>Übergabe</td><td>Ein Befehl für den Stack, Betriebshandbuch, Alarme mit Handgriffen, Anforderungsmapping als Vertrag</td></tr>
+    </tbody>
+  </table>
+  <table>
+    <tbody>
+      <tr><td><strong>Stand</strong></td><td>September 2026 · lokal lauffähig mit <code>docker compose up -d --wait</code></td></tr>
+      <tr><td><strong>Kontakt</strong></td><td>Gabriel Suter · kontakt@gabrielsuter.dev · gabrielsuter.dev</td></tr>
+      <tr><td><strong>Quellcode</strong></td><td>github.com/SuterGabriel/ZollPilot, öffentlich, mit Entwicklungslog und allen Entscheidungen</td></tr>
+      <tr><td><strong>Auftraggeber</strong></td><td>Eine Anforderungsprofil, wörtlich erfasst in <code>docs/ANFORDERUNGEN.md</code>, Punkt für Punkt mit Beleg</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</div>
+</body>
+</html>

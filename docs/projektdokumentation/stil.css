@@ -1,0 +1,98 @@
+/* Projektdokumentation ZollPilot. Aufbau und Stil folgen der Vorlage
+   (dunkle Titelseite, helle Innenseiten, Serife für Titel, Grotesk für Text,
+   ein Akzent in Petrol). Gerendert mit rendern.mjs zu PDF, A4. */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Lato:wght@400;700&family=JetBrains+Mono:wght@400&display=swap');
+
+:root {
+  --tinte: #0f172a;
+  --grau: #475569;
+  --hell: #f1f5f9;
+  --linie: #e2e8f0;
+  --akzent: #0d9488;
+  --akzent-hell: #ccfbf1;
+  --nacht: #0b1220;
+  --nacht-karte: #141c2b;
+  --nacht-linie: #26324a;
+  --nacht-text: #cbd5e1;
+  --bernstein: #fffbeb;
+  --bernstein-rand: #d6a844;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: 'Lato', 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.5;
+  color: var(--tinte);
+  background: white;
+}
+h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; margin: 0; }
+code { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 0.88em; background: var(--hell); padding: 0.05em 0.35em; border-radius: 3px; }
+p { margin: 0 0 0.75em; }
+strong { font-weight: 700; }
+
+/* Titelseite */
+.titel {
+  background: var(--nacht);
+  color: white;
+  height: 297mm;
+  overflow: hidden;
+  padding: 24mm 22mm 18mm;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.titel .marke { color: var(--akzent); letter-spacing: 0.35em; font-size: 8.5pt; text-transform: uppercase; margin-bottom: 16mm; }
+.titel h1 { font-size: 38pt; line-height: 1.05; margin-bottom: 6mm; }
+.titel .unter { font-size: 13.5pt; color: #e2e8f0; margin-bottom: 7mm; }
+.titel .strich { width: 30mm; height: 2px; background: var(--akzent); margin-bottom: 8mm; }
+.titel .einleitung { color: var(--nacht-text); max-width: 150mm; font-size: 10.5pt; margin-bottom: 10mm; }
+.kacheln { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; margin-bottom: 10mm; }
+.kachel { background: var(--nacht-karte); border: 1px solid var(--nacht-linie); border-radius: 3px; padding: 5mm 5mm 4mm; min-height: 27mm; }
+.kachel .zahl { color: #2dd4bf; font-size: 20pt; font-weight: 700; font-family: 'Lato', sans-serif; margin-bottom: 3mm; }
+.kachel .text { color: #94a3b8; font-size: 8.5pt; line-height: 1.4; }
+.titel .fuss { border-top: 1px solid var(--nacht-linie); padding-top: 6mm; font-size: 8.5pt; color: #94a3b8; line-height: 1.7; }
+.titel .fuss strong { color: white; }
+
+/* Innenseiten */
+.inhalt { padding: 0 2mm; counter-reset: abschnitt; }
+section.abschnitt { counter-increment: abschnitt; margin-top: 9mm; }
+section.abschnitt > h2 {
+  font-size: 18pt; padding-bottom: 2.5mm; margin-bottom: 4mm;
+  border-bottom: 2px solid var(--akzent);
+}
+section.abschnitt > h2::before { content: counter(abschnitt); color: var(--akzent); font-weight: 500; margin-right: 4mm; }
+h3 { font-size: 12.5pt; margin: 6mm 0 2.5mm; }
+.abschnitt > p:first-of-type, .abschnitt .lead { color: var(--grau); }
+
+ul { margin: 0 0 3mm; padding-left: 4.5mm; }
+li { margin-bottom: 1.4mm; }
+li strong { color: var(--tinte); }
+
+table { width: 100%; border-collapse: collapse; margin: 2mm 0 5mm; font-size: 9.5pt; page-break-inside: auto; }
+thead th { background: var(--tinte); color: white; text-align: left; font-weight: 700; padding: 2.4mm 3mm; font-size: 8.5pt; }
+tbody td { padding: 2.4mm 3mm; vertical-align: top; border-bottom: 1px solid var(--linie); }
+tbody tr:nth-child(even) td { background: #f8fafc; }
+tbody td:first-child { white-space: nowrap; }
+tr { page-break-inside: avoid; }
+td code { white-space: nowrap; }
+
+.kasten { border-left: 3px solid var(--akzent); background: #f0fdfa; padding: 3.5mm 5mm; margin: 4mm 0 6mm; page-break-inside: avoid; }
+.kasten .titelchen { font-weight: 700; font-size: 9.5pt; margin-bottom: 1.5mm; }
+.kasten.bernstein { border-color: var(--bernstein-rand); background: var(--bernstein); }
+
+.problem { border-left: 3px solid var(--akzent); background: #f8fafc; padding: 4mm 5mm 2mm; margin: 0 0 5mm; page-break-inside: avoid; }
+.problem .art { color: var(--akzent); font-size: 7.5pt; letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 1.5mm; }
+.problem h3 { margin: 0 0 2.5mm; font-size: 12pt; }
+.problem .feld { font-size: 8pt; font-weight: 700; color: var(--grau); margin: 2mm 0 0.5mm; }
+.problem p { margin-bottom: 1.5mm; }
+
+figure { margin: 3mm 0 5mm; page-break-inside: avoid; }
+figure img { width: 100%; display: block; border: 1px solid var(--linie); border-radius: 3px; }
+figure.schmal img { width: 70%; margin: 0 auto; }
+figcaption { font-size: 8.5pt; color: var(--grau); margin-top: 1.5mm; }
+.bilder { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+.bilder figure { margin: 0; }
+
+.seitenumbruch { page-break-before: always; }
+.nicht-trennen { page-break-inside: avoid; }

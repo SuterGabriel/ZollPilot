@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@viz-js/viz": "^3.30.0",
-    "bpmn-js": "^18.28.0"
+    "bpmn-js": "^18.28.0",
+    "pdf-lib": "^1.17.1"
   }
 }
