@@ -18,6 +18,7 @@ rekonstruiert Begründungen, die er nie hatte, und das merkt man ihnen an.
 | [ADR-008](docs/adr/ADR-008-strukturierte-rechnung-ist-ein-beleg.md) | Eine strukturierte Rechnung (UN/CEFACT CII) ist ein Beleg wie jeder andere: dieselben Pfade, Methode `strukturiert`, Konfidenz 1, keine Fundstelle; gegen das Schema validiert, in beide Richtungen | angenommen | 2026-09-12 |
 | [ADR-009](docs/adr/ADR-009-die-akte-lebt.md) | Die Akte lebt: Nachforderungen als Vorgang mit Zustand in einem eigenen Workflow, Fristen als Cut-offs je Akte statt Kalendertage, GreenMail für Versand und Eingang, Identität beim Übersteuern über den Proxy | angenommen | 2026-09-12 |
 | [ADR-010](docs/adr/ADR-010-die-akte-wird-abgelegt.md) | Die Akte wird abgelegt: Stammdaten, Dokumente und Assertions je Prüfung in Postgres, nur anhängend; ein Mail-Eingang ergänzt die abgelegte Akte um den neuen Beleg und prüft erneut. Die Originale bleiben vorgesehen | angenommen | 2026-09-12 |
+| [ADR-011](docs/adr/ADR-011-das-modell-schlaegt-vor.md) | Das Modell schlägt einen Belegtyp vor, wenn die Regeln schweigen; der Typ bleibt `unclassified`, der Vorschlag hängt mit Modell, Konfidenz und Begründung daneben. Pseudonymisierung vor jedem Aufruf, Antworten als Aufzeichnung im Repo | angenommen | 2026-09-13 |
 
 Vorgesehen, noch nicht entschieden: Intake über Mail (Stufe 2), sekundäre
 Extraktion mit Vision-Modell samt Pseudonymisierung (Stufe 3b), echte

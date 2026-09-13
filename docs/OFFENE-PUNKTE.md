@@ -75,6 +75,18 @@ bis dahin ist der Katalog ehrlich markiert.
 
 ## Technisch offen
 
+- **Der Klassifikationsfallback hilft nur beim Schweigen, nicht beim Irrtum.**
+  Ein Modell schlägt einen Belegtyp vor, wenn die Regeln keinen finden
+  (ADR-011). Klassifizieren die Regeln falsch, greift er nicht: Ein
+  CMR-Frachtbrief, der das Wort Handelsrechnung enthält, wird zur
+  Handelsrechnung und kommt nie beim Modell an. Ein zweiter Pfad über niedrige
+  Konfidenz statt nur über `unclassified` wäre die Antwort und ist nicht
+  gebaut.
+- **Die Pseudonymisierung ist musterbasiert.** Sie fängt Firmen mit
+  Rechtsform, Anschriften, Kennnummern und beschriftete Parteifelder. Ein
+  ungewöhnlicher Name ohne Rechtsform und ohne Anschrift kann durchrutschen.
+  Vor echten Belegen gehört sie gegen einen echten Belegmix gemessen
+  (`docs/DATENSCHUTZ.md`).
 - **Katalog im Code-Node eingebettet** (ADR-004). Eine Schwellenänderung
   braucht Bundle und Import. Laden aus Postgres zur Laufzeit wäre der nächste
   Schritt.

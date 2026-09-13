@@ -873,3 +873,36 @@ Doku; alles andere bleibt, auch was die Übersetzung nicht liest.
 Anschluss und zwei Korrekturrunden etwa anderthalb Stunden Agentenzeit. Von
 Hand geschätzt: ein Tag, davon der größte Teil für das Nachvollziehen, warum
 eine Nummer mit Bindestrichen auseinanderfällt. Schätzung, keine Messung.
+
+## 2026-09-13: Stufe 3b, der Klassifikationsfallback
+
+**Was entstand.** Ein Modell schlägt einen Belegtyp vor, wenn die Regeln
+keinen finden: die Pseudonymisierung, die das Datenschutzdokument seit dem
+ersten Tag als Bedingung nennt, eine Nahtstelle zu Anthropic nach dem Muster
+der IDP-Anbieter, der Anschluss in `akte.py`, zwanzig Tests und ADR-011.
+
+**Die Entscheidung, an der alles hängt.** Der Vorschlag ist kein Typ. Er
+hängt unter `klassifikation.vorschlag` neben dem Dokument, das
+`unclassified` bleibt. Der Grund ist die Pflichtmatrix: Sie fragt, ob ein
+Beleg eines Typs vorliegt. Ein geratener Typ könnte eine Nachweispflicht
+erfüllen und eine Sendung freigeben; dann stünde ein Modell in der
+Entscheidungsschicht, und die vierte Regel wäre gebrochen. Der Beleg-Check
+prüft diese Grenze jetzt als Zusage, an der Stelle, an der bis heute
+"kein Modellaufruf in der Extraktion" stand.
+
+**Was der erste Test gefunden hat.** Der CMR-Frachtbrief, an dem der Fallback
+gezeigt werden sollte, wurde von den Regeln als Handelsrechnung eingeordnet:
+Feld 5 nennt die beigefügten Dokumente, und dort stand das Wort. Der Fallback
+greift nur, wenn die Regeln schweigen, nicht wenn sie sich irren. Das steht
+jetzt in ADR-011 unter den Nachteilen und in den offenen Punkten, statt in
+einem Testtext versteckt zu werden.
+
+**Was noch fehlt.** Die Aufzeichnung. Ohne Schlüssel gibt es keine echte
+Modellantwort im Repo, und der eine Test, der sie prüfen würde, wird
+übersprungen statt grün behauptet. Die Mechanik ist bewiesen, die Antwort
+nicht.
+
+**Zeitschätzung.** Delegiert: gut eine Stunde. Von Hand: zwei Tage, das
+meiste davon für die Pseudonymisierung und die Frage, was ein Vorschlag
+eigentlich sein darf.
+
