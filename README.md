@@ -22,7 +22,7 @@ Stand 12. September 2026, Stufen 0 bis 4 des Plans in
 | Sachverhalt | Ausfuhr Drittland, Seefracht FCL, Präferenz beansprucht |
 | Regeln | 14 ausführbar in [rules.yaml](rules.yaml), über 40 im Katalog [docs/03](docs/03-regelwerk-vollstaendig.md) |
 | Pflichtmatrix | 7 Einträge in [pflichtmatrix.yaml](pflichtmatrix.yaml): Nachweis statt Dokument, darunter die MRN aus dem Ausfuhrbegleitdokument |
-| Extraktion (IDP/OCR) | Python-Dienst in [extraktion/](extraktion/): Textlayer mit Koordinaten oder Tesseract mit Wortkonfidenzen, Klassifikation, Felder je Belegtyp (Handelsrechnung, Packliste, B/L, Ursprungserklärung, Ausfuhrbegleitdokument), jede Assertion mit Fundstelle (ADR-005). Eine Rechnung als UN/CEFACT-CII-XML läuft als Beleg ohne Leseunsicherheit durch dieselbe Kette, in beide Richtungen gegen das Schema validiert (ADR-008). Ein zweites Lesemodul für Azure Document Intelligence liest dieselben 32 Belege aus aufgezeichneten Antworten: 570 von 570 Feldern, 8 von 8 Entscheidungen, gleichauf mit Tesseract. **Eine Layoutfamilie, synthetische Belege.** Was das heißt: [docs/EXTRAKTION.md](docs/EXTRAKTION.md) |
+| Extraktion (IDP/OCR) | Python-Dienst in [extraktion/](extraktion/): Textlayer mit Koordinaten oder Tesseract mit Wortkonfidenzen, Klassifikation, Felder je Belegtyp (Handelsrechnung, Packliste, B/L, Ursprungserklärung, Ausfuhrbegleitdokument), jede Assertion mit Fundstelle (ADR-005). Eine Rechnung als UN/CEFACT-CII-XML läuft als Beleg ohne Leseunsicherheit durch dieselbe Kette, in beide Richtungen gegen das Schema validiert (ADR-008). Zwei weitere Lesemodule, Google Document AI und Azure Document Intelligence, lesen dieselben 32 Belege aus aufgezeichneten Antworten: je 570 von 570 Feldern und 8 von 8 Entscheidungen, gleichauf mit Tesseract. **Eine Layoutfamilie, synthetische Belege.** Was das heißt: [docs/EXTRAKTION.md](docs/EXTRAKTION.md) |
 | Oberfläche | Angular 22 mit ngrx in [oberflaeche/](oberflaeche/): Belege einreichen, Entscheidung mit Begründung je Regel lesen, übersteuern (ADR-006, ADR-007); hinter der Anmeldung des Proxys, mit dem geprüften Namen (ADR-009); dazu die Übersicht aller Akten mit offenen Nachforderungen und unzugeordneter Post ([`docs/entwurf/04-uebersicht.md`](docs/entwurf/04-uebersicht.md)). Kontrast nachgerechnet, axe über jede Ansicht: [docs/OBERFLAECHE.md](docs/OBERFLAECHE.md) |
 | Tests | 125 in JavaScript (Prüfziffern gegen Referenzwerte, Grenzfälle je Regel, Konfidenzpfad), 134 in Python (Normalisierung, Klassifikation, Tabellen, CII gegen Schema, Anbieterleser, Ende zu Ende auf den PDFs), 92 + 23 in TypeScript (Zustand, Dienst, Darstellung; axe, Tastatur, kein Rollbalken), 12 für den eigenen n8n-Node |
 | Testdaten | 8 synthetische Akten als JSON, dieselben 8 als Belegsätze (PDF, je mit Ausfuhrbegleitdokument) in [testdaten/belege/](testdaten/belege/), erzeugt und byteidentisch reproduzierbar; der schlechte Scan ist ein echtes Bild für Tesseract |
@@ -31,7 +31,7 @@ Stand 12. September 2026, Stufen 0 bis 4 des Plans in
 | Posteingang | Eine Antwort mit Anhang findet ihre Akte über die Aktennummer (ADR-010): IMAP-Trigger, Extraktion nur der neuen Belege, Zusammenführung mit der abgelegten Akte, erneute Prüfung. Ohne Nummer steht die Mail als unzugeordnet in Postgres. Rauchtest Runde 9 |
 | Abgelegte Akte | Jede Prüfung legt Stammdaten, Belege und Assertions in Postgres ab, nur anhängend, je Beleg eindeutig über Kennung und Hash (ADR-010). Die Originale nicht |
 | Nachforderung | Ein Vorgang, kein Text (ADR-009): je fehlendem Wert ein Fall mit Stufe und Versanddatum, täglich oder auf Zuruf abgeglichen, Stufen relativ zu den Cut-offs der Akte aus [`zustaendigkeiten.yaml`](zustaendigkeiten.yaml), Versand per SMTP an ein Testpostfach, jeder Versand festgehalten. Rauchtest Runde 8 spielt drei Tage durch |
-| Betrieb | `compose.yml` mit Postgres, Import, n8n, Extraktionsdienst und nginx; Rauchtest in sieben Runden gegen den laufenden Stack: Akten, PDFs, Oberfläche, Übersteuerung, gescheiterter Lauf, Wiederholung, Monitoring |
+| Betrieb | `compose.yml` mit zehn Diensten: Postgres, Import, n8n, Extraktionsdienst, nginx, GreenMail, Prometheus, Alertmanager, SQL-Exporter, Grafana ([Systemlandschaft](docs/prozess/systemlandschaft.md)); Rauchtest in neun Runden gegen den laufenden Stack: Akten, PDFs, Oberfläche, Übersteuerung, gescheiterter Lauf, Wiederholung, Monitoring, Nachforderung, Posteingang |
 | Monitoring | Prometheus, Alertmanager, SQL-Exporter und Grafana im selben Stack: fachliche Zähler aus der Prüftabelle (Freigaben, Befunde je Regel, Nachextraktion), Lesemetriken der Extraktion, elf Alarmregeln mit Runbook je Alarm, Alarme landen über n8n als Zeile in Postgres; gescheiterte Läufe lassen sich über `POST /webhook/wiederholen` wiederholen. [docs/BETRIEB.md](docs/BETRIEB.md) |
 | Rechtsverweise | Sekundärrecherche, keine Regel trägt `verified` ([docs/08](docs/08-known-unknowns.md)) |
 
@@ -39,7 +39,7 @@ Stand 12. September 2026, Stufen 0 bis 4 des Plans in
 
 ```bash
 npm ci
-npm test                                      # 125 Tests
+npm test                                      # 141 Tests
 node src/cli.mjs testdaten/akten/*.json       # acht Akten, acht Entscheidungen
 npm run check                                 # Belege, Prosa, Verweise, Regeln
 ```
@@ -48,7 +48,7 @@ Extraktion (Python 3.12+, [uv](https://docs.astral.sh/uv/)):
 
 ```bash
 cd extraktion && uv sync
-uv run pytest                                            # 134 Tests; OCR-Tests ohne Tesseract übersprungen
+uv run pytest                                            # 147 Tests; OCR-Tests ohne Tesseract übersprungen
 uv run python -m zollpilot_extraktion --ordner ../testdaten/belege/happy-path   # PDF → Akte
 uv run python -m zollpilot_extraktion.bewertung          # gegen die Basislinie
 uv run python -m zollpilot_extraktion.anbieter stand     # Vergleichslauf: was aufgezeichnet ist
@@ -123,7 +123,7 @@ Belege (PDF)                                  Akte (Dokumente + Assertions)
 | [docs/EXTRAKTION.md](docs/EXTRAKTION.md) | die Extraktion: Schichten, Konfidenz, Messung, Grenzen |
 | [docs/OBERFLAECHE.md](docs/OBERFLAECHE.md) | die Oberfläche: Zustand, die 422-Falle, Barrierefreiheit, was sie nicht kann |
 | [docs/entwurf/](docs/entwurf/) | Prompts für Wireframe und Mockup, der Entwurf, an dem die Oberfläche ausgerichtet wird |
-| [docs/prozess/](docs/prozess/) | Prozesslandschaft mit Status je Schritt, Datenfluss bis ins Monitoring, dieselbe Landschaft als BPMN 2.0 |
+| [docs/prozess/](docs/prozess/) | Prozesslandschaft mit Status je Schritt, Datenfluss bis ins Monitoring, dieselbe Landschaft als BPMN 2.0; dazu [Systemlandschaft](docs/prozess/systemlandschaft.md) mit Containern und Ports und [die sieben Workflows als Bild](docs/prozess/workflows.md) |
 | [docs/PIPELINE.md](docs/PIPELINE.md) | Hook, Agenten-Hook, CI, und was nicht geprüft wird |
 | [docs/BETRIEB.md](docs/BETRIEB.md) | Start, Stopp, Logs, Fehler, was vor echtem Betrieb fehlt |
 | [docs/ENTWICKLUNGSLOG.md](docs/ENTWICKLUNGSLOG.md) | KI-Einsatz, ehrlich, inklusive der Fehler |
